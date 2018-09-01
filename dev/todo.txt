@@ -1,0 +1,9 @@
+things that should probably be done, but too preoccupied/lazy to do right now.
+
+* Add signup or last login date for the user so we can track which ones need to be deleted or verified
+
+
+security
+-----------
+* add two factor authentication by sending the user an email link or text.
+* add a change my password option

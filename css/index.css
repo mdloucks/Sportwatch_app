@@ -1,0 +1,13 @@
+body {
+    font-size: 10px;
+    background-color: white;
+    padding: 0;
+    margin: 0 auto;
+    height: 100%
+}
+
+header {
+    min-width: 100%;
+    padding: 0;
+    margin: 0 auto;
+}
