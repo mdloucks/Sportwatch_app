@@ -67,7 +67,24 @@ function DatabaseConnection(name) {
                 console.log('Transaction ERROR: ' + error.message);
                 reject(error);
             }, function () {
-                console.log("Successfully created athlete: " + athlete.fname);
+            });
+        });
+    }
+
+    /**
+     * deletes an athlete with the given info
+     * 
+     * @param {Array} athlete 
+     */
+    this.removeAthlete = function(athlete) {
+        return new Promise((resolve, reject) => {
+            this.db.transaction(function (tx) {
+                tx.executeSql("DELETE FROM athlete WHERE fname = ? AND lname = ? AND grade = ? AND gender = ?", athlete);
+                resolve();
+            }, function (error) {
+                console.log('Transaction ERROR: ' + error.message);
+                reject(error);
+            }, function () {
             });
         });
     }
@@ -99,7 +116,6 @@ function DatabaseConnection(name) {
                 console.log('Transaction ERROR: ' + error.message);
                 reject(error);
             }, function () {
-                console.log("getAthlete - Success");
             });
         });
     },
@@ -115,7 +131,6 @@ function DatabaseConnection(name) {
         }, function (error) {
             console.log('Transaction ERROR: ' + error.message);
         }, function () {
-            console.log("Successfully");
         });
     }
 };

@@ -5,3 +5,6 @@ feel free to leave questions which will be argued over religiously for the sake 
 ---------------------------------
 
 Schools and events submitted by users will be visible and selectable by other schools for easy access
+
+toggle buttons!
+https://www.w3schools.com/howto/howto_css_switch.asp

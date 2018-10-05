@@ -25,10 +25,26 @@ let CSSManager = {
         });
     },
 
+    styleEventsPage() {
+        $(".addButton").css({
+            "background-color": "Crimson",
+            "border": "none",
+            "color": "white",
+            "margin-left": "1em",
+            "padding": "10px 14px",
+            "font-size": "16px",
+        });
+
+        $(".addButton:hover").css({
+            "background-color" : "RoyalBlue"
+        });
+    },
+
     styleHomeHeader() {
 
         $("header").css({
             "margin" : "0 auto",
+            "margin-top": "1em",
             "min-width" : "100%",
             "text-align": "center"
         });
@@ -99,6 +115,78 @@ let CSSManager = {
         $("form").css({
             "display": "inline-block"
         });
+    },
+
+    styleAthlete_addPage() {
+
+        $("#app").css({
+            "text-align": "center"
+        });
+        $("form").css({
+            "display": "inline-block"
+        });
+        $("input").css({
+            "margin-top": "1em",
+            "border": "1.5px solid black"
+        });
+    },
+
+    styleAthletePage() {
+
+        $("#athlete_container").css({
+            "font-size" : "2em",
+        });
+
+        $("#app").css({
+            "background-color" : "light gray"
+        });
+
+        // $(".switch").css({
+        //     "position": "relative",
+        //     "display": "inline-block",
+        //     "width": "60px",
+        //     "height": "34px"
+        // });
+
+        // $(".switch input").css({"display": "none"});
+        
+        // $(".slider").css({
+        //     "position": "absolute",
+        //     "cursor": "pointer",
+        //     "top": "0",
+        //     "left": "0",
+        //     "right": "0",
+        //     "bottom": "0",
+        //     "background-color": "#ccc",
+        //     "-webkit-transition": ".4s",
+        //     "transition": ".4s"
+        // });
+          
+        // $(".slider:before").css({
+        //     "position": "absolute",
+        //     "content": "",
+        //     "height": "26px",
+        //     "width": "26px",
+        //     "left": "4px",
+        //     "bottom": "4px",
+        //     "background-color": "white",
+        //     "-webkit-transition": ".4s",
+        //     "transition": ".4s"
+        // });
+          
+        // $("input:checked + .slider").css({
+        //     "background-color": "#2196F3"
+        // });
+
+        // $("input:focus + .slider").css({
+        //     "box-shadow": "0 0 1px #2196F3"
+        // });
+        
+        // $("input:checked + .slider:before").css({
+        //     "-webkit-transform": "translateX(26px)",
+        //     "-ms-transform": "translateX(26px)",
+        //     "transform": "translateX(26px)"
+        // });
     },
 
     styleNavigationMenu() {

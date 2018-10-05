@@ -71,9 +71,24 @@ var StateManager = {
                     break;
                 case "athletes":
                     let athlete = new athletePage();
+
+                    athlete.onAddAthlete(() => {
+                        this.setState("new_athlete");
+                    });
+                    break;
+                case "new_athlete":
+                    let add_athlete = new add_athletePage();
+
+                    add_athlete.onAthleteAdded(() => {
+                        this.setState("athletes");
+                    });
+
                     break;
                 case "meets":
-                    UIManager.switchToMeets();
+                    let meets = new meetsPage();
+                    break;
+                case "events":
+                    let events = new eventsPage();
                     break;
                 case "progress":
                     UIManager.switchToProgress();

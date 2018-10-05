@@ -97,6 +97,7 @@ function TimerPage() {
     $(".athlete_container").click(function(e) { 
         e.preventDefault();
 
+        // the name of the althlete
         _this.selectedAthleteName = $(this).html().substring(0, $(this).html().indexOf(":")).trim();
         _this.selectedAthlete = this;
 

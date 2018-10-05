@@ -18,6 +18,9 @@ var app = {
         // if has not been initialized yet to prevent double loading
         if(!this.isReady) {
 
+        $(".loader").remove();
+        $("header").append("<p>Sportwatch</p>");
+
             // check if there's a session
             if(Authentication.hasSession()) {
                 Authentication.validateSID(Authentication.getSID()).then(function(response) {

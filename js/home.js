@@ -35,6 +35,7 @@ function homePage() {
         <a class="navigation_menu_link" id="link_team">Team</a>
         <a class="navigation_menu_link" id="link_athletes">Athletes</a>
         <a class="navigation_menu_link" id="link_meets">Meets</a>
+        <a class="navigation_menu_link" id="link_events">Events</a>
         <a class="navigation_menu_link" id="link_stats">Stats</a>
         <a class="navigation_menu_link" id="link_timer">Timer</a>
         <a class="navigation_menu_link" id="link_account">Acccount</a>
@@ -65,6 +66,12 @@ function homePage() {
         e.preventDefault();
         this.closeNavigationMenu();
         this.selectState("meets");
+    });
+
+    $("#link_events").click((e) => {
+        e.preventDefault();
+        this.closeNavigationMenu();
+        this.selectState("events");
     });
 
     $("#link_stats").click((e) => {
