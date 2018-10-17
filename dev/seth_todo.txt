@@ -1,0 +1,9 @@
+* Timer
+
+
+
+
+Questions for the boss
+ - Add notice when the user is logged out from invalid SID
+
+
