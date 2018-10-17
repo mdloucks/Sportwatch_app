@@ -2,6 +2,9 @@ things that should probably be done, but too preoccupied/lazy to do right now.
 
 * Add signup or last login date for the user so we can track which ones need to be deleted or verified
 
+* Integrate timer with meets
+
+* Check for SQLite
 
 security
 -----------
