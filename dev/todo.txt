@@ -3,10 +3,18 @@ things that should probably be done, but too preoccupied/lazy to do right now.
 * Add signup or last login date for the user so we can track which ones need to be deleted or verified
 
 * Integrate timer with meets
-
 * Check for SQLite
+* Error message for signup / login
+* Store user login locally so users don't have to re-login
 
 security
 -----------
 * add two factor authentication by sending the user an email link or text.
 * add a change my password option
+
+
+
+polish things to do last
+-----------
+* Fix navigation_menu on larger / smaller phones
+* Close navigation_menu if clicking outside of the menu i.e. to the right
