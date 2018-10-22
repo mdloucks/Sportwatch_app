@@ -7,14 +7,12 @@ var app = {
         document.addEventListener('deviceready', this.onReady.bind(this), false);
         document.addEventListener('pause', this.onPause.bind(this), false);
         document.addEventListener('resume', this.onResume.bind(this), false);
-
-
     },
 
     // when cordova has been fully loaded
     onReady() { 
         console.log("Device is ready");
-
+        sw_db.init();
         // if has not been initialized yet to prevent double loading
         if(!this.isReady) {
 

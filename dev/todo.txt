@@ -7,6 +7,13 @@ things that should probably be done, but too preoccupied/lazy to do right now.
 * Error message for signup / login
 * Store user login locally so users don't have to re-login
 
+general
+----------------
+apply css only to elements under #app, everything else should be static css
+create event listeners for list generated elements by creating id's for them and iterating through a loop instead of checking html strings
+back button for create athlete and meet
+make m/f required checkboxes
+
 security
 -----------
 * add two factor authentication by sending the user an email link or text.
@@ -18,3 +25,22 @@ polish things to do last
 -----------
 * Fix navigation_menu on larger / smaller phones
 * Close navigation_menu if clicking outside of the menu i.e. to the right
+application
+--------
+add a loading screen or refresh option on no internet access
+
+
+social networking
+-------------
+allow the athletes to join the team via link or "class code"
+allow the coach to send the athletes results of the meet via text/email 
+send the athletes notifications on the meet schedual/any other notes perscribed by the coach
+
+
+timer
+--------------
+have the user be able to swipe left or right to get to their different splits. eg on a 5k, go to 1 mile 2 mile and finish
+
+events
+-----------
+meet_id will all point to the same event, once the meet is done, create a new set of events that point towards the new meet id

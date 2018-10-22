@@ -38,6 +38,10 @@ let CSSManager = {
         $(".addButton:hover").css({
             "background-color" : "RoyalBlue"
         });
+
+        $(".event_button").css({
+            "min-width": "100%",
+        });
     },
 
     styleHomeHeader() {

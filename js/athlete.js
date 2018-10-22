@@ -3,7 +3,6 @@
  */
 function athletePage() {
     let _this = this;
-    let db = new DatabaseConnection();
     this.athletes = [];
 
     $("#app").html(`
@@ -43,7 +42,7 @@ function athletePage() {
     this.fetchAthletes = () => {
         this.athletes = [];
 
-        db.getAthlete("*").then((result) => {
+        sw_db.getAthlete("*").then((result) => {
 
             for (let index = 0; index < result.length; index++) {
 
@@ -79,7 +78,7 @@ function athletePage() {
         let athlete = $(this).parent().children().eq(0).html().split(" ");
         console.log(athlete);
         console.log(JSON.stringify(athlete));
-        db.removeAthlete(athlete);
+        sw_db.deleteAthlete(athlete);
         $($(this).parent()).remove();
     });
 
