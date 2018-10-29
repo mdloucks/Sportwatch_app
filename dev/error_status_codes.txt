@@ -12,3 +12,11 @@
     * 1 : email doesn't exist
     * 2 : email already registered
     * 3 : password too weak
+
+-4 : team error
+    * 0 : invalid coach email
+    * 1 : invalid school
+    * 2 : no team found to assign
+    * 3 : database failure
+
+
