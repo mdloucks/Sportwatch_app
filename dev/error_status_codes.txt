@@ -1,5 +1,22 @@
 // this file should be consulted whenever configuring a new error from the server
 
++4 : team success
+    * 0 : no error, went perfectly
+    * 1 : provided school was invalid
+    * 2 : no school assigned to team
+
++3 : sign up succeed
+
+
++2 : email/password login success
+
+
++1 : SID login success
+
+
+
+-------------------------------------------
+
 -1 : SID login failure
     * 0 : wrong SID
 
