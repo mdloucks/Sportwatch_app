@@ -1,9 +1,16 @@
 // this file should be consulted whenever configuring a new error from the server
 
-+4 : team success
++5 : team action success
     * 0 : no error, went perfectly
     * 1 : provided school was invalid
     * 2 : no school assigned to team
+
++4 : create team success
+    * 0 : perfect, no error
+    * 1 : invalid primary coach email
+    * 2 : invalid secondary coach email
+    * 3 : invalid school
+    * 4 : invite code not right length
 
 +3 : sign up succeed
 
@@ -30,10 +37,13 @@
     * 2 : email already registered
     * 3 : password too weak
 
--4 : team error
+-4 : create team error
+    * 0 : not enough information to create team
+   
+
+-5 : team action failure
     * 0 : invalid coach email
     * 1 : invalid school
     * 2 : no team found to assign
     * 3 : database failure
-
 
