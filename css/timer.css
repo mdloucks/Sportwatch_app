@@ -1,0 +1,36 @@
+.timer_meet_name_container {
+    text-align: center;
+    font-size: 5em;
+    font-weight: bold;
+    background: lightcoral;
+    margin-top: 3em;
+    display: flex;
+    flex-direction: column;
+}
+
+.timer_meet_start_container {
+    background: lightblue;
+    text-align: center;
+    position: fixed;
+    bottom: 0px;
+    width: 100%;
+}
+
+.timer_meet_begin {
+    font-size: 3.5em;
+    background: limegreen;
+    border-radius: 20px;
+    border: none;
+    outline: none;
+    margin-bottom: 1em;
+    margin-top: 1em;
+}
+
+.timer_meet_list {
+    font-size: 3.5em;
+    background: limegreen;
+    border-radius: 20px;
+    border: none;
+    outline: none;
+    margin-bottom: 1em;
+}

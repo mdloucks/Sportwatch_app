@@ -1,0 +1,32 @@
+.athlete_athlete_entry_male {
+    background: lightblue;
+    font-size: 2em;
+    border-radius: 20px;
+    margin: auto;
+    width: 75%;
+    margin-top: 1em;
+}
+
+.athlete_athlete_entry_female {
+    font-size: 2em;
+    background: lightpink;
+    border-radius: 20px;
+    margin: auto;
+    width: 75%;
+    margin-top: 1em;
+}
+
+.athlete_menu {
+    margin-top: 1em;
+}
+
+.athlete_remove {
+    border-radius: 20px;
+    background: white;
+}
+
+
+#add_athlete_init {
+    border-radius: 20px;
+    background: white;
+}
