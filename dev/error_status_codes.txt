@@ -39,6 +39,7 @@
 
 -4 : create team error
     * 0 : not enough information to create team
+    * 1 : database error
    
 
 -5 : team action failure
