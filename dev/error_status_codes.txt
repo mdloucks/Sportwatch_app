@@ -4,6 +4,8 @@
     * 0 : no error, went perfectly
     * 1 : provided school was invalid
     * 2 : no school assigned to team
+    * 3 : provided primary coach was invalid
+    * 4 : invalid secondary coach provided
 
 +4 : create team success
     * 0 : perfect, no error
