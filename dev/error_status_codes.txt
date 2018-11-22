@@ -2,17 +2,14 @@
 
 +5 : team action success
     * 0 : no error, went perfectly
-    * 1 : provided school was invalid
-    * 2 : no school assigned to team
-    * 3 : provided primary coach was invalid
-    * 4 : invalid secondary coach provided
+
 
 +4 : create team success
     * 0 : perfect, no error
     * 1 : invalid primary coach email
     * 2 : invalid secondary coach email
     * 3 : invalid school
-    * 4 : invite code not right length
+    * 4 : no school assigned to team
 
 +3 : sign up succeed
 
@@ -42,7 +39,7 @@
 -4 : create team error
     * 0 : not enough information to create team
     * 1 : database error
-   
+    * 2 : unknown error
 
 -5 : team action failure
     * 0 : invalid coach email
