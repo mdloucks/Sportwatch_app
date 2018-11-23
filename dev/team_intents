@@ -1,0 +1,11 @@
+These are all of the team intent codes for any team action
+Any call to team_action.php should include at least the coach's
+email to find the target team.
+
+
+ * 0 : pull all information of team (id, invite code, school, etc.)
+ * 1 : join team
+ * 2 : leave team
+ * 3 : kick athlete (must be coach initiated)
+ * 4 : lock team (coach only)
+ * 5 : delete team (coach only)
