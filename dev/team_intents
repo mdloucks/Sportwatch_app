@@ -7,6 +7,8 @@ email to find the target team.
  * 1 : join team
  * 2 : leave team
  * 3 : kick athlete (must be coach initiated)
- * 4 : lock team (coach only)
- * 5 : regenerate invite code (coach only)
- * 6 : delete team (coach only)
+ * 4 : appoint primary coach (coach only)
+ * 5 : appoint secondary coach (coach only)
+ * 6 : lock team (coach only)
+ * 7 : regenerate invite code (coach only)
+ * 8 : delete team (coach only)
