@@ -42,8 +42,9 @@
     * 2 : unknown error
 
 -5 : team action failure
-    * 0 : invalid coach email
-    * 1 : invalid school
-    * 2 : no team found to assign
-    * 3 : database failure
-
+    * 0 : invalid account / user email
+    * 1 : not enough info to find team
+    * 2 : action prohibited (i.e. only coach trying to leave team)
+    * 3 : missing parameters
+    * 4 : database error
+    * 5 : unknown error
