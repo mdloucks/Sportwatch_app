@@ -1,0 +1,21 @@
+These are all of the team intent codes for any team action
+Any call to team_action.php should include at least the coach's
+email to find the target team.
+
+
+ * 0 : pull all information of team (id, invite code, school, etc.)
+ * 1 : get account role (athlete, primary coach, secondary, etc.)
+ * 2 : join team
+ * 3 : leave team
+ * 4 : kick athlete or secondary coach (must be coach initiated)
+        - requires extra kicked_athlete POST variable
+ * 5 : appoint primary coach (coach only)
+        - requires extra promoted_email POST variable
+        - demotes current primary coach (if any) to secondary
+ * 6 : appoint secondary coach (coach only)
+        - requires extra promoted_email POST variable
+        - demotes current secondary (if any) to athlete
+ * 7 : lock team (coach only)
+ * 8 : regenerate invite code (coach only)
+         - optional new_code POST variable
+ * 9 : delete team (coach only)
