@@ -18,6 +18,6 @@ email to find the target team.
  * 7 : lock team (coach only)
  * 8 : change team name (coach only)
          - requires extra new_name POST variable
- * 8 : regenerate invite code (coach only)
+ * 9 : regenerate invite code (coach only)
          - optional new_code POST variable
- * 9 : delete team (coach only)
+ * 10 : delete team (coach only)
