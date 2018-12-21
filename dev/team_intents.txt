@@ -16,6 +16,8 @@ email to find the target team.
         - requires extra promoted_email POST variable
         - demotes current secondary (if any) to athlete
  * 7 : lock team (coach only)
+ * 8 : change team name (coach only)
+         - requires extra new_name POST variable
  * 8 : regenerate invite code (coach only)
          - optional new_code POST variable
  * 9 : delete team (coach only)
