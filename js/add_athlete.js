@@ -46,6 +46,4 @@ function add_athletePage() {
         // TODO: validate data
         return true;
     }
-    
-    CSSManager.styleAthlete_addPage();
 }

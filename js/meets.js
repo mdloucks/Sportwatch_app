@@ -16,6 +16,7 @@ function meetsPage() {
         <hr>
     `);
 
+    // TODO MAKE SURE MEET IS IN THE FUTURE!
     sw_db.getMeet("*").then((meets) => {
         if (meets !== null) {
             for (let i = 0; i < meets.length; i++) {

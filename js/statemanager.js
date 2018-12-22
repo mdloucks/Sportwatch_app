@@ -16,6 +16,11 @@
 var StateManager = {
 
     current_state : "uninitialized",
+    state_options : {},
+
+    setOptions(object) {
+        this.state_options = object;
+    },
 
     /**
      * will set the state and update the ui
@@ -59,9 +64,9 @@ var StateManager = {
                 case "postsignup":
                     let postsignup = new postSignupPage();
                     break;
-                case "timer":
+                case "stopwatch":
                     // construct the Timer Page
-                    let timer = new TimerPage();
+                    let stopwatch = new StopwatchPage();
                     break;
                 case "stats":
                     UIManager.switchToStats();
@@ -101,26 +106,41 @@ var StateManager = {
                 case "events":
                     let events = new eventsPage();
 
+                    // when the user clicks on add event
                     events.onAddEvent((add_event) => {
                         this.setState(add_event);
-                    })
+                    });
+
+                    // pass the event object to the add_event page
+                    events.onAddAthlete((event) => {
+                        this.setOptions(event);
+                        this.setState("events_add_athlete");
+                    });
+                    break;
+                case "events_add_athlete":
+                    let events_add_athlete = new events_add_athletePage(this.state_options);
+
+                    events_add_athlete.onAddAthlete(() => {
+                        this.setState("events");
+                    });
+
                     break;
                 case "add_track_event":
                     let add_track_event = new add_TrackEventPage();
                     add_track_event.onEventAdded(() => {
-                        this.setState("event");
+                        this.setState("events");
                     });
                     break
                 case "add_field_event":
                     let add_field_event = new add_FieldEventPage();
                     add_field_event.onEventAdded(() => {
-                        this.setState("event");
+                        this.setState("events");
                     });
                     break;
                 case "add_cross_event":
                     let add_event = new add_CrossEventPage();
                     add_event.onEventAdded(() => {
-                        this.setState("event");
+                        this.setState("events");
                     });
                     break;
                 case "progress":

@@ -9,7 +9,7 @@
  * @param {Array} buttons Array containing text of buttons
  * @param {Array} callbacks Array containing callback functions for each respective button
  */
-function createConfirmationPopup(tooltip, buttons, callbacks) {
+function createConfirmationPopup(tooltip, buttons, callbacks, options) {
 
     let buttons_html = "";
 

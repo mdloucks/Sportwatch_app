@@ -12,12 +12,12 @@ function add_TrackEventPage() {
         "200m",
         "400m",
         "800m",
-        "1600m",
-        "3200m",
-        "4x100m",
-        "4x200m",
-        "4x400m",
-        "4x800m",
+        "1600m relay",
+        "3200m relay",
+        "4x100m relay",
+        "4x200m relay",
+        "4x400m relay",
+        "4x800m relay",
         "100m_hurdles",
         "300m_hurdles"
     ];
@@ -56,14 +56,13 @@ function add_TrackEventPage() {
     $("#track_events_form").on("submit", (e) => {
         e.preventDefault();
 
-
+        // point the add event to the next meet
         sw_db.getNextMeet().then((meet) => {
 
             if(meet === undefined) {
-                console.log("oh heck naw");
+                console.log("could not retrieve next meet, is it in the future?");
             }
 
-            console.log("retrieved meet data");
 
             // add an event for each checked list
             for (let i = 0; i < checked_events.length; i++) {

@@ -1,0 +1,74 @@
+#event_track_add {
+    background: crimson; 
+    border: none;
+    color: white;
+    margin-left: white;
+    padding: 10px 14px;
+    font-size: 16px;
+    margin-left: 1em;
+}
+
+.event_container {
+    background: gray;
+}
+
+.event_subcontainer {
+    background: lightcoral;
+    border-radius: 20px;
+    text-align: center;
+    display: inline-block;
+    font-size: 2.5em;
+    margin: auto;
+    width: 75%;
+    margin-top: 1em;
+    margin-bottom: 0.25em;
+    font-weight: bold
+}
+
+.event_delete {
+    font-size: 1em;
+    background: crimson;
+    border-radius: 10px;
+    float: right;
+    border: none;
+}
+
+.event_athlete_delete {
+    font-size: 1em;
+    background: crimson;
+    border-radius: 10px;
+    display: inline-block;
+    border: none;
+}
+
+
+.event_athlete_add {
+    background-color: lightgreen; /* Green */
+    border: none;
+    color: white;
+    border-radius: 10px;
+    margin-top: 1em;
+    margin-bottom: 0.5em;
+    padding: 15px 32px;
+    text-align: center;
+    text-decoration: none;
+    display: inline-block;
+    font-size: 1em;
+}
+
+/* this is the container which holds the athlete subcontainers as well as the add athlete button */
+.event_athlete_container {
+    background: lightcoral;
+    border-radius: 20px;
+    text-align: center;
+    display: inline-block;
+    font-size: 2.5em;
+    margin: auto;
+    width: 75%;
+}
+
+/* the actual container that the athlete name text is in */
+.event_athlete_subcontainer {
+    padding: 10px;
+    font-weight: italic;
+}

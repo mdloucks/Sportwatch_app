@@ -62,7 +62,6 @@ function athletePage() {
             this.seperateGenders();
             this.generateAthletes();
         });
-
     }
 
     // go to the athlete profile page when you click on their name

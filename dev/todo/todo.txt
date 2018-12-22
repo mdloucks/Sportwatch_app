@@ -9,6 +9,7 @@ apply css only to elements under #app, everything else should be static css
 create event listeners for list generated elements by creating id's for them and iterating through a loop instead of checking html strings
 back button for create athlete and meet
 make m/f required checkboxes
+validate all data before inserted into database; make sure its not invalid or something which would cause an error
 
 security
 -----------
