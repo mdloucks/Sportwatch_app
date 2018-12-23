@@ -42,9 +42,11 @@
     * 2 : unknown error
 
 -5 : team action failure
-    * 0 : invalid account / user email
-    * 1 : not enough info to find team
+    * 0 : unknown / misc error
+    * 1 : database error
     * 2 : action prohibited (i.e. only coach trying to leave team)
     * 3 : missing parameters
-    * 4 : database error
-    * 5 : unknown error
+    * 4 : not enough info to find team
+    * 5 : invalid team id
+    * 6 : invalid account / user email
+
