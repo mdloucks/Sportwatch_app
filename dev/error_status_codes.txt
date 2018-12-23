@@ -47,6 +47,7 @@
     * 2 : action prohibited (i.e. only coach trying to leave team)
     * 3 : missing parameters
     * 4 : not enough info to find team
-    * 5 : invalid team id
-    * 6 : invalid account / user email
+    * 5 : invalid intent
+    * 6 : invalid team id
+    * 7 : invalid account / user email
 
