@@ -58,6 +58,16 @@ CREATE TABLE team (
     FOREIGN KEY (id_coach_secondary) REFERENCES user(id_user)
 );
 
+# links users to the teams they are a part of
+CREATE TABLE user_team (
+    id_user_team INT AUTO_INCREMENT,
+    id_user INT,
+    id_team INT,
+    PRIMARY KEY(id_user_team),
+    FOREIGN KEY (id_user) REFERENCES user(id_user),
+    FOREIGN KEY (id_team) REFERENCES team(id_team)
+);
+
 CREATE TABLE user (
     id_user INT AUTO_INCREMENT,
     fname VARCHAR(20),
