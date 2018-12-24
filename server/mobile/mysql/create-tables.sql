@@ -58,18 +58,6 @@ CREATE TABLE team (
     FOREIGN KEY (id_coach_secondary) REFERENCES user(id_user)
 );
 
-# list of accounts that have been kicked
-# time_banned is value since 2010 in days
-CREATE TABLE team_kick (
-    id_kick INT AUTO_INCREMENT,
-    id_user INT,
-    id_team INT,
-    time_banned INT UNSIGNED DEFAULT 3681,
-    PRIMARY KEY(id_kick),
-    FOREIGN KEY (id_user) REFERENCES user(id_user),
-    FOREIGN KEY (id_team) REFERENCES team(id_team)
-);
-
 CREATE TABLE user (
     id_user INT AUTO_INCREMENT,
     fname VARCHAR(20),
