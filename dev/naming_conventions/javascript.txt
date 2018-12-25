@@ -1,0 +1,5 @@
+General
+
+functions - camelCase 
+classes - PascelCase
+local variables - camelCase

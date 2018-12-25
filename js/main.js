@@ -17,7 +17,6 @@ var app = {
         if(!this.isReady) {
 
         $(".loader").remove();
-        $("header").append("<p>Sportwatch</p>");
 
             // check if there's a session
             if(Authentication.hasSession()) {

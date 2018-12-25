@@ -16,92 +16,102 @@ function homePage() {
     }
 
     this.loadContent = function() {
-        $("#app").html("<p>Sportwatch Home page</p>");
+        $("#app").html(`
+            <p>Welcome to Sportwatch!</p>
+            <button id="testbutton">Test Button</button>
+        `);
     }
 
-    //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-    // This is all navigation menu things
-    //......................................................
-    $("header").html(`
-        <span id="navigation_menu_open">&#9776;</span>
-        <p>Sportwatch</p>
-    `);
+    $(document).on("click", "#testbutton", function (e) {
+        e.preventDefault();
+        createConfirmationPopup("Are you sure you want to delete your meet?", ["Yes", "No"], [function() {
+            console.log("Yes");
+        }, function() {
+            console.log("No");
+        }]);
+    });
 
-    CSSManager.unstyleHeader();
-    CSSManager.styleHomeHeader();
+    // check if the header contains anything
+    if($("header").html().trim().length === 0) {
+        $("header").html(`
+            <span id="navigation_menu_open">&#9776;</span>
+            <p>Sportwatch</p>
+        `);
+    }
 
-    $("#navigation_menu").html(`
-        <a id="navigation_menu_close">&times;</a>
-        <a class="navigation_menu_link" id="link_team">Team</a>
-        <a class="navigation_menu_link" id="link_athletes">Athletes</a>
-        <a class="navigation_menu_link" id="link_meets">Meets</a>
-        <a class="navigation_menu_link" id="link_events">Events</a>
-        <a class="navigation_menu_link" id="link_stats">Stats</a>
-        <a class="navigation_menu_link" id="link_timer">Timer</a>
-        <a class="navigation_menu_link" id="link_account">Acccount</a>
-    `);
+    // if the nav menu is empty
+    if($("#navigation_menu").html().trim().length === 0) {
+        $("#navigation_menu").html(`
+            <a id="navigation_menu_close">&times;</a>
+            <a class="navigation_menu_link" id="link_home">Home</a>
+            <a class="navigation_menu_link" id="link_meets">Meets</a>
+            <a class="navigation_menu_link" id="link_events">Events</a>
+            <a class="navigation_menu_link" id="link_athletes">Athletes</a>
+            <a class="navigation_menu_link" id="link_stopwatch">Stopwatch</a>
+            <a class="navigation_menu_link" id="link_stats">Stats</a>
+            <a class="navigation_menu_link" id="link_account">Acccount</a>
+        `);
+
+        $("#link_home").click((e) => {
+            e.preventDefault();
+            this.closeNavigationMenu();
+            this.selectState("home");
+        });
     
-    CSSManager.styleNavigationMenu();
+        $("#link_athletes").click((e) => {
+            e.preventDefault();
+            this.closeNavigationMenu();
+            this.selectState("athletes");
+        });
+    
+        $("#link_meets").click((e) => {
+            e.preventDefault();
+            this.closeNavigationMenu();
+            this.selectState("meets");
+        });
+    
+        $("#link_events").click((e) => {
+            e.preventDefault();
+            this.closeNavigationMenu();
+            this.selectState("events");
+        });
+    
+        $("#link_stats").click((e) => {
+            e.preventDefault();
+            this.closeNavigationMenu();
+            this.selectState("stats");
+        });
+    
+        $("#link_account").click((e) => {
+            e.preventDefault();
+            this.closeNavigationMenu();
+            this.selectState("account");
+        });
+    
+        $("#link_stopwatch").click((e) => {
+            e.preventDefault();
+            this.closeNavigationMenu();
+            this.selectState("stopwatch");
+        });
+    
+        $("#navigation_menu_close").click(function (e) {
+            e.preventDefault();
+            document.getElementById("navigation_menu").style.width = "0";
+        });
+    
+        $("#navigation_menu_open").click(function (e) {
+            e.preventDefault();
+            document.getElementById("navigation_menu").style.width = "250px";
+        });
+    }
+
 
     // TODO DO THIS
-    let links = document.getElementsByClassName("navigation_menu_link");
+    // let links = document.getElementsByClassName("navigation_menu_link");
 
     // for (let i = 0; i < link.length; i++) {
 
     // }
-
-    $("#link_team").click((e) => {
-        e.preventDefault();
-        this.closeNavigationMenu();
-        this.selectState("team");
-    });
-
-    $("#link_athletes").click((e) => {
-        e.preventDefault();
-        this.closeNavigationMenu();
-        this.selectState("athletes");
-    });
-
-    $("#link_meets").click((e) => {
-        e.preventDefault();
-        this.closeNavigationMenu();
-        this.selectState("meets");
-    });
-
-    $("#link_events").click((e) => {
-        e.preventDefault();
-        this.closeNavigationMenu();
-        this.selectState("events");
-    });
-
-    $("#link_stats").click((e) => {
-        e.preventDefault();
-        this.closeNavigationMenu();
-        this.selectState("stats");
-    });
-
-    $("#link_account").click((e) => {
-        e.preventDefault();
-        this.closeNavigationMenu();
-        this.selectState("account");
-    });
-
-    $("#link_timer").click((e) => {
-        e.preventDefault();
-        this.closeNavigationMenu();
-        this.selectState("timer");
-    });
-
-
-    $("#navigation_menu_close").click(function (e) {
-        e.preventDefault();
-        document.getElementById("navigation_menu").style.width = "0";
-    });
-
-    $("#navigation_menu_open").click(function (e) {
-        e.preventDefault();
-        document.getElementById("navigation_menu").style.width = "250px";
-    });
 
     this.closeNavigationMenu = () => {
         document.getElementById("navigation_menu").style.width = "0";

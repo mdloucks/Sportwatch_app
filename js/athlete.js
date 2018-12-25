@@ -6,11 +6,10 @@ function athletePage() {
     this.athletes = [];
 
     $("#app").html(`
-    <div id="athlete_bar">
+    <div class="athlete_menu">
         A-Z/k-12
-        <input id="sort_checkbox" type="checkbox">
-
-        <button id="add_athlete">Add Athlete</button>
+        <input id="athlete_sort_checkbox" type="checkbox">
+        <button id="add_athlete_init">Add Athlete</button>
     </div>
 
     <div id="athlete_container">
@@ -59,11 +58,9 @@ function athletePage() {
                     "gender": gender
                 });
             }
-            console.log("fetched " + this.athletes.length + " athletes");
             this.seperateGenders();
             this.generateAthletes();
         });
-
     }
 
     // go to the athlete profile page when you click on their name
@@ -74,9 +71,8 @@ function athletePage() {
 
     // remove the athlete when user clicks on X
     $(document).on("click", ".athlete_remove", function () {
-        console.log("remove athlete");
+        // get the html content of the div and seperate the info into array
         let athlete = $(this).parent().children().eq(0).html().split(" ");
-        console.log(athlete);
         console.log(JSON.stringify(athlete));
         sw_db.deleteAthlete(athlete);
         $($(this).parent()).remove();
@@ -85,31 +81,31 @@ function athletePage() {
     this.generateAthletes = () => {
         $("#athlete_container").empty();
         $("#athlete_container").append(`
-            <div id="male_container"></div>
-            <div id="female_container"></div>
+            <div class="athlete_male_container"></div>
+            <div class="athlete_female_container"></div>
         `);
         
         
         for (let i = 0; i < this.athletes_m.length; i++) {
-            $("#male_container").append(`
-            <div style="color: blue;">
+            $(".athlete_male_container").append(`
+            <div class="athlete_athlete_entry_male">
                 <span class="athlete_information">${this.athletes_m[i].fname} ${this.athletes_m[i].lname} ${this.athletes_m[i].grade} ${this.athletes_m[i].gender}</span>
                 <button class="athlete_remove">X</button>
             </div>
             `);
         }
         for (let i = 0; i < this.athletes_f.length; i++) {
-            $("#female_container").append(`
-                <div style="color: pink;">
+            $(".athlete_female_container").append(`
+                <div class="athlete_athlete_entry_female">
                     <span class="athlete_information">${this.athletes_f[i].fname} ${this.athletes_f[i].lname} ${this.athletes_f[i].grade} ${this.athletes_f[i].gender}</span>
                     <button class="athlete_remove">X</button>
                 </div>
             `);
         }
-
-        console.log("generated athletes");
     }
 
+
+    //TODO FIX THE SORT!!!!
     /**
      * split the athletes array into two seperate arrays
      */
@@ -133,13 +129,13 @@ function athletePage() {
         }
     }
 
-    $("#sort_checkbox").change((e) => {
+    $("#athlete_sort_checkbox").change((e) => {
         e.preventDefault();
 
         this.seperateGenders();
 
         // sort numerically
-        if ($("#sort_checkbox").is(':checked')) {
+        if ($("#athlete_sort_checkbox").is(':checked')) {
             console.log("sorting athletes by grade...");
             this.sortByGrade(this.athletes_m);
             this.sortByGrade(this.athletes_f);
@@ -153,11 +149,10 @@ function athletePage() {
     });
 
     // switch to new scene basically
-    $("#add_athlete").click((e) => {
+    $("#add_athlete_init").click((e) => {
         e.preventDefault();
         this.addAthlete();
     });
 
     this.fetchAthletes();
-    CSSManager.styleAthletePage();
 }

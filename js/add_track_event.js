@@ -12,12 +12,12 @@ function add_TrackEventPage() {
         "200m",
         "400m",
         "800m",
-        "1600m",
-        "3200m",
-        "4x100m",
-        "4x200m",
-        "4x400m",
-        "4x800m",
+        "1600m relay",
+        "3200m relay",
+        "4x100m relay",
+        "4x200m relay",
+        "4x400m relay",
+        "4x800m relay",
         "100m_hurdles",
         "300m_hurdles"
     ];
@@ -30,7 +30,7 @@ function add_TrackEventPage() {
         <input type="checkbox" name="female">Female</input>
         <form id="track_events_form">
     `;
-
+    
     // create list of buttons with same name and id as event
     for (let i = 0; i < this.events.length; i++) {
         let event_name = this.events[i];
@@ -53,31 +53,32 @@ function add_TrackEventPage() {
 
     $("#app").html(track_events_add_ui);
 
-    $("#track_events_form").on("submit", function (e) {
+    $("#track_events_form").on("submit", (e) => {
         e.preventDefault();
 
-
-        sw_db.getNextMeet().then(function (meet) {
+        // point the add event to the next meet
+        sw_db.getNextMeet().then((meet) => {
 
             if(meet === undefined) {
-                console.log("oh heck naw");
+                console.log("could not retrieve next meet, is it in the future?");
             }
 
-            console.log("retrieved meet data");
 
             // add an event for each checked list
             for (let i = 0; i < checked_events.length; i++) {
 
-                if ($("input[name='male']:checked").length > 0) {
-                    sw_db.addEvent(meet.rowid, checked_events[i], "m");
-                    console.log("added men's " + checked_events[i] + " for " + meet.meet_name);
+                if ($("input[name=male]:checked").length > 0) {
+                    sw_db.addEvent([meet.rowid, checked_events[i], "m"]);
+                    // console.log(`INSERT ${meet.rowid + " " + checked_events[i] + " " + "m"}`);
                 }
 
-                if ($("input[name='female']:checked").length > 0) {
-                    sw_db.addEvent(meet.rowid, checked_events[i], "f");
-                    console.log("added men's " + checked_events[i] + " for " + meet.meet_name);
+                if ($("input[name=female]:checked").length > 0) {
+                    sw_db.addEvent([meet.rowid, checked_events[i], "f"]);
+                    // console.log(`INSERT ${meet.rowid + " " + checked_events[i] + " " + "f"}`);
                 }
             }
+
+            this.addEvent();
 
         }).catch(function () {
             console.log("Could not retrieve the next chronological event.");
