@@ -4,7 +4,7 @@ email to find the target team.
 
 
  * 0  : pull all information of team (id, invite code, school, etc.)
- * 1  : get team roster (list of athletes and coach's emails)
+ * 1  : get team roster (list of athletes and coach's names)
  * 2  : get account role (athlete, primary coach, secondary, etc.)
  * 3  : join team
  * 4  : leave team
