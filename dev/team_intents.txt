@@ -4,23 +4,24 @@ email to find the target team.
 
 
  * 0  : pull all information of team (id, invite code, school, etc.)
- * 1  : get account role (athlete, primary coach, secondary, etc.)
- * 2  : join team
- * 3  : leave team
- * 4  : kick athlete or secondary coach (must be coach initiated)
+ * 1  : get team roster (list of athletes and coach's emails)
+ * 2  : get account role (athlete, primary coach, secondary, etc.)
+ * 3  : join team
+ * 4  : leave team
+ * 5  : kick athlete or secondary coach (must be coach initiated)
          - requires extra kicked_athlete POST variable
- * 5  : appoint primary coach (coach only)
+ * 6  : appoint primary coach (coach only)
          - requires extra promoted_email POST variable
          - demotes current primary coach (if any) to secondary if secondary is NULL
- * 6  : appoint secondary coach (coach only)
+ * 7  : appoint secondary coach (coach only)
          - requires extra promoted_email POST variable
          - demotes current secondary (if any) to athlete
- * 7  : demote coach (coach only)
+ * 8  : demote coach (coach only)
          - requires extra demoted_email POST variable
- * 8  : lock team (coach only)
+ * 9  : lock team (coach only)
          - toggles; if locked, will unlock; if unlocked, will lock
- * 9  : change team name (coach only)
+ * 10 : change team name (coach only)
           - requires extra new_name POST variable
- * 10 : regenerate invite code (coach only)
+ * 11 : regenerate invite code (coach only)
           - optional new_code POST variable
- * 11 : delete team (coach only)
+ * 12 : delete team (coach only)
