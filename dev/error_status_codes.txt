@@ -46,7 +46,7 @@
     * 1 : database error
     * 2 : action prohibited (i.e. only coach trying to leave team)
     * 3 : missing parameters
-    * 4 : no intent
+    * 4 : invalid / unknown intent
     * 5 : not enough info to find team
     * 6 : invalid team id
     * 7 : invalid account / user email
