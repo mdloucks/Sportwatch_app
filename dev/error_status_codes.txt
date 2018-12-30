@@ -5,6 +5,7 @@
     * 1 : unknown complication
     * 2 : user is already in team (join team)
     * 3 : already a coach (promote)
+    * 4 : provided code was invalid, re-created (change invite code)
 
 +4 : create team success
     * 0 : perfect, no error
