@@ -108,7 +108,7 @@ if($schoolName != false) {
         $schoolId = -1;
     }
 }
-if(strlen($inviteCode) != 7) {
+if(strlen($inviteCode) != $CODE_LENGTH) {
     $inviteCode = "NULL";
 }
 if(strlen($teamName) <= 5) {
@@ -532,11 +532,11 @@ if($intent == 0) {
     // Remove anything that isn't a letter or number
     $newCode = preg_replace("/[^A-Za-z0-9]/", "", $newCode);
     $wasInvalid = false;
-    if(($newCode != false) && (strlen($newCode) != 7)) {
+    if(($newCode != false) && (strlen($newCode) != $CODE_LENGTH)) {
         $wasInvalid = true;
     }
-    if(strlen($newCode) != 7) {
-        $newCode = createCode(7);
+    if(strlen($newCode) != $CODE_LENGTH) {
+        $newCode = createCode($CODE_LENGTH);
     }
     if(($accountId == $teamData["id_coach_primary"]) || ($accountId == $teamData["id_coach_secondary"])) {
         $success = $db->modifyRecord("team", array("invite_code" => $newCode), "id_team", $targetTeamId);
