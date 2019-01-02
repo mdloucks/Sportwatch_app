@@ -32,6 +32,10 @@ header > p {
     -webkit-tap-highlight-color: rgba(0,0,0,0);
 }
 
+span {
+    cursor: pointer;
+}
+
 .loader {
     position: absolute;
     top:0;
