@@ -11,8 +11,8 @@
     * 0 : perfect, no error
     * 1 : no school assigned to team
     * 2 : invalid school
-    * 3 : invalid primary coach email
-    * 4 : invalid secondary coach email
+    * 3 : provided invite code was invalid
+    * 3 : invalid secondary coach email
 
 +3 : sign up succeed
 
