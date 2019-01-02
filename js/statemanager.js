@@ -70,8 +70,12 @@ var StateManager = {
                     let postsignup = new postSignupPage();
                     break;
                 case "stopwatch":
-                    // construct the Timer Page
                     let stopwatch = new StopwatchPage();
+                    break;
+                
+                case "beginmeet":
+                    let beginMeet = new BeginMeetPage();
+                    
                     break;
                 case "stats":
                     UIManager.switchToStats();

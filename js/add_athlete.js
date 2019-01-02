@@ -27,8 +27,6 @@ function add_athletePage() {
 
     $("#add_athlete_form").submit((e) => { 
         e.preventDefault();
-        // Commented out in new merge
-        // let db = new DatabaseConnection();
 
         let fname = $("input[name=fname]").val();
         let lname = $("input[name=lname]").val();
@@ -48,7 +46,4 @@ function add_athletePage() {
         // TODO: validate data
         return true;
     }
-    
-    // Commented out in new merge
-    // CSSManager.styleAthlete_addPage();
 }

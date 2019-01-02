@@ -46,6 +46,8 @@ var app = {
     checkRequirements() {
         let results = {};
 
+        // TODO check to make sure es6 is availiable someehow
+
         if(typeof Storage === undefined) {
             results["storage"] = false;
         }

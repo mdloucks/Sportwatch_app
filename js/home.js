@@ -50,6 +50,7 @@ function homePage() {
             <a class="navigation_menu_link" id="link_events">Events</a>
             <a class="navigation_menu_link" id="link_athletes">Athletes</a>
             <a class="navigation_menu_link" id="link_stopwatch">Stopwatch</a>
+            <a class="navigation_menu_link" id="link_beginmeet">Begin Meet</a>
             <a class="navigation_menu_link" id="link_stats">Stats</a>
             <a class="navigation_menu_link" id="link_account">Acccount</a>
         `);
@@ -94,6 +95,12 @@ function homePage() {
             e.preventDefault();
             this.closeNavigationMenu();
             this.selectState("stopwatch");
+        });
+
+        $("#link_beginmeet").click((e) => {
+            e.preventDefault();
+            this.closeNavigationMenu();
+            this.selectState("beginmeet");
         });
     
         $("#navigation_menu_close").click(function (e) {

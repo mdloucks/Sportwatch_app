@@ -4,13 +4,12 @@
  * 
  * That will be to provide a general set of methods to interface with the database
  * 
- * @param {String} DatabaseName
  */
 let sw_db = {
 
-    db : null,
+    db: null,
 
-    init: function() {
+    init: function () {
         this.db = window.sqlitePlugin.openDatabase({ name: "Sportwatch", location: 'default' });
     },
 
@@ -19,7 +18,7 @@ let sw_db = {
      * 
      * CAUTION: this will delete all of the uers's saved stuff!
      */
-    createNewTables : function () {
+    createNewTables: function () {
         this.db.transaction(function (tx) {
 
             tx.executeSql("DROP TABLE IF EXISTS athlete");
@@ -31,7 +30,8 @@ let sw_db = {
             tx.executeSql(`CREATE TABLE IF NOT EXISTS meet (meet_name, meet_time, meet_address)`);
             tx.executeSql(`CREATE TABLE IF NOT EXISTS athlete (fname, lname, grade, gender)`);
             tx.executeSql(`CREATE TABLE IF NOT EXISTS athlete_event (id_athlete, id_event, relay_team)`);
-            tx.executeSql(`CREATE TABLE IF NOT EXISTS event (id_meet, event_name, gender)`);
+            // TODO rework relay team system
+            tx.executeSql(`CREATE TABLE IF NOT EXISTS event (id_meet, event_name, gender, is_relay_team)`);
             tx.executeSql(`CREATE TABLE IF NOT EXISTS event_result (id_event, athlete_name, result)`);
 
         }, function (error) {
@@ -41,7 +41,6 @@ let sw_db = {
         });
     },
 
-    
 
     /**
      * will return the next meet in order of time.
@@ -50,12 +49,12 @@ let sw_db = {
      * 
      * on reject, this will return false if there are no meets
      */
-    getNextMeet : function() {
+    getNextMeet: function () {
         return new Promise((resolve, reject) => {
             this.db.transaction(function (tx) {
-                tx.executeSql("SELECT *, rowid FROM meet", [], function(tx, rs) {
+                tx.executeSql("SELECT *, rowid FROM meet", [], function (tx, rs) {
 
-                    if(rs.rows.length === 0) {
+                    if (rs.rows.length === 0) {
                         console.log("There are no meets to select from");
                         reject(false);
                     }
@@ -65,9 +64,9 @@ let sw_db = {
 
                     // loop through all of the times stored in the database and determine which one is the least
                     for (let i = 0; i < rs.rows.length; i++) {
-                        let time = new Date(rs.rows.item(i).meet_time);    
+                        let time = new Date(rs.rows.item(i).meet_time);
                         // check if the time of the last iteration is less than the lowest time
-                        if((time.getTime() < closest.getTime()) && (time.getTime() > Date.now())) {
+                        if ((time.getTime() < closest.getTime()) && (time.getTime() > Date.now())) {
                             closest = time;
                             // index of the lowest time
                             closest_i = i;
@@ -75,7 +74,7 @@ let sw_db = {
                     }
 
                     // TOOD add error handler, there is a meet that is schedualed too far in the future
-                    if(closest_i === undefined) {
+                    if (closest_i === undefined) {
                         console.log("Could not get first meet, unknown reasons");
                         reject();
                     }
@@ -94,7 +93,7 @@ let sw_db = {
      * 
      * 
      */
-    deleteMeet : function(meet) {
+    deleteMeet: function (meet) {
         return new Promise((resolve, reject) => {
             this.db.transaction(function (tx, rs) {
                 tx.executeSql("DELETE FROM meet WHERE meet_name = ? AND (meet_time = ? OR meet_address = ?)", meet);
@@ -106,16 +105,16 @@ let sw_db = {
         });
     },
 
-    getMeet : function(id) {
+    getMeet: function (id) {
         return new Promise((resolve, reject) => {
             this.db.transaction(function (tx) {
-                tx.executeSql("SELECT *, rowid FROM meet", [], function(tx, rs) {
-                    if(id === "*") {
+                tx.executeSql("SELECT *, rowid FROM meet", [], function (tx, rs) {
+                    if (id === "*") {
                         resolve(rs.rows);
                     }
 
                     for (let i = 0; i < rs.rows.length; i++) {
-                        if(rs.rows.item(i).rowid === id) {
+                        if (rs.rows.item(i).rowid === id) {
                             resolve(rs.rows.item(i));
                         }
                     }
@@ -131,10 +130,10 @@ let sw_db = {
     /**
      * return the number of meets
      */
-    getNumberOfMeets : function() {
+    getNumberOfMeets: function () {
         return new Promise((resolve, reject) => {
             this.db.transaction(function (tx) {
-                tx.executeSql("SELECT rowid FROM meet", [], function(tx, rs) {
+                tx.executeSql("SELECT rowid FROM meet", [], function (tx, rs) {
                     resolve(rs.rows.length);
                 });
             }, function (error) {
@@ -150,7 +149,7 @@ let sw_db = {
      * 
      * @param {*} event 
      */
-    addEvent : function(event) {
+    addEvent: function (event) {
         this.db.transaction(function (tx) {
             tx.executeSql("INSERT INTO event VALUES (?, ?, ?)", event);
         }, function (error) {
@@ -159,15 +158,15 @@ let sw_db = {
         });
     },
 
-    deleteEvent : function(event) {
+    deleteEvent: function (event) {
         return new Promise((resolve, reject) => {
             this.db.transaction(function (tx) {
 
-                if(event.length === 1) {
-                        tx.executeSql("DELETE FROM event WHERE rowid = ?",  event, function(tx, rs) {
+                if (event.length === 1) {
+                    tx.executeSql("DELETE FROM event WHERE rowid = ?", event, function (tx, rs) {
                     });
-                } else if(event.length === 3) {
-                        tx.executeSql("DELETE FROM event WHERE id_meet = ? AND event_name = ? AND gender = ?",  event, function(tx, rs) {
+                } else if (event.length === 3) {
+                    tx.executeSql("DELETE FROM event WHERE id_meet = ? AND event_name = ? AND gender = ?", event, function (tx, rs) {
                     });
                 }
             }, function (error) {
@@ -179,16 +178,16 @@ let sw_db = {
         });
     },
 
-    getEvent : function(id) {
+    getEvent: function (id) {
         return new Promise((resolve, reject) => {
             this.db.transaction(function (tx) {
-                tx.executeSql("SELECT *, rowid FROM event", id, function(tx, rs) {
-                    if(id === "*") {
+                tx.executeSql("SELECT *, rowid FROM event", id, function (tx, rs) {
+                    if (id === "*") {
                         resolve(rs.rows);
                     }
 
                     for (let i = 0; i < rs.rows.length; i++) {
-                        if(rs.rows.item(i).rowid === id) {
+                        if (rs.rows.item(i).rowid === id) {
                             resolve(rs.rows.item(i));
                         }
                     }
@@ -205,7 +204,7 @@ let sw_db = {
      * 
      * @param {*} meet 
      */
-    addMeet : function(meet) {
+    addMeet: function (meet) {
         this.db.transaction(function (tx) {
             tx.executeSql("INSERT INTO meet VALUES (?, ?, ?)", meet);
         }, function (error) {
@@ -215,7 +214,7 @@ let sw_db = {
         });
     },
 
-    insertDummyValues : function () {
+    insertDummyValues: function () {
         this.db.transaction(function (tx) {
             tx.executeSql("INSERT INTO athlete VALUES (?, ?, ?, ?)", ["John", "Smith", "10", "m"]);
             tx.executeSql("INSERT INTO athlete VALUES (?, ?, ?, ?)", ["Bill", "Washington", "9", "m"]);
@@ -234,7 +233,7 @@ let sw_db = {
      * 
      * @param {*} athlete 
      */
-    addAthlete : function (athlete) {
+    addAthlete: function (athlete) {
         return new Promise((resolve, reject) => {
             this.db.transaction(function (tx) {
                 tx.executeSql("INSERT INTO athlete VALUES (?, ?, ?, ?)", athlete);
@@ -252,7 +251,7 @@ let sw_db = {
      * 
      * @param {Array} athlete 
      */
-    deleteAthlete : function(athlete) {
+    deleteAthlete: function (athlete) {
         return new Promise((resolve, reject) => {
             this.db.transaction(function (tx) {
                 tx.executeSql("DELETE FROM athlete WHERE fname = ? AND lname = ? AND grade = ? AND gender = ?", athlete);
@@ -271,21 +270,24 @@ let sw_db = {
      * TODO rework this or delete it
      * @param {Number} event_id
      */
-    getAthletesInEvent : function(id) {
+    getAthletesInEvent: function (id) {
         return new Promise((resolve, reject) => {
             this.db.transaction(function (tx) {
-                let command  = `
+                let command = `
                 SELECT fname, lname, gender, grade, relay_team 
                 FROM athlete INNER JOIN athlete_event 
                 ON athlete.rowid = athlete_event.id_athlete
                 WHERE athlete_event.id_event = ?`;
-                tx.executeSql(command, id, function(tx, rs) {
+                tx.executeSql(command, [id], function (tx, rs) {
 
-                    for (let i = 0; i < rs.rows.length; i++) {
-                        console.log(JSON.stringify(rs.rows.item(i)));
+                    if(rs.rows.length === 0) {
+                        // TODO catch all fix this
+                        console.log("empty set");
+                        resolve(false);
                     }
+
+                    resolve(rs.rows);
                 });
-                resolve();
             }, function (error) {
                 console.log('Transaction ERROR: ' + error.message);
                 reject(error);
@@ -300,7 +302,7 @@ let sw_db = {
      * @param {Number} id_athlete id of the athlete
      * @param {Number} id_event id of the event
      */
-    deleteAthleteInEvent : function(id_athlete, id_event) {
+    deleteAthleteInEvent: function (id_athlete, id_event) {
         return new Promise((resolve, reject) => {
             this.db.transaction(function (tx) {
                 tx.executeSql("DELETE FROM athlete_event WHERE id_athlete = ? AND id_event = ?", [id_athlete, id_event]);
@@ -319,7 +321,7 @@ let sw_db = {
      * 
      * @param {Array} data id_athlete, id_event, isRelay
      */
-    addAthleteEvent(data) {
+    addAthleteEvent: function (data) {
         return new Promise((resolve, reject) => {
             this.db.transaction(function (tx) {
                 tx.executeSql("INSERT INTO athlete_event VALUES (?, ?, ?)", data);
@@ -334,23 +336,26 @@ let sw_db = {
 
     /**
      * 
-     * return all of the athletes that have an event
+     * Will return all athletes that are currently listed in an event
+     * 
      * the athlete only has an event if their id is found within the athlete_event table
      * 
      * will return an array of arrays filled with athlete information and the id of their event
      * 
      * @param {Number} event_id
      */
-    getAthletesInEvents : function() {
+    getAthletesInEvents: function () {
         return new Promise((resolve, reject) => {
             this.db.transaction(function (tx) {
-                let command  = `
+                let command = `
                 SELECT athlete.fname, athlete.lname, athlete.grade, athlete.gender, athlete.rowid, athlete_event.id_event 
                 FROM athlete INNER JOIN athlete_event 
                 ON athlete.rowid = athlete_event.id_athlete`;
-                tx.executeSql(command, [], function(tx, rs) {
-                    
-                    if(rs.rows.length === 0) {
+                tx.executeSql(command, [], function (tx, rs) {
+
+                    if (rs.rows.length === 0) {
+                        console.log("no athletes in that event");
+                        // TODO catch this everywhere
                         resolve(false);
                     } else {
                         resolve(rs.rows);
@@ -369,17 +374,17 @@ let sw_db = {
      * 
      * @param {Number} id id of the event
      */
-    deleteAthletesInEvent : function(id) {
+    deleteAthletesInEvent: function (id) {
         return new Promise((resolve, reject) => {
             this.db.transaction(function (tx) {
-                let command  = `
+                let command = `
                 SELECT athlete.fname, athlete.lname, athlete.grade, athlete.gender, athlete.rowid, athlete_event.id_event 
                 FROM athlete INNER JOIN athlete_event 
                 ON athlete.rowid = athlete_event.id_athlete
                 WHERE athlete.gender = ?`;
-                tx.executeSql(command, [gender], function(tx, rs) {
-                    
-                    if(rs.rows.length === 0) {
+                tx.executeSql(command, [gender], function (tx, rs) {
+
+                    if (rs.rows.length === 0) {
                         console.log("empty set");
                         resolve(false);
                     } else {
@@ -403,19 +408,19 @@ let sw_db = {
      * 
      * @param {Char} gender m or f
      */
-    getAthletesAndEventsByGender : function(gender) {
+    getAthletesAndEventsByGender: function (gender) {
         // list of promises to query the stuff individually because this db plugin sucks
         return new Promise((resolve, reject) => {
             Promise.all(
                 [new Promise((resolve, reject) => {
                     this.db.transaction(function (tx) {
-                        let command  = `
+                        let command = `
                         SELECT *, rowid
                         FROM athlete
                         WHERE gender = ?`;
-                        tx.executeSql(command, [gender], function(tx, rs) {
-                            
-                            if(rs.rows.length === 0) {
+                        tx.executeSql(command, [gender], function (tx, rs) {
+
+                            if (rs.rows.length === 0) {
                                 console.log("empty set");
                                 resolve(false);
                             } else {
@@ -427,12 +432,12 @@ let sw_db = {
                         reject(error);
                     });
                 }),
-                
+
                 new Promise((resolve, reject) => {
                     this.db.transaction(function (tx) {
-                        let command  = `SELECT * FROM athlete_event`;
-                        tx.executeSql(command, [], function(tx, rs) {
-                            if(rs.rows.length === 0) {
+                        let command = `SELECT * FROM athlete_event`;
+                        tx.executeSql(command, [], function (tx, rs) {
+                            if (rs.rows.length === 0) {
                                 console.log("empty set");
                                 resolve(false);
                             } else {
@@ -459,17 +464,17 @@ let sw_db = {
      * 
      * @param {*} id 
      */
-    getAthlete : function(id) {
+    getAthlete: function (id) {
         return new Promise((resolve, reject) => {
             this.db.transaction(function (tx, rs) {
-                tx.executeSql("SELECT *, rowid FROM athlete", id, function(tx, rs) {
+                tx.executeSql("SELECT *, rowid FROM athlete", id, function (tx, rs) {
                     // return all of the rows on *
-                    if(id === "*") {
+                    if (id === "*") {
                         resolve(rs.rows);
                     }
 
                     for (let i = 0; i < rs.rows.length; i++) {
-                        if(rs.rows.item(i).rowid === id) {
+                        if (rs.rows.item(i).rowid === id) {
                             resolve(rs.rows.item(i));
                         }
                     }
@@ -490,12 +495,12 @@ let sw_db = {
      * 
      * @param {*} gender m or f
      */
-    getAthleteByGender : function(gender) {
+    getAthleteByGender: function (gender) {
         return new Promise((resolve, reject) => {
             this.db.transaction(function (tx, rs) {
-                tx.executeSql("SELECT *, rowid FROM athlete WHERE gender = ?", [gender], function(tx, rs) {
+                tx.executeSql("SELECT *, rowid FROM athlete WHERE gender = ?", [gender], function (tx, rs) {
                     // return all of the rows on *
-                    if(rs.rows.length === 0) {
+                    if (rs.rows.length === 0) {
                         console.log("empty set!");
                     } else {
                         resolve(rs.rows);
@@ -515,9 +520,9 @@ let sw_db = {
      * 
      * @param {String} command 
      */
-    executeCommand : function(command) {
+    executeCommand: function (command) {
         this.db.transaction(function (tx, rs) {
-            tx.executeSql(command, [], function(tx, rs) {
+            tx.executeSql(command, [], function (tx, rs) {
                 console.log(JSON.stringify(rs));
                 for (let i = 0; i < rs.rows.length; i++) {
                     console.log(JSON.stringify(rs.rows.item(i)));
@@ -531,8 +536,8 @@ let sw_db = {
         });
     },
 
-    close : function() {
-        this.db.close(function() {
+    close: function () {
+        this.db.close(function () {
             console.log("Database is closed: OK");
         });
     }
