@@ -44,7 +44,7 @@
     * 1 : database error
     * 2 : not enough information to create team
     * 3 : team was too similar (use force=1 to override)
-    * 4 : no school assigned to team
+    * 4 : invalid school
     * 5 : invalid primary coach email
 
 -5 : team action failure
