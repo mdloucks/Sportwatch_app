@@ -41,18 +41,20 @@
 -4 : create team error
     * 0 : unknown / misc error
     * 1 : database error
-    * 2 : not enough information to create team
-    * 3 : team was too similar (use force=1 to override)
-    * 4 : invalid school
-    * 5 : invalid primary coach email
+    * 2 : wrong SID
+    * 3 : not enough information to create team
+    * 4 : team was too similar (use force=1 to override)
+    * 5 : invalid school
+    * 6 : invalid primary coach email
 
 -5 : team action failure
     * 0 : unknown / misc error
     * 1 : database error
-    * 2 : action prohibited (i.e. only coach trying to leave team)
-    * 3 : missing parameters
-    * 4 : invalid / unknown intent
-    * 5 : not enough info to find team
-    * 6 : invalid team id
-    * 7 : invalid account / user email
+    * 2 : invalid / wrong SID
+    * 3 : action prohibited (i.e. only coach trying to leave team)
+    * 4 : missing parameters
+    * 5 : invalid / unknown intent
+    * 6 : not enough info to find team
+    * 7 : invalid team id
+    * 8 : invalid account / user email
 
