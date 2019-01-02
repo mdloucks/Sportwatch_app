@@ -9,10 +9,10 @@
 
 +4 : create team success
     * 0 : perfect, no error
-    * 1 : invalid primary coach email
-    * 2 : invalid secondary coach email
-    * 3 : invalid school
-    * 4 : no school assigned to team
+    * 1 : no school assigned to team
+    * 2 : invalid school
+    * 3 : invalid primary coach email
+    * 4 : invalid secondary coach email
 
 +3 : sign up succeed
 
@@ -40,9 +40,10 @@
     * 3 : password too weak
 
 -4 : create team error
-    * 0 : not enough information to create team
+    * 0 : unknown / misc error
     * 1 : database error
-    * 2 : unknown error
+    * 2 : not enough information to create team
+    * 3 : team was too similar (use force=1 to override)
 
 -5 : team action failure
     * 0 : unknown / misc error
