@@ -10,11 +10,9 @@
 +4 : create team success
     * 0 : perfect, no error
     * 1 : no school assigned to team
-    * 2 : invalid school
-    * 3 : provided invite code was invalid
-    * 4 : invalid / too short team name
-    * 5 : invalid primary coach email
-    * 6 : invalid secondary coach email
+    * 2 : provided invite code was invalid
+    * 3 : invalid / too short team name
+    * 4 : invalid secondary coach email
 
 +3 : sign up succeed
 
@@ -46,6 +44,8 @@
     * 1 : database error
     * 2 : not enough information to create team
     * 3 : team was too similar (use force=1 to override)
+    * 4 : no school assigned to team
+    * 5 : invalid primary coach email
 
 -5 : team action failure
     * 0 : unknown / misc error
