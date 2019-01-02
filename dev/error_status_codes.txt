@@ -12,7 +12,9 @@
     * 1 : no school assigned to team
     * 2 : invalid school
     * 3 : provided invite code was invalid
-    * 3 : invalid secondary coach email
+    * 4 : invalid / too short team name
+    * 5 : invalid primary coach email
+    * 6 : invalid secondary coach email
 
 +3 : sign up succeed
 
