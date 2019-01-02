@@ -1,0 +1,32 @@
+.meet_container {
+    background: lightcoral;
+    border-radius: 20px;
+    text-align: center;
+    display: inline-block;
+    margin: auto;
+    width: 75%;
+    margin-top: 1em
+}
+
+.meet_name {
+    font-size: 3em;
+}
+
+.meet_delete {
+    font-size: 1.5em;
+    background: crimson;
+    border-radius: 20px;
+    float: right;
+    border: none;
+}
+
+.meet_info {
+    font-size: 1.5em;
+    display: hidden;
+}
+
+#meet_add {
+    background: lightgray;
+    border-radius: 15px;
+    font-size: 1.5em
+}
