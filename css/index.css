@@ -29,6 +29,7 @@ header > p {
 
 #app {
     text-align: center;
+    -webkit-tap-highlight-color: rgba(0,0,0,0);
 }
 
 .loader {
