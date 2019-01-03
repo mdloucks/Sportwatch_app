@@ -9,7 +9,7 @@ function StopwatchPage() {
     $("#app").html(`
         <canvas id="stopwatch_canvas" class="stopwatch_canvas" width="400px" height="300px"></canvas>
         <button class="stopwatch_start_stop">&#9654;</button>
-        <button class="stopwatch_reset">Reset<button>
+        <button class="stopwatch_reset">Reset</button>
         <button class="stopwatch_lap">Lap</button>
         <div class="stopwatch_lap_times"></div>
     `);
