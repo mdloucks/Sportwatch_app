@@ -1,0 +1,4 @@
+debugging tips:
+
+js is very odd sometimes, if you happen to get a reference error or anything, be sure to first check your syntax
+it may very well be the case that you missed something that caused that object to be invalid. JS is not very good at error reporting

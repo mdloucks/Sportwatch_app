@@ -16,7 +16,6 @@ function athletePage() {
     </div>
     `);
 
-
     this.addAthlete = function () {
         throw new Error("AddAthlete is not yet initialized in AthletePage()");
     }

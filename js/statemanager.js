@@ -1,11 +1,16 @@
 /**
  * This file is for handling the multiple states for our single page app
  * 
+ * home
  * welcome
  * login
- * signup
- * myteam
- * myrecord
+ * signup, postsignup
+ * timer
+ * team, stats
+ * athletes, new_athlete
+ * meets, events
+ * progress
+ * account
  * 
  * this mainly includes loading the correct assets when the user switches states
  * 
@@ -164,6 +169,6 @@ var StateManager = {
     },
 
     getState : function(state) {
-        return this.current_state
+        return this.current_state;
     }
 };

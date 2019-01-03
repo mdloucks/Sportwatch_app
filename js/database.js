@@ -42,7 +42,6 @@ let sw_db = {
     },
 
 
-
     /**
      * will return the next meet in order of time.
      * 
