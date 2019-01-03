@@ -46,10 +46,10 @@ function add_CrossEventPage() {
 
     $("#app").html(cross_events_add_ui);
 
-    $("#cross_events_form").on("submit", function (e) {
+    $("#cross_events_form").on("submit", (e) => {
         e.preventDefault();
 
-        sw_db.getNextMeet().then(function (meet) {
+        sw_db.getNextMeet().then((meet) => {
 
             if(meet === undefined) {
                 console.log("oh heck naw");
@@ -70,6 +70,8 @@ function add_CrossEventPage() {
                     console.log("added men's " + checked_events[i] + " for " + meet.meet_name);
                 }
             }
+
+            this.addEvent();
 
         }).catch(function () {
             console.log("Could not retrieve the next chronological event.");

@@ -8,15 +8,15 @@ function meetsPage() {
         this.addMeet = cb;
     }
 
-    this.meets = [];
-
+    this.meet_list = [];
 
     $("#app").empty();
     $("#app").html(`
-        <button style="background: lightgray; border-radius: 15px; font-size: 1.5em";" id="add_meet">Add Meet</button>
+        <button id="meet_add">Add Meet</button>
         <hr>
     `);
 
+    // TODO MAKE SURE MEET IS IN THE FUTURE!
     sw_db.getMeet("*").then((meets) => {
         if (meets !== null) {
             for (let i = 0; i < meets.length; i++) {
@@ -24,14 +24,14 @@ function meetsPage() {
                 let time = meets.item(i).meet_time;
                 let address = meets.item(i).meet_address;
 
-                this.meets.push([name, time, address])
+                this.meet_list.push([name, time, address])
 
                 $("#app").append(`
-                    <div id="meet_container_${i}" style="background: gray; border-radius: 20px; margin: auto; width: 75%; margin-top: 1em;">
-                        <span id="meet_${i}" style="font-size:3em;">${name}</span>
-                        <button id="meet_exit_${i}" style="background: black; color: white; margin-left: 2em; margin-bottom: 0.75em; border-radius: 20px;">X</button>
+                    <div class="meet_container" id="meet_container_${i}"">
+                        <span class="meet_name" id="meet_${i}">${name}</span>
+                        <button class="meet_delete" id="meet_exit_${i}">X</button>
                     </div>
-                    <div id="meet_info_${i}" style="display: none; font-size: 2em">${address} at ${time}</div>
+                    <div class="meet_info" id="meet_info_${i}">${address} at ${time}</div>
                 `);
 
                 $(`meet_info_${i}`).hide();
@@ -47,13 +47,15 @@ function meetsPage() {
                 });
 
                 $(`#meet_exit_${i}`).click((e) => { 
+
                     e.preventDefault();
+                    
                     $(`#meet_container_${i}`).remove();
                     $(`#meet_info_${i}`).remove();
 
-                    console.log("deleteing " + JSON.stringify(this.meets[i]));
+                    console.log("deleteing " + JSON.stringify(this.meet_list[i]));
                     // remove from database
-                    sw_db.deleteMeet(this.meets[i]).then(function() {
+                    sw_db.deleteMeet(this.meet_list[i]).then(function() {
                         console.log("could not delete meet :(");
                     });
                 });
@@ -65,7 +67,7 @@ function meetsPage() {
 
     });
 
-    $("#add_meet").click((e) => {
+    $("#meet_add").click((e) => {
         e.preventDefault();
         this.addMeet();
     });

@@ -1,5 +1,30 @@
 // this file should be consulted whenever configuring a new error from the server
 
++5 : team action success
+    * 0 : no error, went perfectly
+    * 1 : unknown complication
+    * 2 : user is already in team (join team)
+    * 3 : already a coach (promote)
+    * 4 : provided code was invalid, re-created (change invite code)
+
++4 : create team success
+    * 0 : perfect, no error
+    * 1 : invalid / too short team name
+    * 2 : provided invite code was invalid
+    * 3 : invalid secondary coach email
+
++3 : sign up succeed
+
+
++2 : email/password login success
+
+
++1 : SID login success
+
+
+
+-------------------------------------------
+
 -1 : SID login failure
     * 0 : wrong SID
 
@@ -12,3 +37,24 @@
     * 1 : email doesn't exist
     * 2 : email already registered
     * 3 : password too weak
+
+-4 : create team error
+    * 0 : unknown / misc error
+    * 1 : database error
+    * 2 : wrong SID
+    * 3 : not enough information to create team
+    * 4 : team was too similar (use force=1 to override)
+    * 5 : invalid school
+    * 6 : invalid primary coach email
+
+-5 : team action failure
+    * 0 : unknown / misc error
+    * 1 : database error
+    * 2 : invalid / wrong SID
+    * 3 : action prohibited (i.e. only coach trying to leave team)
+    * 4 : missing parameters
+    * 5 : invalid / unknown intent
+    * 6 : not enough info to find team
+    * 7 : invalid team id
+    * 8 : invalid account / user email
+

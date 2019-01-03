@@ -1,0 +1,12 @@
+* Timer
+
+
+
+
+Questions for the boss
+ - Add notice when the user is logged out from invalid SID
+ - Create method for navigation method creation
+ - cssmanager.js styling navigation_menu twice 193 and 215
+ - Is trimming the user's password a bad idea
+
+

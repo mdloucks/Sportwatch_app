@@ -1,0 +1,12 @@
+/* 
+This file is for generic elements such a buttons or text that is common in our app
+This is to limit the file size for our page specific styles    
+*/
+
+
+.sw_button {
+    background: crimson;
+    border-radius: 20px;
+    border: none;
+    outline:none;
+}

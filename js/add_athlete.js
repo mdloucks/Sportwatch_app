@@ -27,7 +27,6 @@ function add_athletePage() {
 
     $("#add_athlete_form").submit((e) => { 
         e.preventDefault();
-        let db = new DatabaseConnection();
 
         let fname = $("input[name=fname]").val();
         let lname = $("input[name=lname]").val();
@@ -36,7 +35,7 @@ function add_athletePage() {
 
         if(this.validateData(fname, lname, grade, gender)) {
             console.log("added athlete: " + fname, lname, grade, gender);
-            db.addAthlete([fname, lname, grade, gender]);
+            sw_db.addAthlete([fname, lname, grade, gender]);
             this.addAthlete();
         } else {
             console.log("incorrect data type!");
@@ -47,6 +46,4 @@ function add_athletePage() {
         // TODO: validate data
         return true;
     }
-    
-    CSSManager.styleAthlete_addPage();
 }

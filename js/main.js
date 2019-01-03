@@ -17,7 +17,6 @@ var app = {
         if(!this.isReady) {
 
         $(".loader").remove();
-        $("header").append("<p>Sportwatch</p>");
 
             // check if there's a session
             if(Authentication.hasSession()) {
@@ -46,6 +45,8 @@ var app = {
      */
     checkRequirements() {
         let results = {};
+
+        // TODO check to make sure es6 is availiable someehow
 
         if(typeof Storage === undefined) {
             results["storage"] = false;

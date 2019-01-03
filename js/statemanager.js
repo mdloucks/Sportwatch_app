@@ -1,11 +1,16 @@
 /**
  * This file is for handling the multiple states for our single page app
  * 
+ * home
  * welcome
  * login
- * signup
- * myteam
- * myrecord
+ * signup, postsignup
+ * timer
+ * team, stats
+ * athletes, new_athlete
+ * meets, events
+ * progress
+ * account
  * 
  * this mainly includes loading the correct assets when the user switches states
  * 
@@ -16,6 +21,11 @@
 var StateManager = {
 
     current_state : "uninitialized",
+    state_options : {},
+
+    setOptions(object) {
+        this.state_options = object;
+    },
 
     /**
      * will set the state and update the ui
@@ -59,12 +69,13 @@ var StateManager = {
                 case "postsignup":
                     let postsignup = new postSignupPage();
                     break;
-                case "timer":
-                    // construct the Timer Page
-                    let timer = new TimerPage();
+                case "stopwatch":
+                    let stopwatch = new StopwatchPage();
                     break;
-                case "team":
-                    let team = new teamPage();
+                
+                case "beginmeet":
+                    let beginMeet = new BeginMeetPage();
+                    
                     break;
                 case "stats":
                     UIManager.switchToStats();
@@ -104,9 +115,24 @@ var StateManager = {
                 case "events":
                     let events = new eventsPage();
 
+                    // when the user clicks on add event
                     events.onAddEvent((add_event) => {
                         this.setState(add_event);
-                    })
+                    });
+
+                    // pass the event object to the add_event page
+                    events.onAddAthlete((event) => {
+                        this.setOptions(event);
+                        this.setState("events_add_athlete");
+                    });
+                    break;
+                case "events_add_athlete":
+                    let events_add_athlete = new events_add_athletePage(this.state_options);
+
+                    events_add_athlete.onAddAthlete(() => {
+                        this.setState("events");
+                    });
+
                     break;
                 case "add_track_event":
                     let add_track_event = new add_TrackEventPage();
@@ -143,6 +169,6 @@ var StateManager = {
     },
 
     getState : function(state) {
-        return this.current_state
+        return this.current_state;
     }
 };
