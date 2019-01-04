@@ -13,6 +13,7 @@ var app = {
     onReady() { 
         console.log("Device is ready");
         sw_db.init();
+        FastClick.attach(document.body);
         // if has not been initialized yet to prevent double loading
         if(!this.isReady) {
 
