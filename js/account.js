@@ -27,8 +27,7 @@ function accountPage() {
     //     </form>
     // `);
     
-    // TODO: _+_+_++_ TRY THIS: https://api.jquery.com/animate/ _+_+_+_
-    
+    // ---- PAGES ---- //
     
     var catagoryPage = (`
         <div id="catagoryPage" class="div_page">
@@ -42,53 +41,84 @@ function accountPage() {
     // TODO: Account settings, manage team page
     
     var devPage = (`
-        <h2>Developer tools</h2>
-        <br>
+        <div id="devPage" class="div_page">
+            <h2>Developer tools</h2>
+            <br>
 
-        <p>Reinstantiate tables(wipes database)</p>
-        <button id="create_tables">Create tables</button><br> 
+            <p>Reinstantiate tables(wipes database)</p>
+            <button id="create_tables">Create tables</button><br> 
 
-        <p>Enter Database Command</p>
-        <form id="database_command">
-        <input id="db_command" type="text"></input>
-        <input type="submit"></submit>
-        </form>
+            <p>Enter Database Command</p>
+            <form id="database_command">
+            <input id="db_command" type="text"></input>
+            <input type="submit"></submit>
+            </form>
+        </div>
     `);
-    
-    
-    $("#app").html(catagoryPage); // Assign initial account page
     
     
     // ---- CATAGORY PAGE ---- //
     
     // Adds a new catagory button to the options
-    this.addSettingCatagory = function(text, callback) {
+    this.addSettingCatagory = function(text, callback, container = "#cat_options") {
         
-        var buttonHtml = "<button class=\"cat_option\"><p class=\"cat_desc\">" + text +
+        var buttonHtml = "<button class=\"cat_button\"><p class=\"cat_desc\">" + text +
                         "</p><p class=\"cat_arrow\">&#9658</p></button><br>";
-        $("#cat_options").append(buttonHtml);
-        $("#cat_options button").last().click((e) => {
+        $(container).append(buttonHtml);
+        $(container + " button").last().click((e) => {
             e.preventDefault();
             callback();
         });
         
+        // Add animation
+        $(container + " button").last().click((e) => {
+            // TOOD: Polish; make sure it's not just the <p> element
+            e.preventDefault();
+            $(e.target).css("background-color", "red");
+        });
     }
     
-    this.addSettingCatagory("Account Settings", function() {
-        console.log("Account Settings");
-    });
-    this.addSettingCatagory("Manage Team", function() {
-        console.log("Manage Team");
-    });
-    this.addSettingCatagory("Developer Tools", function () {
-        $("#app").html(devPage); // TODO: Make fancy slide transition
-    });
-    $(".cat_option").click((e) => {
-        // TOOD: Polish; make sure it's not just the <p> element
-        e.preventDefault();
-        $(e.target).css("background-color", "red");
-        console.log(e.target.nodeName);
-    });
+    /**
+     * Runs a sliding animation for the two div element id's specified.
+     * 
+     * @return Void
+     * 
+     * @example animateTransition("catagoryPage", "devPage");
+     * 
+     * @param prevPageId {String} current page (that will be replaced) id
+     * @param newPageId {String} new page div's id
+     * @param rightToLeft {Boolean} [default = true] animatino slide from
+     * right to left?
+     */
+    this.animateTransition = function(prevPageId, newPageId, rightToLeft = true) {
+        
+        if(prevPageId.indexOf("#") == -1) {
+            prevPageId = "#" + prevPageId;
+        }
+        if(newPageId.indexOf("#") == -1) {
+            newPageId = "#" + newPageId;
+        }
+        
+        // TODO: Implement rightToLeft logic
+        
+        $(prevPageId).animate(
+            {right: "100%"},
+            {duration: 200, queue: false, complete: 
+                () => {
+                    $(prevPageId).css("right", "");
+                    $(prevPageId).css("left", "100%");
+                }
+            }
+        );
+        $(newPageId).animate(
+            {left: "0%"},
+            {duration: 200, queue: false}
+        );
+        
+        
+    }
+    
+
     
     // TODO: Move to Account settings page
     // $("#sign_out").click((e) => { 
@@ -114,6 +144,62 @@ function accountPage() {
     // TOOD: Add back button
     
     
+    // ---- MISC ---- //
     
+    /**
+     * Adds given html content to the app. Will assume all pages are not
+     * primary unless otherwise specified.
+     * 
+     * @return Void
+     * 
+     * @example addPage(devPage);
+     * @example addPage(catagoryPage, true);
+     * 
+     * @param content {String} HTML content for this page
+     * @param isPrimary {Boolean} will this page be the focused / visible page
+     * upon open?
+     */
+    this.addPage = function(content, isPrimary = false) {
+        $("#app").append(content);
+        if(!isPrimary) {
+            // Find the id of the div
+            divIndex = content.indexOf("<div");
+            idIndex = content.indexOf("id=", divIndex);
+            if((divIndex != -1) && (idIndex != -1)) {
+                endIdIndex = content.indexOf(" ", idIndex);
+                // +3 to remove "id="
+                divId = content.substring(idIndex + 3, endIdIndex);
+                divId = "#" + divId.replace(/\"/g, ""); // Remove all quotes
+                
+                // Actually perform the operations now
+                $(divId).css("position", "absolute");
+                $(divId).css("left", "100%");
+                
+            } else {
+                console.log("Div or id index was invalid");
+            }
+        }
+    }
+    
+    
+    // ---- OPERATIONS ---- //
+    
+    // Add all the html pages here
+    $("#app").html(""); // Clear html content
+    //$("#app").append(devPage);
+    this.addPage(devPage);
+    //$("#app").append(catagoryPage); // Assign initial account page
+    this.addPage(catagoryPage, true);
+    
+    
+    this.addSettingCatagory("Account Settings", function () {
+        console.log("Account Settings");
+    });
+    this.addSettingCatagory("Manage Team", function () {
+        console.log("Manage Team");
+    });
+    this.addSettingCatagory("Developer Tools", () => {
+        this.animateTransition("catagoryPage", "devPage");
+    });
     
 }
