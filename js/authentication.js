@@ -83,6 +83,7 @@ var Authentication = {
                     }
                 },
                 error: (response) => {
+                    // TODO: redo this to handle no internet connection
                     let data = JSON.parse(response);
                     ErrorHandler.handleAjaxError(data);
                     reject(data);
