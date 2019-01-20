@@ -21,7 +21,9 @@ function homePage() {
             <button id="testbutton">Test Button</button>
         `);
     }
-
+    
+    $("header").empty(); // When coming from logging or signing in
+    
     $(document).on("click", "#testbutton", function (e) {
         e.preventDefault();
         createConfirmationPopup("Are you sure you want to delete your meet?", ["Yes", "No"], [function() {
