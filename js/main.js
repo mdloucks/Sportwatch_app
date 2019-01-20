@@ -16,7 +16,7 @@ var app = {
         // if has not been initialized yet to prevent double loading
         if(!this.isReady) {
 
-        $(".loader").remove();
+            $(".loader").remove();
 
             // check if there's a session
             if(Authentication.hasSession()) {
