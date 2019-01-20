@@ -42,6 +42,117 @@ let sw_db = {
     },
 
 
+    /**
+     * 
+     * example ("SELECT * from athlete WHERE id = ?", 3)
+     * 
+     * @param {*} row the given id
+     * @param {Array} table 
+     */
+    selectSingle : function(query, values) {
+        return new Promise((resolve, reject) => {
+            this.db.transaction(function (tx) {
+                tx.executeSql(query, values, function (tx, rs) {
+                    if(rs.rows.length === 0) {
+                        console.log("empty set");
+                        resolve(false);
+                    }
+                    resolve(rs.rows);
+                });
+            }, function (error) {
+                console.log('Transaction ERROR: ' + JSON.stringify(error));
+                reject(error);
+            }, function () {
+                // success
+            });
+        });
+    },
+
+    selectMultiple : function(query, values) {
+        return new Promise((resolve, reject) => {
+            this.db.transaction(function (tx) {
+                tx.executeSql(query, values, function (tx, rs) {
+                    let rows = [];
+
+                    if(rs.rows.length === 0) {
+                        console.log("empty set!");
+                        reject(false);
+                    }
+
+                    if(Object.keys(rs.rows.item(0)).length > 1) {
+                        for (let i = 0; i < rs.rows.length; i++) {
+                            rows[i] = rs.rows.item(i);
+                        }
+                    } else {
+                        for (let i = 0; i < rs.rows.length; i++) {
+                            rows[i] = Object.keys(rs.rows.item(0))[0];
+                        }
+                    }
+                    
+                    resolve(rows);
+                });
+            }, function (error) {
+                console.log('Transaction ERROR: ' + JSON.stringify(error));
+                reject(error);
+            }, function () {
+                // success
+            });
+        });
+    },
+
+    /**
+     * 
+     * 
+     * Array formats
+     * [item, item...] or [[item, item...], [item, item...]]
+     * 
+     * @param {String} table name of the table
+     * @param {Array} data data to be inserted
+     */
+    insertValues: function(table, data) {
+        return new Promise((resolve, reject) => {
+
+            let query_wildcards = "(";
+            let length;
+
+            if(data[0][0] !== undefined) {
+                length = data[0].length;
+            } else {
+                length = data.length;
+            }
+
+            console.log(length);
+
+            for (let i = 0; i < length; i++) {
+                query_wildcards += "?,";
+            }
+            query_wildcards = query_wildcards.slice(0, -1);
+            query_wildcards += ")";
+
+            this.db.transaction(function (tx) {
+                
+                if(data[0][0] !== undefined) {
+                    for (let i = 0; i < data.length; i++) {
+                        console.log(JSON.stringify(data[i]));
+                        
+                        tx.executeSql(`INSERT INTO ${table} VALUES ${query_wildcards}`, data[i]);
+                    }    
+                } else {
+                    console.log("normal");
+                    tx.executeSql(`INSERT INTO ${table} VALUES ${query_wildcards}`, data);
+                }
+
+                resolve();
+            }, function (error) {
+                console.log('Transaction ERROR: ' + error.message);
+                console.log(JSON.stringify(error));
+                reject(error);
+            }, function () {
+            });
+        });
+    },
+
+
 
     /**
      * will return the next meet in order of time.
