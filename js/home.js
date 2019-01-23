@@ -107,12 +107,13 @@ function homePage() {
             e.preventDefault();
             document.getElementById("navigation_menu").style.width = "0";
         });
-    
-        $("#navigation_menu_open").click(function (e) {
-            e.preventDefault();
-            document.getElementById("navigation_menu").style.width = "250px";
-        });
     }
+    
+    // Moved to ensure it opens when returning to "Home" page
+    $("#navigation_menu_open").click(function (e) {
+        e.preventDefault();
+        document.getElementById("navigation_menu").style.width = "250px";
+    });
 
 
     // TODO DO THIS
