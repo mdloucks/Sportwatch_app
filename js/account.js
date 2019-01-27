@@ -1,7 +1,7 @@
 
 
 function accountPage() {
-
+    
     this.signout = function () {
         throw new Error("SIGNOUT IS NOT SETUP");
     }
@@ -9,23 +9,8 @@ function accountPage() {
     this.onSignout = (callback) => {
         this.signout = callback;
     }
-
-    // TODO remove dev stuff before launch
-    // $("#app").html(`
-    //     <button id="sign_out">Sign Out</button>
-
-    //     <h2>Developer tools</h2>
-    //     <hr>
-
-    //     <p>Reinstantiate tables(wipes database)</p>
-    //     <button id="create_tables">Create tables</button><br> 
-
-    //     <p>Enter Database Command</p>
-    //     <form id="database_command">
-    //     <input id="db_command" type="text"></input>
-    //     <input type="submit"></submit>
-    //     </form>
-    // `);
+    
+    var currentPageId = "catagoryPage";
     
     // ---- PAGES ---- //
     
@@ -40,11 +25,14 @@ function accountPage() {
     
     // TODO: Account settings, manage team page
     
+    // TODO: Remove before launch
     var devPage = (`
         <div id="devPage" class="div_page">
+            <span class="back_arrow">&#8592</span>
+            <br>
             <h2>Developer tools</h2>
             <br>
-
+            
             <p>Reinstantiate tables(wipes database)</p>
             <button id="create_tables">Create tables</button><br> 
 
@@ -59,7 +47,7 @@ function accountPage() {
     
     // ---- CATAGORY PAGE ---- //
     
-    // Adds a new catagory button to the options
+    // Adds a new catagory button to the options div
     this.addSettingCatagory = function(text, callback, container = "#cat_options") {
         
         var buttonHtml = "<button class=\"cat_button\"><p class=\"cat_desc\">" + text +
@@ -67,14 +55,16 @@ function accountPage() {
         $(container).append(buttonHtml);
         $(container + " button").last().click((e) => {
             e.preventDefault();
-            callback();
+            // If button has not already been pressed
+            if(!e.delegateTarget.classList.contains("cat_button_selected")) {
+                callback();
+            }
         });
         
         // Add animation
         $(container + " button").last().click((e) => {
-            // TOOD: Polish; make sure it's not just the <p> element
             e.preventDefault();
-            $(e.target).css("background-color", "red");
+            $(e.delegateTarget).addClass("cat_button_selected");
         });
     }
     
@@ -85,13 +75,13 @@ function accountPage() {
      * 
      * @example animateTransition("catagoryPage", "devPage");
      * 
-     * @param prevPageId {String} current page (that will be replaced) id
      * @param newPageId {String} new page div's id
      * @param rightToLeft {Boolean} [default = true] animatino slide from
      * right to left?
      */
-    this.animateTransition = function(prevPageId, newPageId, rightToLeft = true) {
-        
+    this.animateTransition = function(newPageId, rightToLeft = true) {
+                
+        let prevPageId = currentPageId;
         if(prevPageId.indexOf("#") == -1) {
             prevPageId = "#" + prevPageId;
         }
@@ -99,26 +89,43 @@ function accountPage() {
             newPageId = "#" + newPageId;
         }
         
-        // TODO: Implement rightToLeft logic
+        // Prevent the double clicking of the button
+        if(($(prevPageId).is(":animated")) || ($(newPageId).is(":animated"))) {
+            return;
+        }
+        if (prevPageId == newPageId) {
+            this.currentPageId = "#catagoryPage";
+            console.log("Duplicate! New current page: " + this.currentPageId);
+            return;
+        }
+        $(newPageId).removeClass("hidden");
         
-        $(prevPageId).animate(
-            {right: "100%"},
-            {duration: 200, queue: false, complete: 
-                () => {
-                    $(prevPageId).css("right", "");
-                    $(prevPageId).css("left", "100%");
-                }
-            }
-        );
-        $(newPageId).animate(
-            {left: "0%"},
-            {duration: 200, queue: false}
-        );
+        // TODO: Reset functions for each page
         
+        if(rightToLeft) {
+            $(newPageId).removeClass("page_right");
+            $(prevPageId).addClass("page_left");
+        } else if(!rightToLeft) {
+            $(newPageId).removeClass("page_left");
+            $(prevPageId).addClass("page_right");
+        }
+        
+        // Is finishing 20% early, for some reason
+        // $(prevPageId).on("transitionend", () => {
+        //     console.log("Prev page finished " + $(prevPageId).css("left"));
+            // $(prevPageId).addClass("hidden");
+        //     currentPageId = newPageId;
+        // });
+        
+        // Fixes the clipping / early animation finish
+        $(newPageId).one("transitionend", () => {
+            $(prevPageId).addClass("hidden");
+            this.resetPage(prevPageId);
+            currentPageId = newPageId;
+        });
         
     }
     
-
     
     // TODO: Move to Account settings page
     // $("#sign_out").click((e) => { 
@@ -161,24 +168,49 @@ function accountPage() {
      */
     this.addPage = function(content, isPrimary = false) {
         $("#app").append(content);
-        if(!isPrimary) {
-            // Find the id of the div
-            divIndex = content.indexOf("<div");
-            idIndex = content.indexOf("id=", divIndex);
-            if((divIndex != -1) && (idIndex != -1)) {
-                endIdIndex = content.indexOf(" ", idIndex);
-                // +3 to remove "id="
-                divId = content.substring(idIndex + 3, endIdIndex);
-                divId = "#" + divId.replace(/\"/g, ""); // Remove all quotes
-                
-                // Actually perform the operations now
-                $(divId).css("position", "absolute");
-                $(divId).css("left", "100%");
-                
-            } else {
-                console.log("Div or id index was invalid");
-            }
+        
+        // Find the id of the div
+        let divIndex = content.indexOf("<div");
+        let idIndex = content.indexOf("id=", divIndex);
+        let divId = "";
+        if ((divIndex != -1) && (idIndex != -1)) {
+            endIdIndex = content.indexOf(" ", idIndex);
+            // +3 to remove "id="
+            divId = content.substring(idIndex + 3, endIdIndex);
+            divId = "#" + divId.replace(/\"/g, ""); // Remove all quotes
+        } else {
+            console.log("Div or id index was invalid");
         }
+        
+        // Perform the operations now
+        $(divId).addClass("current_page"); // Keep as "base" for simplicity
+        if(!isPrimary) {
+            $(divId).addClass("page_right");
+            $(divId).addClass("hidden");
+        }
+    }
+    
+    // Have to use .on
+    // https://stackoverflow.com/questions/19393656/span-jquery-click-not-working
+    $("#app").on("click", ".back_arrow", (e) => {
+        e.preventDefault();
+        this.animateTransition("catagoryPage", false);
+    });
+    
+    // Reset page functions
+    this.resetPage = function (pageId) {
+        if(pageId.includes("catagoryPage")) {
+            $(".cat_button").removeClass("cat_button_selected");
+        }
+    }
+    
+    // TODO: Remove once page is complete
+    this.dump = function(obj) {
+        let out = '';
+        for (let i in obj) {
+            out += i + ": " + obj[i] + "\n";
+        }
+        console.log(out);
     }
     
     
@@ -186,9 +218,7 @@ function accountPage() {
     
     // Add all the html pages here
     $("#app").html(""); // Clear html content
-    //$("#app").append(devPage);
     this.addPage(devPage);
-    //$("#app").append(catagoryPage); // Assign initial account page
     this.addPage(catagoryPage, true);
     
     
@@ -199,7 +229,7 @@ function accountPage() {
         console.log("Manage Team");
     });
     this.addSettingCatagory("Developer Tools", () => {
-        this.animateTransition("catagoryPage", "devPage");
+        this.animateTransition("devPage");
     });
     
 }
