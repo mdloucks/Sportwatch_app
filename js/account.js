@@ -10,6 +10,8 @@ function accountPage() {
         this.signout = callback;
     }
     
+    // TODO: Next time back, add account and team pages
+    
     var currentPageId = "catagoryPage";
     
     // ---- PAGES ---- //
@@ -61,7 +63,7 @@ function accountPage() {
             }
         });
         
-        // Add animation
+        // Add color animation
         $(container + " button").last().click((e) => {
             e.preventDefault();
             $(e.delegateTarget).addClass("cat_button_selected");
@@ -99,9 +101,7 @@ function accountPage() {
             return;
         }
         $(newPageId).removeClass("hidden");
-        
-        // TODO: Reset functions for each page
-        
+                
         if(rightToLeft) {
             $(newPageId).removeClass("page_right");
             $(prevPageId).addClass("page_left");
@@ -147,9 +147,7 @@ function accountPage() {
         console.log($('#db_command').val());
         sw_db.executeCommand($('#db_command').val());
     });
-    
-    // TOOD: Add back button
-    
+        
     
     // ---- MISC ---- //
     
@@ -204,7 +202,7 @@ function accountPage() {
         }
     }
     
-    // TODO: Remove once page is complete
+    // TODO: Remove once account page is complete
     this.dump = function(obj) {
         let out = '';
         for (let i in obj) {
