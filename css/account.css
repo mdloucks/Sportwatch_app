@@ -1,19 +1,45 @@
 #title {
     font-size: 30px;
-    font-style: bold;
 }
 
-
-/* Setting -- Catagories */
+/* General Page Styling */
 
 .div_page {
     position: absolute;
     top: 15%;
-    width: 100%;
+    width: 99%; /* 100% is larger than header, producing "scoll" */
     height: 85%;
     text-align: center;
     background-color: #fff;
+    transition: left 0.5s;
 }
+
+.div_page.current_page {
+    left: 0%;
+}
+
+.div_page.page_right {
+    left: 100%;
+}
+
+.div_page.page_left {
+    left: -100%;
+}
+
+.hidden {
+    overflow: hidden; 
+    height: 1px; width: 1px; 
+    margin: -1px;
+}
+
+.back_arrow {
+    position: relative;
+    right: 20%;
+    top: 5vh; /* vh = 1% of viewport */
+    font-size: 2em;
+}
+
+/* Setting -- Catagories */
 
 #cat_options {
     padding: 10px;
@@ -27,11 +53,16 @@
     width: 90%;
     text-align: left;
     font-size: 15px;
-    border-style: solid;
-    border-color: crimson;
-    border-radius: 20px;
+    border-style: none;
+    /* border-color: #DC133C;
+    border-radius: 20px; */
+    background-color: crimson;
     outline: none;
-    transition: background-color 1s;
+    transition: background-color 0.25s;
+}
+
+.cat_button_selected {
+    background-color: red;
 }
 
 .cat_desc {
