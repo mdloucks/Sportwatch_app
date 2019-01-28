@@ -53,16 +53,16 @@
     width: 90%;
     text-align: left;
     font-size: 15px;
-    border-style: none;
-    /* border-color: #DC133C;
-    border-radius: 20px; */
-    background-color: crimson;
+    border-style: solid;
+    border-color: #DC133C;
+    border-radius: 20px;
+    background-color: white;
     outline: none;
     transition: background-color 0.25s;
 }
 
 .cat_button_selected {
-    background-color: red;
+    background-color: crimson;
 }
 
 .cat_desc {
