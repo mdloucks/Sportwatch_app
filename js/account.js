@@ -25,7 +25,20 @@ function accountPage() {
         </div>
     `);
     
-    // TODO: Account settings, manage team page
+    
+    // https://jsbin.com/lodusuyipo/edit?html,css,js,output
+    var accountPage = (`
+        <div id="accountPage" class="div_page">
+            <span class="back_arrow">&#8592</span>
+            <br>
+            <h2>Account Settings</h2>
+            
+            <!-- Add different settings here -->
+            
+        </div>
+    `);
+    
+    // TODO: Manage team page
     
     // TODO: Remove before launch
     var devPage = (`
@@ -49,7 +62,19 @@ function accountPage() {
     
     // ---- CATAGORY PAGE ---- //
     
-    // Adds a new catagory button to the options div
+    /**
+     * Adds a button to a specific settings page with the provided text.
+     * 
+     * @return void
+     * 
+     * @example
+     * this.addSettingCatagory("Account Settings", () => { alert("Account"); });
+     * 
+     * @param text {String} text of the button
+     * @param callback {Function} callback when button is clicked
+     * @param container {String} [default = "#cat_options"] div that buttons
+     * will be added to
+     */
     this.addSettingCatagory = function(text, callback, container = "#cat_options") {
         
         var buttonHtml = "<button class=\"cat_button\"><p class=\"cat_desc\">" + text +
@@ -70,76 +95,68 @@ function accountPage() {
         });
     }
     
+    // ---- ACCOUNT PAGE ---- //
+    
     /**
-     * Runs a sliding animation for the two div element id's specified.
+     * Adds a dropdown menu with a button "title".
      * 
      * @return Void
      * 
-     * @example animateTransition("catagoryPage", "devPage");
+     * @example
+     * this.addSettingsDropdown("Change Email", "<input type=\"text\" name=\"newEmail\"><br> <input type=\"submit\">", () => { ... });
      * 
-     * @param newPageId {String} new page div's id
-     * @param rightToLeft {Boolean} [default = true] animatino slide from
-     * right to left?
+     * @param buttonName {String} display name of button / dropdown
+     * @param content {String} HTML content shown when drop is expanded
+     * @param eventsCallback {Function} function used to handle click / submit
+     * events for this dropdown only
      */
-    this.animateTransition = function(newPageId, rightToLeft = true) {
+    this.addSettingDropdown = function(buttonName, content, eventsFunction) {
+        
+        let dropdownHtml = "<div class=\"act_drop_wrapper\"><button class=\"act_drop_button\">" +
+                            buttonName + "</button><div class=\"act_drop_content hidden\">" + content + "</div></div>";
+        $("#accountPage").append(dropdownHtml);
+        
+        // TODO: Implement hiding functionality when clicked again
+        
+        $(".act_drop_button").last().click((e) => {
+            let wrapperObj = $(e.target).parent();
+            
+            if(!$(wrapperObj).hasClass("dropdown_expanded")) { // Expand
+                $(wrapperObj).addClass("dropdown_expanded");
+                $(wrapperObj).children(".act_drop_button").addClass("drop_button_underline");
+                $(wrapperObj).children(".act_drop_content").removeClass("hidden");
                 
-        let prevPageId = currentPageId;
-        if(prevPageId.indexOf("#") == -1) {
-            prevPageId = "#" + prevPageId;
-        }
-        if(newPageId.indexOf("#") == -1) {
-            newPageId = "#" + newPageId;
-        }
-        
-        // Prevent the double clicking of the button
-        if(($(prevPageId).is(":animated")) || ($(newPageId).is(":animated"))) {
-            return;
-        }
-        if (prevPageId == newPageId) {
-            this.currentPageId = "#catagoryPage";
-            console.log("Duplicate! New current page: " + this.currentPageId);
-            return;
-        }
-        $(newPageId).removeClass("hidden");
+                $(wrapperObj).one("transitionend", () => {
+                    $(wrapperObj).children(".act_drop_content").css("opacity", "1.0");
+                });
                 
-        if(rightToLeft) {
-            $(newPageId).removeClass("page_right");
-            $(prevPageId).addClass("page_left");
-        } else if(!rightToLeft) {
-            $(newPageId).removeClass("page_left");
-            $(prevPageId).addClass("page_right");
-        }
-        
-        // Is finishing 20% early, for some reason
-        // $(prevPageId).on("transitionend", () => {
-        //     console.log("Prev page finished " + $(prevPageId).css("left"));
-            // $(prevPageId).addClass("hidden");
-        //     currentPageId = newPageId;
-        // });
-        
-        // Fixes the clipping / early animation finish
-        $(newPageId).one("transitionend", () => {
-            $(prevPageId).addClass("hidden");
-            this.resetPage(prevPageId);
-            currentPageId = newPageId;
-        });
+            } else { // Minimize
+                $(wrapperObj).children(".act_drop_content").css("opacity", "0.0");
+                
+                $(wrapperObj).children(".act_drop_content").one("transitionend", () => {
+                    $(wrapperObj).removeClass("dropdown_expanded");
+                    $(wrapperObj).children(".act_drop_content").addClass("hidden");
+                    $(wrapperObj).children(".act_drop_button").removeClass("drop_button_underline");
+                });
+            }
+        }); // End of button click handler
         
     }
     
+    $("#sign_out").click((e) => { 
+        e.preventDefault();
+        localStorage.removeItem("SID");
+        console.log("user signing out");
+        this.signout();
+    });
     
-    // TODO: Move to Account settings page
-    // $("#sign_out").click((e) => { 
-    //     e.preventDefault();
-    //     localStorage.removeItem("SID");
-    //     console.log("user signing out");
-    //     this.signout();
-    // });
     
     // ---- DEVELOPER PAGE ---- //
     
     $("#create_tables").click(function (e) { 
         e.preventDefault();
         sw_db.createNewTables();
+        console.log("Created new tables!");
     });
 
     $("#database_command").submit(function (e) { 
@@ -188,6 +205,62 @@ function accountPage() {
         }
     }
     
+    /**
+     * Runs a sliding animation for the two div element id's specified.
+     * 
+     * @return Void
+     * 
+     * @example animateTransition("catagoryPage", "devPage");
+     * 
+     * @param newPageId {String} new page div's id
+     * @param rightToLeft {Boolean} [default = true] animatino slide from
+     * right to left?
+     */
+    this.animateTransition = function (newPageId, rightToLeft = true) {
+
+        let prevPageId = currentPageId;
+        if (prevPageId.indexOf("#") == -1) {
+            prevPageId = "#" + prevPageId;
+        }
+        if (newPageId.indexOf("#") == -1) {
+            newPageId = "#" + newPageId;
+        }
+
+        // Prevent the double clicking of the button
+        if (($(prevPageId).is(":animated")) || ($(newPageId).is(":animated"))) {
+            return;
+        }
+        if (prevPageId == newPageId) {
+            this.currentPageId = "#catagoryPage";
+            console.log("Duplicate! New current page: " + this.currentPageId);
+            return;
+        }
+        $(newPageId).removeClass("hidden");
+
+        if (rightToLeft) {
+            $(newPageId).removeClass("page_right");
+            $(prevPageId).addClass("page_left");
+        } else if (!rightToLeft) {
+            $(newPageId).removeClass("page_left");
+            $(prevPageId).addClass("page_right");
+        }
+
+        // Is finishing 20% early, for some reason
+        // $(prevPageId).on("transitionend", () => {
+        //     console.log("Prev page finished " + $(prevPageId).css("left"));
+        // $(prevPageId).addClass("hidden");
+        //     currentPageId = newPageId;
+        // });
+
+        // Hide old page once new page is in focus
+        $(newPageId).one("transitionend", () => {
+            $(prevPageId).addClass("hidden");
+            this.resetPage(prevPageId);
+            currentPageId = newPageId;
+        });
+
+    }
+    
     // Have to use .on
     // https://stackoverflow.com/questions/19393656/span-jquery-click-not-working
     $("#app").on("click", ".back_arrow", (e) => {
@@ -195,7 +268,17 @@ function accountPage() {
         this.animateTransition("catagoryPage", false);
     });
     
-    // Reset page functions
+    /**
+     * Resets a page back to its original look (i.e. reset pressed buttons)
+     * Should be called when a page is opened
+     * 
+     * @return Void
+     * 
+     * @example
+     * this.resetPage("catagoryPage");
+     * 
+     * @param pageId {String} id of the page's div
+     */
     this.resetPage = function (pageId) {
         if(pageId.includes("catagoryPage")) {
             $(".cat_button").removeClass("cat_button_selected");
@@ -216,18 +299,23 @@ function accountPage() {
     
     // Add all the html pages here
     $("#app").html(""); // Clear html content
-    this.addPage(devPage);
     this.addPage(catagoryPage, true);
+    this.addPage(accountPage);
+    this.addPage(devPage);
     
-    
-    this.addSettingCatagory("Account Settings", function () {
-        console.log("Account Settings");
+    this.addSettingCatagory("Account Settings", () => {
+        this.animateTransition("accountPage");
     });
-    this.addSettingCatagory("Manage Team", function () {
+    this.addSettingCatagory("Manage Team", () => {
         console.log("Manage Team");
     });
     this.addSettingCatagory("Developer Tools", () => {
         this.animateTransition("devPage");
     });
     
+    this.addSettingDropdown("Test Dropdown", "<p>Test2</p>", function() {  });
+    this.addSettingDropdown("Notification Preferences", "<p>Adjust preferences here</p>", function() { });
+    
 }
+
+
