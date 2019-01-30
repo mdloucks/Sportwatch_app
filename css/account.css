@@ -26,10 +26,17 @@
     left: -100%;
 }
 
+/* Shamelessly stole from:
+https://css-tricks.com/places-its-tempting-to-use-display-none-but-dont/ */
 .hidden {
-    overflow: hidden; 
-    height: 1px; width: 1px; 
-    margin: -1px;
+    position: absolute !important;
+    overflow: hidden !important; 
+    clip: rect(0 0 0 0);
+    height: 1px !important;
+    width: 1px !important; 
+    margin: -1px !important;
+    padding: 0;
+    border: 0;    
 }
 
 .back_arrow {
@@ -54,7 +61,7 @@
     text-align: left;
     font-size: 15px;
     border-style: solid;
-    border-color: #DC133C;
+    border-color: crimson;
     border-radius: 20px;
     background-color: white;
     outline: none;
@@ -75,3 +82,52 @@
     float: right;
     position: top;
 }
+
+
+/* Setting -- Account */
+
+.act_drop_wrapper {
+    margin: 20px;
+    margin-left: 7%;
+    width: 85%;
+    height: 30px;
+    text-align: center;
+    border-style: solid;
+    border-color: crimson;
+    border-width: 1px;
+    border-radius: 20px;
+    background-color: white;
+    outline: none;
+    transition: height 0.5s;
+}
+
+.act_drop_button {
+    width: 100%;
+    height: 30px;
+    font-size: 15px;
+    border: none;
+    outline: none;
+}
+
+.act_drop_content {
+    background-color: gray;
+    height: 210px;
+    padding: 5%;
+    margin: 5%;
+    opacity: 0;
+    transition: opacity 0.5s;
+}
+
+.drop_button_underline {
+    border-bottom: solid;
+    border-width: 1px;
+    border-color: gray;
+}
+
+.dropdown_expanded {
+    height: 300px;
+}
+
+
+
+
