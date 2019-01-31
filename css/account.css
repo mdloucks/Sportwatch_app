@@ -46,6 +46,25 @@ https://css-tricks.com/places-its-tempting-to-use-display-none-but-dont/ */
     font-size: 2em;
 }
 
+.generic_button {
+    margin-right: 1%; /* centers button */
+    width: 85%;
+    height: 30px;
+    text-align: center;
+    font-size: 15px;
+    border-style: solid;
+    border-color: crimson;
+    border-width: 1px;
+    border-radius: 20px;
+    background-color: white;
+    outline: none;
+    transition: background-color 0.25s;
+}
+
+.generic_selected {
+    background-color: crimson;
+}
+
 /* Setting -- Catagories */
 
 #cat_options {
@@ -98,7 +117,7 @@ https://css-tricks.com/places-its-tempting-to-use-display-none-but-dont/ */
     border-radius: 20px;
     background-color: white;
     outline: none;
-    transition: height 0.5s;
+    transition: height 0.25s;
 }
 
 .act_drop_button {
@@ -110,12 +129,12 @@ https://css-tricks.com/places-its-tempting-to-use-display-none-but-dont/ */
 }
 
 .act_drop_content {
-    background-color: gray;
+    background-color: white;
     height: 210px;
     padding: 5%;
     margin: 5%;
     opacity: 0;
-    transition: opacity 0.5s;
+    transition: opacity 0.25s;
 }
 
 .drop_button_underline {
