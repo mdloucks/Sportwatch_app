@@ -9,9 +9,7 @@ function accountPage() {
     this.onSignout = (callback) => {
         this.signout = callback;
     }
-    
-    // TODO: Next time back, add account and team pages
-    
+        
     var currentPageId = "catagoryPage";
     
     // ---- PAGES ---- //
@@ -103,20 +101,18 @@ function accountPage() {
      * @return Void
      * 
      * @example
-     * this.addSettingsDropdown("Change Email", "<input type=\"text\" name=\"newEmail\"><br> <input type=\"submit\">", () => { ... });
+     * this.addSettingsDropdown("Change Email", "<input type=\"text\" name=\"newEmail\"><br> <input type=\"submit\">", (wrapperDiv) => { ... });
      * 
      * @param buttonName {String} display name of button / dropdown
      * @param content {String} HTML content shown when drop is expanded
      * @param eventsCallback {Function} function used to handle click / submit
-     * events for this dropdown only
+     * events for this dropdown only. MUST take wrapper div as parameter
      */
     this.addSettingDropdown = function(buttonName, content, eventsFunction) {
         
         let dropdownHtml = "<div class=\"act_drop_wrapper\"><button class=\"act_drop_button\">" +
                             buttonName + "</button><div class=\"act_drop_content hidden\">" + content + "</div></div>";
         $("#accountPage").append(dropdownHtml);
-        
-        // TODO: Implement hiding functionality when clicked again
         
         $(".act_drop_button").last().click((e) => {
             let wrapperObj = $(e.target).parent();
@@ -141,25 +137,20 @@ function accountPage() {
             }
         }); // End of button click handler
         
+        eventsFunction($(".act_drop_wrapper").last()); // Bind the buttons
+        
     }
-    
-    $("#sign_out").click((e) => { 
-        e.preventDefault();
-        localStorage.removeItem("SID");
-        console.log("user signing out");
-        this.signout();
-    });
     
     
     // ---- DEVELOPER PAGE ---- //
     
-    $("#create_tables").click(function (e) { 
+    $("#app").on("click", "#create_tables", function(e) { 
         e.preventDefault();
         sw_db.createNewTables();
         console.log("Created new tables!");
     });
 
-    $("#database_command").submit(function (e) { 
+    $("#database_command").on("submit", function (e) { 
         e.preventDefault();
         console.log($('#db_command').val());
         sw_db.executeCommand($('#db_command').val());
@@ -282,7 +273,43 @@ function accountPage() {
     this.resetPage = function (pageId) {
         if(pageId.includes("catagoryPage")) {
             $(".cat_button").removeClass("cat_button_selected");
+        } else if(pageId.includes("accountPage")) {
+            $(".act_drop_wrapper").removeClass("dropdown_expanded");
+            $(".act_drop_button").removeClass("drop_button_underline");
+            $(".act_drop_content").addClass("hidden");
+            $(".act_drop_content").css("opacity", "0.0");
         }
+    }
+    
+    /**
+     * Adds generic, basic button the end end of the container.
+     * 
+     * @return Void
+     * 
+     * @example
+     * this.addGenericButton("Sign Out", "#accountPage", (e) => { console.log("Signed Out"); });
+     * 
+     * @param display {String} display text of button
+     * @param container {String} identifier of HTML container
+     * @param callback {Function} called when button is clicked
+     * @param styleClass {String} [default = "generic_button"] styling class
+     * applied to this button
+     */
+    this.addGenericButton = function(display, container, callback, styleClass = "generic_button") {
+        
+        let button = "<button class=\"" + styleClass + "\">" + display + "</button>";
+        $(container).append(button);
+        $(container + " button").last().click((e) => {
+            e.preventDefault();
+            if(!$(e.target).hasClass("generic_selected")) {
+                $(e.target).addClass("generic_selected");
+            } else {
+                $(e.target).removeClass("generic_selected");
+            }
+            
+            callback(e);
+        });
+        
     }
     
     // TODO: Remove once account page is complete
@@ -302,7 +329,9 @@ function accountPage() {
     this.addPage(catagoryPage, true);
     this.addPage(accountPage);
     this.addPage(devPage);
+    // TODO: Make a proper fix for page length / screen (parent div expand with dropdowns)
     
+    // Catagory Page
     this.addSettingCatagory("Account Settings", () => {
         this.animateTransition("accountPage");
     });
@@ -313,8 +342,33 @@ function accountPage() {
         this.animateTransition("devPage");
     });
     
-    this.addSettingDropdown("Test Dropdown", "<p>Test2</p>", function() {  });
-    this.addSettingDropdown("Notification Preferences", "<p>Adjust preferences here</p>", function() { });
+    // Account Page
+    this.addSettingDropdown("Notification Preferences", "<p>Adjust preferences here</p><br> <p>WIP</p>", (wrapperDiv) => {
+        // TODO: Adjust notification preferences
+    });
+    this.addSettingDropdown("Change Email Address", "<input type=\"text\" name=\"new_email\"><br> <p>WIP</p>", (wrapperDiv) => {
+        // TODO: Update Email address based on input
+    });
+    this.addSettingDropdown("Update Phone Number", "<input type=\"text\" name=\"new_phone\"><br> <p>WIP</p>", (wrapperDiv) => {
+        // TODO: Update Cell Phone Number based on input
+    });
+    this.addSettingDropdown("Change Password", "<input type=\"text\" name=\"current_password\"><br> " +
+                            "<input type=\"text\" name=\"new_password\"><br> <p>WIP</p>", (wrapperDiv) => {
+        // TODO: Password based on input
+    });
+    this.addGenericButton("Sign Out", "#accountPage", (e) => {
+        localStorage.removeItem("SID");
+        console.log("User signing out");
+        this.signout();
+    });
+    this.addSettingDropdown("Delete Account", "<input type=\"text\" name=\"current_password\"><br> " +
+                            "<input type=\"text\" name=\"new_password\"><br> <p>WIP</p>", (wrapperDiv) => {
+        // TODO: Delete Account if password matches
+    });
+    
+    
+    
+    
     
 }
 
