@@ -12,7 +12,7 @@ let sw_db = {
     init: function () {
         this.db = window.sqlitePlugin.openDatabase({ name: "Sportwatch", location: 'default' });
     },
-
+    
     /**
      * will wipe all existing tables and create new ones
      * 
@@ -60,7 +60,8 @@ let sw_db = {
                     resolve(rs.rows);
                 });
             }, function (error) {
-                console.log('Transaction ERROR: ' + JSON.stringify(error));
+                console.log('Transaction ERROR: ' + error.message);
+                console.log(JSON.stringify(error));
                 reject(error);
             }, function () {
                 // success
@@ -92,7 +93,8 @@ let sw_db = {
                     resolve(rows);
                 });
             }, function (error) {
-                console.log('Transaction ERROR: ' + JSON.stringify(error));
+                console.log('Transaction ERROR: ' + error.message);
+                console.log(JSON.stringify(error));
                 reject(error);
             }, function () {
                 // success
