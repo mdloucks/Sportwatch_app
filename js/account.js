@@ -2,17 +2,25 @@
 
 function accountPage() {
     
+    // ---- CALLBACK / STATE BIND FUNCTIONS ---- //
+    
     this.signout = function () {
         throw new Error("SIGNOUT IS NOT SETUP");
     }
-
     this.onSignout = (callback) => {
         this.signout = callback;
     }
-        
-    var currentPageId = "catagoryPage";
     
+    this.manageTeam = function() {
+        throw new Error("MANAGE TEAM IS NOT SETUP");
+    }
+    this.onManageTeam = function(callback) {
+        this.manageTeam = callback;
+    }
+        
     // ---- PAGES ---- //
+    
+    var currentPageId = "catagoryPage";
     
     var catagoryPage = (`
         <div id="catagoryPage" class="div_page">
@@ -336,7 +344,7 @@ function accountPage() {
         this.animateTransition("accountPage");
     });
     this.addSettingCatagory("Manage Team", () => {
-        console.log("Manage Team");
+        this.manageTeam();
     });
     this.addSettingCatagory("Developer Tools", () => {
         this.animateTransition("devPage");
