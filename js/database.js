@@ -13,6 +13,15 @@ let sw_db = {
         this.db = window.sqlitePlugin.openDatabase({ name: "Sportwatch", location: 'default' });
     },
     
+    testFunc: function () {
+        this.selectMultiple("SELECT * FROM athlete WHERE fname = ?", ["Seth"]).then((result) => {
+            console.log(result[0].grade);
+        });
+        this.selectSingle("SELECT fname FROM athlete WHERE lname = ?", ["Byrne"]).then((result) => {
+            console.log(result.item(0).fname);
+        });
+    },
+    
     /**
      * will wipe all existing tables and create new ones
      * 
@@ -26,6 +35,7 @@ let sw_db = {
             tx.executeSql("DROP TABLE IF EXISTS meet");
             tx.executeSql("DROP TABLE IF EXISTS event_result");
             tx.executeSql("DROP TABLE IF EXISTS athlete_event");
+            tx.executeSql("DROP TABLE IF EXISTS team");
 
             tx.executeSql(`CREATE TABLE IF NOT EXISTS meet (meet_name, meet_time, meet_address)`);
             tx.executeSql(`CREATE TABLE IF NOT EXISTS athlete (fname, lname, grade, gender)`);
@@ -33,7 +43,8 @@ let sw_db = {
             // TODO rework relay team system
             tx.executeSql(`CREATE TABLE IF NOT EXISTS event (id_meet, event_name, gender, is_relay_team)`);
             tx.executeSql(`CREATE TABLE IF NOT EXISTS event_result (id_event, athlete_name, result)`);
-
+            tx.executeSql(`CREATE TABLE IF NOT EXISTS team (id_team, id_user, user_role)`);
+            
         }, function (error) {
             console.log('Transaction ERROR: ' + error.message);
         }, function () {
