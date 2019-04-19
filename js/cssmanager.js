@@ -36,6 +36,37 @@ let CSSManager = {
             "all": "initial"
         });
     },
+    
+    /**
+     * Adds the given CSS file to the current page dynamically.
+     * 
+     * @example addStylesheet("login.css");  will add the login stylesheet
+     * 
+     * @param {String} cssFileName name of CSS file; include extension, but not "css/"
+     */
+    addStylesheet(cssFileName) {
+        $("head").append("<link rel='stylesheet' type='text/css' href='css/" + cssFileName + "'>");
+    },
+    
+    /**
+     * Will attempt to remove any specific-page stylesheets. Does NOT remove:
+     * generic_elements.css
+     * index.css
+     * popup.css
+     * 
+     * Should be called when a new page in the app changes or loads.
+     */
+    resetStyling() {
+        $("link[rel=stylesheet][href='css/account.css']").remove();
+        $("link[rel=stylesheet][href='css/athlete.css']").remove();
+        $("link[rel=stylesheet][href='css/events.css']").remove();
+        $("link[rel=stylesheet][href='css/home.css']").remove();
+        $("link[rel=stylesheet][href='css/login.css']").remove();
+        $("link[rel=stylesheet][href='css/meet.css']").remove();
+        $("link[rel=stylesheet][href='css/signup.css']").remove();
+        $("link[rel=stylesheet][href='css/stats.css']").remove();
+        $("link[rel=stylesheet][href='css/stopwatch.css']").remove();
+    },
 
     styleWelcomePage() {
 
