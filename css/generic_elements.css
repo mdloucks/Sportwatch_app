@@ -10,3 +10,11 @@ This is to limit the file size for our page specific styles
     border: none;
     outline:none;
 }
+
+.back_arrow {
+    position: relative;
+    right: 20%;
+    top: 5vh; /* vh = 1% of viewport */
+    font-size: 2em;
+}
+
