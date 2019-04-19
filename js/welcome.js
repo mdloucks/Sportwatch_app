@@ -22,6 +22,7 @@ function welcomePage() {
 
     $("header > span").remove();
     CSSManager.unstyleHeader();
+    CSSManager.resetStyling();
     CSSManager.styleWelcomePage();
 
     $("#signup").click((e) => { 
