@@ -23,6 +23,25 @@ let sw_db = {
     },
     
     /**
+     * Probably not the most efficient, but it bascially returns a promise
+     * to handle handle if tables are created or not. (Create them if not)
+     */
+    doTablesExist: function() {
+        return new Promise((resolve, reject) => {
+            this.db.transaction(function(tx) {
+                // Poll some tables to see if an error is thrown
+                tx.executeSql("SELECT * FROM athlete");
+                tx.executeSql("SELECT * FROM meet");
+                tx.executeSql("SELECT * from team");
+            }, function(error) {
+                reject(error);
+            }, function() {
+                resolve();
+            });
+        });
+    },
+    
+    /**
      * will wipe all existing tables and create new ones
      * 
      * CAUTION: this will delete all of the uers's saved stuff!
