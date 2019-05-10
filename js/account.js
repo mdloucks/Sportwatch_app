@@ -2,6 +2,9 @@
 
 function accountPage() {
     
+    CSSManager.resetStyling();
+    CSSManager.addStylesheet("account.css");
+    
     // ---- CALLBACK / STATE BIND FUNCTIONS ---- //
     
     this.signout = function () {

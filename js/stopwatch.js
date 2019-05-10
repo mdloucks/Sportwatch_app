@@ -13,7 +13,10 @@ function StopwatchPage() {
         <button class="stopwatch_lap">Lap</button>
         <div class="stopwatch_lap_times"></div>
     `);
-
+    
+    CSSManager.resetStyling();
+    CSSManager.addStylesheet("stopwatch.css");
+    
     let c = $("#stopwatch_canvas")[0];
     let ctx = c.getContext("2d");
 

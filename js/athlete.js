@@ -15,7 +15,10 @@ function athletePage() {
     <div id="athlete_container">
     </div>
     `);
-
+    
+    CSSManager.resetStyling();
+    CSSManager.addStylesheet("athlete.css");
+    
     this.addAthlete = function () {
         throw new Error("AddAthlete is not yet initialized in AthletePage()");
     }
