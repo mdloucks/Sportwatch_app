@@ -19,8 +19,8 @@ header > p {
 button {
     background-color: red;
     color: white;
-    align-items: center;
-    justify-content: center;
+    padding: 15px 32px;
+    border-radius: 10%;
 }
 
 .selection {

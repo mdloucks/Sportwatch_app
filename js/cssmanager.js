@@ -66,6 +66,7 @@ let CSSManager = {
         $("link[rel=stylesheet][href='css/signup.css']").remove();
         $("link[rel=stylesheet][href='css/stats.css']").remove();
         $("link[rel=stylesheet][href='css/stopwatch.css']").remove();
+        $("link[rel=stylesheet][href='css/welcome.css']").remove();
     },
 
     styleWelcomePage() { // Deprecated; use addStyleSheet() instead
