@@ -23,7 +23,13 @@ function homePage() {
     }
     
     $("header").empty(); // When coming from logging or signing in
+    CSSManager.resetStyling();
     CSSManager.addStylesheet("home.css");
+    
+    sw_db.doTablesExist().catch(() => {
+        console.log("Tables do not exist...");
+        sw_db.createNewTables();
+    });
     
     $(document).on("click", "#testbutton", function (e) {
         e.preventDefault();
