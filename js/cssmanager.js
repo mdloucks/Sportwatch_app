@@ -68,8 +68,10 @@ let CSSManager = {
         $("link[rel=stylesheet][href='css/stopwatch.css']").remove();
     },
 
-    styleWelcomePage() {
-
+    styleWelcomePage() { // Deprecated; use addStyleSheet() instead
+        
+        console.log("styleWelcomePage() is DEPRECATED");
+        
         $("header").css({
             "text-align": "center",
         });
