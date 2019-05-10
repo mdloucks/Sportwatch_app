@@ -23,6 +23,7 @@ function homePage() {
     }
     
     $("header").empty(); // When coming from logging or signing in
+    CSSManager.addStylesheet("home.css");
     
     $(document).on("click", "#testbutton", function (e) {
         e.preventDefault();
