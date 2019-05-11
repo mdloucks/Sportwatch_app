@@ -14,7 +14,7 @@ function loginPage() {
                 <input class='text_input' type='email' name='email' placeholder='Email'><br>
                 <!-- <label for="password">Password</label> -->
                 <input class='text_input' type='password' name='password' placeholder='Password'><br>
-                <input id='login_button' type='submit' value='Login'>
+                <input id='login_button' class='sw_big_button' type='submit' value='Login'>
             </form>
         `);
         
