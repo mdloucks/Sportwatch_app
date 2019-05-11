@@ -1,0 +1,37 @@
+
+
+h1 {
+    font-size: 4em;
+}
+
+p {
+    font-size: 1.8em;
+}
+
+form {
+    margin: 10px;
+}
+
+label {
+    float: left;
+    margin-top: 2%;
+    font-size: 1.5em;
+}
+
+input {
+    float: right;
+}
+
+.form_holder {
+    margin: 5px;
+    padding: 10px;
+    display: inline-block;
+    width: 60%;
+    border-radius: 5px;
+    background-color: crimson;
+}
+
+
+
+
+
