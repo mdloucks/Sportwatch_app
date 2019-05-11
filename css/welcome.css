@@ -16,13 +16,6 @@ header > p {
     display: inline-block;
 }
 
-button {
-    background-color: red;
-    color: white;
-    padding: 15px 32px;
-    border-radius: 10%;
-}
-
 .selection {
     display: flex;
     align-items: center;
