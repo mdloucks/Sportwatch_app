@@ -15,15 +15,15 @@ function welcomePage() {
         <h1 style="font-size: 4em">Sportwatch</h1>
         <br><br>
         <div class="selection">
-            <button id='signup' type='button'>Sign Up</button>
-            <button id='login' type='button'>Login</button>
+            <button id='signup' class='sw_big_button' type='button'>Sign Up</button>
+            <button id='login' class='sw_big_button' type='button'>Login</button>
         </div>
     `); // TODO: Implement guest login
 
     $("header > span").remove();
     CSSManager.unstyleHeader();
     CSSManager.resetStyling();
-    //CSSManager.styleWelcomePage();
+    //CSSManager.styleWelcomePage(); Deprecated
     CSSManager.addStylesheet("welcome.css");
 
     $("#signup").click((e) => { 
