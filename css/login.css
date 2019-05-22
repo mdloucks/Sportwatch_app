@@ -19,14 +19,6 @@ form {
     width: 100%;
 }
 
-.text_input {
-    padding: 10px;
-    border-color: crimson;
-    margin-bottom: 15px;
-    font-size: 1.5em;
-    width: 60%;
-}
-
 #login_button {
     padding: 10px 20px;
 }
