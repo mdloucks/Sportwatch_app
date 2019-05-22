@@ -16,10 +16,18 @@ This is to limit the file size for our page specific styles
     padding: 15px 25px;
     font-size: 1.5em;
     font-weight: bold;
-    border-radius: 10%;
+    border-radius: 10px;
     background-color: red;
     color: white;
     -webkit-appearance: none;
+}
+
+.sw_text_input {
+    padding: 10px;
+    border-color: crimson;
+    margin-bottom: 15px;
+    font-size: 1.5em;
+    width: 60%;
 }
 
 .back_arrow {
