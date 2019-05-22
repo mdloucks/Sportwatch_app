@@ -1,4 +1,5 @@
 
+/*  GENERAL  */
 
 h1 {
     font-size: 4em;
@@ -8,30 +9,44 @@ p {
     font-size: 1.8em;
 }
 
+/*  FORM  */
+
 form {
     margin: 10px;
 }
 
 label {
-    float: left;
     margin-top: 2%;
     font-size: 1.5em;
 }
 
-input {
-    float: right;
+#label_email {
+    padding: 3%;
 }
 
-.form_holder {
-    margin: 5px;
+#button_signup {
+    padding: 10px 40px;
+}
+
+/*  ACCOUNT TYPES  */
+
+#p_accountType {
+    margin: 0.2em;
+}
+
+.account_type_button {
     padding: 10px;
-    display: inline-block;
-    width: 60%;
-    border-radius: 5px;
-    background-color: crimson;
+    border-radius: 10px;
+    border: 2px solid gray;
+    font-size: 1.5em;
+    background-color: whitesmoke;
+    /* transition: border 0.5s;   Add after page load to prevent moving */
+    /* ^ Explanation:  https://bit.ly/2Qf7PS9 */
 }
 
-
+.selected {
+    border: 2px solid crimson;
+}
 
 
 
