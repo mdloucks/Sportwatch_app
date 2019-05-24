@@ -1,0 +1,24 @@
+
+
+#app {
+    text-align: center;
+}
+
+h1 {
+    font-size: 4em;
+}
+
+p {
+    font-size: 1.8em;
+}
+
+/* Form Stlying */
+
+form {
+    display: inline-block;
+    width: 100%;
+}
+
+#login_button {
+    padding: 10px 20px;
+}

@@ -26,8 +26,10 @@ function eventsPage() {
         <h1>Track Events<button id="event_track_add" class="event_track_add">&#43;</button></h1><br>
         <div class="event_container"></div>
     `);
-
-
+    
+    CSSManager.resetStyling();
+    CSSManager.addStylesheet("events.css");
+    
     // check if there are meets registered
     sw_db.getNumberOfMeets().then((length) => {
         // TODO: add popup for this!

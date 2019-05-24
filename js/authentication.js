@@ -83,6 +83,8 @@ var Authentication = {
                     }
                 },
                 error: (response) => {
+                    // TODO: redo this to handle no internet connection
+                    $("#app").html(`<p>Invalid SID or Connection Error</p>`);
                     let data = JSON.parse(response);
                     ErrorHandler.handleAjaxError(data);
                     reject(data);

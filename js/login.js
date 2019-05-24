@@ -2,28 +2,31 @@
 
 function loginPage() {
     return new Promise((resolve, reject) => {
-        // back arrow
-        $("header").prepend(`
-            <span style="font-size: 2em;">&#8592</span>
+        
+        $("#app").html(`
+            <br><br>
+            <h1>Sportwatch</h1>
+            <br>
+            <span class="back_arrow">&#8592</span>
+            <p>Enter your login information</p>
+            <form>
+                <!-- <label for="email">Email</label> -->
+                <input class='sw_text_input' type='email' name='email' placeholder='Email'><br>
+                <!-- <label for="password">Password</label> -->
+                <input class='sw_text_input' type='password' name='password' placeholder='Password'><br>
+                <input id='login_button' class='sw_big_button' type='submit' value='Login'>
+            </form>
         `);
-
-        $("header > span").click(function (e) {
+        
+        CSSManager.resetStyling();
+        CSSManager.addStylesheet("login.css");
+        // CSSManager.styleLoginPage();
+        
+        $(".back_arrow").click(function (e) {
             e.preventDefault();
             resolve("welcome");
         });
-
-        $("#app").html(`
-            <form>
-                <label for="email">Email</label>
-                <input type='email' name='email'><br>
-                <label for="password">Password</label>
-                <input type='password' name='password'><br>
-                <input type='submit' value='Login'>
-            </form>
-        `);
-
-        CSSManager.styleLoginPage();
-
+        
         // this is just for testing
         $("input[name=email]").val("bromansalaam@gmail.com");
         $("input[name=password]").val("testing123");

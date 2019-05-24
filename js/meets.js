@@ -7,7 +7,10 @@ function meetsPage() {
     this.onAddMeet = (cb) => {
         this.addMeet = cb;
     }
-
+    
+    CSSManager.resetStyling();
+    CSSManager.addStylesheet("meet.css");
+    
     this.meet_list = [];
 
     $("#app").empty();

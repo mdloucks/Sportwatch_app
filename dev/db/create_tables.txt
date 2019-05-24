@@ -50,3 +50,12 @@ CREATE TABLE IF NOT EXISTS meet_event (
     FOREIGN KEY (id_meet) REFERENCES meet(id_meet),
     FOREIGN KEY (id_event) REFERENCES event(id_event)
 );
+
+# will hold information about the user's team
+CREATE TABLE IF NOT EXISTS team (
+    id_team INT NOT NULL,
+    id_user INT NOT NULL,
+    user_role VAR_CHAR(40)
+);
+
+

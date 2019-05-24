@@ -156,9 +156,24 @@ var StateManager = {
                     UIManager.switchToProgress();
                     break;
                 case "account":
-                    let account = new accountPage().onSignout(() => {
+                    let account = new accountPage();
+                    account.onSignout(() => {
                         UIManager.removeNavigationMenu();
                         this.setState("welcome");
+                    });
+                    account.onManageTeam(() => {
+                        this.setState("team");
+                    });
+                    break;
+                case "team":
+                    sw_db.selectSingle("SELECT 1 FROM team", []).then((result) => {
+                        if (result === false) {
+                            let createTeam = new createTeamPage();
+                        } else {
+                            let manageTeam = new manageTeamPage();
+                        }
+                    }).catch((error) => {
+                        console.log("Team State Error: " + error);
                     });
                     break;
             }    
