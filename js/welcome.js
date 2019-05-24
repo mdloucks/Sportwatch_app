@@ -9,15 +9,22 @@ function welcomePage() {
     }
 
     $("#app").html(`
+        <br><br>
+        <img src="img/logo-2.png" alt="Sportwatch Logo" style="width: 40%; height: 40%;">
+        <br>
+        <h1 style="font-size: 4em">Sportwatch</h1>
+        <br><br>
         <div class="selection">
-            <button id='signup' type='button'>Sign Up</button>
-            <button id='login' type='button'>Login</button>
-        </div> 
-    `);
+            <button id='signup' class='sw_big_button' type='button'>Sign Up</button>
+            <button id='login' class='sw_big_button' type='button'>Login</button>
+        </div>
+    `); // TODO: Implement guest login
 
     $("header > span").remove();
     CSSManager.unstyleHeader();
-    CSSManager.styleWelcomePage();
+    CSSManager.resetStyling();
+    //CSSManager.styleWelcomePage(); Deprecated
+    CSSManager.addStylesheet("welcome.css");
 
     $("#signup").click((e) => { 
         e.preventDefault();

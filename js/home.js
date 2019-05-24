@@ -23,6 +23,13 @@ function homePage() {
     }
     
     $("header").empty(); // When coming from logging or signing in
+    CSSManager.resetStyling();
+    CSSManager.addStylesheet("home.css");
+    
+    sw_db.doTablesExist().catch(() => {
+        console.log("Tables do not exist...");
+        sw_db.createNewTables();
+    });
     
     $(document).on("click", "#testbutton", function (e) {
         e.preventDefault();
@@ -107,12 +114,13 @@ function homePage() {
             e.preventDefault();
             document.getElementById("navigation_menu").style.width = "0";
         });
-    
-        $("#navigation_menu_open").click(function (e) {
-            e.preventDefault();
-            document.getElementById("navigation_menu").style.width = "250px";
-        });
     }
+    
+    // Moved to ensure it opens when returning to "Home" page
+    $("#navigation_menu_open").click(function (e) {
+        e.preventDefault();
+        document.getElementById("navigation_menu").style.width = "250px";
+    });
 
 
     // TODO DO THIS

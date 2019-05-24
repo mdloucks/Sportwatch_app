@@ -17,7 +17,9 @@ var States = Object.freeze({
 
 var sw_urls = {
     signup : "https://www.sportwatch.us/mobile/signup.php",
-    login : "https://www.sportwatch.us/mobile/login.php"
+    login : "https://www.sportwatch.us/mobile/login.php",
+    team_create : "https://www.sportwatch.us/mobile/create_team.php",
+    team_action : "https://www.sportwatch.us/mobile/team_action.php"
 };
 
 /**
