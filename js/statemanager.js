@@ -168,7 +168,9 @@ var StateManager = {
                 case "team":
                     sw_db.selectSingle("SELECT 1 FROM team", []).then((result) => {
                         if (result === false) {
-                            let createTeam = new createTeamPage();
+                            //let createTeam = new createTeamPage();
+                            // Ask the user if they want to join or create a team
+                            let teamInit = new initTeamPage();
                         } else {
                             let manageTeam = new manageTeamPage();
                         }
