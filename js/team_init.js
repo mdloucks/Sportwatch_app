@@ -32,26 +32,20 @@ function initTeamPage() {
     // TODO Implement page changes here when the buttons are clicked
     $("#app").on("click", "#join_team", (e) => {
         e.preventDefault();
-        $("#join_team").css("background-color", "lightgray");
+        $("#join_team").css("background-color", "gray");
         
         setTimeout(() => {
-            $("#join_team").css("background-color", "white");
-        }, 250);
-        setTimeout(() => {
             this.joinTeam();
-        }, 300);
+        }, 200);
     });
     
     $("#app").on("click", "#create_team", (e) => {
         e.preventDefault();
-        $("#create_team").css("background-color", "lightgray");
+        $("#create_team").css("background-color", "gray");
         
         setTimeout(() => {
-            $("#create_team").css("background-color", "white");
-        }, 250);
-        setTimeout(() => {
             this.createTeam();
-        }, 300);
+        }, 200);
     });
     
 }
