@@ -51,6 +51,30 @@ span {
     animation: spin 1s linear infinite;
 }
 
+/* Transitions Styling */
+
+.div_page {
+    position: absolute;
+    top: 15%;
+    width: 99%; /* 100% is larger than header, producing "scoll" */
+    height: 85%;
+    text-align: center;
+    background-color: #fff;
+    transition: left 0.5s;
+}
+
+.div_page.current_page {
+    left: 0%;
+}
+
+.div_page.page_right {
+    left: 100%;
+}
+
+.div_page.page_left {
+    left: -100%;
+}
+
 @keyframes spin {
     0% { transform: rotate(0deg); }
     100% { transform: rotate(360deg); }
