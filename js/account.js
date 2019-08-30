@@ -233,8 +233,8 @@ function accountPage() {
             return;
         }
         if (prevPageId == newPageId) {
-            this.currentPageId = "#catagoryPage";
-            console.log("Duplicate! New current page: " + this.currentPageId);
+            currentPageId = "#catagoryPage";
+            console.log("Duplicate! New current page: " + currentPageId);
             return;
         }
         $(newPageId).removeClass("hidden");
