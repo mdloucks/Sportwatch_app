@@ -51,7 +51,7 @@ span {
     animation: spin 1s linear infinite;
 }
 
-/* Transitions Styling */
+/* ---- TRANSITION STYLING ---- */
 
 .div_page {
     position: absolute;
@@ -60,7 +60,6 @@ span {
     height: 85%;
     text-align: center;
     background-color: #fff;
-    transition: left 0.5s;
 }
 
 .div_page.current_page {
@@ -74,6 +73,21 @@ span {
 .div_page.page_left {
     left: -100%;
 }
+
+/* Shamelessly stole from:
+https://css-tricks.com/places-its-tempting-to-use-display-none-but-dont/ */
+.hidden {
+    position: absolute !important;
+    overflow: hidden !important; 
+    clip: rect(0 0 0 0);
+    height: 1px !important;
+    width: 1px !important; 
+    margin: -1px !important;
+    padding: 0;
+    border: 0;
+}
+
+/* ---- MISC ---- */
 
 @keyframes spin {
     0% { transform: rotate(0deg); }
