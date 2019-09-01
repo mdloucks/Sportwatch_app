@@ -1,0 +1,6 @@
+To create a page, make sure the following are completed for fulll functionality:
+
+1. Create file (.js) and function name
+2. Add case / function to statemanager.js
+3. Create .css file for new page and add it to the removed files in cssmanager.js
+4. Add both the new js file and css file to index.html includes

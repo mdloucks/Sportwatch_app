@@ -38,7 +38,7 @@ function signupPage() {
         // Use set timeout to prevent page moving upon load (https://bit.ly/2Qf7PS9)
         setTimeout(function() {
             $(".account_type_button").css("transition", "border 1s");
-        }, 1000);
+        }, 100); // Not sure, but this can't be too low
         
         $(".back_arrow").click(function (e) {
             e.preventDefault();
