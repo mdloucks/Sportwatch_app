@@ -65,6 +65,7 @@ let CSSManager = {
         $("link[rel=stylesheet][href='css/meet.css']").remove();
         $("link[rel=stylesheet][href='css/signup.css']").remove();
         $("link[rel=stylesheet][href='css/stats.css']").remove();
+        $("link[rel=stylesheet][href='css/team_create.css']").remove();
         $("link[rel=stylesheet][href='css/stopwatch.css']").remove();
         $("link[rel=stylesheet][href='css/welcome.css']").remove();
     },
