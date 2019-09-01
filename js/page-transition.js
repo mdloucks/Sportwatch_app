@@ -91,6 +91,20 @@ function PageTransition(firstPageHtml = "", firstPageKey = "") {
     }
     
     /**
+     * Removes a page from the pages Map based on key value.
+     * 
+     * @example
+     * removePage("createTeam");
+     * 
+     * @param {String} pageKey name of the page to be removed
+     * 
+     * @return {Boolean} True, if success. False, if the page key didn't exist
+     */
+    this.removePage = function(pageKey) {
+        return pages.delete(pageKey);
+    }
+    
+    /**
      * Slides the new page in from the right TO the left.
      * 
      * @example
