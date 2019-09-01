@@ -51,6 +51,44 @@ span {
     animation: spin 1s linear infinite;
 }
 
+/* ---- TRANSITION STYLING ---- */
+
+.div_page {
+    position: absolute;
+    top: 15%;
+    width: 99%; /* 100% is larger than header, producing "scoll" */
+    height: 85%;
+    text-align: center;
+    background-color: #fff;
+}
+
+.div_page.current_page {
+    left: 0%;
+}
+
+.div_page.page_right {
+    left: 100%;
+}
+
+.div_page.page_left {
+    left: -100%;
+}
+
+/* Shamelessly stole from:
+https://css-tricks.com/places-its-tempting-to-use-display-none-but-dont/ */
+.hidden {
+    position: absolute !important;
+    overflow: hidden !important; 
+    clip: rect(0 0 0 0);
+    height: 1px !important;
+    width: 1px !important; 
+    margin: -1px !important;
+    padding: 0;
+    border: 0;
+}
+
+/* ---- MISC ---- */
+
 @keyframes spin {
     0% { transform: rotate(0deg); }
     100% { transform: rotate(360deg); }

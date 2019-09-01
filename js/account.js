@@ -215,7 +215,7 @@ function accountPage() {
      * @example animateTransition("catagoryPage", "devPage");
      * 
      * @param newPageId {String} new page div's id
-     * @param rightToLeft {Boolean} [default = true] animatino slide from
+     * @param rightToLeft {Boolean} [default = true] animation slide from
      * right to left?
      */
     this.animateTransition = function (newPageId, rightToLeft = true) {
@@ -233,8 +233,8 @@ function accountPage() {
             return;
         }
         if (prevPageId == newPageId) {
-            this.currentPageId = "#catagoryPage";
-            console.log("Duplicate! New current page: " + this.currentPageId);
+            currentPageId = "#catagoryPage";
+            console.log("Duplicate! New current page: " + currentPageId);
             return;
         }
         $(newPageId).removeClass("hidden");
