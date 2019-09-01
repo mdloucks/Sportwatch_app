@@ -1,41 +1,36 @@
 function createTeamPage() {
     
     CSSManager.resetStyling();
-    //CSSManager.addStylesheet("account.css");
+    CSSManager.addStylesheet("team_create.css");
     
     let transitionObj = new PageTransition();
     
-    //$("#app").html(`Welcome to where the magic happens (where to create teams)`);
     // Playground:  https://jsbin.com/mokimapiho/edit?html,js,output
     
-    let home = (`
-        <div class="div_page">
-            <h1>Create your team</h1>
-            <button id="begin">Begin</button>
+    let basePage = (`
+        <div id="div_createBase">
+            <span class="step" id="step1">1</span>
+            <span class="step" id="step2">2</span>
+            <span class="step" id="step3">3</span>
+            <h1>Create Team</h1>
         </div>
     `);
     
-    let mechanics = (`
-        <div id="mechanics">
-            <h1>Choose a name</h1>
-            <p>Name your team: </p><br><br><br>
-            <button id="back">Back</button>
+    let namePage = (`
+        <div id="teamName" class="div_page">
+            <h1 id="h1_giveName">Name the Team</h1>
+            <input id="team_name" class="sw_text_input" type="text"></input>
+            <input id="button_submitName" type="image" src="img/arrow.png"></input>
         </div>
     `);
     
-    $("#app").html(""); // Clear html content
-    transitionObj.addPage("home", home, true);
-    transitionObj.addPage("name", mechanics);
     
-    $("#app").on("click", "#begin", (e) => {
-        e.preventDefault();
-        transitionObj.slideLeft("name");
-    });
     
-    $("#app").on("click", "#back", (e) => {
-        e.preventDefault();
-        transitionObj.slideLeft("HOmE", 500);
-    });
+    $("#app").html("");
+    $("#app").html(basePage);
+    
+    // Add the function pages to the transition manager
+    transitionObj.addPage("teamName", namePage, true);
     
     
     
