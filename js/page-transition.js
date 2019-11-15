@@ -144,7 +144,7 @@ function PageTransition(firstPageHtml = "", firstPageKey = "") {
                 
         // Create ID's for previous and new page after removing any sneaky #'s
         let prevPageId = "#" + currentPage.replace("#", "");
-        let targetPageId = "#" + targetPageKey.replace("#", "").toLowerCase();
+        let targetPageId = "#" + targetPageKey.replace("#", "");
                 
         // Prevent the double clicking of the button
         if (($(prevPageId).is(":animated")) || ($(targetPageId).is(":animated"))) {
@@ -172,10 +172,12 @@ function PageTransition(firstPageHtml = "", firstPageKey = "") {
         // Kind of jimmy-rigged, but I don't know how to solve the root problem :(
         setTimeout(() => {
             if (slideLeft) {
+                console.log("Removing from " + targetPageId);
                 $(targetPageId).removeClass("hidden");
                 $(targetPageId).removeClass("page_right");
                 $(prevPageId).addClass("page_left");
             } else {
+                console.log("2 Removing from " + targetPageId);
                 $(targetPageId).removeClass("hidden");
                 $(targetPageId).removeClass("page_left");
                 $(prevPageId).addClass("page_right");
