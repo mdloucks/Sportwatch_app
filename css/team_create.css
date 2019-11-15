@@ -23,10 +23,41 @@
   font-size: 150%;
   border: solid;
   border-radius: 100%;
+  transition: background-color 1s;
+}
+
+.step_completed {
+    background-color: darkgray;
 }
 
 #step2 {
     margin: 5% 10% 2% 10%;
+}
+
+/* ---- TIPS ---- */
+
+.ul_tips {
+    margin-top: 0;
+    margin-left: 15%;
+    text-align: center;
+    list-style-position: inside;
+}
+
+#p_tipHeading {
+    margin-top: 20%;
+    margin-bottom: 0;
+    font-size: 2em;
+}
+
+.tips {
+    margin-bottom: 0;
+    float: left;
+    font-size: 2em;
+}
+
+/* Use when a condition hasn't been met */
+.tips.bolded {
+    font-weight: bold;
 }
 
 /* ---- NAME TEAM ---- */
@@ -56,4 +87,5 @@
 
 .div_page {
     top: 40%; /* To move past title of create team */
+    height: unset; /* Prevent long scrolling */
 }
