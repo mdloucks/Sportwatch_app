@@ -172,12 +172,10 @@ function PageTransition(firstPageHtml = "", firstPageKey = "") {
         // Kind of jimmy-rigged, but I don't know how to solve the root problem :(
         setTimeout(() => {
             if (slideLeft) {
-                console.log("Removing from " + targetPageId);
                 $(targetPageId).removeClass("hidden");
                 $(targetPageId).removeClass("page_right");
                 $(prevPageId).addClass("page_left");
             } else {
-                console.log("2 Removing from " + targetPageId);
                 $(targetPageId).removeClass("hidden");
                 $(targetPageId).removeClass("page_left");
                 $(prevPageId).addClass("page_right");
