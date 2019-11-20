@@ -1,0 +1,93 @@
+
+/* ---- TITLE BASE STYLING ---- */
+
+#div_createBase {
+    padding: 5px;
+    margin: 0 auto;
+    width: 80%;
+    border: 4px solid black;
+    border-radius: 10px;
+    background-color: crimson;
+}
+
+#div_createBase h1 {
+    margin-top: 2%;
+    color: white;
+    font-family: Arial;
+}
+
+.step {
+  padding: 4% 6% 4% 6%;
+  display: inline-block;
+  background-color: white;
+  font-size: 150%;
+  border: solid;
+  border-radius: 100%;
+  transition: background-color 1s;
+}
+
+.step_completed {
+    background-color: pink;
+}
+
+#step2 {
+    margin: 5% 10% 2% 10%;
+}
+
+/* ---- TIPS ---- */
+
+.ul_tips {
+    margin-top: 0;
+    margin-left: 15%;
+    width: 75%;
+    text-align: center;
+    list-style-position: inside;
+}
+
+#p_tipHeading {
+    margin-top: 20%;
+    margin-bottom: 0;
+    font-size: 2em;
+}
+
+.tips {
+    margin-bottom: 0;
+    float: left;
+    font-size: 2em;
+}
+
+/* Use when a condition hasn't been met */
+.tips.bolded {
+    font-weight: bold;
+}
+
+/* ---- NAME TEAM ---- */
+
+#teamName h1 {
+    font-size: 30px;
+}
+
+.sw_text_input {
+    margin-top: 0;
+    margin-left: 10%;
+    float: left;
+    font-size: 25px;
+    border-radius: 5px 0 0 5px;
+}
+
+#button_submitName {
+    padding: 5px;
+    /* width: 13.4%; */
+    width: 50px;
+    float: left;
+    background-color: crimson;
+    border-radius: 0 5px 5px 0;
+}
+
+
+/* ---- MISC ---- */
+
+.div_page {
+    top: 40%; /* To move past title of create team */
+    height: unset; /* Prevent long scrolling */
+}

@@ -112,13 +112,19 @@ var ErrorHandler = {
                 case "success":
                     return;
                 case "notmodified":
+                    break;
                 case "timeout":
-                    throw new errorType.AjaxTimeoutError();
+                    //throw new errorType.AjaxTimeoutError();
+                    throw new Error("Network Timeout: request took too long, check your internet connection.");
                 case "abort":
+                    break;
                 case "timeout":
+                    break;
                 case "parsererror":
-                    throw new errorType.AjaxParseError();
+                    //throw new errorType.AjaxParseError();
+                    throw new Error("Parse Error: We could not understand the response send back by our servers.");
                 case "error":
+                    break;
             }
         } catch (e) {
             this.resolveError(e);
@@ -184,7 +190,7 @@ var ErrorHandler = {
         console.log(`
                                     ERROR
         ===============================================================
-        ${error.errorMessage}
+        ${error.message}
         ===============================================================
         
                                 Server Response
@@ -193,7 +199,7 @@ var ErrorHandler = {
         ===============================================================
         `);
 
-        $("#app").append(`<p style="font-size: 2em; color: red;">${error.errorMessage}</p>`);
+        $("#app").append(`<p style="font-size: 2em; color: red;">${error.message}</p>`);
     }
 
 };

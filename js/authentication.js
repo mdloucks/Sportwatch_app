@@ -18,7 +18,7 @@ var Authentication = {
             $.ajax({
                 type: "POST",
                 url: sw_urls.login,
-                timeout: ajax_config.timeout,
+                timeout: 500,
                 data: {
                     email : email,
                     password : password
@@ -45,11 +45,11 @@ var Authentication = {
                         reject(data);
                     }
                 },
-                error: (response) => {
+                error: (response, status) => {
                     console.log("login ajax error");
-                    let data = JSON.parse(response);
-                    ErrorHandler.handleAjaxError(data);
-                    reject(data);
+                    //let data = JSON.parse(response);
+                    ErrorHandler.handleAjaxError(response);
+                    reject(response);
                 }
             });
         });
