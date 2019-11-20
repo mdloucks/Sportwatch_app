@@ -23,7 +23,7 @@ function PageTransition(firstPageHtml = "", firstPageKey = "") {
     
     // Attempt to add the default page if given
     if(firstPageHtml !== "") {
-        this.addPage(firstPageKey, firstPageHtml);
+        this.addPage(firstPageKey, firstPageHtml, true);
     }
     
     /**
@@ -46,7 +46,7 @@ function PageTransition(firstPageHtml = "", firstPageKey = "") {
             // This is the provided div_page id found in pageHtml
             // It needs to match pageKey to work correctly
             let rawPageId = this.verifyPageKey(pageHtml);
-            pageKey = pageKey.replace("#", "").toLowerCase(); // Remove any hashtags
+            pageKey = pageKey.replace("#", ""); // Remove any hashtags
                         
             // If the div_page is missing, wrap the content in it
             if(!pageHtml.includes("div_page")) {
@@ -144,7 +144,7 @@ function PageTransition(firstPageHtml = "", firstPageKey = "") {
                 
         // Create ID's for previous and new page after removing any sneaky #'s
         let prevPageId = "#" + currentPage.replace("#", "");
-        let targetPageId = "#" + targetPageKey.replace("#", "").toLowerCase();
+        let targetPageId = "#" + targetPageKey.replace("#", "");
                 
         // Prevent the double clicking of the button
         if (($(prevPageId).is(":animated")) || ($(targetPageId).is(":animated"))) {
@@ -224,7 +224,7 @@ function PageTransition(firstPageHtml = "", firstPageKey = "") {
         }
         
         if ((divIndex != -1) && (idIndex != -1)) {
-            endIdIndex = pageHtml.indexOf(">", idIndex);
+            endIdIndex = pageHtml.indexOf("\"", idIndex + 4); // +3 to remove quotes from id="
             // +3 to remove "id="
             divId = pageHtml.substring(idIndex + 3, endIdIndex);
             divId = divId.replace(/\"/g, "").replace("#", ""); // Remove all quotes and hashtags

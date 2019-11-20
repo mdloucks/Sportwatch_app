@@ -20,6 +20,14 @@ function accountPage() {
     this.onManageTeam = function(callback) {
         this.manageTeam = callback;
     }
+    
+    this.deconstruct = function() {
+        // Remove event listeners
+        $("#app").off();
+        $("button").off();
+        $(".act_drop_button").off();
+        $("#database_command").off();
+    }
         
     // ---- PAGES ---- //
     
