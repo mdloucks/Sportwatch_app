@@ -31,7 +31,7 @@ function createTeamPage() {
     
     let namePage = (`
         <div id="teamName" class="div_page">
-            <h1 id="h1_giveName">Name the Team</h1>
+            <h1 id="h1_giveName">Name the Team</h1><br>
             <input id="team_name" class="sw_text_input" type="text"></input>
             <input id="button_submitName" type="image" src="img/arrow.png"></input>
             <br><br>
@@ -94,6 +94,7 @@ function createTeamPage() {
         this.teamName = $("#team_name").val().trim();
         console.log("Saved team name: " + this.teamName);
         transitionObj.slideLeft("schoolPage");
+        $("#step1").addClass("step_completed");
     });
     
     
