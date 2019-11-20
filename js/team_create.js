@@ -4,8 +4,21 @@ function createTeamPage() {
     CSSManager.addStylesheet("team_create.css");
     
     let transitionObj = new PageTransition();
+    let teamName = "";
     
     // Playground:  https://jsbin.com/mokimapiho/edit?html,js,output
+    
+    // ---- CALLBACK / STATE BIND FUNCTIONS ---- //
+
+    this.deconstruct = function() {
+        console.log("Deconstructing...");
+        // Remove event listeners
+        $("#app").off();
+        $("#team_name").off();
+        $("#button_submitName").off();
+    }
+    
+    // ---- PAGES ---- /
     
     let basePage = (`
         <div id="div_createBase">
@@ -24,10 +37,10 @@ function createTeamPage() {
             <br><br>
             <p id="p_tipHeading">Naming Tips:</p><br>
             <ul class="ul_tips">
-                <li class="tips bolded">Use 15-45 characters</li>
-                <li class="tips">Avoid special characters</li>
-                <li class="tips">Create a unique name</li>
-                <li class="tips">Capitalize names</li>
+                <li id="tip_length" class="tips bolded">Use 15-45 characters</li>
+                <li id="tip_specials" class="tips">Avoid special characters</li>
+                <li id="tip_capitalize" class="tips">Capitalize significant words</li>
+                <li id="tip_uniqueName" class="tips">Create a unique name</li>
             </ul>
         </div>
     `);
@@ -39,14 +52,60 @@ function createTeamPage() {
     `);
     
     
-    // Functionality
+    // ---- FUNCTIONALITY ---- //
+    
+    // Tip highlighting (TEAM NAME)
+    $("#app").on("input", "#team_name", (e) => {
+        let input = $("#team_name").val();
+        
+        // Length
+        if((input.length < 15) || (input.length > 45)) {
+            // Bold this tip since the criteria isn't met yet
+            if(!$("#tip_length").hasClass("bolded")) {
+                $("#tip_length").addClass("bolded");
+            }
+        } else {
+            $("#tip_length").removeClass("bolded");
+        }
+        
+        // Special characters
+        if (!(/^[a-zA-Z0-9 ]*$/g.test(input))) {
+            if (!$("#tip_specials").hasClass("bolded")) {
+                $("#tip_specials").addClass("bolded");
+            }
+        } else {
+            $("#tip_specials").removeClass("bolded");
+        }
+        
+        // Capitalization
+        if (!(/[A-Z]/g.test(input))) {
+            if (!$("#tip_capitalize").hasClass("bolded")) {
+                $("#tip_capitalize").addClass("bolded");
+            }
+        } else {
+            $("#tip_capitalize").removeClass("bolded");
+        }
+    });
+    
+    // First page (team name)
     $("#app").on("click", "#button_submitName", (e) => {
         e.preventDefault();
+        
+        this.teamName = $("#team_name").val().trim();
+        console.log("Saved team name: " + this.teamName);
         transitionObj.slideLeft("schoolPage");
     });
     
     
-    // Final additions of pages
+    this.dump = function (obj) {
+        let out = '';
+        for (let i in obj) {
+            out += i + ": " + obj[i] + "\n";
+        }
+        console.log(out);
+    }
+    
+    // ---- FINAL OPERATIONS ---- //
     
     $("#app").html("");
     $("#app").html(basePage);
