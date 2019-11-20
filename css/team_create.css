@@ -27,7 +27,7 @@
 }
 
 .step_completed {
-    background-color: darkgray;
+    background-color: pink;
 }
 
 #step2 {
@@ -39,6 +39,7 @@
 .ul_tips {
     margin-top: 0;
     margin-left: 15%;
+    width: 75%;
     text-align: center;
     list-style-position: inside;
 }
@@ -76,7 +77,8 @@
 
 #button_submitName {
     padding: 5px;
-    width: 13.4%;
+    /* width: 13.4%; */
+    width: 50px;
     float: left;
     background-color: crimson;
     border-radius: 0 5px 5px 0;
