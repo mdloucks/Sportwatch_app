@@ -1,4 +1,16 @@
 
+# holds basic account information, such as name, email, state, school, etc.
+# id_user corresponds to server database ID
+CREATE TABLE IF NOT EXISTS account (
+    id_user INT,
+    fname VARCHAR(20),
+    lname VARCHAR(20),
+    account_type ENUM("Athlete", "Coach"),
+    id_school INT,
+    cellNum VARCHAR(15)
+);
+
+
 # this is just a simple list of athletes in case of those that don't want to create an account
 CREATE TABLE IF NOT EXISTS athlete (
     id_athlete INT AUTO_INCREMENT,

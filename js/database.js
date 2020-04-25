@@ -48,14 +48,16 @@ let sw_db = {
      */
     createNewTables: function () {
         this.db.transaction(function (tx) {
-
+            
+            tx.executeSql("DROP TABLE IF EXISTS account");
             tx.executeSql("DROP TABLE IF EXISTS athlete");
             tx.executeSql("DROP TABLE IF EXISTS event");
             tx.executeSql("DROP TABLE IF EXISTS meet");
             tx.executeSql("DROP TABLE IF EXISTS event_result");
             tx.executeSql("DROP TABLE IF EXISTS athlete_event");
             tx.executeSql("DROP TABLE IF EXISTS team");
-
+            
+            tx.executeSql(`CREATE TABLE IF NOT EXISTS account (id_user, fname, lname, account_type, id_school, cellNum)`);
             tx.executeSql(`CREATE TABLE IF NOT EXISTS meet (meet_name, meet_time, meet_address)`);
             tx.executeSql(`CREATE TABLE IF NOT EXISTS athlete (fname, lname, grade, gender)`);
             tx.executeSql(`CREATE TABLE IF NOT EXISTS athlete_event (id_athlete, id_event, relay_team)`);
