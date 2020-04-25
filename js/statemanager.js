@@ -39,6 +39,8 @@ var StateManager = {
         try {
             if(current_state != "uninitialized") {
                 this.current_state_obj.deconstruct();
+            } else {
+                console.log("Skipped uninitilied");
             }
         } catch(e) {
             console.log("[StateManager]: State \"" + this.current_state + "\" does not have mandatory " +
