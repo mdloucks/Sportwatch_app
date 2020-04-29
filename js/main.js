@@ -17,7 +17,6 @@ class App {
 
         $(".loader").remove();
 
-
         // TODO: pass a callback function into initNavbar to switch between pages
         navbar.initNavbar(this.switchPage.bind(this));
     }
@@ -48,7 +47,7 @@ class App {
         } else if (page === "team") {
             this.exit_callback = team.initTeam();
         } else if (page === "account") {
-            accountPage();
+            this.exit_callback = account.initAccount();
         } else {
             this.exit_callback = () => { };
         }

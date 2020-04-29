@@ -17,18 +17,19 @@ let stopwatch = {
         $("#app").html(`
             <canvas id="stopwatch_canvas" class="stopwatch_canvas" width="400px" height="300px"></canvas>
             <button class="stopwatch_start_stop">&#9654;</button>
-            <button class="stopwatch_reset">Reset</button>
             <button class="stopwatch_lap">Lap</button>
+            <button class="stopwatch_reset">Reset</button>
             <div class="stopwatch_lap_times"></div>
         `);
 
-        CSSManager.resetStyling();
-        CSSManager.addStylesheet("stopwatch.css");
+        let style = document.getElementById("style_stopwatch");
+        style.disabled = false;
 
         let clock_loop = this.startStopwatch();
 
         let exit_callback = function () {
             clearInterval(clock_loop);
+            style.disabled = true;
         }
 
         return exit_callback;
@@ -44,7 +45,9 @@ let stopwatch = {
             point_size: 6,
             center_x: c.width / 2,
             center_y: c.height / 2,
-            font_size: "50px",
+            font: "30px Arial",
+            fillStyle: "rgb(245, 77, 77)",
+            lineWidth: 5,
 
             angle: 90,
             interval: 1,
@@ -58,96 +61,72 @@ let stopwatch = {
         }
 
         clock.angleInterval = 360 / clock.interval;
-
-        this.drawCircle = function () {
-            ctx.beginPath();
-            ctx.arc(clock.center_x, clock.center_y, clock.radius, 0, 2 * Math.PI);
-            ctx.stroke();
-        }
-
-        this.drawPoint = function (angle, distance) {
-            let x = clock.center_x + clock.radius * Math.cos(-angle * Math.PI / 180) * distance;
-            let y = clock.center_y + clock.radius * Math.sin(-angle * Math.PI / 180) * distance;
-
-            ctx.beginPath();
-            ctx.arc(x, y, clock.point_size, 0, 2 * Math.PI);
-            ctx.fill();
-        }
+        ctx.lineWidth = clock.lineWidth;
 
         ctx.clearRect(0, 0, 500, 500);
-        this.drawCircle();
-        this.drawPoint(clock.angle, 1);
+        this.drawCircle(clock, ctx);
+        this.drawPoint(clock, ctx, clock.angle, 1);
 
-        ctx.font = clock.font_size;
-        ctx.fillText("0.00", clock.center_x, clock.center_y);
+        ctx.font = clock.font;
+        ctx.fillStyle = clock.fillStyle;
 
-        let start;
+        ctx.fillText("0.00", clock.center_x - (ctx.measureText("0.00").width / 2),
+            clock.center_y);
+
         let dt;
         let finish;
+        let clockText;
 
         let clock_loop = setInterval(() => {
-            finish = Date.now();
-            dt = finish - (start === undefined ? finish : start);
-            start = Date.now();
-
             if (clock.isRunning) {
+                dt = Date.now() - (clock.start == 0 ? Date.now() : clock.start);
+                clock.start = Date.now();
 
                 ctx.clearRect(0, 0, 500, 500);
-                this.drawCircle();
-                this.drawPoint(clock.angle, 1, "A");
+                this.drawCircle(clock, ctx);
+                this.drawPoint(clock, ctx, clock.angle, 1, "A");
                 clock.deltaAngle = clock.angleInterval * (dt / 1000);
                 clock.angle -= clock.deltaAngle;
 
-                // get dt between start of clock and now
-                clock.epoch = (Date.now() - clock.start) / 1000;
-                clock.hours = Math.floor(clock.epoch / 3600);
-                clock.minutes = Math.floor(clock.epoch / 60);
-                clock.seconds = clock.epoch - (clock.minutes * 60).toFixed(2);
+                clock.seconds += (dt / 1000);
+                clock.minutes = Math.floor(clock.seconds / 60);
+                clock.hours = Math.floor(clock.seconds / 3600);
 
-                ctx.font = clock.font_size;
-                ctx.fillText(clock.hours + ":" + clock.minutes + ":" + clock.seconds, clock.center_x, clock.center_y);
+                console.log(`hours ${clock.hours} minutes ${clock.minutes} seconds ${clock.seconds.toFixed(2)}`);
 
+                if (clock.hours >= 1) {
+                    clockText = (clock.hours + ":" + clock.minutes + ":" + clock.seconds.toFixed(1) * 10);
+                } else if (clock.minutes >= 1) {
+                    clockText = (clock.minutes + ":" + clock.seconds.toFixed(2));
+                } else if (clock.minutes < 1) {
+                    clockText = (clock.seconds.toFixed(2)).toString();
+                } else {
+                    clockText = "0:00";
+                }
+
+                let textX = clock.center_x - (ctx.measureText(clockText).width / 2);
+                let textY = clock.center_y;
+                ctx.fillText(clockText, textX, textY);
 
                 if (clock.angle <= -270) {
                     clock.angle = 90;
                 }
             }
-        }, 0);
+        }, 10);
 
-        $(".stopwatch_start_stop").click(function (e) {
+        $(".stopwatch_start_stop").click((e) => {
             e.preventDefault();
+            this.startStop(clock);
+        });
 
-            if (clock.isRunning && clock.epoch > 0) {
-                clock.isRunning = false;
-                $(".stopwatch_start_stop").html(`&#9654;`);
-                // stopwatch is paused
-            } else if (!clock.isRunning && clock.epoch === 0) {
-                $(".stopwatch_start_stop").html(`&#9660;`);
-                clock.isRunning = true;
-                clock.start = Date.now();
-            } else if (!clock.isRunning) {
-                clock.isRunning = true;
-                $(".stopwatch_start_stop").html(`&#9660;`);
-            }
+        $("#stopwatch_canvas").click((e) => {
+            e.preventDefault();
+            this.startStop(clock);
         });
 
         $(".stopwatch_reset").click((e) => {
             e.preventDefault();
-            clock.isRunning = false;
-
-            ctx.clearRect(0, 0, 400, 400);
-            this.drawCircle();
-            this.drawPoint(90, 1, "A");
-            ctx.fillText("0.00", clock.center_x, clock.center_y);
-
-            $(".stopwatch_lap_times").empty();
-
-            clock.angle = 90;
-            clock.deltaAngle = 0;
-            clock.epoch = 0;
-            clock.hours = 0;
-            clock.minutes = 0;
-            clock.seconds = 0;
+            this.reset(clock, ctx);
         });
 
         $(".stopwatch_lap").click(function (e) {
@@ -160,5 +139,55 @@ let stopwatch = {
         });
 
         return clock_loop;
+    },
+
+    startStop: function (clock) {
+        // if (clock.isRunning && clock.epoch > 0) {
+        //     clock.isRunning = false;
+        // } else if (!clock.isRunning && clock.epoch === 0) {
+        //     clock.isRunning = true;
+        //     clock.start = Date.now();
+        // } else if (!clock.isRunning) {
+        //     clock.isRunning = true;
+        // }
+
+        if (!clock.isRunning) {
+            clock.start = 0;
+        }
+
+        clock.isRunning = !clock.isRunning;
+    },
+
+    reset: function (clock, ctx) {
+        clock.isRunning = false;
+
+        ctx.clearRect(0, 0, 400, 400);
+        this.drawCircle(clock, ctx);
+        this.drawPoint(clock, ctx, 90, 1, "A");
+        ctx.fillText("0.00", clock.center_x, clock.center_y);
+
+        $(".stopwatch_lap_times").empty();
+
+        clock.angle = 90;
+        clock.deltaAngle = 0;
+        clock.epoch = 0;
+        clock.hours = 0;
+        clock.minutes = 0;
+        clock.seconds = 0;
+    },
+
+    drawCircle: function (clock, ctx) {
+        ctx.beginPath();
+        ctx.arc(clock.center_x, clock.center_y, clock.radius, 0, 2 * Math.PI);
+        ctx.stroke();
+    },
+
+    drawPoint: function (clock, ctx, angle, distance) {
+        let x = clock.center_x + clock.radius * Math.cos(-angle * Math.PI / 180) * distance;
+        let y = clock.center_y + clock.radius * Math.sin(-angle * Math.PI / 180) * distance;
+
+        ctx.beginPath();
+        ctx.arc(x, y, clock.point_size, 0, 2 * Math.PI);
+        ctx.fill();
     },
 }
