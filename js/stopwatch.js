@@ -13,10 +13,10 @@ function StopwatchPage() {
         <button class="stopwatch_lap">Lap</button>
         <div class="stopwatch_lap_times"></div>
     `);
-    
+
     CSSManager.resetStyling();
     CSSManager.addStylesheet("stopwatch.css");
-    
+
     let c = $("#stopwatch_canvas")[0];
     let ctx = c.getContext("2d");
 
@@ -29,31 +29,31 @@ function StopwatchPage() {
 
         angle: 90,
         interval: 1,
-        isRunning : false,
-        start : 0,
-        hours : 0,
-        minutes : 0,
-        seconds : 0,
-        epoch : 0,
+        isRunning: false,
+        start: 0,
+        hours: 0,
+        minutes: 0,
+        seconds: 0,
+        epoch: 0,
         deltaAngle: 0
     }
 
     clock.angleInterval = 360 / clock.interval;
-    
-    this.drawCircle = function() {
+
+    this.drawCircle = function () {
         ctx.beginPath();
         ctx.arc(clock.center_x, clock.center_y, clock.radius, 0, 2 * Math.PI);
         ctx.stroke();
     }
-    
+
     this.drawPoint = function (angle, distance) {
-        let x = clock.center_x + clock.radius * Math.cos(-angle*Math.PI/180) * distance;
-        let y = clock.center_y + clock.radius * Math.sin(-angle*Math.PI/180) * distance;
-    
+        let x = clock.center_x + clock.radius * Math.cos(-angle * Math.PI / 180) * distance;
+        let y = clock.center_y + clock.radius * Math.sin(-angle * Math.PI / 180) * distance;
+
         ctx.beginPath();
         ctx.arc(x, y, clock.point_size, 0, 2 * Math.PI);
         ctx.fill();
-    
+
         // ctx.font = clock.font_size;
         // ctx.fillText(label, x + 10, y);
     }
@@ -64,7 +64,7 @@ function StopwatchPage() {
 
     ctx.font = clock.font_size;
     ctx.fillText("0.00", clock.center_x, clock.center_y);
-    
+
     let start;
     let dt;
     let finish;
@@ -74,8 +74,8 @@ function StopwatchPage() {
         dt = finish - (start === undefined ? finish : start);
         start = Date.now();
 
-        if(clock.isRunning) {
-            
+        if (clock.isRunning) {
+
             ctx.clearRect(0, 0, 500, 500);
             this.drawCircle();
             this.drawPoint(clock.angle, 1, "A");
@@ -87,40 +87,39 @@ function StopwatchPage() {
             clock.hours = Math.floor(clock.epoch / 3600);
             clock.minutes = Math.floor(clock.epoch / 60);
             clock.seconds = clock.epoch - (clock.minutes * 60).toFixed(2);
-            
+
             ctx.font = clock.font_size;
             ctx.fillText(clock.hours + ":" + clock.minutes + ":" + clock.seconds, clock.center_x, clock.center_y);
 
-        
-            if(clock.angle <= -270) {
+
+            if (clock.angle <= -270) {
                 clock.angle = 90;
-                console.log("hey");
             }
         }
 
-        if(StateManager.current_state !== "stopwatch") {
+        if (StateManager.current_state !== "stopwatch") {
             clearInterval(clock_loop);
         }
     }, 0);
 
-    $(".stopwatch_start_stop").click(function (e) { 
+    $(".stopwatch_start_stop").click(function (e) {
         e.preventDefault();
 
-        if(clock.isRunning && clock.epoch > 0) {
+        if (clock.isRunning && clock.epoch > 0) {
             clock.isRunning = false;
             $(".stopwatch_start_stop").html(`&#9654;`);
             // stopwatch is paused
-        } else if(!clock.isRunning && clock.epoch === 0) {
+        } else if (!clock.isRunning && clock.epoch === 0) {
             $(".stopwatch_start_stop").html(`&#9660;`);
             clock.isRunning = true;
             clock.start = Date.now();
-        } else if(!clock.isRunning) {
+        } else if (!clock.isRunning) {
             clock.isRunning = true;
             $(".stopwatch_start_stop").html(`&#9660;`);
         }
     });
 
-    $(".stopwatch_reset").click((e) => { 
+    $(".stopwatch_reset").click((e) => {
         e.preventDefault();
         clock.isRunning = false;
 
@@ -128,7 +127,7 @@ function StopwatchPage() {
         this.drawCircle();
         this.drawPoint(90, 1, "A");
         ctx.fillText("0.00", clock.center_x, clock.center_y);
-        
+
         $(".stopwatch_lap_times").empty();
 
         clock.angle = 90;
@@ -139,7 +138,7 @@ function StopwatchPage() {
         clock.seconds = 0;
     });
 
-    $(".stopwatch_lap").click(function (e) { 
+    $(".stopwatch_lap").click(function (e) {
         e.preventDefault();
         let n = $(".stopwatch_lap_times")[0].childElementCount;
         $(".stopwatch_lap_times").append(`
@@ -165,9 +164,9 @@ function StopwatchPage() {
 
     //     // update the stopwatch display and clear it once we are out of athletes
     //     let stopwatchInterval = setInterval(function() {
-            // let epoch = (Date.now() - start) / 1000;
-            // let minutes = Math.floor(epoch / 60);
-            // let seconds = epoch - (minutes * 60);
+    // let epoch = (Date.now() - start) / 1000;
+    // let minutes = Math.floor(epoch / 60);
+    // let seconds = epoch - (minutes * 60);
     //         $("#stopwatch_time").html(`${minutes}:${seconds.toFixed(2)}`);
     //         // $("#stopwatch_time").html(epoch);
     //         if($(".athlete_container").length === 0 || $(".athlete_container").length === null) {
