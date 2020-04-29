@@ -10,7 +10,14 @@ let sw_db = {
     db: null,
 
     init: function () {
-        this.db = window.sqlitePlugin.openDatabase({ name: "Sportwatch", location: 'default' });
+        console.log("Initializing database...");
+        try {
+            this.db = window.sqlitePlugin.openDatabase({ name: 'Sportwatch.db', location: 'default' });
+            console.log("CreateD");
+            console.log(this.db);
+        } catch(err) {
+            console.log(err);
+        }
     },
     
     testFunc: function () {
