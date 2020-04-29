@@ -14,7 +14,6 @@ let navbar = {
 
         let _this = this;
 
-
         $(".navbar").children('div').each(function () {
             _this.pageIDs.push("#".concat(this.id));
         });
@@ -26,7 +25,7 @@ let navbar = {
             $(id).click((e) => {
                 e.preventDefault();
                 this.focusButton(id);
-                cb(id);
+                cb(id.replace('#', ''));
             });
         }
     },

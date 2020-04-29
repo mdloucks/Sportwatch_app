@@ -10,9 +10,9 @@ let sw_db = {
     db: null,
 
     init: function () {
-        this.db = window.sqlitePlugin.openDatabase({ name: "Sportwatch", location: 'default' });
+        this.db = window.sqlitePlugin.openDatabase({ name: "Sportwatch", location: 'default', androidDatabaseProvider: 'system' });
     },
-    
+
     testFunc: function () {
         this.selectMultiple("SELECT * FROM athlete WHERE fname = ?", ["Seth"]).then((result) => {
             console.log(result[0].grade);
@@ -21,26 +21,26 @@ let sw_db = {
             console.log(result.item(0).fname);
         });
     },
-    
+
     /**
      * Probably not the most efficient, but it bascially returns a promise
      * to handle handle if tables are created or not. (Create them if not)
      */
-    doTablesExist: function() {
+    doTablesExist: function () {
         return new Promise((resolve, reject) => {
-            this.db.transaction(function(tx) {
+            this.db.transaction(function (tx) {
                 // Poll some tables to see if an error is thrown
                 tx.executeSql("SELECT * FROM athlete");
                 tx.executeSql("SELECT * FROM meet");
                 tx.executeSql("SELECT * from team");
-            }, function(error) {
+            }, function (error) {
                 reject(error);
-            }, function() {
+            }, function () {
                 resolve();
             });
         });
     },
-    
+
     /**
      * will wipe all existing tables and create new ones
      * 
@@ -63,7 +63,7 @@ let sw_db = {
             tx.executeSql(`CREATE TABLE IF NOT EXISTS event (id_meet, event_name, gender, is_relay_team)`);
             tx.executeSql(`CREATE TABLE IF NOT EXISTS event_result (id_event, athlete_name, result)`);
             tx.executeSql(`CREATE TABLE IF NOT EXISTS team (id_team, id_user, user_role)`);
-            
+
         }, function (error) {
             console.log('Transaction ERROR: ' + error.message);
         }, function () {
@@ -79,11 +79,11 @@ let sw_db = {
      * @param {*} row the given id
      * @param {Array} table 
      */
-    selectSingle : function(query, values) {
+    selectSingle: function (query, values) {
         return new Promise((resolve, reject) => {
             this.db.transaction(function (tx) {
                 tx.executeSql(query, values, function (tx, rs) {
-                    if(rs.rows.length === 0) {
+                    if (rs.rows.length === 0) {
                         console.log("empty set");
                         resolve(false);
                     }
@@ -99,18 +99,18 @@ let sw_db = {
         });
     },
 
-    selectMultiple : function(query, values) {
+    selectMultiple: function (query, values) {
         return new Promise((resolve, reject) => {
             this.db.transaction(function (tx) {
                 tx.executeSql(query, values, function (tx, rs) {
                     let rows = [];
 
-                    if(rs.rows.length === 0) {
+                    if (rs.rows.length === 0) {
                         console.log("empty set!");
                         reject(false);
                     }
 
-                    if(Object.keys(rs.rows.item(0)).length > 1) {
+                    if (Object.keys(rs.rows.item(0)).length > 1) {
                         for (let i = 0; i < rs.rows.length; i++) {
                             rows[i] = rs.rows.item(i);
                         }
@@ -119,7 +119,7 @@ let sw_db = {
                             rows[i] = Object.keys(rs.rows.item(0))[0];
                         }
                     }
-                    
+
                     resolve(rows);
                 });
             }, function (error) {
@@ -141,13 +141,13 @@ let sw_db = {
      * @param {String} table name of the table
      * @param {Array} data data to be inserted
      */
-    insertValues: function(table, data) {
+    insertValues: function (table, data) {
         return new Promise((resolve, reject) => {
 
             let query_wildcards = "(";
             let length;
 
-            if(data[0][0] !== undefined) {
+            if (data[0][0] !== undefined) {
                 length = data[0].length;
             } else {
                 length = data.length;
@@ -162,13 +162,13 @@ let sw_db = {
             query_wildcards += ")";
 
             this.db.transaction(function (tx) {
-                
-                if(data[0][0] !== undefined) {
+
+                if (data[0][0] !== undefined) {
                     for (let i = 0; i < data.length; i++) {
                         console.log(JSON.stringify(data[i]));
-                        
+
                         tx.executeSql(`INSERT INTO ${table} VALUES ${query_wildcards}`, data[i]);
-                    }    
+                    }
                 } else {
                     console.log("normal");
                     tx.executeSql(`INSERT INTO ${table} VALUES ${query_wildcards}`, data);
@@ -424,7 +424,7 @@ let sw_db = {
                 WHERE athlete_event.id_event = ?`;
                 tx.executeSql(command, [id], function (tx, rs) {
 
-                    if(rs.rows.length === 0) {
+                    if (rs.rows.length === 0) {
                         // TODO catch all fix this
                         console.log("empty set");
                         resolve(false);
