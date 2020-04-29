@@ -1,71 +1,56 @@
-var app = {
+class App {
 
-    isReady : false,
-
-    init : function (params) {
+    initialize(params) {
         // bind sets the value of 'this' inside the function to this object
         document.addEventListener('deviceready', this.onReady.bind(this), false);
         document.addEventListener('pause', this.onPause.bind(this), false);
         document.addEventListener('resume', this.onResume.bind(this), false);
-    },
+    }
 
-    // when cordova has been fully loaded
-    onReady() { 
-        console.log("Device is ready");
+    onReady() {
         sw_db.init();
         FastClick.attach(document.body);
-        // if has not been initialized yet to prevent double loading
-        if(!this.isReady) {
 
-            $(".loader").remove();
+        $(".loader").remove();
 
-            // check if there's a session
-            if(Authentication.hasSession()) {
-                Authentication.validateSID(Authentication.getSID()).then(function(response) {
-                    console.log("Login complete");
-                    StateManager.setState("home");
-                }).catch(function(error) {
-                    // they have most likely have an invalid SID, so just wipe it and log them back in
-                    console.log("invalid sid: " + Authentication.getSID());
-                    localStorage.removeItem("SID");
-                    StateManager.setState("login");
-                });
-            } else {
-                StateManager.setState("welcome");
-            }
+        // TODO: pass a callback function into initNavbar to switch between pages
+        navbar.initNavbar();
+    }
 
-            // TODO check if sqlite is installed/working
-        }
-
-        this.isReady = true;
-    },
-
+    checkSession() {
+        // // check if there's a session
+        // if(Authentication.hasSession()) {
+        //     Authentication.validateSID(Authentication.getSID()).then(function(response) {
+        //         console.log("Login complete");
+        //         StateManager.setState("home");
+        //     }).catch(function(error) {
+        //         // they have most likely have an invalid SID, so just wipe it and log them back in
+        //         console.log("invalid sid: " + Authentication.getSID());
+        //         localStorage.removeItem("SID");
+        //         StateManager.setState("login");
+        //     });
+        // } else {
+        // }
+    }
 
     /**
      * check to make sure a few js things are avaliable
      */
     checkRequirements() {
-        let results = {};
-
-        // TODO check to make sure es6 is availiable someehow
-
-        if(typeof Storage === undefined) {
-            results["storage"] = false;
-        }
-
-        return results;
-    },
+    }
 
 
 
     onPause() {
         console.log("Device is paused");
-    },
+    }
 
     onResume() {
         console.log("Device is resumed");
     }
-};
+}
 
 // this is the main entry point for the app
-app.init();
+let app = new App();
+
+app.initialize();
