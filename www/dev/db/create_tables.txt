@@ -1,0 +1,73 @@
+
+# holds basic account information, such as name, email, state, school, etc.
+# id_user corresponds to server database ID
+CREATE TABLE IF NOT EXISTS account (
+    id_user INT,
+    fname VARCHAR(20),
+    lname VARCHAR(20),
+    account_type ENUM("Athlete", "Coach"),
+    id_school INT,
+    cellNum VARCHAR(15)
+);
+
+
+# this is just a simple list of athletes in case of those that don't want to create an account
+CREATE TABLE IF NOT EXISTS athlete (
+    id_athlete INT AUTO_INCREMENT,
+    fname CHAR(32),
+    lname CHAR(32),
+    grade ENUM("1st", "2nd", "3rd", "4th", "5th", "6th", "7th", "8th", "9th", "10th", "11th", "12th"),
+    gender ENUM("M", "F"),
+    PRIMARY KEY(id_athlete)
+);
+
+# meets will be the actual competition
+CREATE TABLE IF NOT EXISTS meet (
+    id_meet INT AUTO_INCREMENT,
+    meet_name VARCHAR(255),
+    meet_time DATETIME,
+    meet_address VARCHAR(255),
+    meet_city VARCHAR(255),
+    meet_state VARCHAR(2),
+    meet_zip VARCHAR(6),
+    PRIMARY KEY(id_meet)
+);
+
+CREATE TABLE IF NOT EXISTS event (
+    id_event INT AUTO_INCREMENT,
+    id_meet INT NOT NULL,
+    event_name CHAR(10),
+    PRIMARY KEY(id_event),
+    FOREIGN KEY(id_meet) REFERENCES meet(id_meet)
+);
+
+# the events that each user is participating in
+# we store result as an int becuase we do know the event type and will therefore get the correct unit
+CREATE TABLE IF NOT EXISTS event_result (
+    id_user INT NOT NULL,
+    id_event INT NOT NULL,
+    # 6 digits up to 3 decimal places
+    result DECIMAL(6, 3),
+    PRIMARY KEY (id_user, id_event),
+    FOREIGN KEY (id_user) REFERENCES athlete(id_athlete),
+    FOREIGN KEY (id_event) REFERENCES event(id_event)
+);
+
+# will show a list of event id's for a given meet
+CREATE TABLE IF NOT EXISTS meet_event (
+    id_meet_event INT AUTO_INCREMENT,
+    id_meet INT NOT NULL,
+    id_event INT NOT NULL,
+    PRIMARY KEY(id_meet_event),
+    FOREIGN KEY (id_meet) REFERENCES meet(id_meet),
+    FOREIGN KEY (id_event) REFERENCES event(id_event)
+);
+
+# will hold information about the user's team
+CREATE TABLE IF NOT EXISTS team (
+    id_team INT NOT NULL,
+    id_user INT NOT NULL,
+    user_role VAR_CHAR(40)
+);
+
+

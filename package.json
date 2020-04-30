@@ -1,0 +1,34 @@
+{
+  "name": "Sportwatch",
+  "displayName": "Sportwatch",
+  "version": "1.0.0",
+  "description": "An app used to track athletic progress",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [
+    "ecosystem:cordova"
+  ],
+  "author": "Sportwatch Team",
+  "license": "Apache-2.0",
+  "dependencies": {
+    "cordova": "^9.0.0",
+    "cordova-android": "^8.1.0",
+    "cordova-browser": "^6.0.0",
+    "cordova-sqlite-storage": "^5.0.0"
+  },
+  "devDependencies": {
+    "cordova-plugin-whitelist": "^1.3.4"
+  },
+  "cordova": {
+    "plugins": {
+      "cordova-plugin-whitelist": {},
+      "cordova-sqlite-storage": {}
+    },
+    "platforms": [
+      "browser",
+      "android"
+    ]
+  }
+}

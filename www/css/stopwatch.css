@@ -1,0 +1,28 @@
+.stopwatch_canvas {
+  margin-top: 1em;
+  height: 300px;
+  width: 400px;
+}
+
+.stopwatch_start_stop {
+  background: crimson;
+  display: block;
+  border-radius: 50%;
+  border: 1px solid red;
+}
+
+.stopwatch_reset {
+  background: crimson;
+  border: none;
+  outline: none;
+}
+
+.stopwatch_lap {
+  background: crimson;
+  border: none;
+  outline: none;
+}
+
+.stopwatch_lap_times {
+  font-size: 2em;
+}
