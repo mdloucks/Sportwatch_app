@@ -8,13 +8,19 @@ class App {
     }
 
     onReady() {
+        console.log("DEVICE READY");
         sw_db.init();
         FastClick.attach(document.body);
 
         $(".loader").remove();
-
+        
+        let swipeTest = new SwipeHolder();
+        swipeTest.attachToElement("#app");
+        
         // TODO: pass a callback function into initNavbar to switch between pages
-        navbar.initNavbar();
+        navbar.initNavbar((e) => {
+            console.log("Nav-bar: " + e);
+        });
     }
 
     checkSession() {
