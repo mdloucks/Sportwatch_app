@@ -58,6 +58,7 @@ class App {
                 this.exit_callback = stopwatch.initStopwatch();
                 
                 navbar.focusButton("#stopwatch");
+                this.swipeHandler.bindGestureCallback(this.swipeHandler.Gestures.SWIPERIGHT, () => { });
                 this.swipeHandler.bindGestureCallback(this.swipeHandler.Gestures.SWIPELEFT, () => {
                     this.switchPage("stats");
                 });
@@ -88,6 +89,7 @@ class App {
                 this.swipeHandler.bindGestureCallback(this.swipeHandler.Gestures.SWIPERIGHT, () => {
                     this.switchPage("team");
                 });
+                this.swipeHandler.bindGestureCallback(this.swipeHandler.Gestures.SWIPELEFT, () => { });
             } else {
                 this.exit_callback = () => { };
                 console.log(`[main.js:switchPage()]: Undefined page "${page}", ERRORS EXPECTED`);
