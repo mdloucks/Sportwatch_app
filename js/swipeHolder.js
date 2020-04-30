@@ -104,7 +104,7 @@ class SwipeHolder {
             } else if(dx < 0) { // Leftware swipe
                 this.gestureHistory.unshift(this.Gestures.SWIPELEFT);
             }
-            console.log("Latest gesture: " + this.gestureHistory[0]);
+            
         } else if(Math.abs(dy) > Math.abs(dx)) { // Vertical movement
             if(dy > 0) { // Downard swipe
                 this.gestureHistory.unshift(this.Gestures.SWIPEDOWN);
@@ -112,7 +112,7 @@ class SwipeHolder {
             else if(dy < 0) { // Upward swipe
                 this.gestureHistory.unshift(this.Gestures.SWIPEUP);
             }
-            console.log("Latest gesture: " + this.gestureHistory[0]);
+            
         } else { // No movement
             this.gestureHistory.unshift(this.Gestures.TAP);
         }
