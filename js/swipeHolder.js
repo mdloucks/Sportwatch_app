@@ -14,7 +14,10 @@ class SwipeHolder {
         this.touchHistory = []; // Formatted as [0: [{initX, initY}, {endX, endY}], 1: ...]
         this.gestureHistory = []; // Consists of Gestures enum
         // Most recent will be at index 0
-
+        
+        // Fired during certain events
+        this.callbacks = [];
+        
         this.Gestures = { // Enum
             TAP: 0,
             SWIPEUP: 1,
@@ -23,11 +26,17 @@ class SwipeHolder {
             SWIPELEFT: 4
         };
         
+        // Define dummy callbacks
+        this.callbacks[this.Gestures.SWIPEUP] = () => { };
+        this.callbacks[this.Gestures.SWIPERIGHT] = () => { };
+        this.callbacks[this.Gestures.SWIPEDOWN] = () => { };
+        this.callbacks[this.Gestures.SWIPELEFT] = () => { };
+        
         if(attachedElement != "") {
             this.attachToElement(attachedElement);
         }
-        
     }
+    
     /**
      * Attach this behavior / class to a given HTML element. The provided
      * parameter should be the id of a present element (commonly #app) with the
@@ -110,8 +119,22 @@ class SwipeHolder {
         if(this.gestureHistory.length > this.MAX_HISTORY) {
             this.gestureHistory.pop();
         }
+        
+        // Execute callback for gesture
+        this.callbacks[this.gestureHistory[0]]();
         return this.gestureHistory[0]; // Return gesture
     };
+    
+    /**
+     * Binds the given callback function to the Gesture enum given. Will overwrite
+     * any existing callbacks for said Gesture.
+     * 
+     * @param {Gesture} targetGesture gesture for which the callback will be fired
+     * @param {Function} callbackFunc function that will be called after given gesture
+     */
+    bindGestureCallback(targetGesture, callbackFunc) {
+        this.callbacks[targetGesture] = callbackFunc;
+    }
     
     /**
      * Gets the index of the touch from touchHistory array based on the
@@ -136,7 +159,7 @@ class SwipeHolder {
         console.log("[swipeHolder.js:getIndexFromId]: Touch ID was not found");
         return false;
     };
-
+    
 }
 
 
