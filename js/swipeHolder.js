@@ -2,119 +2,141 @@
  * This class should be used in a static context to retrieve touch
  * information, particularly concerning swipes / gestures
  */
-function SwipeHolder() {
+class SwipeHolder {
     
-    let currentTouch = []; // [x, y]  (Max length of 2)
-    let touchHistory = []; // Formatted as [0: [{initX, initY}, {endX, endY}], 1: ...]
-    let gestureHistory = []; // Consists of Gestures enum
-    // Most recent will be at index 0
-    
-    const Gestures = {
-        TAP: 0,
-        SWIPEUP: 1,
-        SWIPERIGHT: 2,
-        SWIPEDOWN: 3,
-        SWIPELEFT: 4
-    };
-    
-    // TODO: document, and also add limits to array size, change to class
-    //       threshold to consider a "swipe" a swipe (ex. change > 50)
-    
-    /**
-     * 
-     */
-    this.attachToElement = function(elementId) {
+    constructor(attachedElement = "") {
+        // TODO: change to class
+        //       threshold to consider a "swipe" a swipe (ex. change > 50)
         
+        // VARIABLES
+        this.MAX_HISTORY = 20; // Max length of arrays
+        this.currentTouch = []; // [x, y]  (Max length of 2)
+        this.touchHistory = []; // Formatted as [0: [{initX, initY}, {endX, endY}], 1: ...]
+        this.gestureHistory = []; // Consists of Gestures enum
+        // Most recent will be at index 0
+
+        this.Gestures = { // Enum
+            TAP: 0,
+            SWIPEUP: 1,
+            SWIPERIGHT: 2,
+            SWIPEDOWN: 3,
+            SWIPELEFT: 4
+        };
+        
+        if(attachedElement != "") {
+            this.attachToElement(attachedElement);
+        }
+        
+    }
+    /**
+     * Attach this behavior / class to a given HTML element. The provided
+     * parameter should be the id of a present element (commonly #app) with the
+     * selector (#-->id, .-->class) included. It will then define the different
+     * events that will populate the arrays in this object
+     *
+     * @example attachToElement("#app"); --> gestures on #app will be store
+     *
+     * @param {String} elementId - id the of the target element with selector included
+     */
+    attachToElement(elementId) {
         // START TOUCH
         $(elementId).bind("touchstart", (e) => {
-                        
             // Now, add to the arrays for each touch
             for(let t = 0; t < e.changedTouches.length; t++) {
                 let touch = e.changedTouches[t];
-                currentTouch = touch;
-                touchHistory.unshift([touch, null]); // Set endTouch null, for now
+                this.currentTouch = touch;
+                this.touchHistory.unshift([touch, null]); // Set endTouch null, for now
+                if (this.touchHistory.length > this.MAX_HISTORY) {
+                    this.touchHistory.pop();
+                }
             }
-            
         });
-        
         // MOVING TOUCH
         $(elementId).bind("touchmove", (e) => {
             e.preventDefault();
             let touch = e.changedTouches[0];
-            currentTouch = touch; // So current finger position can be ascertained
+            this.currentTouch = touch; // So current finger position can be ascertained
         });
-        
         // END TOUCH
         $(elementId).bind("touchend", (e) => {
             e.preventDefault();
-            
-            for (let l = 0; l < e.changedTouches.length; l++) {
+            for(let l = 0; l < e.changedTouches.length; l++) {
                 let touch = e.changedTouches[l];
-                
                 // Update the touchHistory, setting the ending touch (index 1)
                 let currentTouchIndex = this.getIndexFromId(touch.identifier);
-                touchHistory[currentTouchIndex][1] = touch;
+                this.touchHistory[currentTouchIndex][1] = touch;
                 this.evaluateGesture(currentTouchIndex);
             }
         });
-    } // End of attach function
+    };
     
-    
-    this.evaluateGesture = function(historyIndex) {
-        let startTouch = touchHistory[historyIndex][0];
-        let endTouch = touchHistory[historyIndex][1];
-        
+    /**
+     * Evaluates the given gesture and attempts to classify it into one of
+     * the Gesture enum classifications based on start / end position.
+     * The index specifies which touch transaction needs evaluating from the touchHistory
+     * array. NOTE: For internal class use only!
+     *
+     * @example evaluateGesture(e.changedTouches[0].identifier); --> Returns resulting Gesture
+     *
+     * @param {Integer} historyIndex - index of the start/stop touches in touchHistory
+     *
+     * @returns
+     * The resulting Gesture enum
+     */
+    evaluateGesture(historyIndex) {
+        let startTouch = this.touchHistory[historyIndex][0];
+        let endTouch = this.touchHistory[historyIndex][1];
         let dx = endTouch.pageX - startTouch.pageX;
         let dy = endTouch.pageY - startTouch.pageY;
-        
         // Check to see the greater rate of change, then log gesture
         if(Math.abs(dx) > Math.abs(dy)) { // Horizontal movement
             if(dx > 0) { // Rightward swipe
-                gestureHistory.push(Gestures.SWIPERIGHT);
+                this.gestureHistory.unshift(this.Gestures.SWIPERIGHT);
             } else if(dx < 0) { // Leftware swipe
-                gestureHistory.push(Gestures.SWIPELEFT);
+                this.gestureHistory.unshift(this.Gestures.SWIPELEFT);
             }
-            $("#swipe").text("You swiped " + (dx > 0 ? "right" : "left"));
-            
+            console.log("Latest gesture: " + this.gestureHistory[0]);
         } else if(Math.abs(dy) > Math.abs(dx)) { // Vertical movement
-            if (dy > 0) { // Downard swipe
-                gestureHistory.push(Gestures.SWIPEDOWN);
-            } else if (dy < 0) { // Upward swipe
-                gestureHistory.push(Gestures.SWIPEUP);
+            if(dy > 0) { // Downard swipe
+                this.gestureHistory.unshift(this.Gestures.SWIPEDOWN);
             }
-            $("#swipe").text("You swiped " + (dy > 0 ? "down" : "up"));
-            
+            else if(dy < 0) { // Upward swipe
+                this.gestureHistory.unshift(this.Gestures.SWIPEUP);
+            }
+            console.log("Latest gesture: " + this.gestureHistory[0]);
         } else { // No movement
-            gestureHistory.push(Gestures.TAP);
+            this.gestureHistory.unshift(this.Gestures.TAP);
         }
-        
-    }
+        if(this.gestureHistory.length > this.MAX_HISTORY) {
+            this.gestureHistory.pop();
+        }
+        return this.gestureHistory[0]; // Return gesture
+    };
     
     /**
      * Gets the index of the touch from touchHistory array based on the
      * unique touch identifier assigned to each interaction. It will compare the
      * given id to the starting touch's id (found at index 0 in each sub-array)
-     * 
+     *
      * @example getIndexFromId(e.changedTouches[0].identifier); --> 2 (index in touchHistory)
-     * 
+     *
      * @param {String} id - identifier of the desired touch
-     * 
+     *
      * @returns
      * An integer representing the index in touchHistory of the initial touch.
      * If no matching touch was found, it'll return false.
      */
-    this.getIndexFromId = function(id) {
-        for(let h = 0; h < touchHistory.length; h++) {
+    getIndexFromId(id) {
+        for(let h = 0; h < this.touchHistory.length; h++) {
             // Get current loop object, then get initial touch ID for comparison
-            if(touchHistory[h][0].identifier == id) {
+            if(this.touchHistory[h][0].identifier == id) {
                 return h;
             }
         }
-        console.log("Returning false :(");
+        console.log("[swipeHolder.js:getIndexFromId]: Touch ID was not found");
         return false;
-    }
-    
-    
+    };
+
 }
 
 
