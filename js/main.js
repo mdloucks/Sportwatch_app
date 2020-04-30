@@ -18,8 +18,7 @@ class App {
 
         $(".loader").remove();
         
-        let swipeTest = new SwipeHolder();
-        swipeTest.attachToElement("#app");
+        let swipeTest = new SwipeHolder("#app");
         
         // TODO: pass a callback function into initNavbar to switch between pages
         navbar.initNavbar(this.switchPage.bind(this));
