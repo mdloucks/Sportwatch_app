@@ -37,15 +37,17 @@ let navbar = {
      * @param {String} buttonID ID of the navbar button being passed in
      */
     focusButton: function (buttonID) {
-        $(buttonID).css("background-color", "green");
+        // $(buttonID).css("background-color", "green");
+        $(".navbar > *").removeClass("active"); // Un-select all buttons
+        $(buttonID).addClass("active"); // Select the clicked one
 
-        let remainingIDs = this.pageIDs.slice();
-        remainingIDs.splice(remainingIDs.indexOf(buttonID), 1);
+        // let remainingIDs = this.pageIDs.slice();
+        // remainingIDs.splice(remainingIDs.indexOf(buttonID), 1);
 
-        for (let i = 0; i < remainingIDs.length; i++) {
-            let id = remainingIDs[i];
-            $(id).css("background-color", "rgb(245, 77, 77)");
-        }
+        // for (let i = 0; i < remainingIDs.length; i++) {
+        //     let id = remainingIDs[i];
+        //     $(id).css("background-color", "rgb(245, 77, 77)");
+        // }
     }
 }
 

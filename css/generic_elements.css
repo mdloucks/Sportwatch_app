@@ -37,7 +37,15 @@ This is to limit the file size for our page specific styles
 
 /* -- Nav Menu -- */
 
-#navigation_menu {
+.nvarbar > * {
+    background-color: rgb(245, 77, 77);
+}
+
+.navbar > .active {
+    background-color: green;
+}
+
+/*#navigation_menu {
     height: 100%;
     width: 0;
     position: fixed;
@@ -66,5 +74,5 @@ This is to limit the file size for our page specific styles
     right: 25px;
     font-size: 2.75em;
     color: white;
-}
+}*/
 
