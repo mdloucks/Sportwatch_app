@@ -12,13 +12,20 @@ let navbar = {
      */
     initNavbar: function (cb) {
 
+        // read all of the pages that are listed on the .navbar into an array
         let _this = this;
 
+        let pageIDsLength = $(".navbar div").length;
 
-        $(".navbar").children('div').each(function () {
+        $(".navbar").children('div').each(function (index) {
             _this.pageIDs.push("#".concat(this.id));
+
+            if (index === pageIDsLength - 1) {
+                _this.disablePageStyles();
+            }
         });
 
+        // create a callback for each of them
         for (let i = 0; i < this.pageIDs.length; i++) {
 
             let id = this.pageIDs[i];
@@ -26,7 +33,7 @@ let navbar = {
             $(id).click((e) => {
                 e.preventDefault();
                 this.focusButton(id);
-                cb(id);
+                cb(id.replace('#', ''));
             });
         }
     },
@@ -44,10 +51,24 @@ let navbar = {
         // let remainingIDs = this.pageIDs.slice();
         // remainingIDs.splice(remainingIDs.indexOf(buttonID), 1);
 
-        // for (let i = 0; i < remainingIDs.length; i++) {
-        //     let id = remainingIDs[i];
-        //     $(id).css("background-color", "rgb(245, 77, 77)");
-        // }
+        for (let i = 0; i < remainingIDs.length; i++) {
+            let id = remainingIDs[i];
+            $(id).css("background-color", "rgb(245, 77, 77)");
+        }
+    },
+
+    /**
+     * disables all of the css for all of the pages
+     */
+    disablePageStyles: function () {
+
+        for (let i = 0; i < this.pageIDs.length; i++) {
+            let id = this.pageIDs[i];
+            id = id.replace('#', '');
+
+            let style = document.getElementById(`style_${id}`);
+            style.disabled = true;
+        }
     }
 }
 

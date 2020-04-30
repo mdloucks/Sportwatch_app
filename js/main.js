@@ -1,5 +1,9 @@
 class App {
 
+    constructor() {
+        this.exit_callback = () => { };
+    }
+
     initialize(params) {
         // bind sets the value of 'this' inside the function to this object
         document.addEventListener('deviceready', this.onReady.bind(this), false);
@@ -18,9 +22,39 @@ class App {
         swipeTest.attachToElement("#app");
         
         // TODO: pass a callback function into initNavbar to switch between pages
-        navbar.initNavbar((e) => {
-            console.log("Nav-bar: " + e);
-        });
+        navbar.initNavbar(this.switchPage.bind(this));
+    }
+
+    /**
+     * This is called whenever the user switches to a new page and will receive
+     * the name of of it in the "page" argument.
+     * 
+     * @param {string} page 
+     */
+    switchPage(page) {
+
+        //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+        // This "exit_callback" is called in order to notify a page when switchPage is called
+        // and allows them to make the appropriate changes through a function when it happens
+        //.............................................................................................
+        if (typeof exit_callback == "function") {
+            exit_callback();
+        }
+
+        $("#app").empty();
+        console.log(`switching to ${page}`);
+
+        if (page == "stopwatch") {
+            this.exit_callback = stopwatch.initStopwatch();
+        } else if (page === "stats") {
+            this.exit_callback = stats.initStats();
+        } else if (page === "team") {
+            this.exit_callback = team.initTeam();
+        } else if (page === "account") {
+            this.exit_callback = account.initAccount();
+        } else {
+            this.exit_callback = () => { };
+        }
     }
 
     checkSession() {
@@ -58,5 +92,4 @@ class App {
 
 // this is the main entry point for the app
 let app = new App();
-
 app.initialize();

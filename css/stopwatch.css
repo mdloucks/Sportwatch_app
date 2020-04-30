@@ -1,85 +1,28 @@
-/* .timer_meet_name_container {
-    text-align: center;
-    font-size: 5em;
-    font-weight: bold;
-    margin-top: 1em;
-    display: flex;
-    flex-direction: column;
-}
-
-.timer_meet_start_container {
-    text-align: center;
-    position: fixed;
-    bottom: 0px;
-    width: 100%;
-}
-
-.timer_meet_begin {
-    font-size: 3.5em;
-    background: lightcoral;
-    border-radius: 15px;
-    border: none;
-    outline: none;
-    margin-bottom: 1em;
-    margin-top: 1em;
-}
-
-.timer_meet_list {
-    font-size: 3.5em;
-    background: gray;
-    border-radius: 15px;
-    border: none;
-    outline: none;
-    margin-bottom: 1em;
-}
-
-.timer_meet_begin_practice {
-    font-size: 3.5em;
-    background: lightcoral;
-    border-radius: 15px;
-    border: none;
-    outline: none;
-    margin-bottom: 2em;
-}
-
-.timer_meet_container {
-    font-size: 3em;
-    background: lightcoral;
-    border-radius: 10px;
-    text-align: center;
-    display: inline-block;
-    margin: auto;
-    width: 75%;
-    margin-top: 1em;
-} */
-
 .stopwatch_canvas {
-    margin-top: 1em;
-    width: 100%;
-    height: 300px;
+  margin-top: 1em;
+  height: 300px;
+  width: 400px;
 }
 
 .stopwatch_start_stop {
-    background: crimson;
-    border-radius: 50%;
-    border: none;
-    outline: none;
+  background: crimson;
+  display: block;
+  border-radius: 50%;
+  border: 1px solid red;
 }
 
 .stopwatch_reset {
-    background: crimson;
-    border-radius: 50%;
-    border: none;
-    outline: none;
+  background: crimson;
+  border: none;
+  outline: none;
 }
 
 .stopwatch_lap {
-    background: crimson;
-    border-radius: 50%;
-    border: none;
-    outline: none;
+  background: crimson;
+  border: none;
+  outline: none;
 }
 
 .stopwatch_lap_times {
-    font-size: 2em;
+  font-size: 2em;
 }
