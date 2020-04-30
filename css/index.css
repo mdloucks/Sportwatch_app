@@ -23,6 +23,7 @@ header {
   justify-content: center;
   bottom: 0;
   width: 100%;
+  z-index: 1;
 }
 
 .navbar div {
@@ -54,6 +55,7 @@ header > p {
   display: flex;
   flex-flow: column;
   height: 100%;
+  transition: filter 0.5s;
 }
 
 span {
