@@ -2,6 +2,7 @@ class App {
 
     constructor() {
         this.exit_callback = () => { };
+        this.swipeHandler;
     }
 
     initialize(params) {
@@ -18,7 +19,7 @@ class App {
 
         $(".loader").remove();
         
-        let swipeTest = new SwipeHolder("#app");
+        this.swipeHandler = new SwipeHolder("#app");
         
         // TODO: pass a callback function into initNavbar to switch between pages
         navbar.initNavbar(this.switchPage.bind(this));
@@ -31,7 +32,13 @@ class App {
      * @param {string} page 
      */
     switchPage(page) {
-
+        
+        // Blur the page for a page change
+        for (let c = 0; c < 101; c++) {
+            $("#app").css("filter", "blur(" + (c / 2) + "px)"); // CSS3 Support
+            $("#app").css("-webkit-filter", "blur(" + (c / 2) + "px)"); // Chrome, Safari
+        }
+        
         //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
         // This "exit_callback" is called in order to notify a page when switchPage is called
         // and allows them to make the appropriate changes through a function when it happens
@@ -39,21 +46,52 @@ class App {
         if (typeof exit_callback == "function") {
             exit_callback();
         }
+        
+        // Add delay for a smooth-ish transition from page to page
+        setTimeout(() => {
+            
+            $("#app").empty();
+            console.log(`switching to ${page}`);
 
-        $("#app").empty();
-        console.log(`switching to ${page}`);
-
-        if (page == "stopwatch") {
-            this.exit_callback = stopwatch.initStopwatch();
-        } else if (page === "stats") {
-            this.exit_callback = stats.initStats();
-        } else if (page === "team") {
-            this.exit_callback = team.initTeam();
-        } else if (page === "account") {
-            this.exit_callback = account.initAccount();
-        } else {
-            this.exit_callback = () => { };
-        }
+            if (page == "stopwatch") {
+                this.exit_callback = stopwatch.initStopwatch();
+                this.swipeHandler.bindGestureCallback(this.swipeHandler.Gestures.SWIPELEFT, () => {
+                    this.switchPage("stats");
+                });
+            } else if (page === "stats") {
+                this.exit_callback = stats.initStats();
+                this.swipeHandler.bindGestureCallback(this.swipeHandler.Gestures.SWIPERIGHT, () => {
+                    this.switchPage("stopwatch");
+                });
+                this.swipeHandler.bindGestureCallback(this.swipeHandler.Gestures.SWIPELEFT, () => {
+                    this.switchPage("team");
+                });
+            } else if (page === "team") {
+                this.exit_callback = team.initTeam();
+                this.swipeHandler.bindGestureCallback(this.swipeHandler.Gestures.SWIPERIGHT, () => {
+                    this.switchPage("stats");
+                });
+                this.swipeHandler.bindGestureCallback(this.swipeHandler.Gestures.SWIPELEFT, () => {
+                    this.switchPage("account");
+                });
+            } else if (page === "account") {
+                this.exit_callback = account.initAccount();
+                this.swipeHandler.bindGestureCallback(this.swipeHandler.Gestures.SWIPERIGHT, () => {
+                    this.switchPage("team");
+                });
+            } else {
+                this.exit_callback = () => { };
+                console.log(`[main.js:switchPage()]: Undefined page "${page}", ERRORS EXPECTED`);
+            }
+        }, 500);
+        
+        // Now unblur (since css transitions don't work well with filters)
+        setTimeout(() => {
+            for (let c = 100; c > -1; c--) {
+                $("#app").css("filter", "blur(" + (c / 2) + "px)");
+                $("#app").css("-webkit-filter", "blur(" + (c / 2) + "px)");
+            }
+        }, 1000);
     }
 
     checkSession() {
