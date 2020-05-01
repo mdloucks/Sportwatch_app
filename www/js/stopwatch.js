@@ -37,7 +37,7 @@ class Stopwatch extends Page {
         style.disabled = true;
 
         if (this.clockLoop === undefined || this.clockLoop === null) {
-            // TODO: fix this 
+            // TODO: fix this
             // console.log("PLEASE LOOK AT THIS, THIS SHOULDN'T HAPPEN!!!");
         } else {
             clearInterval(this.clockLoop);
