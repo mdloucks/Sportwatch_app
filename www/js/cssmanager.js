@@ -1,6 +1,8 @@
 
 
 /**
+ * @deprecated please stop using this.
+ * 
  * this class will be for simply adding in styles for different pages
  */
 let CSSManager = {
@@ -36,7 +38,7 @@ let CSSManager = {
             "all": "initial"
         });
     },
-    
+
     /**
      * Adds the given CSS file to the current page dynamically.
      * 
@@ -47,7 +49,7 @@ let CSSManager = {
     addStylesheet(cssFileName) {
         $("head").append("<link rel='stylesheet' type='text/css' href='css/" + cssFileName + "'>");
     },
-    
+
     /**
      * Will attempt to remove any specific-page stylesheets. Does NOT remove:
      * generic_elements.css
@@ -71,9 +73,9 @@ let CSSManager = {
     },
 
     styleWelcomePage() { // Deprecated; use addStyleSheet() instead
-        
+
         console.log("styleWelcomePage() is DEPRECATED");
-        
+
         $("header").css({
             "text-align": "center",
         });
@@ -94,7 +96,7 @@ let CSSManager = {
         $(".selection").css({
             "display": "flex",
             "align-items": "center",
-            "justify-content": "center"    
+            "justify-content": "center"
         });
 
         $("button").css({
@@ -132,11 +134,11 @@ let CSSManager = {
     styleAthletePage() {
 
         $("#athlete_container").css({
-            "font-size" : "2em",
+            "font-size": "2em",
         });
 
         $("#app").css({
-            "background-color" : "light gray"
+            "background-color": "light gray"
         });
 
         // $(".switch").css({
@@ -147,7 +149,7 @@ let CSSManager = {
         // });
 
         // $(".switch input").css({"display": "none"});
-        
+
         // $(".slider").css({
         //     "position": "absolute",
         //     "cursor": "pointer",
@@ -159,7 +161,7 @@ let CSSManager = {
         //     "-webkit-transition": ".4s",
         //     "transition": ".4s"
         // });
-          
+
         // $(".slider:before").css({
         //     "position": "absolute",
         //     "content": "",
@@ -171,7 +173,7 @@ let CSSManager = {
         //     "-webkit-transition": ".4s",
         //     "transition": ".4s"
         // });
-          
+
         // $("input:checked + .slider").css({
         //     "background-color": "#2196F3"
         // });
@@ -179,7 +181,7 @@ let CSSManager = {
         // $("input:focus + .slider").css({
         //     "box-shadow": "0 0 1px #2196F3"
         // });
-        
+
         // $("input:checked + .slider:before").css({
         //     "-webkit-transform": "translateX(26px)",
         //     "-ms-transform": "translateX(26px)",
