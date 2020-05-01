@@ -1,12 +1,17 @@
 /**
- * this is the settings page for out app
+ * @classdesc this is the settings page for out app
+ * @class
  */
-let account = {
+class Account extends Page {
+
+    constructor(id) {
+        super(id, "Account");
+    }
 
     /**
      * @returns {function} the function that is called when the page changes.
      */
-    initAccount: function () {
+    start() {
 
         let style = document.getElementById("style_account");
         style.disabled = false;
@@ -25,16 +30,6 @@ let account = {
         }
         this.onManageTeam = function (callback) {
             this.manageTeam = callback;
-        }
-
-        this.deconstruct = function () {
-            // Remove event listeners
-            $("#app").off();
-            $("button").off();
-            $(".act_drop_button").off();
-            $("#database_command").off();
-
-            style.disabled = true;
         }
 
         // ---- PAGES ---- //
@@ -392,8 +387,16 @@ let account = {
             "<input type=\"text\" name=\"new_password\"><br> <p>WIP</p>", (wrapperDiv) => {
                 // TODO: Delete Account if password matches
             });
+    }
 
-        return this.deconstruct;
+    stop() {
+        $("#app").off();
+        $("button").off();
+        $(".act_drop_button").off();
+        $("#database_command").off();
+
+        let style = document.getElementById("style_account");
+        style.disabled = true;
     }
 }
 

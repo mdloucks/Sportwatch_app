@@ -1,17 +1,22 @@
-let stats = {
-    /**
-     * @returns {function} the function that is called when the page changes.
-     */
-    initStats: function () {
+/**
+ * @classdesc This is the stats page
+ * @class
+ */
+class Stats extends Page {
+
+    constructor(id) {
+        super(id, "Stats");
+    }
+
+    start() {
         $("#app").html("<h1>This is the stats page!</h1>");
 
         let style = document.getElementById("style_stats");
         style.disabled = false;
+    }
 
-        let exit_callback = function () {
-            style.disabled = true;
-        }
-
-        return exit_callback;
+    stop() {
+        let style = document.getElementById("style_stats");
+        style.disabled = true;
     }
 }

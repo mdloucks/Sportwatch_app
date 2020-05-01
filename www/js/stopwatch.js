@@ -1,9 +1,13 @@
-
 /**
- * this will be responsable for handling the stopwatch.
- * The stopwatch page will just be the standalone stopwatch
+ * @classdesc This is the Stopwatch page
+ * @class
  */
-let stopwatch = {
+class Stopwatch extends Page {
+
+    constructor(id) {
+        super(id, "Stopwatch");
+        this.clockLoop = null;
+    }
 
     /**
      * Load the necessary html for the stopwatch and return a function that must be called
@@ -11,7 +15,7 @@ let stopwatch = {
      * 
      * @returns {function} a function that will stop the clock interval
      */
-    initStopwatch: function () {
+    start() {
 
         // TODO allow the user to save the results for later
         $("#app").html(`
@@ -25,26 +29,31 @@ let stopwatch = {
         let style = document.getElementById("style_stopwatch");
         style.disabled = false;
 
-        let clock_loop = this.startStopwatch();
+        this.clock_loop = this.startStopwatch();
+    }
 
-        let exit_callback = function () {
-            clearInterval(clock_loop);
-            style.disabled = true;
+    stop() {
+        let style = document.getElementById("style_stopwatch");
+        style.disabled = true;
+
+        if (this.clockLoop === undefined || this.clockLoop === null) {
+            // TODO: fix this
+            // console.log("PLEASE LOOK AT THIS, THIS SHOULDN'T HAPPEN!!!");
+        } else {
+            clearInterval(this.clockLoop);
         }
+    }
 
-        return exit_callback;
-    },
-
-    startStopwatch: function () {
+    startStopwatch() {
 
         let c = $("#stopwatch_canvas")[0];
         let ctx = c.getContext("2d");
 
         let clock = {
             radius: 100,
-            point_size: 6,
-            center_x: c.width / 2,
-            center_y: c.height / 2,
+            pointSize: 6,
+            centerX: c.width / 2,
+            centerY: c.height / 2,
             font: "30px Arial",
             fillStyle: "rgb(245, 77, 77)",
             lineWidth: 5,
@@ -70,11 +79,10 @@ let stopwatch = {
         ctx.font = clock.font;
         ctx.fillStyle = clock.fillStyle;
 
-        ctx.fillText("0.00", clock.center_x - (ctx.measureText("0.00").width / 2),
-            clock.center_y);
+        ctx.fillText("0.00", clock.centerX - (ctx.measureText("0.00").width / 2),
+            clock.centerY);
 
         let dt;
-        let finish;
         let clockText;
 
         let clock_loop = setInterval(() => {
@@ -104,8 +112,8 @@ let stopwatch = {
                     clockText = "0:00";
                 }
 
-                let textX = clock.center_x - (ctx.measureText(clockText).width / 2);
-                let textY = clock.center_y;
+                let textX = clock.centerX - (ctx.measureText(clockText).width / 2);
+                let textY = clock.centerY;
                 ctx.fillText(clockText, textX, textY);
 
                 if (clock.angle <= -270) {
@@ -116,17 +124,17 @@ let stopwatch = {
 
         $(".stopwatch_start_stop").click((e) => {
             e.preventDefault();
-            this.startStop(clock);
+            this.startStopStopwatch(clock);
         });
 
         $("#stopwatch_canvas").click((e) => {
             e.preventDefault();
-            this.startStop(clock);
+            this.startStopStopwatch(clock);
         });
 
         $(".stopwatch_reset").click((e) => {
             e.preventDefault();
-            this.reset(clock, ctx);
+            this.resetStopwatch(clock, ctx);
         });
 
         $(".stopwatch_lap").click(function (e) {
@@ -139,32 +147,23 @@ let stopwatch = {
         });
 
         return clock_loop;
-    },
+    }
 
-    startStop: function (clock) {
-        // if (clock.isRunning && clock.epoch > 0) {
-        //     clock.isRunning = false;
-        // } else if (!clock.isRunning && clock.epoch === 0) {
-        //     clock.isRunning = true;
-        //     clock.start = Date.now();
-        // } else if (!clock.isRunning) {
-        //     clock.isRunning = true;
-        // }
-
+    startStopStopwatch(clock) {
         if (!clock.isRunning) {
             clock.start = 0;
         }
 
         clock.isRunning = !clock.isRunning;
-    },
+    }
 
-    reset: function (clock, ctx) {
+    resetStopwatch(clock, ctx) {
         clock.isRunning = false;
 
         ctx.clearRect(0, 0, 400, 400);
         this.drawCircle(clock, ctx);
         this.drawPoint(clock, ctx, 90, 1, "A");
-        ctx.fillText("0.00", clock.center_x, clock.center_y);
+        ctx.fillText("0.00", clock.centerX, clock.centerY);
 
         $(".stopwatch_lap_times").empty();
 
@@ -174,20 +173,20 @@ let stopwatch = {
         clock.hours = 0;
         clock.minutes = 0;
         clock.seconds = 0;
-    },
+    }
 
-    drawCircle: function (clock, ctx) {
+    drawCircle(clock, ctx) {
         ctx.beginPath();
-        ctx.arc(clock.center_x, clock.center_y, clock.radius, 0, 2 * Math.PI);
+        ctx.arc(clock.centerX, clock.centerY, clock.radius, 0, 2 * Math.PI);
         ctx.stroke();
-    },
+    }
 
-    drawPoint: function (clock, ctx, angle, distance) {
-        let x = clock.center_x + clock.radius * Math.cos(-angle * Math.PI / 180) * distance;
-        let y = clock.center_y + clock.radius * Math.sin(-angle * Math.PI / 180) * distance;
+    drawPoint(clock, ctx, angle, distance) {
+        let x = clock.centerX + clock.radius * Math.cos(-angle * Math.PI / 180) * distance;
+        let y = clock.centerY + clock.radius * Math.sin(-angle * Math.PI / 180) * distance;
 
         ctx.beginPath();
-        ctx.arc(x, y, clock.point_size, 0, 2 * Math.PI);
+        ctx.arc(x, y, clock.pointSize, 0, 2 * Math.PI);
         ctx.fill();
-    },
+    }
 }
