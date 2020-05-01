@@ -18,9 +18,9 @@ class App {
         FastClick.attach(document.body);
 
         $(".loader").remove();
-        
+
         this.swipeHandler = new SwipeHolder("#app");
-        
+
         // TODO: pass a callback function into initNavbar to switch between pages
         navbar.initNavbar(this.switchPage.bind(this));
         this.switchPage("stopwatch");
@@ -47,16 +47,15 @@ class App {
         if (typeof exit_callback == "function") {
             exit_callback();
         }
-        
+
         // Add delay for a smooth-ish transition from page to page
         setTimeout(() => {
-            
+
             $("#app").empty();
             console.log(`switching to ${page}`);
 
             if (page == "stopwatch") {
                 this.exit_callback = stopwatch.initStopwatch();
-                
                 navbar.focusButton("#stopwatch");
                 this.swipeHandler.bindGestureCallback(this.swipeHandler.Gestures.SWIPERIGHT, () => { });
                 this.swipeHandler.bindGestureCallback(this.swipeHandler.Gestures.SWIPELEFT, () => {
@@ -64,7 +63,6 @@ class App {
                 });
             } else if (page === "stats") {
                 this.exit_callback = stats.initStats();
-                
                 navbar.focusButton("#stats");
                 this.swipeHandler.bindGestureCallback(this.swipeHandler.Gestures.SWIPERIGHT, () => {
                     this.switchPage("stopwatch");
@@ -74,7 +72,6 @@ class App {
                 });
             } else if (page === "team") {
                 this.exit_callback = team.initTeam();
-                
                 navbar.focusButton("#team");
                 this.swipeHandler.bindGestureCallback(this.swipeHandler.Gestures.SWIPERIGHT, () => {
                     this.switchPage("stats");
@@ -84,7 +81,6 @@ class App {
                 });
             } else if (page === "account") {
                 this.exit_callback = account.initAccount();
-                
                 navbar.focusButton("#account");
                 this.swipeHandler.bindGestureCallback(this.swipeHandler.Gestures.SWIPERIGHT, () => {
                     this.switchPage("team");
@@ -95,7 +91,6 @@ class App {
                 console.log(`[main.js:switchPage()]: Undefined page "${page}", ERRORS EXPECTED`);
             }
         }, 500);
-        
         // Now unblur (since css transitions don't work well with filters)
         setTimeout(() => {
             for (let c = 100; c > -1; c--) {
