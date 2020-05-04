@@ -8,7 +8,22 @@ class Stopwatch extends Page {
         super(id, "Stopwatch");
         this.clockLoop = null;
     }
-
+    
+    /**
+     * Returns the Html for this page (bare minimum to allow for swipe previews)
+     */
+    getHtml() {
+        return (`
+            <div id="stopwatchPage" class="div_page">
+                <canvas id="stopwatch_canvas" class="stopwatch_canvas" width="400px" height="300px"></canvas>
+                <button class="stopwatch_start_stop">&#9654;</button>
+                <button class="stopwatch_lap">Lap</button>
+                <button class="stopwatch_reset">Reset</button>
+                <div class="stopwatch_lap_times"></div>
+            </div>
+        `);
+    }
+    
     /**
      * Load the necessary html for the stopwatch and return a function that must be called
      * in order to properly stop this page. 
@@ -18,13 +33,15 @@ class Stopwatch extends Page {
     start() {
 
         // TODO allow the user to save the results for later
-        $("#app").html(`
-            <canvas id="stopwatch_canvas" class="stopwatch_canvas" width="400px" height="300px"></canvas>
-            <button class="stopwatch_start_stop">&#9654;</button>
-            <button class="stopwatch_lap">Lap</button>
-            <button class="stopwatch_reset">Reset</button>
-            <div class="stopwatch_lap_times"></div>
-        `);
+        // $("#app").html(`
+        //     <div id="stopwatchPage">
+        //         <canvas id="stopwatch_canvas" class="stopwatch_canvas" width="400px" height="300px"></canvas>
+        //         <button class="stopwatch_start_stop">&#9654;</button>
+        //         <button class="stopwatch_lap">Lap</button>
+        //         <button class="stopwatch_reset">Reset</button>
+        //         <div class="stopwatch_lap_times"></div>
+        //     </div>
+        // `);
 
         let style = document.getElementById("style_stopwatch");
         style.disabled = false;
