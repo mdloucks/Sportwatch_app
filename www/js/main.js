@@ -4,7 +4,8 @@ class App {
         this.pages = [];
         this.currentPageID = 0;
         this.navbar = new Navbar();
-        this.swipeHandler = new SwipeHolder("#app");
+        this.transitionObj = new PageTransition();
+        this.swipeHandler;
     }
 
     initialize(params) {
@@ -20,10 +21,13 @@ class App {
         FastClick.attach(document.body);
 
         $(".loader").remove();
-
+        
         this.navbar.initNavbar(this.switchPage.bind(this));
+        this.swipeHandler = new SwipeHolder("#app"); // Has to be after onReady
+        $("#app").empty();
         this.constructPages();
         this.initializeFirstPage();
+        
     }
 
     /**
@@ -32,6 +36,7 @@ class App {
     initializeFirstPage() {
         this.setCurrentPageID(0);
         this.startCurrentPage();
+        this.defineSwipes(0);
     }
 
     /**
@@ -42,9 +47,8 @@ class App {
      */
     switchPage(pageName) {
         console.log(`switching to ${pageName}`);
-        $("#app").empty();
         this.transitionPage(pageName);
-        this.StopPreviousPage();
+        this.stopPreviousPage();
         this.setCurrentPageID(this.getPage(pageName).id);
         this.startCurrentPage();
     }
@@ -54,58 +58,17 @@ class App {
      * @param {String} pageName name of the page to transition to
      */
     transitionPage(pageName) {
-        // Blur the page for a page change
-        for (let c = 0; c < 101; c++) {
-            $("#app").css("filter", "blur(" + (c / 2) + "px)"); // CSS3 Support
-            $("#app").css("-webkit-filter", "blur(" + (c / 2) + "px)"); // Chrome, Safari
+        
+        this.navbar.focusButton("#" + pageName.toLowerCase());
+        if(this.getPage(pageName).id > this.currentPageID) {
+            this.transitionObj.slideLeft(pageName.toLowerCase() + "Page", 200);
+        } else if(this.getPage(pageName).id < this.currentPageID) {
+            this.transitionObj.slideRight(pageName.toLowerCase() + "Page", 200);
+        } else {
+            console.log("[main.js:transitionPage()]: Tried to switch page! Page ID is already current!!");
         }
-
-        // Add delay for a smooth-ish transition from page to page
-        setTimeout(() => {
-
-            if (pageName == "Stopwatch") {
-
-                this.navbar.focusButton("#stopwatch");
-                this.swipeHandler.bindGestureCallback(this.swipeHandler.Gestures.SWIPERIGHT, () => { });
-                this.swipeHandler.bindGestureCallback(this.swipeHandler.Gestures.SWIPELEFT, () => {
-                    this.switchPage("stats");
-                });
-            } else if (pageName === "Stats") {
-
-                this.navbar.focusButton("#stats");
-                this.swipeHandler.bindGestureCallback(this.swipeHandler.Gestures.SWIPERIGHT, () => {
-                    this.switchPage("stopwatch");
-                });
-                this.swipeHandler.bindGestureCallback(this.swipeHandler.Gestures.SWIPELEFT, () => {
-                    this.switchPage("team");
-                });
-            } else if (pageName === "Team") {
-
-                this.navbar.focusButton("#team");
-                this.swipeHandler.bindGestureCallback(this.swipeHandler.Gestures.SWIPERIGHT, () => {
-                    this.switchPage("stats");
-                });
-                this.swipeHandler.bindGestureCallback(this.swipeHandler.Gestures.SWIPELEFT, () => {
-                    this.switchPage("account");
-                });
-            } else if (pageName === "Account") {
-
-                this.navbar.focusButton("#account");
-                this.swipeHandler.bindGestureCallback(this.swipeHandler.Gestures.SWIPERIGHT, () => {
-                    this.switchPage("team");
-                });
-                this.swipeHandler.bindGestureCallback(this.swipeHandler.Gestures.SWIPELEFT, () => { });
-            } else {
-                console.log(`[main.js:switchPage()]: Undefined page "${pageName}", ERRORS EXPECTED`);
-            }
-        }, 500);
-        // Now unblur (since css transitions don't work well with filters)
-        setTimeout(() => {
-            for (let c = 100; c > -1; c--) {
-                $("#app").css("filter", "blur(" + (c / 2) + "px)");
-                $("#app").css("-webkit-filter", "blur(" + (c / 2) + "px)");
-            }
-        }, 1000);
+        this.defineSwipes(this.getPage(pageName).id);
+        
     }
 
     /**
@@ -115,7 +78,15 @@ class App {
      * 
      */
     constructPages(pageName) {
+        $("#app").html(""); // Clear app html
         this.pages = [Stopwatch, Stats, Team, Account].map((page, i) => new page(i));
+        this.pages.forEach((pageObj, pageIndex) => {
+            let shouldShow = false; // Should be page be visible at start? (only for first page)
+            if(pageIndex == 0) {
+                shouldShow = true;
+            }
+            this.transitionObj.addPage((pageObj.name.toLowerCase() + "Page"), pageObj.getHtml(), shouldShow);
+        });
     }
 
     checkSession() {
@@ -157,7 +128,7 @@ class App {
             }
 
             throw new Exception(`Could not find ${identifier} inside of pages`);
-        } else if (typeof identifier == "number" && number.isInteger()) {
+        } else if (typeof identifier == "number" && Number.isInteger(identifier)) {
             for (let i = 0; i < this.pages.length; i++) {
                 if (this.pages[i].id == identifier) {
                     return this.pages[i];
@@ -169,7 +140,46 @@ class App {
             throw new Exception(`Incorrect datatype entered for getPage, expected integer or string, you entered ${typeof identifier}`);
         }
     }
-
+    
+    defineSwipes(pageIndex) {
+        
+        // Going left (swiping right)
+        if(pageIndex > 0) {
+            this.swipeHandler.bindGestureCallback(this.swipeHandler.Gestures.SWIPERIGHT, () => {
+                this.switchPage(this.getPage(pageIndex - 1).name);
+            });
+        } else {
+            // Blank since 0 is left-most page
+            this.swipeHandler.bindGestureCallback(this.swipeHandler.Gestures.SWIPERIGHT, () => { });
+        }
+        
+        // Going right (swiping left)
+        if(pageIndex < this.pages.length) {
+            this.swipeHandler.bindGestureCallback(this.swipeHandler.Gestures.SWIPELEFT, () => {
+                this.switchPage(this.getPage(pageIndex + 1).name);
+            });
+        } else {
+            this.swipeHandler.bindGestureCallback(this.swipeHandler.Gestures.SWIPELEFT, () => { });
+        }
+        
+        // Moving (Left / Right)
+        this.swipeHandler.bindGestureCallback(this.swipeHandler.Gestures.MOVE, (dx, dy) => {
+            // if((dx > 0) && (pageIndex < this.pages.length)) {
+            //     console.log("Target: " + this.getPage(pageIndex + 1).name);
+            // } else if((dx < 0) && (pageIndex > 0)) {
+            //     console.log("Target: " + this.getPage(pageIndex - 1).name);
+            // }
+            if ((dx > 0) && (pageIndex < this.pages.length)) {
+                this.transitionObj.slidePageX(this.getPage(pageIndex + 1).name, true, Math.abs(dx));
+            } else if ((dx < 0) && (pageIndex > 0)) {
+                this.transitionObj.slidePageX(this.getPage(pageIndex - 1).name, false, Math.abs(dx));
+            } else {
+                this.transitionObj.slidePageX(this.getPage(pageIndex).name, true, 0);
+            }
+        });
+        
+    }
+    
     setCurrentPageID(id) {
         this.currentPageID = id;
     }
@@ -184,7 +194,7 @@ class App {
     /**
      * @description invoke the stop() method on the previous page, provided this is called before updating the pageID
      */
-    StopPreviousPage() {
+    stopPreviousPage() {
         this.pages[this.currentPageID].stop();
     }
 
