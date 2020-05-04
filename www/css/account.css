@@ -6,7 +6,8 @@
 
 .div_page {
     position: absolute;
-    top: 15%;
+    /*top: 15%; */
+    top: 0;
     width: 99%; /* 100% is larger than header, producing "scoll" */
     height: 85%;
     text-align: center;
