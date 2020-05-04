@@ -10,6 +10,7 @@ class SwipeHolder {
         
         // VARIABLES
         this.MAX_HISTORY = 20; // Max length of arrays
+        this.MIN_MOVEMENT = 25; // Swipe in pixels for it to count
         this.currentTouch = []; // [x, y]  (Max length of 2)
         this.touchHistory = []; // Formatted as [0: [{initX, initY}, {endX, endY}], 1: ...]
         this.gestureHistory = []; // Consists of Gestures enum
@@ -19,18 +20,20 @@ class SwipeHolder {
         this.callbacks = [];
         
         this.Gestures = { // Enum
-            TAP: 0,
-            SWIPEUP: 1,
-            SWIPERIGHT: 2,
-            SWIPEDOWN: 3,
-            SWIPELEFT: 4
+            BEGIN: 0,
+            MOVE: 1,
+            STOP: 2,
+            TAP: 3,
+            SWIPEUP: 4,
+            SWIPERIGHT: 5,
+            SWIPEDOWN: 6,
+            SWIPELEFT: 7
         };
         
         // Define dummy callbacks
-        this.callbacks[this.Gestures.SWIPEUP] = () => { };
-        this.callbacks[this.Gestures.SWIPERIGHT] = () => { };
-        this.callbacks[this.Gestures.SWIPEDOWN] = () => { };
-        this.callbacks[this.Gestures.SWIPELEFT] = () => { };
+        for(let gest in this.Gestures) {
+            this.callbacks[gest] = () => { };
+        }
         
         if(attachedElement != "") {
             this.attachToElement(attachedElement);
@@ -65,6 +68,11 @@ class SwipeHolder {
             e.preventDefault();
             let touch = e.changedTouches[0];
             this.currentTouch = touch; // So current finger position can be ascertained
+            
+            let dx = this.touchHistory[0][0].pageX - touch.pageX;
+            let dy = this.touchHistory[0][0].pageY - touch.pageY;
+            this.callbacks[this.Gestures.MOVE](dx, dy);
+            console.log("Dx=" + (dx) + " Dy=" + (dy));
         });
         // END TOUCH
         $(elementId).bind("touchend", (e) => {
@@ -76,6 +84,7 @@ class SwipeHolder {
                 this.touchHistory[currentTouchIndex][1] = touch;
                 this.evaluateGesture(currentTouchIndex);
             }
+            this.callbacks[this.Gesture.STOP]();
         });
     };
     
@@ -97,6 +106,13 @@ class SwipeHolder {
         let endTouch = this.touchHistory[historyIndex][1];
         let dx = endTouch.pageX - startTouch.pageX;
         let dy = endTouch.pageY - startTouch.pageY;
+        
+        // Check against minimal movement
+        if((Math.abs(dx) <= this.MIN_MOVEMENT) && (Math.abs(dy) <= this.MIN_MOVEMENT)) {
+            this.gestureHistory.unshift(this.Gestures.TAP);
+            return this.gestureHistory[0];
+        }
+        
         // Check to see the greater rate of change, then log gesture
         if(Math.abs(dx) > Math.abs(dy)) { // Horizontal movement
             if(dx > 0) { // Rightward swipe
