@@ -5,7 +5,7 @@ body {
   padding: 0;
   margin: 0;
   width: 100%;
-  height: 500px;
+  height: 92vh;
 }
 
 /* Header */
@@ -83,7 +83,7 @@ span {
 .div_page {
   position: absolute;
   top: 15%;
-  width: 99%; /* 100% is larger than header, producing "scoll" */
+  width: 100%; /* 100% is larger than header, producing "scoll" */
   height: 85%;
   text-align: center;
   background-color: #fff;
