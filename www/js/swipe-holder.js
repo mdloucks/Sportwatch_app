@@ -31,9 +31,14 @@ class SwipeHolder {
         };
         
         // Define dummy callbacks
-        for(let gest in this.Gestures) {
-            this.callbacks[gest] = () => { };
-        }
+        this.callbacks[this.Gestures.BEGIN] = () => { };
+        this.callbacks[this.Gestures.MOVE] = () => { };
+        this.callbacks[this.Gestures.STOP] = () => { };
+        this.callbacks[this.Gestures.TAP] = () => { };
+        this.callbacks[this.Gestures.SWIPEUP] = () => { };
+        this.callbacks[this.Gestures.SWIPERIGHT] = () => { };
+        this.callbacks[this.Gestures.SWIPEDOWN] = () => { };
+        this.callbacks[this.Gestures.SWIPELEFT] = () => { };
         
         if(attachedElement != "") {
             this.attachToElement(attachedElement);
@@ -72,7 +77,6 @@ class SwipeHolder {
             let dx = this.touchHistory[0][0].pageX - touch.pageX;
             let dy = this.touchHistory[0][0].pageY - touch.pageY;
             this.callbacks[this.Gestures.MOVE](dx, dy);
-            console.log("Dx=" + (dx) + " Dy=" + (dy));
         });
         // END TOUCH
         $(elementId).bind("touchend", (e) => {
@@ -84,7 +88,7 @@ class SwipeHolder {
                 this.touchHistory[currentTouchIndex][1] = touch;
                 this.evaluateGesture(currentTouchIndex);
             }
-            this.callbacks[this.Gesture.STOP]();
+            this.callbacks[this.Gestures.STOP]();
         });
     };
     
