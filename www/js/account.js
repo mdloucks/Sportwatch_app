@@ -22,7 +22,7 @@ class Account extends Page {
         
         
         // https://jsbin.com/lodusuyipo/edit?html,css,js,output
-        this.accountPage = (`
+        this.settingsPage = (`
             <div id="settingsPage" class="div_page">
                 <span class="back_arrow">&#8592</span>
                 <br>
@@ -59,7 +59,7 @@ class Account extends Page {
         return (`
             <div id="accountPage" class="div_page">
                 ${this.catagoryPage}
-                ${this.accountPage}
+                ${this.settingsPage}
                 ${this.devPage}
             </div>
         `);
@@ -73,6 +73,11 @@ class Account extends Page {
         let style = document.getElementById("style_account");
         style.disabled = false;
         
+        // Only add content if it isn't there yet (check if any catagories are there yet)
+        if($(".cat_button").length) {
+            return;
+        }
+        
         this.addPage("#catagoryPage", true);
         this.addPage("#settingsPage");
         this.addPage("#devPage");
@@ -80,7 +85,6 @@ class Account extends Page {
         // ---- OPERATIONS ---- //
 
         // Add all the html pages here
-        // $("#app").html(""); // Clear html content
         // TODO: Make a proper fix for page length / screen (parent div expand with dropdowns)
 
         // Catagory Page
@@ -118,9 +122,10 @@ class Account extends Page {
             // TODO: Delete Account if password matches
         });
         
+                
         // ---- DEVELOPER PAGE LOGIC ---- //
-
-        $("#app").on("click", "#create_tables", function (e) {
+        
+        $("#create_tables").click((e) => {
             e.preventDefault();
             sw_db.createNewTables();
             console.log("Created new tables!");
@@ -134,9 +139,7 @@ class Account extends Page {
         
         // ---- MISC PAGE LOGIC ---- //
         
-        // Have to use .on
-        // https://stackoverflow.com/questions/19393656/span-jquery-click-not-working
-        $("#app").on("click", ".back_arrow", (e) => {
+        $(".back_arrow").click((e) => {
             e.preventDefault();
             this.animateTransition("catagoryPage", false);
         });
@@ -161,10 +164,10 @@ class Account extends Page {
     
     stop() {
         // $("#app").off();
-        $("#accountPage").html(""); // Clear; start() will re-add pages
-        $("button").off();
-        $(".act_drop_button").off();
-        $("#database_command").off();
+        // $("#accountPage").html(""); // Clear; start() will re-add pages
+        // $("button").off();
+        // $(".act_drop_button").off();
+        // $("#database_command").off();
 
         // let style = document.getElementById("style_account");
         // style.disabled = true;
@@ -291,8 +294,6 @@ class Account extends Page {
         if (!isPrimary) {
             $(divId).addClass("page_right");
             $(divId).addClass("hidden");
-        } else {
-            console.log(`Not hiding ${divId} because isPrimary=${isPrimary}`);
         }
     }
 
@@ -335,13 +336,6 @@ class Account extends Page {
             $(newPageId).removeClass("page_left");
             $(prevPageId).addClass("page_right");
         }
-
-        // Is finishing 20% early, for some reason
-        // $(prevPageId).on("transitionend", () => {
-        //     console.log("Prev page finished " + $(prevPageId).css("left"));
-        // $(prevPageId).addClass("hidden");
-        //     this.currentPageId = newPageId;
-        // });
         
         // Hide old page once new page is in focus
         $(newPageId).one("transitionend", () => {
