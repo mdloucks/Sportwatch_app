@@ -147,44 +147,49 @@ class PageTransition {
             console.log("[PageTransition][slidePage()]: Duplicate! New current page: " + this.currentPage);
             return;
         }
-        // Remove any previous sliding CSS
-        $(targetPageId).css("left", "");
-        $(prevPageId).css("left", "");
         
-        // Set up location (opposite of direction of the slide)
-        $(".div_page").css("transition", "left 0s");
-        if(slideLeft) {
-            $(targetPageId).addClass("page_right");
-        } else {
-            $(targetPageId).addClass("page_left");
+        // Check to see if any sliding occured. If not, position pages
+        if(($(targetPageId).css("left") == "0px") && ($(prevPageId).css("left") == "0px")) {
+            $(targetPageId).css("left", "");
+            $(prevPageId).css("left", "");
+            
+            // Set up location (opposite of direction of the slide)
+            $(".div_page").css("transition", "left 0s");
+            if(slideLeft) {
+                $(targetPageId).css("left", "100%");
+            } else {
+                $(targetPageId).css("left", "-100%");
+            }
         }
         // Update transition time for all pages and convert duration to seconds
         // Have to use setTimeout to allow for the pages to get into position
         setTimeout(() => {
             $(".div_page").css("transition", "left " + (duration / 1000) + "s");
         }, 1);
+        
         // Use setTimeout to avoid instant appearance of new page
         // Kind of jimmy-rigged, but I don't know how to solve the root problem :(
         setTimeout(() => {
             if(slideLeft) {
                 $(targetPageId).removeClass("hidden");
-                $(targetPageId).removeClass("page_right");
-                $(prevPageId).addClass("page_left");
+                $(targetPageId).css("left", "0");
+                $(prevPageId).css("left", "-100%");
             } else {
                 $(targetPageId).removeClass("hidden");
-                $(targetPageId).removeClass("page_left");
-                $(prevPageId).addClass("page_right");
+                $(targetPageId).css("left", "0");
+                $(prevPageId).css("left", "100%");
             }
         }, 2);
+        
         // Hide old page once new page is in focus
         setTimeout(() => {
             $(prevPageId).addClass("hidden");
             // Remove transition time in order to set up page locations
-            //$(".div_page").css("transition", "");
+            $(".div_page").css("transition", "");
             if(slideLeft) {
-                $(prevPageId).removeClass("page_left");
+                $(prevPageId).css("left", "0");
             } else {
-                $(prevPageId).removeClass("page_right");
+                $(prevPageId).css("left", "0");
             }
             this.currentPage = targetPageId.replace("#", "");
         }, duration);
@@ -194,6 +199,12 @@ class PageTransition {
      * Moves the target page the given value in pixels. This is NOT
      * a full transition, but rather, should be called in conjunction
      * with a touchmove event to update page appearance
+     * 
+     * @example slidePageX("Stats", true, 23); --> Moves Stopwatch & Stats 23 pixels left
+     * 
+     * @param {String} targetPageKey key of new page (often page ID.toLowerCase() + "Page")
+     * @param {Boolean} slideLeft should the pages slide from left to right? (false for opposite)
+     * @param {Integer} dx change to horizontal motion to move pages (often called with touchmove)
     */
     slidePageX(targetPageKey, slideLeft, dx) {
         
@@ -207,12 +218,13 @@ class PageTransition {
         // Set up location (opposite of direction of the slide)
         $(".div_page").css("transition", "left 0s");
         if (slideLeft) {
-            $(targetPageId).addClass("page_right");
+            $(targetPageId).css("left", "100%");
         } else {
-            $(targetPageId).addClass("page_left");
+            $(targetPageId).css("left", "-100%");
         }
         
         if(dx == 0) {
+            console.log("[page-transition:slidePageX()]: Reset");
             $(".div_page").addClass("hidden");
             $(prevPageId).removeClass("hidden"); // Reset all styling
             $(targetPageId).css("left", "");
@@ -222,18 +234,17 @@ class PageTransition {
         
         // Use setTimeout to avoid instant appearance of new page
         // Kind of jimmy-rigged, but I don't know how to solve the root problem :(
+        $(targetPageId).removeClass("hidden");
         setTimeout(() => {
             if (slideLeft) {
-                $(targetPageId).removeClass("hidden");
                 $(targetPageId).css("left", (($(window).width() - dx) + "px"));
                 $(prevPageId).css("left", (-1 * dx + "px"));
             } else {
-                $(targetPageId).removeClass("hidden");
-                $(targetPageId).css("left", ((-1 * dx) + "px"));
+                $(targetPageId).css("left", (((-1 * $(window).width()) + dx) + "px"));
                 $(prevPageId).css("left", (dx + "px"));
-                $(prevPageId).addClass("page_right");
             }
         }, 1);
+        
     }
     
     /**

@@ -141,6 +141,13 @@ class App {
         }
     }
     
+    /**
+     * Defines the swipeHandler actions for this page (left, right, moving)
+     * 
+     * @example this.defineSwipes(this.getPage(nextPage).id); --> sets up handlers for new / next page
+     * 
+     * @param {Ingeger} pageIndex the numerical index corresponding to pages Map object
+     */
     defineSwipes(pageIndex) {
         
         // Going left (swiping right)
@@ -163,18 +170,14 @@ class App {
         }
         
         // Moving (Left / Right)
+        // dx > 0 ==> Swiping right to left,   dx < 0 ==> Left to right
         this.swipeHandler.bindGestureCallback(this.swipeHandler.Gestures.MOVE, (dx, dy) => {
-            // if((dx > 0) && (pageIndex < this.pages.length)) {
-            //     console.log("Target: " + this.getPage(pageIndex + 1).name);
-            // } else if((dx < 0) && (pageIndex > 0)) {
-            //     console.log("Target: " + this.getPage(pageIndex - 1).name);
-            // }
-            if ((dx > 0) && (pageIndex < this.pages.length)) {
-                this.transitionObj.slidePageX(this.getPage(pageIndex + 1).name, true, Math.abs(dx));
+            if ((dx > 0) && (pageIndex < this.pages.length - 1)) {
+                this.transitionObj.slidePageX(this.getPage(pageIndex + 1).name.toLowerCase() + "Page", true, Math.abs(dx));
             } else if ((dx < 0) && (pageIndex > 0)) {
-                this.transitionObj.slidePageX(this.getPage(pageIndex - 1).name, false, Math.abs(dx));
+                this.transitionObj.slidePageX(this.getPage(pageIndex - 1).name.toLowerCase() + "Page", false, Math.abs(dx));
             } else {
-                this.transitionObj.slidePageX(this.getPage(pageIndex).name, true, 0);
+                // this.transitionObj.slidePageX(this.getPage(pageIndex).name.toLowerCase() + "Page", true, 0);
             }
         });
         
