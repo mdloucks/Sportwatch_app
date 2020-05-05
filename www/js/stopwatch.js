@@ -16,12 +16,12 @@ class Stopwatch extends Page {
         return (`
             <div id="stopwatchPage" class="div_page">
                 <canvas id="stopwatch_canvas" class="stopwatch_canvas" width="400px" height="300px"></canvas>
+                <div class="stopwatch_lap_times"></div>
                 <div class="stopwatch_button_container">
                     <a id="stopwatch_reset" class="stopwatch_button">Reset</a>
                     <button id="stopwatch_start_stop" class="stopwatch_button">&#9654;</button>
                     <a id="stopwatch_lap" class="stopwatch_button">Lap</a>
                 </div>
-                <div class="stopwatch_lap_times"></div>
             </div>
         `);
     }
@@ -136,7 +136,7 @@ class Stopwatch extends Page {
             e.preventDefault();
             this.startStopStopwatch(clock);
         });
-
+        
         $("#stopwatch_canvas").click((e) => {
             e.preventDefault();
             this.startStopStopwatch(clock);
