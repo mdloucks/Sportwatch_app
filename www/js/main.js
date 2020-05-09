@@ -21,13 +21,18 @@ class App {
         FastClick.attach(document.body);
 
         $(".loader").remove();
-        
+
+        $(document).click(function (event) {
+            var text = $(event.target).text();
+            console.log("CLICK " + text);
+        });
+
         this.navbar.initNavbar(this.switchPage.bind(this));
         this.swipeHandler = new SwipeHolder("#app"); // Has to be after onReady
         $("#app").empty();
         this.constructPages();
         this.initializeFirstPage();
-        
+
     }
 
     /**
@@ -58,17 +63,17 @@ class App {
      * @param {String} pageName name of the page to transition to
      */
     transitionPage(pageName) {
-        
+
         this.navbar.focusButton("#" + pageName.toLowerCase());
-        if(this.getPage(pageName).id > this.currentPageID) {
+        if (this.getPage(pageName).id > this.currentPageID) {
             this.transitionObj.slideLeft(pageName.toLowerCase() + "Page", 200);
-        } else if(this.getPage(pageName).id < this.currentPageID) {
+        } else if (this.getPage(pageName).id < this.currentPageID) {
             this.transitionObj.slideRight(pageName.toLowerCase() + "Page", 200);
         } else {
             console.log("[main.js:transitionPage()]: Tried to switch page! Page ID is already current!!");
         }
         this.defineSwipes(this.getPage(pageName).id);
-        
+
     }
 
     /**
@@ -82,7 +87,7 @@ class App {
         this.pages = [Stopwatch, Stats, Team, Account].map((page, i) => new page(i));
         this.pages.forEach((pageObj, pageIndex) => {
             let shouldShow = false; // Should be page be visible at start? (only for first page)
-            if(pageIndex == 0) {
+            if (pageIndex == 0) {
                 shouldShow = true;
             }
             this.transitionObj.addPage((pageObj.name.toLowerCase() + "Page"), pageObj.getHtml(), shouldShow);
@@ -127,7 +132,7 @@ class App {
                 }
             }
 
-            throw new Exception(`Could not find ${identifier} inside of pages`);
+            throw new Error(`Could not find ${identifier} inside of pages`);
         } else if (typeof identifier == "number" && Number.isInteger(identifier)) {
             for (let i = 0; i < this.pages.length; i++) {
                 if (this.pages[i].id == identifier) {
@@ -135,12 +140,12 @@ class App {
                 }
             }
 
-            throw new Exception(`Could not find ${identifier} inside of pages`);
+            throw new Error(`Could not find ${identifier} inside of pages`);
         } else {
-            throw new Exception(`Incorrect datatype entered for getPage, expected integer or string, you entered ${typeof identifier}`);
+            throw new Error(`Incorrect datatype entered for getPage, expected integer or string, you entered ${typeof identifier}`);
         }
     }
-    
+
     /**
      * Defines the swipeHandler actions for this page (left, right, moving)
      * 
@@ -149,9 +154,9 @@ class App {
      * @param {Ingeger} pageIndex the numerical index corresponding to pages Map object
      */
     defineSwipes(pageIndex) {
-        
+
         // Going left (swiping right)
-        if(pageIndex > 0) {
+        if (pageIndex > 0) {
             this.swipeHandler.bindGestureCallback(this.swipeHandler.Gestures.SWIPERIGHT, () => {
                 this.switchPage(this.getPage(pageIndex - 1).name);
             });
@@ -159,16 +164,16 @@ class App {
             // Blank since 0 is left-most page
             this.swipeHandler.bindGestureCallback(this.swipeHandler.Gestures.SWIPERIGHT, () => { });
         }
-        
+
         // Going right (swiping left)
-        if(pageIndex < this.pages.length) {
+        if (pageIndex < this.pages.length) {
             this.swipeHandler.bindGestureCallback(this.swipeHandler.Gestures.SWIPELEFT, () => {
                 this.switchPage(this.getPage(pageIndex + 1).name);
             });
         } else {
             this.swipeHandler.bindGestureCallback(this.swipeHandler.Gestures.SWIPELEFT, () => { });
         }
-        
+
         // Moving (Left / Right)
         // dx > 0 ==> Swiping right to left,   dx < 0 ==> Left to right
         this.swipeHandler.bindGestureCallback(this.swipeHandler.Gestures.MOVE, (dx, dy) => {
@@ -180,9 +185,9 @@ class App {
                 // this.transitionObj.slidePageX(this.getPage(pageIndex).name.toLowerCase() + "Page", true, 0);
             }
         });
-        
+
     }
-    
+
     setCurrentPageID(id) {
         this.currentPageID = id;
     }
