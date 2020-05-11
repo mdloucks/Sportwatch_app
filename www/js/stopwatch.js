@@ -8,7 +8,7 @@ class Stopwatch extends Page {
         super(id, "Stopwatch");
         this.clockLoop = null;
     }
-    
+
     /**
      * Returns the Html for this page (bare minimum to allow for swipe previews)
      */
@@ -25,7 +25,7 @@ class Stopwatch extends Page {
             </div>
         `);
     }
-    
+
     /**
      * Load the necessary html for the stopwatch and return a function that must be called
      * in order to properly stop this page. 
@@ -132,22 +132,24 @@ class Stopwatch extends Page {
             }
         }, 10);
 
-        $("#stopwatch_start_stop").click((e) => {
-            e.preventDefault();
-            this.startStopStopwatch(clock);
-        });
-        
-        $("#stopwatch_canvas").click((e) => {
+        $("#stopwatch_start_stop").bind("touchend", (e) => {
+            console.log("HEYEYE");
             e.preventDefault();
             this.startStopStopwatch(clock);
         });
 
-        $("#stopwatch_reset").click((e) => {
+        $("#stopwatch_canvas").bind("touchend", (e) => {
+            console.log("AYAYAYY");
+            e.preventDefault();
+            this.startStopStopwatch(clock);
+        });
+
+        $("#stopwatch_reset").bind("touchend", (e) => {
             e.preventDefault();
             this.resetStopwatch(clock, ctx);
         });
 
-        $("#stopwatch_lap").click((e) => {
+        $("#stopwatch_lap").bind("touchend", (e) => {
             e.preventDefault();
 
             if ($("#stopwatch_lap").html() == "Lap") {

@@ -22,11 +22,6 @@ class App {
 
         $(".loader").remove();
 
-        $(document).click(function (event) {
-            var text = $(event.target).text();
-            console.log("CLICK " + text);
-        });
-
         this.navbar.initNavbar(this.switchPage.bind(this));
         this.swipeHandler = new SwipeHolder("#app"); // Has to be after onReady
         $("#app").empty();
@@ -108,12 +103,6 @@ class App {
         //     });
         // } else {
         // }
-    }
-
-    /**
-     * check to make sure a few js things are avaliable
-     */
-    checkRequirements() {
     }
 
 
