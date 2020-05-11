@@ -15,7 +15,7 @@ class Stopwatch extends Page {
             centerY: 0,
             font: "30px Arial",
             textHeight: 0,
-            fillStyle: "crimson",
+            fillStyle: "rgb(245, 77, 77)",
             lineWidth: 5,
 
             angle: 90,
@@ -57,10 +57,6 @@ class Stopwatch extends Page {
      * @returns {function} a function that will stop the this.clock interval
      */
     start() {
-
-        // TODO: look into why this needs to be disabled. It's disabled by default for some reason
-        let style = document.getElementById("style_stopwatch");
-        style.disabled = false;
 
         this.setupStopwatch();
     }
@@ -177,7 +173,6 @@ class Stopwatch extends Page {
     toggleStopwatch() {
         // on start
         if (!this.clock.isRunning) {
-            // TODO: fix the super annoying size changing on the start/stop button
             console.log("Starting stopwatch");
             this.startStopwatch();
             // on stop

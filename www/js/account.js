@@ -70,9 +70,6 @@ class Account extends Page {
      */
     start() {
 
-        let style = document.getElementById("style_account");
-        style.disabled = false;
-
         // Only add content if it isn't there yet (check if any catagories are there yet)
         if ($(".cat_button").length) {
             return;
@@ -168,9 +165,6 @@ class Account extends Page {
         // $("button").off();
         // $(".act_drop_button").off();
         // $("#database_command").off();
-
-        // let style = document.getElementById("style_account");
-        // style.disabled = true;
     }
 
     // ---- CATAGORY PAGE FUNCTIONS ---- //

@@ -7,7 +7,7 @@ class Team extends Page {
     constructor(id) {
         super(id, "Team");
     }
-    
+
     getHtml() {
         return (`
             <div id="teamPage" class="div_page">
@@ -18,16 +18,12 @@ class Team extends Page {
             </div>
         `);
     }
-    
+
     start() {
         // $("#app").html("<h1>This is the team page!</h1>");
-
-        let style = document.getElementById("style_team");
-        style.disabled = false;
     }
 
     stop() {
-        let style = document.getElementById("style_team");
-        style.disabled = true;
+
     }
 }

@@ -37,8 +37,8 @@
   width: 19vw;
   height: 11vh;
   padding: 5px;
-  background: crimson;
-  border: 10px solid crimson;
+  background: rgb(245, 77, 77);
+  border: 10px solid rgb(245, 77, 77);
   border-radius: 50%;
 }
 
