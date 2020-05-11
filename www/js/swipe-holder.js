@@ -3,22 +3,23 @@
  * information, particularly concerning swipes / gestures
  */
 class SwipeHolder {
-    
+
     constructor(attachedElement = "") {
         // TODO: change to class
         //       threshold to consider a "swipe" a swipe (ex. change > 50)
-        
+
         // VARIABLES
         this.MAX_HISTORY = 20; // Max length of arrays
         this.MIN_MOVEMENT = 25; // Swipe in pixels for it to count
+        this.MIN_PERCENT_DIFFERENCE = 0.25; // percent change needed to trigger a swipe
         this.currentTouch = []; // [x, y]  (Max length of 2)
         this.touchHistory = []; // Formatted as [0: [{initX, initY}, {endX, endY}], 1: ...]
         this.gestureHistory = []; // Consists of Gestures enum
         // Most recent will be at index 0
-        
+
         // Fired during certain events
         this.callbacks = [];
-        
+
         this.Gestures = { // Enum
             BEGIN: 0,
             MOVE: 1,
@@ -29,7 +30,7 @@ class SwipeHolder {
             SWIPEDOWN: 6,
             SWIPELEFT: 7
         };
-        
+
         // Define dummy callbacks
         this.callbacks[this.Gestures.BEGIN] = () => { };
         this.callbacks[this.Gestures.MOVE] = () => { };
@@ -39,12 +40,12 @@ class SwipeHolder {
         this.callbacks[this.Gestures.SWIPERIGHT] = () => { };
         this.callbacks[this.Gestures.SWIPEDOWN] = () => { };
         this.callbacks[this.Gestures.SWIPELEFT] = () => { };
-        
-        if(attachedElement != "") {
+
+        if (attachedElement != "") {
             this.attachToElement(attachedElement);
         }
     }
-    
+
     /**
      * Attach this behavior / class to a given HTML element. The provided
      * parameter should be the id of a present element (commonly #app) with the
@@ -59,7 +60,7 @@ class SwipeHolder {
         // START TOUCH
         $(elementId).bind("touchstart", (e) => {
             // Now, add to the arrays for each touch
-            for(let t = 0; t < e.changedTouches.length; t++) {
+            for (let t = 0; t < e.changedTouches.length; t++) {
                 let touch = e.changedTouches[t];
                 this.currentTouch = touch;
                 this.touchHistory.unshift([touch, null]); // Set endTouch null, for now
@@ -73,7 +74,7 @@ class SwipeHolder {
             e.preventDefault();
             let touch = e.changedTouches[0];
             this.currentTouch = touch; // So current finger position can be ascertained
-            
+
             let dx = this.touchHistory[0][0].pageX - touch.pageX;
             let dy = this.touchHistory[0][0].pageY - touch.pageY;
             this.callbacks[this.Gestures.MOVE](dx, dy);
@@ -81,7 +82,7 @@ class SwipeHolder {
         // END TOUCH
         $(elementId).bind("touchend", (e) => {
             e.preventDefault();
-            for(let l = 0; l < e.changedTouches.length; l++) {
+            for (let l = 0; l < e.changedTouches.length; l++) {
                 let touch = e.changedTouches[l];
                 // Update the touchHistory, setting the ending touch (index 1)
                 let currentTouchIndex = this.getIndexFromId(touch.identifier);
@@ -91,7 +92,7 @@ class SwipeHolder {
             this.callbacks[this.Gestures.STOP]();
         });
     };
-    
+
     /**
      * Evaluates the given gesture and attempts to classify it into one of
      * the Gesture enum classifications based on start / end position.
@@ -108,43 +109,45 @@ class SwipeHolder {
     evaluateGesture(historyIndex) {
         let startTouch = this.touchHistory[historyIndex][0];
         let endTouch = this.touchHistory[historyIndex][1];
+        let screenWidth = $(window).width();
+        let screenHeight = $(window).height();
         let dx = endTouch.pageX - startTouch.pageX;
         let dy = endTouch.pageY - startTouch.pageY;
-        
+
         // Check against minimal movement
-        if((Math.abs(dx) <= this.MIN_MOVEMENT) && (Math.abs(dy) <= this.MIN_MOVEMENT)) {
+        if ((Math.abs(dx) <= this.MIN_MOVEMENT) && (Math.abs(dy) <= this.MIN_MOVEMENT)) {
             this.gestureHistory.unshift(this.Gestures.TAP);
             return this.gestureHistory[0];
         }
-        
+
         // Check to see the greater rate of change, then log gesture
-        if(Math.abs(dx) > Math.abs(dy)) { // Horizontal movement
-            if(dx > 0) { // Rightward swipe
+        if (Math.abs(dx) > Math.abs(dy)) { // Horizontal movement
+            if (dx > 0 && (Math.abs(dx) > (screenWidth * this.MIN_PERCENT_DIFFERENCE))) { // Rightward swipe
                 this.gestureHistory.unshift(this.Gestures.SWIPERIGHT);
-            } else if(dx < 0) { // Leftware swipe
+            } else if (dx < 0 & (Math.abs(dx) > (screenHeight * this.MIN_PERCENT_DIFFERENCE))) { // Leftware swipe
                 this.gestureHistory.unshift(this.Gestures.SWIPELEFT);
             }
-            
-        } else if(Math.abs(dy) > Math.abs(dx)) { // Vertical movement
-            if(dy > 0) { // Downard swipe
+
+        } else if (Math.abs(dy) > Math.abs(dx)) { // Vertical movement
+            if (dy > 0) { // Downard swipe
                 this.gestureHistory.unshift(this.Gestures.SWIPEDOWN);
             }
-            else if(dy < 0) { // Upward swipe
+            else if (dy < 0) { // Upward swipe
                 this.gestureHistory.unshift(this.Gestures.SWIPEUP);
             }
-            
+
         } else { // No movement
             this.gestureHistory.unshift(this.Gestures.TAP);
         }
-        if(this.gestureHistory.length > this.MAX_HISTORY) {
+        if (this.gestureHistory.length > this.MAX_HISTORY) {
             this.gestureHistory.pop();
         }
-        
+
         // Execute callback for gesture
         this.callbacks[this.gestureHistory[0]]();
         return this.gestureHistory[0]; // Return gesture
     };
-    
+
     /**
      * Binds the given callback function to the Gesture enum given. Will overwrite
      * any existing callbacks for said Gesture.
@@ -155,7 +158,7 @@ class SwipeHolder {
     bindGestureCallback(targetGesture, callbackFunc) {
         this.callbacks[targetGesture] = callbackFunc;
     }
-    
+
     /**
      * Gets the index of the touch from touchHistory array based on the
      * unique touch identifier assigned to each interaction. It will compare the
@@ -170,16 +173,16 @@ class SwipeHolder {
      * If no matching touch was found, it'll return false.
      */
     getIndexFromId(id) {
-        for(let h = 0; h < this.touchHistory.length; h++) {
+        for (let h = 0; h < this.touchHistory.length; h++) {
             // Get current loop object, then get initial touch ID for comparison
-            if(this.touchHistory[h][0].identifier == id) {
+            if (this.touchHistory[h][0].identifier == id) {
                 return h;
             }
         }
         console.log("[swipeHolder.js:getIndexFromId]: Touch ID was not found");
         return false;
     };
-    
+
 }
 
 
