@@ -6,11 +6,11 @@ class Account extends Page {
 
     constructor(id) {
         super(id, "Account");
-        
+
         this.currentPageId = "catagoryPage";
-        
+
         // ---- PAGES ---- //
-        
+
         this.catagoryPage = (`
             <div id="catagoryPage" class="div_page">
                 <p id="title"><u>Account Settings</u></p>
@@ -19,8 +19,8 @@ class Account extends Page {
                 </div>
             </div>
         `);
-        
-        
+
+
         // https://jsbin.com/lodusuyipo/edit?html,css,js,output
         this.settingsPage = (`
             <div id="settingsPage" class="div_page">
@@ -32,9 +32,9 @@ class Account extends Page {
                 
             </div>
         `);
-        
+
         // TODO: Manage team page
-        
+
         // TODO: Remove before launch
         this.devPage = (`
             <div id="devPage" class="div_page">
@@ -54,7 +54,7 @@ class Account extends Page {
             </div>
         `);
     } // End of constructor
-    
+
     getHtml() {
         return (`
             <div id="accountPage" class="div_page">
@@ -64,7 +64,7 @@ class Account extends Page {
             </div>
         `);
     }
-    
+
     /**
      * @returns {function} the function that is called when the page changes.
      */
@@ -72,16 +72,16 @@ class Account extends Page {
 
         let style = document.getElementById("style_account");
         style.disabled = false;
-        
+
         // Only add content if it isn't there yet (check if any catagories are there yet)
-        if($(".cat_button").length) {
+        if ($(".cat_button").length) {
             return;
         }
-        
+
         this.addPage("#catagoryPage", true);
         this.addPage("#settingsPage");
         this.addPage("#devPage");
-        
+
         // ---- OPERATIONS ---- //
 
         // Add all the html pages here
@@ -111,7 +111,7 @@ class Account extends Page {
         this.addSettingDropdown("Change Password", "<input type=\"text\" name=\"current_password\"><br> " +
             "<input type=\"text\" name=\"new_password\"><br> <p>WIP</p>", (wrapperDiv) => {
                 // TODO: Password based on input
-        });
+            });
         this.addGenericButton("Sign Out", "#settingsPage", (e) => {
             localStorage.removeItem("SID");
             console.log("User signing out");
@@ -119,13 +119,13 @@ class Account extends Page {
         });
         this.addSettingDropdown("Delete Account", "<input type=\"text\" name=\"current_password\"><br> " +
             "<input type=\"text\" name=\"new_password\"><br> <p>WIP</p>", (wrapperDiv) => {
-            // TODO: Delete Account if password matches
-        });
-        
-                
+                // TODO: Delete Account if password matches
+            });
+
+
         // ---- DEVELOPER PAGE LOGIC ---- //
-        
-        $("#create_tables").click((e) => {
+
+        $("#create_tables").bind("touchend", (e) => {
             e.preventDefault();
             sw_db.createNewTables();
             console.log("Created new tables!");
@@ -136,14 +136,14 @@ class Account extends Page {
             console.log($('#db_command').val());
             sw_db.executeCommand($('#db_command').val());
         });
-        
+
         // ---- MISC PAGE LOGIC ---- //
-        
-        $(".back_arrow").click((e) => {
+
+        $(".back_arrow").bind("touchend", (e) => {
             e.preventDefault();
             this.animateTransition("catagoryPage", false);
         });
-        
+
         // ---- CALLBACK / STATE BIND FUNCTIONS ---- //
 
         // this.signout = function () {
@@ -159,9 +159,9 @@ class Account extends Page {
         // this.onManageTeam = function (callback) {
         //     this.manageTeam = callback;
         // }
-        
+
     }
-    
+
     stop() {
         // $("#app").off();
         // $("#accountPage").html(""); // Clear; start() will re-add pages
@@ -172,7 +172,7 @@ class Account extends Page {
         // let style = document.getElementById("style_account");
         // style.disabled = true;
     }
-    
+
     // ---- CATAGORY PAGE FUNCTIONS ---- //
 
     /**
@@ -193,7 +193,7 @@ class Account extends Page {
         var buttonHtml = "<button class=\"cat_button\"><p class=\"cat_desc\">" + text +
             "</p><p class=\"cat_arrow\">&#9658</p></button><br>";
         $(container).append(buttonHtml);
-        $(container + " button").last().click((e) => {
+        $(container + " button").last().bind("touchend", (e) => {
             e.preventDefault();
             // If button has not already been pressed
             if (!e.delegateTarget.classList.contains("cat_button_selected")) {
@@ -202,7 +202,7 @@ class Account extends Page {
         });
 
         // Add color animation
-        $(container + " button").last().click((e) => {
+        $(container + " button").last().bind("touchend", (e) => {
             e.preventDefault();
             $(e.delegateTarget).addClass("cat_button_selected");
         });
@@ -229,7 +229,7 @@ class Account extends Page {
             buttonName + "</button><div class=\"act_drop_content hidden\">" + content + "</div></div>";
         $("#settingsPage").append(dropdownHtml);
 
-        $(".act_drop_button").last().click((e) => {
+        $(".act_drop_button").last().bind("touchend", (e) => {
             let wrapperObj = $(e.target).parent();
 
             if (!$(wrapperObj).hasClass("dropdown_expanded")) { // Expand
@@ -255,8 +255,8 @@ class Account extends Page {
         eventsFunction($(".act_drop_wrapper").last()); // Bind the buttons
 
     }
-    
-    
+
+
     // ---- MISC ---- //
 
     /**
@@ -336,7 +336,7 @@ class Account extends Page {
             $(newPageId).removeClass("page_left");
             $(prevPageId).addClass("page_right");
         }
-        
+
         // Hide old page once new page is in focus
         $(newPageId).one("transitionend", () => {
             $(prevPageId).addClass("hidden");
@@ -344,7 +344,7 @@ class Account extends Page {
             this.currentPageId = newPageId;
         });
     }
-    
+
     /**
      * Resets a page back to its original look (i.e. reset pressed buttons)
      * Should be called when a page is opened
@@ -385,7 +385,7 @@ class Account extends Page {
 
         let button = "<button class=\"" + styleClass + "\">" + display + "</button>";
         $(container).append(button);
-        $(container + " button").last().click((e) => {
+        $(container + " button").last().bind("touchend", (e) => {
             e.preventDefault();
             if (!$(e.target).hasClass("generic_selected")) {
                 $(e.target).addClass("generic_selected");
@@ -396,7 +396,7 @@ class Account extends Page {
             callback(e);
         });
     }
-    
+
 }
 
 

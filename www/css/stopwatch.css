@@ -8,35 +8,38 @@
   width: 100%;
   position: absolute;
   bottom: 5vh;
-  display: flex;
-  justify-content: space-evenly;
+  display: table;
+  width: 100%;
+  table-layout: fixed;
 }
 
-#stopwatchPage > .stopwatch_button_container button {
+#stopwatchPage > .stopwatch_button_container > * {
   font-size: 3em;
-  background: crimson;
-  display: inline-block;
-  border: 10px solid crimson;
-  border-radius: 50%;
+  display: table-cell;
+  text-align: center;
+}
+
+#stopwatchPage > .stopwatch_button_container a {
+  visibility: hidden;
+  margin-top: 16px;
+  color: black;
+}
+
+#stopwatchPage > .stopwatch_button_container #stopwatch_reset {
+  padding-left: 1em;
+}
+
+#stopwatchPage > .stopwatch_button_container #stopwatch_lap {
+  padding-right: 1em;
 }
 
 #stopwatchPage > * > #stopwatch_start_stop {
   width: 19vw;
   height: 11vh;
   padding: 5px;
-  font-size: 3em;
   background: crimson;
-  display: inline-block;
   border: 10px solid crimson;
   border-radius: 50%;
-}
-
-#stopwatchPage > .stopwatch_button_container a {
-  visibility: hidden;
-  font-size: 3em;
-  margin-top: 16px;
-  color: black;
-  display: inline-block;
 }
 
 @keyframes fadein {

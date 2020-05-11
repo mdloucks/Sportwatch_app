@@ -7,6 +7,30 @@ class Stopwatch extends Page {
     constructor(id) {
         super(id, "Stopwatch");
         this.clockLoop = null;
+
+        this.clock = {
+            radius: 100,
+            pointSize: 7,
+            centerX: 0,
+            centerY: 0,
+            font: "30px Arial",
+            textHeight: 0,
+            fillStyle: "crimson",
+            lineWidth: 5,
+
+            angle: 90,
+            initialAngle: 90,
+            isRunning: false,
+            hasStarted: false,
+            start: 0,
+            hours: 0,
+            minutes: 0,
+            seconds: 0,
+            epoch: 0,
+        };
+
+        this.c = null;
+        this.ctx = null;
     }
 
     /**
@@ -30,230 +54,210 @@ class Stopwatch extends Page {
      * Load the necessary html for the stopwatch and return a function that must be called
      * in order to properly stop this page. 
      * 
-     * @returns {function} a function that will stop the clock interval
+     * @returns {function} a function that will stop the this.clock interval
      */
     start() {
 
-        // TODO allow the user to save the results for later
-        /* !!! MOVED to getHtml() method since page swiping requires HTML to be loaded
-           before the start() method is called!!!*/
-        // $("#app").html(`
-        //     <canvas id="stopwatch_canvas" class="stopwatch_canvas" width="400px" height="300px"></canvas>
-        //     <div class="stopwatch_button_container">
-        //         <a id="stopwatch_reset" class="stopwatch_button">Reset</a>
-        //         <button id="stopwatch_start_stop" class="stopwatch_button">&#9654;</button>
-        //         <a id="stopwatch_lap" class="stopwatch_button">Lap</a>
-        //     </div>
-        //     <div class="stopwatch_lap_times"></div>
-        // `);
-
+        // TODO: look into why this needs to be disabled. It's disabled by default for some reason
         let style = document.getElementById("style_stopwatch");
         style.disabled = false;
 
-        this.clock_loop = this.startStopwatch();
+        this.setupStopwatch();
     }
 
     stop() {
-        let style = document.getElementById("style_stopwatch");
-        style.disabled = true;
+        // TODO: check to see if there is any performance issues with leaving the setInterval running
+        // there shouldn't be which is why I'm just letting er rip.
 
-        if (this.clockLoop === undefined || this.clockLoop === null) {
-            // TODO: fix this
-            // console.log("PLEASE LOOK AT THIS, THIS SHOULDN'T HAPPEN!!!");
-        } else {
-            clearInterval(this.clockLoop);
+        this.stopStopwatch();
+    }
+
+    /**
+     * @description retreive the context for the canvas and setup necessary event listeners
+     */
+    setupStopwatch() {
+
+        if (this.c == null || this.ctx == null) {
+            this.c = $("#stopwatch_canvas")[0];
+            this.ctx = this.c.getContext("2d");
+        }
+
+        if (!this.clock.hasStarted) {
+
+            this.clock.angleInterval = 360 / this.clock.interval;
+            this.ctx.lineWidth = this.clock.lineWidth;
+            this.ctx.font = this.clock.font;
+            this.ctx.fillStyle = this.clock.fillStyle;
+
+            this.clock.centerX = this.c.width / 2;
+            this.clock.centerY = this.c.height / 2;
+
+            this.clock.textHeight = this.measureTextHeight(0, 0, 50, 100);
+
+            this.ctx.clearRect(0, 0, 500, 500);
+            this.drawCircle();
+            this.drawPoint(this.clock.initialAngle, 1);
+
+            this.ctx.fillText("0.00", this.clock.centerX - (this.ctx.measureText("0.00").width / 2),
+                this.clock.centerY + (this.clock.textHeight / 2));
+
+            $("#stopwatch_start_stop").bind("touchend", (e) => {
+                e.preventDefault();
+                this.toggleStopwatch(this.clock);
+            });
+
+            $("#stopwatch_canvas").bind("touchend", (e) => {
+                e.preventDefault();
+                this.toggleStopwatch(this.clock);
+            });
+
+            $("#stopwatch_reset").bind("touchend", (e) => {
+                e.preventDefault();
+                this.resetStopwatch(this.clock, this.ctx);
+            });
+
+            $("#stopwatch_lap").bind("touchend", (e) => {
+                e.preventDefault();
+
+                if ($("#stopwatch_lap").html() == "Lap") {
+                    let n = $(".stopwatch_lap_times")[0].childElementCount;
+                    $(".stopwatch_lap_times").prepend(`
+                                <div>#${n + 1}: ${this.generateClockText(this.clock)}</div>
+                            `);
+                    console.log("lap!");
+                } else if ($("#stopwatch_lap").html() == "Save") {
+                    // TODO: take the user to save their data
+                    console.log("SAVE!");
+                } else {
+                    throw new Error(`innerHTML: ${$("#stopwatch_lap").html()} is invalid for #stopwatch_lap`);
+                }
+            });
+
+            let dt;
+
+            let clockLoop = setInterval(() => {
+                if (this.clock.isRunning) {
+                    dt = Date.now() - (this.clock.start == 0 ? Date.now() : this.clock.start);
+                    this.clock.start = Date.now();
+
+                    this.ctx.clearRect(0, 0, 500, 500);
+                    this.drawCircle();
+                    this.drawPoint(this.clock.angle, 1);
+                    this.clock.angle = -(((this.clock.seconds * 1000) % 1000) / 1000 * 360) + 90;
+
+                    this.clock.seconds += Math.abs(dt / 1000);
+                    this.clock.minutes = Math.floor(this.clock.seconds / 60);
+                    this.clock.hours = Math.floor(this.clock.seconds / 3600);
+
+                    // console.log(`hours ${this.clock.hours} minutes ${this.clock.minutes} seconds ${this.clock.seconds}`);
+
+                    let clockText = this.generateClockText(this.clock);
+
+                    let textX = this.clock.centerX - (this.ctx.measureText(clockText).width / 2);
+                    let textY = this.clock.centerY + (this.clock.textHeight / 2);
+                    this.ctx.fillText(clockText, textX, textY);
+                }
+            }, 10);
         }
     }
 
     startStopwatch() {
-
-        let c = $("#stopwatch_canvas")[0];
-        let ctx = c.getContext("2d");
-
-        let clock = {
-            radius: 100,
-            pointSize: 7,
-            centerX: c.width / 2,
-            centerY: c.height / 2,
-            font: "30px Arial",
-            textHeight: 0,
-            fillStyle: "crimson",
-            lineWidth: 5,
-
-            angle: 90,
-            initialAngle: 90,
-            isRunning: false,
-            hasStarted: false,
-            start: 0,
-            hours: 0,
-            minutes: 0,
-            seconds: 0,
-            epoch: 0,
-        };
-
-        clock.angleInterval = 360 / clock.interval;
-        ctx.lineWidth = clock.lineWidth;
-        ctx.font = clock.font;
-        ctx.fillStyle = clock.fillStyle;
-
-        clock.textHeight = this.measureTextHeight(ctx, 0, 0, 50, 100);
-
-        ctx.clearRect(0, 0, 500, 500);
-        this.drawCircle(clock, ctx);
-        this.drawPoint(clock, ctx, clock.initialAngle, 1);
-
-        ctx.fillText("0.00", clock.centerX - (ctx.measureText("0.00").width / 2),
-            clock.centerY + (clock.textHeight / 2));
-
-
-        let dt;
-
-        let clock_loop = setInterval(() => {
-            if (clock.isRunning) {
-                dt = Date.now() - (clock.start == 0 ? Date.now() : clock.start);
-                clock.start = Date.now();
-
-                ctx.clearRect(0, 0, 500, 500);
-                this.drawCircle(clock, ctx);
-                this.drawPoint(clock, ctx, clock.angle, 1);
-                clock.angle = -(((clock.seconds * 1000) % 1000) / 1000 * 360) + 90;
-
-                clock.seconds += Math.abs(dt / 1000);
-                clock.minutes = Math.floor(clock.seconds / 60);
-                clock.hours = Math.floor(clock.seconds / 3600);
-
-                // console.log(`hours ${clock.hours} minutes ${clock.minutes} seconds ${clock.seconds}`);
-
-                let clockText = this.generateClockText(clock);
-
-                let textX = clock.centerX - (ctx.measureText(clockText).width / 2);
-                let textY = clock.centerY + (clock.textHeight / 2);
-                ctx.fillText(clockText, textX, textY);
-            }
-        }, 10);
-
-        $("#stopwatch_start_stop").bind("touchend", (e) => {
-            console.log("HEYEYE");
-            e.preventDefault();
-            this.startStopStopwatch(clock);
-        });
-
-        $("#stopwatch_canvas").bind("touchend", (e) => {
-            console.log("AYAYAYY");
-            e.preventDefault();
-            this.startStopStopwatch(clock);
-        });
-
-        $("#stopwatch_reset").bind("touchend", (e) => {
-            e.preventDefault();
-            this.resetStopwatch(clock, ctx);
-        });
-
-        $("#stopwatch_lap").bind("touchend", (e) => {
-            e.preventDefault();
-
-            if ($("#stopwatch_lap").html() == "Lap") {
-                let n = $(".stopwatch_lap_times")[0].childElementCount;
-                $(".stopwatch_lap_times").prepend(`
-                    <div>#${n + 1}: ${this.generateClockText(clock)}</div>
-                `);
-                console.log("lap!");
-            } else if ($("#stopwatch_lap").html() == "Save") {
-                // TODO: take the user to save their data
-                console.log("SAVE!");
-            } else {
-                throw new Error(`innerHTML: ${$("#stopwatch_lap").html()} is invalid for #stopwatch_lap`);
-            }
-        });
-
-        return clock_loop;
+        this.clock.isRunning = true;
+        $("#stopwatch_start_stop").html("&#9632");
+        $("#stopwatch_lap").html("Lap");
+        this.clock.start = 0;
     }
 
-    startStopStopwatch(clock) {
+    stopStopwatch() {
+        this.clock.isRunning = false;
+        $("#stopwatch_lap").html("Save");
+        $("#stopwatch_start_stop").html("&#9654");
+    }
+
+    toggleStopwatch() {
         // on start
-        if (!clock.isRunning) {
+        if (!this.clock.isRunning) {
             // TODO: fix the super annoying size changing on the start/stop button
-            $("#stopwatch_start_stop").html("&nbsp&#9632&nbsp");
-            $("#stopwatch_lap").html("Lap");
-            clock.start = 0;
+            console.log("Starting stopwatch");
+            this.startStopwatch();
             // on stop
         } else {
-            $("#stopwatch_lap").html("Save");
-            $("#stopwatch_start_stop").html("&#9654");
+            console.log("Stopping stopwatch");
+            this.stopStopwatch();
         }
 
-        if (!clock.hasStarted) {
-            clock.hasStarted = true;
+        if (!this.clock.hasStarted) {
+            console.log("Starting stopwatch first time");
+            this.startStopwatch();
+            this.clock.hasStarted = true;
             $(".stopwatch_button_container a").css("animation", "fadein 2s");
             $(".stopwatch_button_container a").css("visibility", "visible");
         }
-
-        clock.isRunning = !clock.isRunning;
     }
 
     /**
      * 
-     * @param {Object} clock the clock object
-     * @param {CanvasRenderingContext2D} ctx the canvas to reset
+     * @param {Object} this.clock the this.clock object
+     * @param {CanvasRenderingContext2D} this.ctx the canvas to reset
      */
-    resetStopwatch(clock, ctx) {
-        clock.isRunning = false;
+    resetStopwatch() {
+        this.clock.isRunning = false;
 
-        ctx.clearRect(0, 0, 400, 400);
-        this.drawCircle(clock, ctx);
-        this.drawPoint(clock, ctx, clock.initialAngle, 1, "A");
+        this.ctx.clearRect(0, 0, 400, 400);
+        this.drawCircle();
+        this.drawPoint(this.clock.initialAngle, 1);
 
         let resetText = "0.00";
 
-        ctx.fillText(resetText, clock.centerX - (ctx.measureText(resetText).width / 2),
-            clock.centerY + (clock.textHeight / 2));
+        this.ctx.fillText(resetText, this.clock.centerX - (this.ctx.measureText(resetText).width / 2),
+            this.clock.centerY + (this.clock.textHeight / 2));
 
         $(".stopwatch_lap_times").empty();
         $("#stopwatch_lap").html("Lap");
         $("#stopwatch_start_stop").html("&#9654");
 
-        clock.angle = clock.initialAngle;
-        clock.epoch = 0;
-        clock.hours = 0;
-        clock.minutes = 0;
-        clock.seconds = 0;
+        this.clock.angle = this.clock.initialAngle;
+        this.clock.epoch = 0;
+        this.clock.hours = 0;
+        this.clock.minutes = 0;
+        this.clock.seconds = 0;
     }
 
-    drawCircle(clock, ctx) {
-        ctx.beginPath();
-        ctx.arc(clock.centerX, clock.centerY, clock.radius, 0, 2 * Math.PI);
-        ctx.stroke();
+    drawCircle() {
+        this.ctx.beginPath();
+        this.ctx.arc(this.clock.centerX, this.clock.centerY, this.clock.radius, 0, 2 * Math.PI);
+        this.ctx.stroke();
     }
 
-    drawPoint(clock, ctx, angle, distance) {
-        let x = clock.centerX + clock.radius * Math.cos(-angle * Math.PI / 180) * distance;
-        let y = clock.centerY + clock.radius * Math.sin(-angle * Math.PI / 180) * distance;
+    drawPoint(angle, distance) {
+        let x = this.clock.centerX + this.clock.radius * Math.cos(-angle * Math.PI / 180) * distance;
+        let y = this.clock.centerY + this.clock.radius * Math.sin(-angle * Math.PI / 180) * distance;
 
-        ctx.beginPath();
-        ctx.arc(x, y, clock.pointSize, 0, 2 * Math.PI);
-        ctx.fill();
+        this.ctx.beginPath();
+        this.ctx.arc(x, y, this.clock.pointSize, 0, 2 * Math.PI);
+        this.ctx.fill();
     }
 
     /**
-     * @description Generate the text to display on the stopwatch given the clock object.
+     * @description Generate the text to display on the stopwatch given the this.clock object.
      * 
-     * @param {Object} clock the clock object
+     * @param {Object} this.clock the this.clock object
      * 
      * @returns the clockText string
      */
-    generateClockText(clock) {
+    generateClockText() {
 
         let clockText;
 
         // hours:minutes:seconds
-        if (clock.hours >= 1) {
-            clockText = (clock.hours + ":" + (clock.minutes % 60) + ":" + (clock.seconds % 60).toFixed(2));
+        if (this.clock.hours >= 1) {
+            clockText = (this.clock.hours + ":" + (this.clock.minutes % 60) + ":" + (this.clock.seconds % 60).toFixed(2));
             // minutes:seconds
-        } else if (clock.minutes >= 1) {
-            clockText = (clock.minutes + ":" + (clock.seconds % 60).toFixed(2));
+        } else if (this.clock.minutes >= 1) {
+            clockText = (this.clock.minutes + ":" + (this.clock.seconds % 60).toFixed(2));
             // seconds
-        } else if (clock.minutes < 1) {
-            clockText = Math.abs(clock.seconds).toFixed(2).toString();
+        } else if (this.clock.minutes < 1) {
+            clockText = Math.abs(this.clock.seconds).toFixed(2).toString();
         } else {
             clockText = "0:00";
         }
@@ -265,7 +269,6 @@ class Stopwatch extends Page {
      * @description The sorry saps who made CanvasRenderingContext2D allow you to measure the 
      * width but not the height of text. What the frick. That's basically what this function does.
      * 
-     * @param {CanvasRenderingContext2D} ctx rendering context
      * @param {Number} left where to start x
      * @param {Number} top where to start y
      * @param {Number} width how far to go left
@@ -273,16 +276,16 @@ class Stopwatch extends Page {
      * 
      * @returns the height of any text.
      */
-    measureTextHeight(ctx, left, top, width, height) {
+    measureTextHeight(left, top, width, height) {
 
         // Draw the text in the specified area
-        ctx.save();
-        ctx.translate(left, top + Math.round(height * 0.8));
-        ctx.fillText('gM', 0, 0); // This seems like tall text...  Doesn't it?
-        ctx.restore();
+        this.ctx.save();
+        this.ctx.translate(left, top + Math.round(height * 0.8));
+        this.ctx.fillText('gM', 0, 0); // This seems like tall text...  Doesn't it?
+        this.ctx.restore();
 
         // Get the pixel data from the canvas
-        var data = ctx.getImageData(left, top, width, height).data,
+        var data = this.ctx.getImageData(left, top, width, height).data,
             first = false,
             last = false,
             r = height,

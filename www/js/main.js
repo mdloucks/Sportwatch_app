@@ -46,7 +46,6 @@ class App {
      * @param {string} pageName 
      */
     switchPage(pageName) {
-        console.log(`switching to ${pageName}`);
         this.transitionPage(pageName);
         this.stopPreviousPage();
         this.setCurrentPageID(this.getPage(pageName).id);
