@@ -16,30 +16,6 @@ header {
   text-align: center;
 }
 
-.navbar {
-  overflow: hidden;
-  text-align: center;
-  position: fixed;
-  justify-content: center;
-  bottom: 0;
-  width: 100%;
-  z-index: 1;
-}
-
-.navbar div {
-  display: inline-block;
-  background-color: rgb(245, 77, 77);
-  text-align: center;
-  padding: 14px 16px;
-  text-decoration: none;
-  font-size: 17px;
-  transition: background-color 1s;
-}
-
-.navbar > .active {
-  background-color: green;
-}
-
 header > span {
   margin-right: 0.5em;
   font-size: 3.5em;

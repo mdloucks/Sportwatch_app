@@ -23,10 +23,6 @@ class Navbar {
         $(".navbar").children('div').each(function (index) {
             _this.pageIDs.push("#".concat(this.id));
             _this.pageNames.push(this.innerHTML);
-
-            if (index === pageIDsLength - 1) {
-                _this.disablePageStyles();
-            }
         });
 
         if (this.pageIDs.length != this.pageNames.length) {
@@ -55,20 +51,6 @@ class Navbar {
         // $(buttonID).css("background-color", "green");
         $(".navbar > *").removeClass("active"); // Un-select all buttons
         $(buttonID).addClass("active"); // Select the clicked one
-    }
-
-    /**
-     * disables all of the css for all of the pages
-     */
-    disablePageStyles() {
-        // TODO: rework this with pageNames
-        for (let i = 0; i < this.pageIDs.length; i++) {
-            let id = this.pageIDs[i];
-            id = id.replace('#', '');
-
-            let style = document.getElementById(`style_${id}`);
-            style.disabled = true;
-        }
     }
 }
 

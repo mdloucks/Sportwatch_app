@@ -1,0 +1,28 @@
+.navbar {
+  overflow: hidden;
+  text-align: center;
+  vertical-align: auto;
+  position: fixed;
+  display: table;
+  table-layout: fixed;
+  background-color: rgb(245, 77, 77);
+  width: 100%;
+  height: 7%;
+  bottom: 0;
+  z-index: 1;
+}
+
+.navbar div {
+  display: table-cell;
+  text-align: center;
+  padding-top: 10px;
+  font-weight: bold;
+  text-decoration: none;
+  font-size: 2em;
+  transition: background-color 0.5s;
+}
+
+.navbar > .active {
+  background-color: black;
+  color: white;
+}
