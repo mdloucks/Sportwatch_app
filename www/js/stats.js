@@ -19,21 +19,6 @@ class Stats extends Page {
     }
 
     start() {
-
-        let names = [
-            "James",
-            "Marcus",
-            "Sam",
-            "Jack",
-            "Joe",
-            "Brad",
-            "Billy",
-            "Clyde"
-        ];
-
-        ButtonGenerator.generateButtons("#statsPage > .button_box", "stats_button", names, function (name) {
-            console.log("howdy " + name);
-        });
     }
 
     stop() {

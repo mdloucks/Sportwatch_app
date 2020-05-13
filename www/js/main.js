@@ -18,6 +18,8 @@ class App {
     onReady() {
         console.log("DEVICE READY");
         sw_db.init();
+        sw_db.createNewTables();
+        sw_db.insertDummyValues();
         FastClick.attach(document.body);
 
         $(".loader").remove();

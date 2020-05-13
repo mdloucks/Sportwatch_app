@@ -1,2 +1,31 @@
 /* #teamPage > [elementHere] { ... } */
 
+#teamPage > h1 {
+  font-size: 3.5em;
+}
+
+#teamPage .button_box {
+  width: 100%;
+  text-align: center;
+  display: block;
+  margin: auto;
+}
+
+#teamPage .athlete_button {
+  background-color: rgb(245, 77, 77);
+  text-align: center;
+  border: 1px solid red;
+  color: white;
+  padding: 10px 24px;
+  width: 75%;
+  margin-left: 12.5%;
+  display: block;
+}
+
+#teamPage button:not(:last-child) {
+  border-bottom: none; /* Prevent double borders */
+}
+
+#teamPage button:active {
+  background-color: crimson;
+}
