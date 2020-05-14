@@ -30,17 +30,10 @@ class Team extends Page {
     }
 
     generateAthleteList() {
-        let buttonContent = [];
 
-        sw_db.selectSingle("SELECT * FROM athlete", []).then(function (athletes) {
-            for (let i = 0; i < athletes.length; i++) {
-
-                let innerHTML = `${athletes.item(i).fname} ${athletes.item(i).lname} ${athletes.item(i).grade} ${athletes.item(i).gender}`;
-                buttonContent.push(innerHTML);
-            }
-
-            ButtonGenerator.generateButtons("#teamPage > .button_box", "athlete_button", buttonContent, function (name) {
-                console.log("howdy " + name);
+        sw_db.selectSingle("SELECT *, ROWID FROM athlete", []).then(function (athletes) {
+            ButtonGenerator.generateButtonsFromDatabase("#teamPage > .button_box", athletes, function (athlete) {
+                console.log("howdy " + athlete.fname);
             });
         });
     }

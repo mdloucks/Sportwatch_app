@@ -11,7 +11,7 @@
   margin: auto;
 }
 
-#teamPage .athlete_button {
+#teamPage .generated_button {
   background-color: rgb(245, 77, 77);
   text-align: center;
   border: 1px solid red;
@@ -26,6 +26,6 @@
   border-bottom: none; /* Prevent double borders */
 }
 
-#teamPage button:active {
+#teamPage button:focus {
   background-color: crimson;
 }
