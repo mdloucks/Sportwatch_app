@@ -17,9 +17,9 @@ class App {
 
     onReady() {
         console.log("DEVICE READY");
-        sw_db.init();
-        sw_db.createNewTables();
-        sw_db.insertDummyValues();
+        dbConnection = new DatabaseConnection();
+        dbConnection.createNewTables();
+        dbConnection.insertDummyValues();
         FastClick.attach(document.body);
 
         $(".loader").remove();
@@ -204,6 +204,8 @@ class App {
         console.log("Device is resumed");
     }
 }
+
+let dbConnection;
 
 // this is the main entry point for the app
 let app = new App();

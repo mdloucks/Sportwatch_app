@@ -30,7 +30,7 @@ class Team extends Page {
 
     generateAthleteList() {
 
-        sw_db.selectSingle("SELECT *, ROWID FROM athlete", []).then((athletes) => {
+        dbConnection.selectSingle("SELECT *, ROWID FROM athlete", []).then((athletes) => {
             ButtonGenerator.generateButtonsFromDatabase("#teamPage > .button_box", athletes, (athlete) => {
                 this.startAthletePage(athlete);
             });

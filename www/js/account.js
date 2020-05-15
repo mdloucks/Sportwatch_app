@@ -124,14 +124,14 @@ class Account extends Page {
 
         $("#create_tables").bind("touchend", (e) => {
             e.preventDefault();
-            sw_db.createNewTables();
+            dbConnection.createNewTables();
             console.log("Created new tables!");
         });
 
         $("#database_command").on("submit", function (e) {
             e.preventDefault();
             console.log($('#db_command').val());
-            sw_db.executeCommand($('#db_command').val());
+            dbConnection.executeCommand($('#db_command').val());
         });
 
         // ---- MISC PAGE LOGIC ---- //

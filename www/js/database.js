@@ -1,38 +1,36 @@
 
 /**
- * This will function almost identically to our server database connection class
- * 
- * That will be to provide a general set of methods to interface with the database
- * 
+ * @classdesc an interface for a database connection
+ * @class
  */
-let sw_db = {
+class DatabaseConnection {
 
-    db: null,
-
-    init: function () {
+    constructor() {
         console.log("Initializing database...");
         try {
             this.db = window.sqlitePlugin.openDatabase({ name: 'Sportwatch.db', location: 'default' });
             console.log("Opened database:");
         } catch (err) {
-            console.log("OPENEING FAILED " + err);
+            console.log("Sportwatch database failed to open.");
+            throw err;
         }
-    },
+    }
 
-    testFunc: function () {
+
+    testFunc() {
         this.selectMultiple("SELECT * FROM athlete WHERE fname = ?", ["Seth"]).then((result) => {
             console.log(result[0].grade);
         });
         this.selectSingle("SELECT fname FROM athlete WHERE lname = ?", ["Byrne"]).then((result) => {
             console.log(result.item(0).fname);
         });
-    },
+    }
 
     /**
      * Probably not the most efficient, but it bascially returns a promise
      * to handle handle if tables are created or not. (Create them if not)
      */
-    doTablesExist: function () {
+    doTablesExist() {
         return new Promise((resolve, reject) => {
             this.db.transaction(function (tx) {
                 // Poll some tables to see if an error is thrown
@@ -45,14 +43,14 @@ let sw_db = {
                 resolve();
             });
         });
-    },
+    }
 
     /**
      * will wipe all existing tables and create new ones
      * 
      * CAUTION: this will delete all of the uers's saved stuff!
      */
-    createNewTables: function () {
+    createNewTables() {
         this.db.transaction(function (tx) {
 
             tx.executeSql("DROP TABLE IF EXISTS account");
@@ -77,7 +75,7 @@ let sw_db = {
         }, function () {
             console.log('TABLES CREATED');
         });
-    },
+    }
 
 
     /**
@@ -87,7 +85,7 @@ let sw_db = {
      * @param {*} row the given id
      * @param {Array} table 
      */
-    selectSingle: function (query, values) {
+    selectSingle(query, values) {
         return new Promise((resolve, reject) => {
             this.db.transaction(function (tx) {
                 tx.executeSql(query, values, function (tx, rs) {
@@ -105,9 +103,9 @@ let sw_db = {
                 // success
             });
         });
-    },
+    }
 
-    selectMultiple: function (query, values) {
+    selectMultiple(query, values) {
         return new Promise((resolve, reject) => {
             this.db.transaction(function (tx) {
                 tx.executeSql(query, values, function (tx, rs) {
@@ -138,7 +136,7 @@ let sw_db = {
                 // success
             });
         });
-    },
+    }
 
     /**
      * 
@@ -149,7 +147,7 @@ let sw_db = {
      * @param {String} table name of the table
      * @param {Array} data data to be inserted
      */
-    insertValues: function (table, data) {
+    insertValues(table, data) {
         return new Promise((resolve, reject) => {
 
             let query_wildcards = "(";
@@ -190,9 +188,9 @@ let sw_db = {
             }, function () {
             });
         });
-    },
+    }
 
-    insertDummyValues: function () {
+    insertDummyValues() {
         this.db.transaction(function (tx) {
             tx.executeSql("INSERT INTO athlete VALUES (?, ?, ?, ?)", ["John", "Smith", "10", "m"]);
             tx.executeSql("INSERT INTO athlete VALUES (?, ?, ?, ?)", ["Bill", "Washington", "9", "m"]);
@@ -202,7 +200,7 @@ let sw_db = {
         }, function () {
             console.log("Dummy values inserted");
         });
-    },
+    }
 
     /**
      * 
@@ -210,7 +208,7 @@ let sw_db = {
      * 
      * @param {String} command 
      */
-    executeCommand: function (command) {
+    executeCommand(command) {
         this.db.transaction(function (tx, rs) {
             tx.executeSql(command, [], function (tx, rs) {
                 console.log(JSON.stringify(rs));
@@ -224,14 +222,14 @@ let sw_db = {
             console.log('Transaction ERROR: ' + error.message);
         }, function () {
         });
-    },
+    }
 
     /**
      * Closes the database
      * 
      * TODO: make sure to call this sometime
      */
-    close: function () {
+    close() {
         this.db.close(function () {
             console.log("Database is closed: OK");
         });
