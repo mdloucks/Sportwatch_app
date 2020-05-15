@@ -1,8 +1,0 @@
-
-        Login db structure
-------------------------------------
-As of right now the user_session_data can only hold 
-one session ID. We may either need to change that 
-with more tables in the future or only allow one 
-session in any given mobile device at a time.
-Sessions will work as normal in the browser.
