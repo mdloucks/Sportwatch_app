@@ -55,7 +55,6 @@ class ButtonGenerator {
             });
 
             attributes.html = innerHTML;
-            console.log(innerHTML);
 
             let button = ButtonGenerator.generateButton(attributes, callback);
             $(element).append(button);
@@ -92,7 +91,6 @@ class ButtonGenerator {
      */
     static generateButton(attributes, callback = ButtonGenerator.defaultCallbackFunction) {
         let button = $("<button>", attributes);
-        console.log("button " + JSON.stringify(attributes));
         button.bind("touchend", callback.bind(this, attributes));
         return button;
     }

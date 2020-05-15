@@ -29,3 +29,35 @@
 #teamPage button:focus {
   background-color: crimson;
 }
+
+#teamPage #athlete_header {
+  border-bottom: solid #000 5px;
+  vertical-align: middle;
+  text-align: center;
+  width: 100%;
+}
+
+#teamPage #athlete_header * {
+  font-size: 3em;
+  display: inline-block;
+}
+
+#teamPage #athlete_header #back_button {
+  position: absolute;
+  left: 10%;
+  font-size: 4em;
+  font-weight: bold;
+}
+
+#teamPage #athlete_header img {
+  position: absolute;
+  right: 10%;
+  max-width: 60px;
+  max-height: 60px;
+}
+
+#teamPage h2 {
+  font-size: 2em;
+  padding-bottom: 1em;
+  border-bottom: solid #000 5px;
+}

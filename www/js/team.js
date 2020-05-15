@@ -24,22 +24,36 @@ class Team extends Page {
     start() {
         if (!this.hasStarted) {
             this.generateAthleteList();
-
             this.hasStarted = true;
         }
     }
 
     generateAthleteList() {
 
-        sw_db.selectSingle("SELECT *, ROWID FROM athlete", []).then(function (athletes) {
-            ButtonGenerator.generateButtonsFromDatabase("#teamPage > .button_box", athletes, function (athlete) {
-                console.log("howdy " + athlete.fname);
+        sw_db.selectSingle("SELECT *, ROWID FROM athlete", []).then((athletes) => {
+            ButtonGenerator.generateButtonsFromDatabase("#teamPage > .button_box", athletes, (athlete) => {
+                this.startAthletePage(athlete);
             });
         });
     }
 
-    startAthletePage(athleteString) {
+    startAthletePage(athlete) {
+        $("#teamPage").html(`
+        
+            <div id="athlete_header">
+                <div id="back_button">&#8592;</div>
+                <h1>${athlete.fname} ${athlete.lname}</h1>
+                <img src="img/logo.png" alt=""></img>
+            </div>
+            
+            <h2 id="athlete_info">Grade ${athlete.grade} Gender ${athlete.gender}</h2>
+            <div>Stats....</div>
+        `);
 
+        $("#back_button").bind("touchend", function (e) {
+            console.log("Change");
+
+        });
     }
 
     stop() {
