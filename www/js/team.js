@@ -8,6 +8,7 @@ class Team extends Page {
         super(id, "Team");
         this.hasStarted = false;
         
+        this.dbConnection = new DatabaseConnection();
         this.pageTransition = new PageTransition("#teamPage");
         
         // --- PAGES ---- //
@@ -69,7 +70,7 @@ class Team extends Page {
 
     generateAthleteList() {
 
-        dbConnection.selectSingle("SELECT *, ROWID FROM athlete", []).then((athletes) => {
+        this.dbConnection.selectSingle("SELECT *, ROWID FROM athlete", []).then((athletes) => {
             ButtonGenerator.generateButtonsFromDatabase("#landingPage > .button_box", athletes, (athlete) => {
                 this.startAthletePage(athlete);
             });

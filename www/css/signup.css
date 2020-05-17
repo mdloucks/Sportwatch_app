@@ -40,7 +40,7 @@ label {
     border: 2px solid gray;
     font-size: 1.5em;
     background-color: whitesmoke;
-    /* transition: border 0.5s;   Add after page load to prevent moving */
+    transition: border 0.5s;   /* Add after page load to prevent moving */
     /* ^ Explanation:  https://bit.ly/2Qf7PS9 */
 }
 
