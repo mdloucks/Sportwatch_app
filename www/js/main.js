@@ -2,9 +2,14 @@ class App {
 
     constructor() {
         this.pages = [];
+        this.welcomePages = [];
         this.currentPageID = 0;
+        this.activePageSet = 0; // 0=welcome, 1=main
+        
+        this.dbConnection;
         this.navbar = new Navbar();
-        this.transitionObj = new PageTransition();
+        this.mainPageSet = new PageTransition();
+        this.welcomePageSet = new PageTransition();
         this.swipeHandler;
     }
 
@@ -14,23 +19,85 @@ class App {
         document.addEventListener('pause', this.onPause.bind(this), false);
         document.addEventListener('resume', this.onResume.bind(this), false);
     }
-
+    
     onReady() {
         console.log("DEVICE READY");
-        dbConnection = new DatabaseConnection();
-        dbConnection.createNewTables();
-        dbConnection.insertDummyValues();
+        this.dbConnection = new DatabaseConnection();
+        this.dbConnection.createNewTables();
+        this.dbConnection.insertDummyValues();
         FastClick.attach(document.body);
 
         $(".loader").remove();
-
+        $("#app").html(""); // Clear so it's a clean slate to add to
+        
+        // Main page initialization
         this.navbar.initNavbar(this.switchPage.bind(this));
+        $(".navbar").css("display", "none"); // Hide until page set is found
         this.swipeHandler = new SwipeHolder("#app"); // Has to be after onReady
         this.constructPages();
-        this.initializeFirstPage();
-
+        // this.initializeFirstPage();
+        
+        // Welcome / login page initialization
+        this.constructWelcomePageSet();
+        
+        this.determinePageSet();
+        
     }
-
+    
+    /**
+     * Attempts to log in the user based on SID. If invalid, it will
+     * set the page set to the login / welcome pages
+     */
+    determinePageSet() {
+        
+        // If session is present, attempt to log in
+        if(Authentication.hasSession()) {
+            let sid = Authentication.getSID();
+            // Authenticate and handle response (then = success)
+            Authentication.validateSID(sid).then((response) => {
+                console.log("[main.js:determinePageSet()] Valid log in data");
+                this.setActivePageSet(1); // Bring to main screen
+                return;
+                
+            }).catch((error) => {
+                console.log("[main.js:determinePageSet()] Invalid SID, logging out");
+            });
+            
+        } else {
+            console.log("[main.js:determinePageSet()] No SID data");
+        }
+        
+        this.setActivePageSet(0); // Default to login
+    }
+    
+    /**
+     * Sets the active page and calls all functions needed to prepare
+     * for usability for the given set. Useful as a callback for logging
+     * in or out as page sets change
+     * 
+     * @param {Integer} pageSetId page set id (0-1 inclusive)
+     */
+    setActivePageSet(pageSetId) {
+        // First, hide all pages
+        this.mainPageSet.hidePages();
+        this.welcomePageSet.hidePages();
+        
+        if(pageSetId == 0) {        // Welcome
+            this.welcomePageSet.showCurrentPage();
+            this.welcomePages[0].start(); // TODO: clean this up
+            this.welcomePages[1].start();
+            this.activePageSet = 0;
+        } else if(pageSetId == 1) { // Main
+            this.mainPageSet.showCurrentPage();
+            this.initializeFirstPage();
+            this.activePageSet = 1;
+        } else {
+            console.log("[main.js:setActivePageSet()] Invalid page set Id: " + pageSetId);
+            this.welcomePageSet.showCurrentPage();
+            this.activePageSet = 0;
+        }
+    }
+    
     /**
      * @description This will set the first page. It must be called before switching to another may happen.
      */
@@ -61,9 +128,9 @@ class App {
 
         this.navbar.focusButton("#" + pageName.toLowerCase());
         if (this.getPage(pageName).id > this.currentPageID) {
-            this.transitionObj.slideLeft(pageName.toLowerCase() + "Page", 200);
+            this.mainPageSet.slideLeft(pageName.toLowerCase() + "Page", 200);
         } else if (this.getPage(pageName).id < this.currentPageID) {
-            this.transitionObj.slideRight(pageName.toLowerCase() + "Page", 200);
+            this.mainPageSet.slideRight(pageName.toLowerCase() + "Page", 200);
         } else {
             console.log("[main.js:transitionPage()]: Tried to switch page! Page ID is already current!!");
         }
@@ -78,65 +145,19 @@ class App {
      * 
      */
     constructPages(pageName) {
-        $("#app").html(""); // Clear app html
         this.pages = [Stopwatch, Stats, Team, Account].map((page, i) => new page(i));
         this.pages.forEach((pageObj, pageIndex) => {
             let shouldShow = false; // Should be page be visible at start? (only for first page)
             if (pageIndex == 0) {
                 shouldShow = true;
             }
-            this.transitionObj.addPage((pageObj.name.toLowerCase() + "Page"), pageObj.getHtml(), shouldShow);
+            this.mainPageSet.addPage((pageObj.name.toLowerCase() + "Page"), pageObj.getHtml(), shouldShow);
         });
     }
-
-    checkSession() {
-        // // check if there's a session
-        // if(Authentication.hasSession()) {
-        //     Authentication.validateSID(Authentication.getSID()).then(function(response) {
-        //         console.log("Login complete");
-        //         StateManager.setState("home");
-        //     }).catch(function(error) {
-        //         // they have most likely have an invalid SID, so just wipe it and log them back in
-        //         console.log("invalid sid: " + Authentication.getSID());
-        //         localStorage.removeItem("SID");
-        //         StateManager.setState("login");
-        //     });
-        // } else {
-        // }
-    }
-
-
+    
+    
     /**
-     * Returns a page by passing in an integer id or string name
-     * 
-     * @throws an exception if the parameter is not an integer or string
-     * 
-     * @param {Number | String} identifier 
-     */
-    getPage(identifier) {
-        if (typeof identifier == "string") {
-            for (let i = 0; i < this.pages.length; i++) {
-                if (this.pages[i].name == identifier) {
-                    return this.pages[i];
-                }
-            }
-
-            throw new Error(`Could not find ${identifier} inside of pages`);
-        } else if (typeof identifier == "number" && Number.isInteger(identifier)) {
-            for (let i = 0; i < this.pages.length; i++) {
-                if (this.pages[i].id == identifier) {
-                    return this.pages[i];
-                }
-            }
-
-            throw new Error(`Could not find ${identifier} inside of pages`);
-        } else {
-            throw new Error(`Incorrect datatype entered for getPage, expected integer or string, you entered ${typeof identifier}`);
-        }
-    }
-
-    /**
-     * Defines the swipeHandler actions for this page (left, right, moving)
+     * Defines the mainPageSet actions for this page (left, right, moving)
      * 
      * @example this.defineSwipes(this.getPage(nextPage).id); --> sets up handlers for new / next page
      * 
@@ -167,19 +188,62 @@ class App {
         // dx > 0 ==> Swiping right to left,   dx < 0 ==> Left to right
         this.swipeHandler.bindGestureCallback(this.swipeHandler.Gestures.MOVE, (dx, dy) => {
             if ((dx > 0) && (pageIndex < this.pages.length - 1)) {
-                this.transitionObj.slidePageX(this.getPage(pageIndex + 1).name.toLowerCase() + "Page", true, Math.abs(dx));
+                this.mainPageSet.slidePageX(this.getPage(pageIndex + 1).name.toLowerCase() + "Page", true, Math.abs(dx));
             } else if ((dx < 0) && (pageIndex > 0)) {
-                this.transitionObj.slidePageX(this.getPage(pageIndex - 1).name.toLowerCase() + "Page", false, Math.abs(dx));
+                this.mainPageSet.slidePageX(this.getPage(pageIndex - 1).name.toLowerCase() + "Page", false, Math.abs(dx));
             } else {
-                this.transitionObj.slidePageX(this.getPage(pageIndex).name.toLowerCase() + "Page", true, 0);
+                this.mainPageSet.slidePageX(this.getPage(pageIndex).name.toLowerCase() + "Page", true, 0);
             }
         });
         
         // If the gesture was classified as a tap, snap it back / reset it
         this.swipeHandler.bindGestureCallback(this.swipeHandler.Gestures.TAP, () => {
-            this.transitionObj.slidePageX(this.getPage(pageIndex).name.toLowerCase() + "Page", true, 0);
+            this.mainPageSet.slidePageX(this.getPage(pageIndex).name.toLowerCase() + "Page", true, 0);
         });
 
+    }
+    
+    constructWelcomePageSet() {
+        
+        console.log("init welcome set");
+        this.welcomePages = [Welcome, Signup, Login].map((page, i) => new page(i, this.welcomePageSet));
+        this.welcomePages.forEach((pageObj, pageIndex) => {
+            let shouldShow = false; // Should be page be visible at start? (only for first page)
+            if (pageIndex == 0) {
+                shouldShow = true;
+            }
+            this.welcomePageSet.addPage((pageObj.name.toLowerCase() + "Page"), pageObj.getHtml(), shouldShow);
+        });
+        
+    }
+    
+    /**
+     * Returns a page by passing in an integer id or string name
+     * 
+     * @throws an exception if the parameter is not an integer or string
+     * 
+     * @param {Number | String} identifier 
+     */
+    getPage(identifier) {
+        if (typeof identifier == "string") {
+            for (let i = 0; i < this.pages.length; i++) {
+                if (this.pages[i].name == identifier) {
+                    return this.pages[i];
+                }
+            }
+
+            throw new Error(`Could not find ${identifier} inside of pages`);
+        } else if (typeof identifier == "number" && Number.isInteger(identifier)) {
+            for (let i = 0; i < this.pages.length; i++) {
+                if (this.pages[i].id == identifier) {
+                    return this.pages[i];
+                }
+            }
+
+            throw new Error(`Could not find ${identifier} inside of pages`);
+        } else {
+            throw new Error(`Incorrect datatype entered for getPage, expected integer or string, you entered ${typeof identifier}`);
+        }
     }
 
     setCurrentPageID(id) {
@@ -209,8 +273,10 @@ class App {
     }
 }
 
-let dbConnection;
-
 // this is the main entry point for the app
-let app = new App();
-app.initialize();
+setTimeout(() => {
+    let app = new App();
+    app.initialize();
+}, 2000);
+// let app = new App();
+// app.initialize();
