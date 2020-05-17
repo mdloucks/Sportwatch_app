@@ -13,7 +13,7 @@ class Authentication {
      * 
      * @param {JSON} credentials 
      */
-    login(email, password) {
+    static login(email, password) {
         return new Promise((resolve, reject) => {
             $.ajax({
                 type: "POST",
@@ -58,12 +58,12 @@ class Authentication {
     /**
      * destroys the user's SID and sends them back to the welcome screen
      */
-    logout() {
+    static logout() {
         localStorage.removeItem("SID");
         StateManager.setState("welcome");
     }
 
-    validateSID(SID) {
+    static validateSID(SID) {
         return new Promise((resolve, reject) => {
             $.ajax({
                 type: "POST",
@@ -100,7 +100,7 @@ class Authentication {
      * @param {String} password The user's password
      * @param {String} account_type The user's account type ("coach or athlete")
      */
-    signup(email, password, account_type) {
+    static signup(email, password, account_type) {
         console.log("Signing up user...");
         return new Promise((resolve, reject) => {
             $.ajax({
@@ -138,7 +138,7 @@ class Authentication {
      * will verify a given session id with the server
      * TODO: finish this
      */
-    verifySessionId(SID, cb) {
+    static verifySessionId(SID, cb) {
         $.post(sw_urls.login, { SID: SID },
             cb(data, textStatus, jqXHR),
             "application/json"
@@ -150,7 +150,7 @@ class Authentication {
      * 
      * @param {JSON} response 
      */
-    validateServerStatusCode(response) {
+    static validateServerStatusCode(response) {
         if(response.status < 0) {
             return false;
         } else {
@@ -158,7 +158,7 @@ class Authentication {
         }
     }
 
-    hasSession() {
+    static hasSession() {
         if (this.getSID() == undefined || this.getSID() == "undefined") {
             return false;
         } else {
@@ -166,12 +166,12 @@ class Authentication {
         }
     }
 
-    setSID(SID) {
+    static setSID(SID) {
         localStorage.setItem("SID", SID);
         console.log("New SID has been set: " + SID);
     }
 
-    getSID() {
+    static getSID() {
         return localStorage.getItem("SID");
     }
 }
