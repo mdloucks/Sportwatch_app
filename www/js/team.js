@@ -7,36 +7,58 @@ class Team extends Page {
     constructor(id) {
         super(id, "Team");
         this.hasStarted = false;
-    }
-
-    getHtml() {
-        let storage = window.localStorage;
-
-        return (`
-            <div id="teamPage" class="div_page">
+        
+        this.pageTransition = new PageTransition("#teamPage");
+        
+        // --- PAGES ---- //
+        
+        this.landingPage = (`
+            <div id="landingPage" class="div_page">
                 <br><br>
-                <h1>${storage.getItem("teamName") === undefined ? "Team Page" : storage.getItem("teamName")}</h1>
+                <h1 id="teamName">Team Page</h1>
                 <br>
                 <div class="button_box"></div>
             </div>
         `);
+        
+        this.athletePage = (`
+            <div id="athletePage" class="div_page">
+                <div id="athlete_header">
+                    <div id="back_button">&#8592;</div>
+                    <h1 id="athleteName"></h1>
+                    <img src="img/logo.png" alt=""></img>
+                </div>
+        
+                <h2 id="athlete_info"></h2>
+                <div>Stats....</div>
+            </div>
+        `);
+        
     }
 
-    getAthleteHtml() {
+    getHtml() {
+        let storage = window.localStorage;
+        
         return (`
-            <div id="athlete_header">
-                <div id="back_button">&#8592;</div>
-                <h1></h1>
-                <img src="img/logo.png" alt=""></img>
+            <div id="teamPage" class="div_page">
+                ${this.landingPage}
+                ${this.athletePage}
             </div>
-    
-            <h2 id="athlete_info"></h2>
-            <div>Stats....</div>
         `);
     }
-
+    
     start() {
+        
+        // Only link them to pageTransition once
+        if(this.pageTransition.getPageCount() == 0) {
+            this.pageTransition.addPage("landingPage", this.landingPage, true);
+            this.pageTransition.addPage("athletePage", this.athletePage);
+        }
+        
+        let storage = window.localStorage;
+        
         if (!this.hasStarted && this.doesTeamExist()) {
+            $("#landingPage").find("#teamName").text(storage.getItem("teamName"));
             this.generateAthleteList();
             this.hasStarted = true;
             // TODO: have the user create a team.
@@ -48,25 +70,24 @@ class Team extends Page {
     generateAthleteList() {
 
         dbConnection.selectSingle("SELECT *, ROWID FROM athlete", []).then((athletes) => {
-            ButtonGenerator.generateButtonsFromDatabase("#teamPage > .button_box", athletes, (athlete) => {
+            ButtonGenerator.generateButtonsFromDatabase("#landingPage > .button_box", athletes, (athlete) => {
                 this.startAthletePage(athlete);
             });
         });
     }
 
     startAthletePage(athlete) {
-
-        // TODO: slide transition to page here, to the right
-
-        $("#teamPage").html(this.getAthleteHtml());
-
-        $("#teamPage #athlete_header h1").html(`${athlete.fname} ${athlete.lname}`);
-        $("#teamPage #athlete_info").html(`${athlete.grade}th grade ${athlete.gender == 'm' ? "male" : "female"}`);
-
+        
+        // Set athlete data before sliding
+        $("#athletePage").find("#athleteName").html(`${athlete.fname} ${athlete.lname}`);
+        $("#athletePage > #athlete_info").html(`${athlete.grade}th grade ${athlete.gender == 'm' ? "male" : "female"}`);
+        
+        // After populated, slide
+        this.pageTransition.slideLeft("athletePage");
+        
+        // Slide back; athlete page will be overwritten next select
         $("#back_button").bind("touchend", (e) => {
-            // TODO: slide transition back here, to the left
-            $("#teamPage").html(this.getHtml());
-            this.generateAthleteList();
+            this.pageTransition.slideRight("landingPage");
         });
     }
 
@@ -78,7 +99,7 @@ class Team extends Page {
         let storage = window.localStorage;
 
         // local check
-        if (storage.getItem("teamName") === null) {
+        if (storage.getItem("teamName") == null) {
             return false;
         }
 
