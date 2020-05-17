@@ -1,36 +1,43 @@
 
 
-function loginPage() {
-    return new Promise((resolve, reject) => {
+class Login extends Page {
+    
+    constructor(id, pageTransObj) {
+        super(id, "Login");
         
-        $("#app").html(`
-            <br><br>
-            <h1>Sportwatch</h1>
-            <br>
-            <span class="back_arrow">&#8592</span>
-            <p>Enter your login information</p>
-            <form>
-                <!-- <label for="email">Email</label> -->
-                <input class='sw_text_input' type='email' name='email' placeholder='Email'><br>
-                <!-- <label for="password">Password</label> -->
-                <input class='sw_text_input' type='password' name='password' placeholder='Password'><br>
-                <input id='login_button' class='sw_big_button' type='submit' value='Login'>
-            </form>
+        this.transitionObj = pageTransObj;
+    }
+    
+    getHtml() {
+        return (`
+            <div id="loginPage" class="div_page">
+                <br><br>
+                <h1>Sportwatch</h1>
+                <br>
+                <span class="back_arrow">&#8592</span>
+                <p>Enter your login information</p>
+                <form>
+                    <!-- <label for="email">Email</label> -->
+                    <input class='sw_text_input' type='email' name='email' placeholder='Email'><br>
+                    <!-- <label for="password">Password</label> -->
+                    <input class='sw_text_input' type='password' name='password' placeholder='Password'><br>
+                    <input id='login_button' class='sw_big_button' type='submit' value='Login'>
+                </form>
+            </div>
         `);
+    }
+    
+    start() {
         
-        CSSManager.resetStyling();
-        CSSManager.addStylesheet("login.css");
-        // CSSManager.styleLoginPage();
-        
-        $(".back_arrow").click(function (e) {
+        $("#loginPage > .back_arrow").bind("touchend", (e) => {
             e.preventDefault();
-            resolve("welcome");
+            this.transitionObj.slideRight("welcomePage", 200);
         });
         
         // this is just for testing
         $("input[name=email]").val("bromansalaam@gmail.com");
         $("input[name=password]").val("testing123");
-
+        
         $("form").on("submit", function (e) {
             e.preventDefault();
 
@@ -38,11 +45,17 @@ function loginPage() {
             let password = $("input[name=password]").val();
 
             Authentication.login(email, password).then((response) => {
-                resolve("home");
+                console.log("Success!");
+                // TODO: Switch to main page set
             }).catch((response) => {
-                reject(response);
+                console.log("Login fail");
+                // TODO: Show error
             });
         });
-    });
+    };
+    
+    stop() {
+        
+    }
 
 }
