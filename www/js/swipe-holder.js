@@ -10,8 +10,7 @@ class SwipeHolder {
 
         // VARIABLES
         this.MAX_HISTORY = 20; // Max length of arrays
-        this.MIN_MOVEMENT = 25; // Swipe in pixels for it to count
-        this.MIN_PERCENT_DIFFERENCE = 0.25; // percent change needed to trigger a swipe
+        this.MIN_PERCENT_DIFFERENCE = 0.15; // percent change needed to trigger a swipe
         this.currentTouch = []; // [x, y]  (Max length of 2)
         this.touchHistory = []; // Formatted as [0: [{initX, initY}, {endX, endY}], 1: ...]
         this.gestureHistory = []; // Consists of Gestures enum
@@ -113,22 +112,17 @@ class SwipeHolder {
         let screenHeight = $(window).height();
         let dx = endTouch.pageX - startTouch.pageX;
         let dy = endTouch.pageY - startTouch.pageY;
-
-        // Check against minimal movement
-        if ((Math.abs(dx) <= this.MIN_MOVEMENT) && (Math.abs(dy) <= this.MIN_MOVEMENT)) {
-            this.gestureHistory.unshift(this.Gestures.TAP);
-            return this.gestureHistory[0];
-        }
-
+        
+        
         // Check to see the greater rate of change, then log gesture
-        if (Math.abs(dx) > Math.abs(dy)) { // Horizontal movement
-            if (dx > 0 && (Math.abs(dx) > (screenWidth * this.MIN_PERCENT_DIFFERENCE))) { // Rightward swipe
+        if ((Math.abs(dx) >= Math.abs(dy)) && (Math.abs(dx) > screenWidth * this.MIN_PERCENT_DIFFERENCE)) { // Horizontal movement
+            if (dx > 0) { // Rightward swipe
                 this.gestureHistory.unshift(this.Gestures.SWIPERIGHT);
-            } else if (dx < 0 & (Math.abs(dx) > (screenHeight * this.MIN_PERCENT_DIFFERENCE))) { // Leftware swipe
+            } else if (dx < 0) { // Leftware swipe
                 this.gestureHistory.unshift(this.Gestures.SWIPELEFT);
             }
 
-        } else if (Math.abs(dy) > Math.abs(dx)) { // Vertical movement
+        } else if ((Math.abs(dy) >= Math.abs(dx)) && (Math.abs(dy) > screenHeight * this.MIN_PERCENT_DIFFERENCE)) { // Vertical movement
             if (dy > 0) { // Downard swipe
                 this.gestureHistory.unshift(this.Gestures.SWIPEDOWN);
             }
