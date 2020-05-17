@@ -166,7 +166,8 @@ class PageTransition {
         }
         
         // Check to see if any sliding occured. If not, position pages
-        if(($(targetPageId).css("left") == "0px") && ($(prevPageId).css("left") == "0px")) {
+        let prevLeftCss = parseInt($(prevPageId).css("left").replace("px").replace("%"));
+        if(Math.abs(prevLeftCss) == 0) {
             $(targetPageId).css("left", "");
             $(prevPageId).css("left", "");
             
