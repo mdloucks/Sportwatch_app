@@ -109,6 +109,26 @@ class PageTransition {
     }
     
     /**
+     * Hides all of the pages contained in this page object.
+     */
+    hidePages() {
+        // Have to loop through to prevent hiding of separate pageTrans
+        this.pages.forEach((value, key) => {
+            // If it isn't already hidden
+            if(!$("#" + key).hasClass("hidden")) {
+                $("#" + key).addClass("hidden");
+            }
+        });
+    }
+    
+    /**
+     * Shows the current page (only used after hiding all pages)
+     */
+    showCurrentPage() {
+        $(this.sourceElement + " > #" + this.currentPage.replace("#", "")).removeClass("hidden");
+    }
+    
+    /**
      * Gets size / length of pages map. Useful for checking if pages
      * have been added or linked yet
      */
