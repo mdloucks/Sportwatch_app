@@ -2,7 +2,7 @@
 /**
  * this object deals with authenticating our users with the server. Any login or attempt to say "I'm this user" must go through this
  */
-var Authentication = {
+class Authentication {
 
     /**
      * 
@@ -53,7 +53,7 @@ var Authentication = {
                 }
             });
         });
-    },
+    }
 
     /**
      * destroys the user's SID and sends them back to the welcome screen
@@ -61,7 +61,7 @@ var Authentication = {
     logout() {
         localStorage.removeItem("SID");
         StateManager.setState("welcome");
-    },
+    }
 
     validateSID(SID) {
         return new Promise((resolve, reject) => {
@@ -91,7 +91,7 @@ var Authentication = {
                 }
             });
         });        
-    },
+    }
 
     /**
      * Send an ajax post request to the sportwatch servers to sign the user up
@@ -132,18 +132,18 @@ var Authentication = {
                 }
             });
         });
-    },
+    }
 
     /**
      * will verify a given session id with the server
      * TODO: finish this
      */
-    verifySessionId: function (SID, cb) {
+    verifySessionId(SID, cb) {
         $.post(sw_urls.login, { SID: SID },
             cb(data, textStatus, jqXHR),
             "application/json"
         );
-    },
+    }
 
     /**
      * will take a given JSON response and check if there is an error or not
@@ -156,22 +156,23 @@ var Authentication = {
         } else {
             return true;
         }
-    },
+    }
 
-    hasSession: function () {
-        if (this.getSID() === null || this.getSID() === undefined || this.getSID() === "undefined") {
+    hasSession() {
+        if (this.getSID() == undefined || this.getSID() == "undefined") {
             return false;
         } else {
             return true;
         }
-    },
+    }
 
-    setSID: function (SID) {
+    setSID(SID) {
         localStorage.setItem("SID", SID);
         console.log("New SID has been set: " + SID);
-    },
+    }
 
     getSID() {
         return localStorage.getItem("SID");
     }
-};
+}
+
