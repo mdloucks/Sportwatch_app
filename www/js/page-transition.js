@@ -215,21 +215,47 @@ class PageTransition {
         if (($(prevPageId).is(":animated")) || ($(targetPageId).is(":animated"))) {
             return;
         }
+        
+        // if(dx == 0) {
+        //     console.log("[page-transition:slidePageX()]: Reset");
+        //     $(".div_page").addClass("hidden");
+        //     $(prevPageId).removeClass("hidden"); // Reset all styling
+        //     $(targetPageId).css("left", "");
+        //     $(prevPageId).css("left", "");
+        //     return; // Clear the CSS transition so sliding works properly
+        // }
+        
+        // Reset and snap back to the current page
+        if(dx == 0) {
+            // Configure delay...
+            $(".div_page").css("transition", "left 0.2s");
+            
+            // Since slideLeft can't be computed, use current page's left attribute
+            let currentLeftPos = $(targetPageId).css("left").replace("px", "").replace("%", "");
+            if(parseInt(currentLeftPos) < 0) {
+                $(this.sourceElement + " > .div_page").not(targetPageId).css("left", "100%");
+            } else {
+                $(this.sourceElement + " > .div_page").not(targetPageId).css("left", "-100%");
+            }
+            $(targetPageId).css("left", "0");
+            
+            setTimeout(() => {
+                // Remove CSS styling for normal activity next swipe
+                $(this.sourceElement + " > .div_page").not(targetPageId).addClass("hidden");
+                $(this.sourceElement + " > .div_page").css("transition", "");
+                $(this.sourceElement + " > .div_page").css("left", "");
+                this.currentPage = targetPageId.replace("#", "");
+            }, 200);
+            return;
+        }
+        
+        // NORMAL SLIDING (below this comment)
         // Set up location (opposite of direction of the slide)
         $(".div_page").css("transition", "left 0s");
         if (slideLeft) {
             $(targetPageId).css("left", "100%");
         } else {
             $(targetPageId).css("left", "-100%");
-        }
-        
-        if(dx == 0) {
-            console.log("[page-transition:slidePageX()]: Reset");
-            $(".div_page").addClass("hidden");
-            $(prevPageId).removeClass("hidden"); // Reset all styling
-            $(targetPageId).css("left", "");
-            $(prevPageId).css("left", "");
-            return; // Clear the CSS transition so sliding works properly
         }
         
         // Use setTimeout to avoid instant appearance of new page
@@ -240,10 +266,10 @@ class PageTransition {
                 $(targetPageId).css("left", (($(window).width() - dx) + "px"));
                 $(prevPageId).css("left", (-1 * dx + "px"));
             } else {
-                $(targetPageId).css("left", (((-1 * $(window).width()) + dx) + "px"));
+                $(targetPageId).css("left", (((dx - $(window).width())) + "px"));
                 $(prevPageId).css("left", (dx + "px"));
             }
-        }, 1);
+        }, 2);
         
     }
     

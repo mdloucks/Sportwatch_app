@@ -26,7 +26,6 @@ class App {
 
         this.navbar.initNavbar(this.switchPage.bind(this));
         this.swipeHandler = new SwipeHolder("#app"); // Has to be after onReady
-        $("#app").empty();
         this.constructPages();
         this.initializeFirstPage();
 
@@ -172,8 +171,13 @@ class App {
             } else if ((dx < 0) && (pageIndex > 0)) {
                 this.transitionObj.slidePageX(this.getPage(pageIndex - 1).name.toLowerCase() + "Page", false, Math.abs(dx));
             } else {
-                // this.transitionObj.slidePageX(this.getPage(pageIndex).name.toLowerCase() + "Page", true, 0);
+                this.transitionObj.slidePageX(this.getPage(pageIndex).name.toLowerCase() + "Page", true, 0);
             }
+        });
+        
+        // If the gesture was classified as a tap, snap it back / reset it
+        this.swipeHandler.bindGestureCallback(this.swipeHandler.Gestures.TAP, () => {
+            this.transitionObj.slidePageX(this.getPage(pageIndex).name.toLowerCase() + "Page", true, 0);
         });
 
     }
