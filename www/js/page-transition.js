@@ -33,6 +33,7 @@ class PageTransition {
             this.addPage(firstPageKey, firstPageHtml, true);
         }
     }
+    
     /**
      * Adds a page to the pages map for use when transitioning
      * NOTE: the id of the div_page and the key for that page MUST match! If they
@@ -69,7 +70,11 @@ class PageTransition {
             }
             this.pages.set(pageKey, pageHtml);
             
-            $(this.sourceElement).append(pageHtml);
+            // It's easier for indvidual pages to already have the pages defined
+            // This means addPage simply links the exisitng page to the key here
+            if(this.sourceElement.includes("app")) {
+                $(this.sourceElement).append(pageHtml);
+            }
             // Keep as base starting point for simplicity
             $("#" + pageKey).addClass("current_page");
             if(!showPage) {
@@ -88,6 +93,7 @@ class PageTransition {
             console.log("[PageTransition][addPage()]: Unable to add page due to missing parameters");
         }
     }
+    
     /**
      * Removes a page from the pages Map based on key value.
      *
@@ -101,6 +107,15 @@ class PageTransition {
     removePage(pageKey) {
         return this.pages.delete(pageKey);
     }
+    
+    /**
+     * Gets size / length of pages map. Useful for checking if pages
+     * have been added or linked yet
+     */
+    getPageCount() {
+        return this.pages.size;
+    }
+    
     /**
      * Slides the new page in from the right TO the left.
      *
@@ -113,6 +128,7 @@ class PageTransition {
     slideLeft(targetPageKey, duration = 1000) {
         this.slidePage(targetPageKey, true, duration);
     }
+    
     /**
      * Slides the new page in from the left TO the right.
      *
@@ -125,6 +141,7 @@ class PageTransition {
     slideRight(targetPageKey, duration = 1000) {
         this.slidePage(targetPageKey, false, duration);
     }
+    
     /**
      * Internal method used to slide a page left or right, depending on the
      * second boolean parameter. slideLeft() and slideRight() should be
