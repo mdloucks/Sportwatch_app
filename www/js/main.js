@@ -78,7 +78,7 @@ class App {
             console.log("[main.js:determinePageSet()] No SID data");
         }
         
-        this.setActivePageSet(0); // Default to login
+        this.setActivePageSet(1); // Default to main page, for now
     }
     
     /**
@@ -295,9 +295,5 @@ class App {
 }
 
 // this is the main entry point for the app
-setTimeout(() => {
-    let app = new App();
-    app.initialize();
-}, 2000);
-// let app = new App();
-// app.initialize();
+let app = new App();
+app.initialize();
