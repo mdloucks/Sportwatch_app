@@ -7,10 +7,15 @@ class App {
         this.activePageSet = 0; // 0=welcome, 1=main
         
         this.dbConnection;
+        // DEPRECATED: See PageSet
         this.navbar = new Navbar();
         this.mainPageSet = new PageTransition();
         this.welcomePageSet = new PageTransition();
         this.swipeHandler;
+        
+        // Page Sets
+        this.mainSet;
+        this.welcomeSet;
     }
 
     initialize(params) {
@@ -25,22 +30,28 @@ class App {
         this.dbConnection = new DatabaseConnection();
         this.dbConnection.createNewTables();
         this.dbConnection.insertDummyValues();
+        this.swipeHandler = new SwipeHolder("#app");
         FastClick.attach(document.body);
-
+        
         $(".loader").remove();
         $("#app").html(""); // Clear so it's a clean slate to add to
         
-        // Main page initialization
-        this.navbar.initNavbar(this.switchPage.bind(this));
-        $(".navbar").css("display", "none"); // Hide until page set is found
-        this.swipeHandler = new SwipeHolder("#app"); // Has to be after onReady
-        this.constructPages();
-        // this.initializeFirstPage();
+        // ---- PAGE SETS ---- //
+        this.mainSet = new MainSet(this.swipeHandler);
+        this.mainSet.constructPages();
         
-        // Welcome / login page initialization
-        this.constructWelcomePageSet();
+        this.welcomeSet = new WelcomeSet(this.swipeHandler);
+        this.welcomeSet.constructPages();
         
+        // And set the PageSet by checking Authentication
         this.determinePageSet();
+        
+        // DEPRECATED:  See PageSet
+        // this.navbar.initNavbar(this.switchPage.bind(this));
+        // $(".navbar").css("display", "none"); // Hide until page set is found
+        // this.swipeHandler = new SwipeHolder("#app"); // Has to be after onReady
+        // this.constructPages();
+        // this.initializeFirstPage();
         
     }
     
@@ -78,28 +89,27 @@ class App {
      * @param {Integer} pageSetId page set id (0-1 inclusive)
      */
     setActivePageSet(pageSetId) {
-        // First, hide all pages
-        this.mainPageSet.hidePages();
-        this.welcomePageSet.hidePages();
+        // First, disable all sets
+        this.mainSet.disable();
+        this.welcomeSet.disable();
         
+        // Then enable the selected set
         if(pageSetId == 0) {        // Welcome
-            this.welcomePageSet.showCurrentPage();
-            this.welcomePages[0].start(); // TODO: clean this up
-            this.welcomePages[1].start();
+            this.welcomeSet.activate();
             this.activePageSet = 0;
         } else if(pageSetId == 1) { // Main
-            this.mainPageSet.showCurrentPage();
-            this.initializeFirstPage();
+            this.mainSet.activate();
             this.activePageSet = 1;
         } else {
             console.log("[main.js:setActivePageSet()] Invalid page set Id: " + pageSetId);
-            this.welcomePageSet.showCurrentPage();
+            this.welcomeSet.activate();
             this.activePageSet = 0;
         }
     }
     
     /**
      * @description This will set the first page. It must be called before switching to another may happen.
+     * @deprecated Use PageSet:activate() instead
      */
     initializeFirstPage() {
         this.setCurrentPageID(0);
@@ -112,6 +122,7 @@ class App {
      * the name of of it in the "page" argument.
      * 
      * @param {string} pageName 
+     * @deprecated Use PageSet:switchPage() instead
      */
     switchPage(pageName) {
         this.transitionPage(pageName);
@@ -123,6 +134,7 @@ class App {
     /**
      * @description Handle any transition display while moving from one page to another. 
      * @param {String} pageName name of the page to transition to
+     * @deprecated Moved tomain-set.js
      */
     transitionPage(pageName) {
 
@@ -142,7 +154,7 @@ class App {
      * @description create a new object for each page and populate the array.
      * 
      * @param {String} pageName The name of the page
-     * 
+     * @deprecated Use PageSet.constructPages()
      */
     constructPages(pageName) {
         this.pages = [Stopwatch, Stats, Team, Account].map((page, i) => new page(i));
@@ -162,6 +174,7 @@ class App {
      * @example this.defineSwipes(this.getPage(nextPage).id); --> sets up handlers for new / next page
      * 
      * @param {Ingeger} pageIndex the numerical index corresponding to pages Map object
+     * @deprecated Defined in main-set.js
      */
     defineSwipes(pageIndex) {
 
@@ -203,6 +216,9 @@ class App {
 
     }
     
+    /**
+     * @deprecated See welcome-set.js
+     */
     constructWelcomePageSet() {
         
         console.log("init welcome set");
@@ -245,13 +261,17 @@ class App {
             throw new Error(`Incorrect datatype entered for getPage, expected integer or string, you entered ${typeof identifier}`);
         }
     }
-
+    
+    /**
+     * @deprecated Moved to main-set.js
+     */
     setCurrentPageID(id) {
         this.currentPageID = id;
     }
 
     /**
      * @description invoke the start() method on the current page
+     * @deprecated Moved to main-set.js
      */
     startCurrentPage() {
         this.pages[this.currentPageID].start();
@@ -259,6 +279,7 @@ class App {
 
     /**
      * @description invoke the stop() method on the previous page, provided this is called before updating the pageID
+     * @deprecated Use main-set.js:deactivate() instead
      */
     stopPreviousPage() {
         this.pages[this.currentPageID].stop();
