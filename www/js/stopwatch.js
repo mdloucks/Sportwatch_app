@@ -22,6 +22,7 @@ class Stopwatch extends Page {
             initialAngle: 90,
             isRunning: false,
             hasStarted: false,
+            hasInitialized: false,
             start: 0,
             hours: 0,
             minutes: 0,
@@ -77,8 +78,11 @@ class Stopwatch extends Page {
             this.c = $("#stopwatch_canvas")[0];
             this.ctx = this.c.getContext("2d");
         }
-
-        if (!this.clock.hasStarted) {
+        
+        // Switched the variable because if the user changes pages
+        // before starting the stopwatch, the events are bound twice
+        // I recorded a video of the issue if you wanted to see it, let me know
+        if (!this.clock.hasInitialized) {
 
             this.clock.angleInterval = 360 / this.clock.interval;
             this.ctx.lineWidth = this.clock.lineWidth;
@@ -155,6 +159,7 @@ class Stopwatch extends Page {
                 }
             }, 10);
         }
+        this.clock.hasInitialized = true; // Prevent re-binding of touchend
     }
 
     startStopwatch() {
