@@ -6,13 +6,13 @@ class Welcome extends Page {
      * It is simple: contains a login and signup button
      * 
      * @param {Integer} id - page id
-     * @param {PageTransition} pageTransObj - copy of controlling PageTransition object
+     * @param {PageSet} pageSetObj - copy of controlling PageSet (for changing pages)
      */
-    constructor(id, pageTransObj) {
+    constructor(id, pageSetObj) {
         super(id, "Welcome");
         
         // Sync so that when the buttons are pressed, stuff happens
-        this.transitionObj = pageTransObj;
+        this.pageController = pageSetObj;
         
     }
     
@@ -38,20 +38,21 @@ class Welcome extends Page {
         console.log("Sarting welcome.js");
         $("#welcomePage").find("#signup").bind("touchend", (e) => {
             e.preventDefault();
-            this.transitionObj.slideRight("signupPage", 200);
+            console.log("signup clicked");
+            this.pageController.switchPage("Signup");
         });
 
         $("#welcomePage").find("#login").bind("touchend", (e) => {
             e.preventDefault();
-            this.transitionObj.slideLeft("loginPage", 200);
+            this.pageController.switchPage("Login");
         });
     }
     
     stop() {
         
         // Clear click hanlders to prevent duplicate event firing
-        // $("#welcomePage").find("#signup").off();
-        // $("#welcomePage").find("#login").off()
+        $("#welcomePage").find("#signup").unbind();
+        $("#welcomePage").find("#login").unbind()
     }
     
 }

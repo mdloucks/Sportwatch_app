@@ -3,16 +3,16 @@
 class Signup extends Page {
     
     /**
-     * Allows the user to signup. It needs the PageTransition object copy
+     * Allows the user to signup. It needs the PageSet object copy
      * so it can move and manipulate pages as buttons are pressed
      * 
      * @param {Integer} id - page id
-     * @param {PageTransition} pageTransObj - copy of controlling PageTransition object
+     * @param {PageTransition} pageSetObj - copy of controlling PageSet object
      */
-    constructor(id, pageTransObj) {
+    constructor(id, pageSetObj) {
         super(id, "Signup");
         
-        this.transitionObj = pageTransObj;
+        this.pageController = pageSetObj;
     }
     
     getHtml() {
@@ -55,7 +55,7 @@ class Signup extends Page {
         // TODO: make back button more appealing
         $("#signupPage > .back_arrow").bind("touchend", (e) => {
             e.preventDefault();
-            this.transitionObj.slideLeft("welcomePage", 200);
+            this.pageController.switchPage("Welcome");
         });
 
         // "Radio button" logic for account types
@@ -65,7 +65,7 @@ class Signup extends Page {
             $(e.target).addClass("selected");
         });
         
-        $("form").on("submit", function (e) {
+        $("#signupPage > form").on("submit", function (e) {
             e.preventDefault();
             
             let email = $("input[type=email]").val();
@@ -84,6 +84,9 @@ class Signup extends Page {
     }
     
     stop() {
+        
+        $("#signupPage > .back_arrow").unbind();
+        $(".account_type_button").unbind();
         
     }
     

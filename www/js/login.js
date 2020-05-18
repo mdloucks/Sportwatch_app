@@ -1,11 +1,16 @@
 
-
 class Login extends Page {
     
-    constructor(id, pageTransObj) {
+    /**
+     * Page where users can log in and receive an SID
+     * 
+     * @param {Integer} id - number for this page
+     * @param {PageSet} pageSetObj - PageSet object for transitions, etc.
+     */
+    constructor(id, pageSetObj) {
         super(id, "Login");
         
-        this.transitionObj = pageTransObj;
+        this.pageController = pageSetObj;
     }
     
     getHtml() {
@@ -31,14 +36,14 @@ class Login extends Page {
         
         $("#loginPage > .back_arrow").bind("touchend", (e) => {
             e.preventDefault();
-            this.transitionObj.slideRight("welcomePage", 200);
+            this.pageController.switchPage("Welcome");
         });
         
         // this is just for testing
         $("input[name=email]").val("bromansalaam@gmail.com");
         $("input[name=password]").val("testing123");
         
-        $("form").on("submit", function (e) {
+        $("#loginPage > form").on("submit", function (e) {
             e.preventDefault();
 
             let email = $("input[name=email]").val();
@@ -55,6 +60,8 @@ class Login extends Page {
     };
     
     stop() {
+        
+        $("#loginPage > .back_arrow").unbind();
         
     }
 
