@@ -13,51 +13,96 @@ class Signup extends Page {
         super(id, "Signup");
         
         this.pageController = pageSetObj;
+        
+        // Misc variables
+        this.dialogInterval = 0;
     }
     
     getHtml() {
         return (`
             <div id="signupPage" class="div_page">
-                <br><br>
-                <h1>Sportwatch</h1>
                 <br>
-                <span class="back_arrow">&#8592</span>
-                <p>Please enter your information below</p>
+                <h1>Sportwatch</h1>
                 <form>
-                    <label id="label_email" for="email">Email: &nbsp</label>
-                    <input class="sw_text_input" type="email" name="email">
+                    <label id="label_name" for="fname">Name</label><br>
+                    <input class="sw_text_input i_name" type="text" name="fname" placeholder="Jim">
+                    <img id="i_fname" class="invalidSym" src="img/invalidSymbol.png">
                     <br>
-                    <label id="label_password" for="password">Password: &nbsp;</label>
-                    <input class="sw_text_input" type="password" name="password">
+                    <label id="label_email" for="email">Email</label><br>
+                    <input class="sw_text_input" type="email" name="email" placeholder="yourname@website.com">
+                    <img id="i_email" class="invalidSym" src="img/invalidSymbol.png">
+                    <br>
+                    <label id="label_password" for="password">Password</label><br>
+                    <input class="sw_text_input" type="password" name="password" placeholder="●●●●●●●●">
+                    <img id="i_password" class="invalidSym" src="img/invalidSymbol.png">
                     <br>
                     
-                    <p id="p_accountType">I am a...</p>
+                    <p id="p_accountType">Select Role</p>
                     <button id="athlete" class="account_type_button selected" type="button">Athlete</button>
                     <button id="coach" class="account_type_button" type="button">Coach</button>
                     <br><br><br>
-                    <!-- <label for="coach">Coach</label>
-                    <input type="radio" name="account_type" value="coach">
-                    <label for="athlete">Athlete</label>
-                    <input type="radio" name="account_type" value="athlete"> -->
                     
-                    <input id="button_signup" class="sw_big_button" type="submit" value="Sign Up">
+                    <input id="button_signup" class="sw_big_button invalid" type="submit" value="Sign Up">
                 </form>
+                <br><br>
+                <button id="returnWelcome" class="backButton">Back</button>
+                
+                <!-- Invalid dialog here (hidden by default) -->
+                <div class="invalidDialog" style="display: none;">
+                    <p id="d_message"></p>
+                </div>
             </div>
         `);
     }
     
     start() {
-        // // Use set timeout to prevent page moving upon load (https://bit.ly/2Qf7PS9)
-        // setTimeout(function () {
-        //     $(".account_type_button").css("transition", "border 1s");
-        // }, 100); // Not sure, but this can't be too low
-        
-        // TODO: make back button more appealing
-        $("#signupPage > .back_arrow").bind("touchend", (e) => {
+        // Back Button
+        $("#signupPage > #returnWelcome").bind("touchend", (e) => {
             e.preventDefault();
             this.pageController.switchPage("Welcome");
         });
+        
+        // When clicking on input, focus it
+        $("input").bind("touchend", (e) => {
+            $(e.target).focus();
+        })
+        
+        // INPUT HANDLING
+        // Name
+        $("input[name=fname]").on("input", () => {
+            let input = $("input[name=fname]").val();
 
+            if ((input.match(/[A-Za-z.]/gm) == null) || (input.length > 250)) {
+                this.setupInvalidSymbol("#i_fname", false, "Please only use letters in your name.");
+            } else {
+                this.setupInvalidSymbol("#i_fname", true, "Nice to meet you!");
+            }
+        });
+        // TODO: Make regex actually work, fix thin dialog showing (toggling quickly)
+        // Email
+        $("input[name=email]").on("input", () => {
+            let input = $("input[name=email]").val();
+            
+            if((input.match(/[A-Za-z0-9\-_.]*@[A-Za-z0-9\-_.]*\.(com|net|org|us|website|io)/gm) == null) || (input.length > 250)) {
+                this.setupInvalidSymbol("#i_email", false, 
+                                        "Email can only contain: A-Z, a-z, 0-9, hyphens, underscores, periods, and the @ symbol");
+            } else {
+                this.setupInvalidSymbol("#i_email", true, "Looks good!");
+            }
+        });
+        
+        // Password
+        $("input[name=password]").on("input", () => {
+            let input = $("input[name=password]").val();
+
+            if ((input.match(/[`"';<>{} ]/gm) != null) || (input.length < 8) || (input.length > 250)) {
+                this.setupInvalidSymbol("#i_password", false, 
+                                        "Password must be at least 8 characters long and cannot contain spaces or: \";\'<>{}");
+            } else {
+                this.setupInvalidSymbol("#i_password", true, "Great choice!");
+            }
+        });
+        
         // "Radio button" logic for account types
         $(".account_type_button").bind("touchend", (e) => {
             // Remove .selected from both buttons
@@ -75,8 +120,10 @@ class Signup extends Page {
             Authentication.signup(email, password, account_type).then((response) => {
                 localStorage.setItem("email", email);
                 localStorage.setItem("account_type", account_type);
+                console.log(response);
                 // TODO: Finish / implement post signup. Errors out right now
             }).catch(function (error) {
+                console.log(error);
                 console.log("[signup.js:start()] Unable to complete signup request");
             });
         });
@@ -85,9 +132,87 @@ class Signup extends Page {
     
     stop() {
         
-        $("#signupPage > .back_arrow").unbind();
-        $(".account_type_button").unbind();
+        $("#signupPage").unbind();
+        $("#signupPage *").unbind();
         
+    }
+    
+    // ---- CUSTOM FUNCTIONS ---- //
+    
+    /**
+     * Defines the symbol behavior for an input.
+     * 
+     * @example setupInvalidSymbol("#i_email", false, "No spaces allowed");
+     *      --> Displays that message above email input
+     * 
+     * @param {String} symbolId - ID of the symbol element (ex. #i_email)
+     * @param {Boolean} isValid - is the given input valid?
+     * @param {String} errMessage - message to display if invalid
+     */
+    setupInvalidSymbol(symbolId, isValid, errMessage) {
+        
+        // Prevents double binding
+        $(symbolId + ".invalidSym").unbind();
+        if(isValid) {
+            $(symbolId + ".invalidSym").prop("src", "img/validSymbol.png");
+            clearInterval(this.dialogInterval);
+            $(".invalidDialog").fadeOut(1000, () => {
+                $(".invalidDialog").css("width", "0"); // Will block clicks otherwise
+            })
+            
+        } else {
+            $(symbolId + ".invalidSym").prop("src", "img/invalidSymbol.png");
+            // Show dialog and set up click event
+            this.openInvalidMessage(errMessage, symbolId);
+            $(symbolId + ".invalidSym").bind("touchend", (e) => {
+                this.openInvalidMessage(errMessage, e.target);
+            });
+        }
+        
+        // Update submit button class / click ability
+        $("#button_signup").removeClass("invalid"); // Remove here to prevent adding multiple invalid classes
+        $(".invalidSym").each((index) => {
+            let symbol = $(".invalidSym").get(index); // Returns JS object, use $(...)
+            if (($(symbol).prop("src").includes("invalid")) && (!$("#button_signup").hasClass("invalid"))) {
+                $("#button_signup").addClass("invalid");
+            }
+        });
+    }
+    
+    /**
+     * Opens a warning dialog when an input is invalid
+     * 
+     * @example openInvalidMessage("No spaces allowed in password", "#i_password");
+     *          --> Displays above password input field
+     * 
+     * @param {String} message - what the dialog will say
+     * @param {String} anchorElement - id of the anchor element (should be the invalidSymbol)
+     */
+    openInvalidMessage(message, anchorElement) {
+        
+        // Get position of anchor element
+        let x = $(anchorElement).position().left;
+        let y = $(anchorElement).position().top;
+        
+        // Set dialog properties
+        let dialog = $(".invalidDialog");
+        $(".invalidDialog > #d_message").text(message);
+        dialog.css("width", "60%"); // Make sure it's before grabbing width
+        dialog.css("left", (x - dialog.width()) + "px");
+        dialog.css("top", (y - dialog.height() - 15) + "px");
+        dialog.fadeIn(1000);
+        
+        // Prevents previous timeouts from closing the new dialog
+        if(this.dialogInterval != 0) {
+            clearInterval(this.dialogInterval);
+        }
+        
+        // And disappear in a few seconds
+        this.dialogInterval = setTimeout(() => {
+            dialog.fadeOut(1000, () => {
+                dialog.css("width", "0");
+            });
+        }, 5000);
     }
     
     

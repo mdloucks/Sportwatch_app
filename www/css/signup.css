@@ -1,50 +1,98 @@
 
-/*  GENERAL  */
+/**********************
+        GENERAL
+***********************/
 
-h1 {
-    font-size: 4em;
+#signupPage h1 {
+    font-size: 3em;
 }
 
-p {
+#signupPage p {
     font-size: 1.8em;
 }
 
-/*  FORM  */
+.backButton {
+    padding: 10px 20px;
+    font-size: 1.5em;
+    border-radius: 5px;
+    background-color: gray;
+    -webkit-appearance: none;
+}
 
-form {
+/**********************
+          FORM
+***********************/
+#signupPage form {
     margin: 10px;
 }
 
-label {
+#signupPage label {
     margin-top: 2%;
     font-size: 1.5em;
 }
 
-#label_email {
+#signupPage .i_name {
+    width: 25%;
+}
+
+#signupPage #label_email {
     padding: 3%;
 }
 
-#button_signup {
-    padding: 10px 40px;
+#signupPage #button_signup {
+    padding: 15px 35px;
+    transition: all 1s;
 }
 
-/*  ACCOUNT TYPES  */
+#signupPage #button_signup.invalid {
+    background-color: lightgray;
+    color: black;
+}
 
-#p_accountType {
+/**********************
+    INVALID SYMBOL
+***********************/
+
+.invalidSym {
+    margin: 5px 5px 2vh 5px;
+    width: 10%;
+    position: absolute; /* Prevents pushing of input fields */
+    vertical-align: middle;
+}
+
+.invalidDialog {
+    padding: 5px;
+    width: 0; /* Default, sets to 60% in code */
+    height: auto;
+    position: absolute;
+    left: 0;
+    top: 0;
+    text-align: cetner;
+    background-color: white;
+    border: 2px solid #8D2618;
+    border-radius: 5px;
+}
+
+/**********************
+      ACCOUNT ROLE
+***********************/
+
+#signupPage #p_accountType {
     margin: 0.2em;
 }
 
-.account_type_button {
+#signupPage .account_type_button {
     padding: 10px;
     border-radius: 10px;
     border: 2px solid gray;
     font-size: 1.5em;
     background-color: whitesmoke;
+    -webkit-appearance: none;
     transition: border 0.5s;   /* Add after page load to prevent moving */
     /* ^ Explanation:  https://bit.ly/2Qf7PS9 */
 }
 
-.selected {
+#signupPage .selected {
     border: 2px solid crimson;
 }
 
