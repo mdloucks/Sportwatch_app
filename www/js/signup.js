@@ -72,23 +72,38 @@ class Signup extends Page {
         $("input[name=fname]").on("input", () => {
             let input = $("input[name=fname]").val();
 
-            if ((input.match(/[A-Za-z.]/gm) == null) || (input.length > 250)) {
+            if (input.replace(/[A-Za-z.]/gm, "") != "") {
                 this.setupInvalidSymbol("#i_fname", false, "Please only use letters in your name.");
+            } else if(input.length > 127) {
+                this.setupInvalidSymbol("#i_fname", false, "Name is too long");
             } else {
                 this.setupInvalidSymbol("#i_fname", true, "Nice to meet you!");
             }
+        });
+        // Add starting dialog when clicked (if empty)
+        $("#i_fname.invalidSym").bind("touchend", (e) => {
+            this.openInvalidMessage("Please enter your name", "#i_fname");
         });
         // TODO: Make regex actually work, fix thin dialog showing (toggling quickly)
         // Email
         $("input[name=email]").on("input", () => {
             let input = $("input[name=email]").val();
             
-            if((input.match(/[A-Za-z0-9\-_.]*@[A-Za-z0-9\-_.]*\.(com|net|org|us|website|io)/gm) == null) || (input.length > 250)) {
+            let testMatch = input.match(/[A-Za-z0-9\-_.]*@[A-Za-z0-9\-_.]*\.(com|net|org|us|website|io)/gm);
+            if(testMatch == null) {
                 this.setupInvalidSymbol("#i_email", false, 
                                         "Email can only contain: A-Z, a-z, 0-9, hyphens, underscores, periods, and the @ symbol");
+            } else if(testMatch[0].length != input.length) {
+                this.setupInvalidSymbol("#i_email", false,
+                    "Email can only contain: A-Z, a-z, 0-9, hyphens, underscores, periods, and the @ symbol");
+            }else if(input.length > 250) {
+                this.setupInvalidSymbol("#i_email", false, "Email is too long");
             } else {
                 this.setupInvalidSymbol("#i_email", true, "Looks good!");
             }
+        });
+        $("#i_email.invalidSym").bind("touchend", (e) => {
+            this.openInvalidMessage("Please enter your email", "#i_email");
         });
         
         // Password
@@ -98,11 +113,17 @@ class Signup extends Page {
             if ((input.match(/[`"';<>{} ]/gm) != null) || (input.length < 8) || (input.length > 250)) {
                 this.setupInvalidSymbol("#i_password", false, 
                                         "Password must be at least 8 characters long and cannot contain spaces or: \";\'<>{}");
+            } else if((input.match(/[A-Z]/gm) == null) || (input.match(/[0-9]/gm) == null) || (input.match(/!@#$%&*/gm) == null)) {
+                this.setupInvalidSymbol("#i_password", false, "Please strengthen your password (ex. add uppercase, numbers, or symbols)");
             } else {
                 this.setupInvalidSymbol("#i_password", true, "Great choice!");
             }
         });
+        $("#i_password.invalidSym").bind("touchend", (e) => {
+            this.openInvalidMessage("Please create a <b>unique</b> password", "#i_password");
+        });
         
+        // REST OF FORM
         // "Radio button" logic for account types
         $(".account_type_button").bind("touchend", (e) => {
             // Remove .selected from both buttons
@@ -112,6 +133,13 @@ class Signup extends Page {
         
         $("#signupPage > form").on("submit", function (e) {
             e.preventDefault();
+            // Animate the button to simulate a "press"
+            $("#signupPage").find("#button_signup").animate({
+                backgroundColor: "crimson"
+            }, 500, function() {
+                $("#button_signup").css("background-color", "initial");
+            });
+            
             
             let email = $("input[type=email]").val();
             let password = $("input[type=password]").val();
@@ -131,10 +159,8 @@ class Signup extends Page {
     }
     
     stop() {
-        
         $("#signupPage").unbind();
         $("#signupPage *").unbind();
-        
     }
     
     // ---- CUSTOM FUNCTIONS ---- //
@@ -190,13 +216,18 @@ class Signup extends Page {
      */
     openInvalidMessage(message, anchorElement) {
         
+        let dialog = $(".invalidDialog");
+        // This prevents showing the dialog if it's not ready / transitioning
+        if((dialog.css("opacity") != "0") && (dialog.css("opacity") != "1")) {
+            return;
+        }
+        
         // Get position of anchor element
         let x = $(anchorElement).position().left;
         let y = $(anchorElement).position().top;
         
         // Set dialog properties
-        let dialog = $(".invalidDialog");
-        $(".invalidDialog > #d_message").text(message);
+        $(".invalidDialog > #d_message").html(message);
         dialog.css("width", "60%"); // Make sure it's before grabbing width
         dialog.css("left", (x - dialog.width()) + "px");
         dialog.css("top", (y - dialog.height() - 15) + "px");

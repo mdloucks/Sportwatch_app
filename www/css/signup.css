@@ -5,6 +5,7 @@
 
 #signupPage h1 {
     font-size: 3em;
+    margin-bottom: 3vh;
 }
 
 #signupPage p {
@@ -22,28 +23,25 @@
 /**********************
           FORM
 ***********************/
-#signupPage form {
-    margin: 10px;
-}
 
 #signupPage label {
     margin-top: 2%;
-    font-size: 1.5em;
+    font-size: 2em;
+}
+
+#signupPage .sw_text_input {
+    margin-bottom: 3vh;
 }
 
 #signupPage .i_name {
     width: 25%;
 }
 
-#signupPage #label_email {
-    padding: 3%;
-}
-
 #signupPage #button_signup {
     padding: 15px 35px;
+    font-size: 2em;
     transition: all 1s;
 }
-
 #signupPage #button_signup.invalid {
     background-color: lightgray;
     color: black;
@@ -55,7 +53,7 @@
 
 .invalidSym {
     margin: 5px 5px 2vh 5px;
-    width: 10%;
+    width: 40px;
     position: absolute; /* Prevents pushing of input fields */
     vertical-align: middle;
 }
@@ -85,7 +83,7 @@
     padding: 10px;
     border-radius: 10px;
     border: 2px solid gray;
-    font-size: 1.5em;
+    font-size: 2em;
     background-color: whitesmoke;
     -webkit-appearance: none;
     transition: border 0.5s;   /* Add after page load to prevent moving */
