@@ -4,7 +4,7 @@ class WelcomeSet extends PageSet {
     constructor(swipeAgent) {
         super("WelcomeSet", swipeAgent);
         
-        this.START_PAGE = 1; // Default page index to show
+        this.START_PAGE = 0; // Default page index to show
         
         // this.swipeHandler  (PageSet parent variable)
         this.navbar = new Navbar();
@@ -15,7 +15,7 @@ class WelcomeSet extends PageSet {
     constructPages() {
         // NOTE: Order is important, as it makes configuring page switches
         //       and swipes easier
-        this.pageArray = [Signup, Welcome, Login].map((page, i) => new page(i, this));
+        this.pageArray = [Welcome, Signup, Login].map((page, i) => new page(i, this));
         this.pageArray.forEach((pageObj, pageIndex) => {
             let shouldShow = false; // Should be page be visible at start? (only for first page)
             if (pageIndex == this.START_PAGE) { // Change this to default page (Welcome)
