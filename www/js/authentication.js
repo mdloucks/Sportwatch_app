@@ -96,24 +96,28 @@ class Authentication {
     /**
      * Send an ajax post request to the sportwatch servers to sign the user up
      * 
+     * @param {String} fname The user's first name
+     * @param {String} lname The user's last name
      * @param {String} email The user's email
      * @param {String} password The user's password
      * @param {String} account_type The user's account type ("coach or athlete")
      */
-    static signup(email, password, account_type) {
+    static signup(fname, lname, email, password, account_type) {
         console.log("Signing up user...");
         return new Promise((resolve, reject) => {
             $.ajax({
                 type: "POST",
-                url: sw_urls.signup,
-                timeout: ajax_config.timeout,
+                url: "https://www.sportwatch.us/mobile/signup.php",
+                //timeout: ajax_config.timeout,
                 data: {
+                    fname: fname,
+                    lname: lname,
                     email: email,
                     password: password,
                     account_type: account_type
                 },
                 success: (response) => {
-
+                    console.log(response);
                     let data = JSON.parse(response);
 
                     if(this.validateServerStatusCode(data)) {
