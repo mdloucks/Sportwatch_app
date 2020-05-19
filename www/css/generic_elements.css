@@ -24,10 +24,12 @@ This is to limit the file size for our page specific styles
 
 .sw_text_input {
     padding: 10px;
+    border-width: 2px;
     border-color: crimson;
     margin-bottom: 15px;
     font-size: 1.5em;
     width: 60%;
+    outline: none;
 }
 
 .back_arrow {
@@ -36,14 +38,6 @@ This is to limit the file size for our page specific styles
 }
 
 /* -- Nav Menu -- */
-
-.nvarbar > * {
-    background-color: rgb(245, 77, 77);
-}
-
-.navbar > .active {
-    background-color: green;
-}
 
 /*#navigation_menu {
     height: 100%;

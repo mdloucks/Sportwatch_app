@@ -35,10 +35,8 @@ class Welcome extends Page {
     
     start() {
         // Very similar to main.js's defineSwipes
-        console.log("Sarting welcome.js");
         $("#welcomePage").find("#signup").bind("touchend", (e) => {
             e.preventDefault();
-            console.log("signup clicked");
             this.pageController.switchPage("Signup");
         });
 
