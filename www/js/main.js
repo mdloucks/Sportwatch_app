@@ -78,7 +78,7 @@ class App {
             console.log("[main.js:determinePageSet()] No SID data");
         }
         
-        this.setActivePageSet(0); // Default to main page, for now
+        this.setActivePageSet(1); // Default to main page, for now
     }
     
     /**
