@@ -1,0 +1,115 @@
+<!DOCTYPE html>
+<!--
+    Licensed to the Apache Software Foundation (ASF) under one
+    or more contributor license agreements.  See the NOTICE file
+    distributed with this work for additional information
+    regarding copyright ownership.  The ASF licenses this file
+    to you under the Apache License, Version 2.0 (the
+    "License"); you may not use this file except in compliance
+    with the License.  You may obtain a copy of the License at
+
+    http://www.apache.org/licenses/LICENSE-2.0
+
+    Unless required by applicable law or agreed to in writing,
+    software distributed under the License is distributed on an
+    "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+     KIND, either express or implied.  See the License for the
+    specific language governing permissions and limitations
+    under the License.
+-->
+<html>
+
+<head>
+  <!--
+        Customize this policy to fit your own app's needs. For more guidance, see:
+            https://github.com/apache/cordova-plugin-whitelist/blob/master/README.md#content-security-policy
+        Some notes:
+            * gap: is required only on iOS (when using UIWebView) and is needed for JS->native communication
+            * https://ssl.gstatic.com is required only on Android and is needed for TalkBack to function properly
+            * Disables use of inline scripts in order to mitigate risk of XSS vulnerabilities. To change this:
+                * Enable inline JS: add 'unsafe-inline' to default-src
+        -->
+  <!-- <meta http-equiv="Content-Security-Policy" content="default-src 'self' data: gap: https://ssl.gstatic.com 'unsafe-eval'; style-src 'self' 'unsafe-inline'; media-src *; img-src 'self' data: content:;"> -->
+  <meta http-equiv="Content-Security-Policy"
+    content="default-src 'self' data: gap: https://ssl.gstatic.com 'unsafe-eval'; style-src 'self' 'unsafe-inline'; media-src *; connect-src 'self' https://www.sportwatch.us/" />
+  <meta name="format-detection" content="telephone=no" />
+  <meta name="msapplication-tap-highlight" content="no" />
+  <meta name="viewport" content="user-scalable=no, width=device-width, initial-scale=1" />
+  <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+
+  <!-- styles -->
+  <link rel="stylesheet" type="text/css" href="css/index.css" />
+  <link rel="stylesheet" type="text/css" href="css/stopwatch.css" />
+  <link rel="stylesheet" type="text/css" href="css/stats.css" />
+  <link rel="stylesheet" type="text/css" href="css/team.css" />
+  <link rel="stylesheet" type="text/css" href="css/account.css" />
+  <link rel="stylesheet" type="text/css" href="css/popup.css" />
+  <link rel="stylesheet" type="text/css" href="css/navbar.css" />
+  <link rel="stylesheet" type="text/css" href="css/generic_elements.css" />
+  <link rel="stylesheet" type="text/css" href="css/signup.css" />
+  
+  <!-- lib -->
+  <script type="text/javascript" src="lib/jquery-3.5.0.min.js"></script>
+  <script type="text/javascript" src="lib/fastclick.js"></script>
+  <!-- <link rel="stylesheet" href="lib/bootstrap.min.css"> -->
+
+  <!-- src -->
+  <script type="text/javascript" src="cordova.js"></script>
+  <script type="text/javascript" src="js/database.js"></script>
+  <script type="text/javascript" src="js/constant.js"></script>
+
+  <!-- Utility -->
+  <script type="text/javascript" src="js/errorhandler.js"></script>
+  <script type="text/javascript" src="js/popup.js"></script>
+  <script type="text/javascript" src="js/button-generator.js"></script>
+
+  <!-- Deprecated, please clean up. -->
+  <!-- <script type="text/javascript" src="js/cssmanager.js"></script> -->
+
+  <script type="text/javascript" src="js/page-transition.js"></script>
+  <script type="text/javascript" src="js/swipe-holder.js"></script>
+  <script type="text/javascript" src="js/authentication.js"></script>
+  <script type="text/javascript" src="js/page.js"></script>
+  
+  <!-- Sportwatch Pages -->
+  <script type="text/javascript" src="js/postsignup.js"></script>
+  <script type="text/javascript" src="js/login.js"></script>
+  <script type="text/javascript" src="js/welcome.js"></script>
+  <script type="text/javascript" src="js/stopwatch.js"></script>
+  <script type="text/javascript" src="js/signup.js"></script>
+  <script type="text/javascript" src="js/stats.js"></script>
+  <script type="text/javascript" src="js/team.js"></script>
+  <script type="text/javascript" src="js/team-create.js"></script>
+  <script type="text/javascript" src="js/team-init.js"></script>
+  <script type="text/javascript" src="js/team-manage.js"></script>
+  <script type="text/javascript" src="js/account.js"></script>
+
+  <!-- Page Sets -->
+  <script type="text/javascript" src="js/page-sets/page-set.js"></script>
+  <script type="text/javascript" src="js/page-sets/main-set.js"></script>
+  <script type="text/javascript" src="js/page-sets/welcome-set.js"></script>
+  
+  <!-- Misc -->
+  <script type="text/javascript" src="js/navbar.js"></script>
+
+  <!-- Entry Point -->
+  <script type="text/javascript" src="js/main.js"></script>
+</head>
+
+<body>
+  <!-- main body for app -->
+  <div id="app">
+    <div class="loader"></div>
+    <br><br><br>
+    <h1>Loading...</h1>
+  </div>
+  <div class="navbar">
+    <div id="stopwatch" class="active">Stopwatch</div>
+    <div id="stats">Stats</div>
+    <div id="team">Team</div>
+    <div id="account">Account</div>
+  </div>
+
+</body>
+
+</html>

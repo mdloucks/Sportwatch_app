@@ -1,0 +1,64 @@
+/* #teamPage > [elementHere] { ... } */
+
+#teamPage > h1 {
+  font-size: 3.5em;
+}
+
+#teamPage .button_box {
+  width: 100%;
+  text-align: center;
+  display: block;
+  margin: auto;
+}
+
+#teamPage .generated_button {
+  background-color: rgb(245, 77, 77);
+  text-align: center;
+  border: 1px solid red;
+  color: white;
+  padding: 10px 24px;
+  width: 75%;
+  margin-left: 12.5%;
+  margin-bottom: 1em;
+  display: block;
+}
+
+#teamPage button:not(:last-child) {
+  border-bottom: none; /* Prevent double borders */
+}
+
+#teamPage button:focus {
+  background-color: crimson;
+}
+
+#teamPage #athlete_header {
+  border-bottom: solid #000 5px;
+  vertical-align: middle;
+  text-align: center;
+  width: 100%;
+}
+
+#teamPage #athlete_header * {
+  font-size: 3em;
+  display: inline-block;
+}
+
+#teamPage #athlete_header #back_button {
+  position: absolute;
+  left: 10%;
+  font-size: 4em;
+  font-weight: bold;
+}
+
+#teamPage #athlete_header img {
+  position: absolute;
+  right: 10%;
+  max-width: 60px;
+  max-height: 60px;
+}
+
+#teamPage h2 {
+  font-size: 2em;
+  padding-bottom: 1em;
+  border-bottom: solid #000 5px;
+}

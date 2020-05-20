@@ -1,2 +1,0 @@
-on login - fetch user data such as coach or student
-
