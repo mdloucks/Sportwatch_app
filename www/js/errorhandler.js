@@ -3,99 +3,102 @@
  */
 
 
-var ErrorHandler = {
+class ErrorHandler {
+    
+    
+    constructor() {
+        this.native_errors = {
+            //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+            //  Ajax Errors
+            //....................................................................................
+            ajax: [
+                function AjaxTimeoutError() {
+                    this.errorMessage = "Network Timeout: request took too long, check your internet connection.";
+                },
 
-    native_errors: {
-        //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-        //  Ajax Errors
-        //....................................................................................
-        ajax: [
-            function AjaxTimeoutError() {
-                this.errorMessage = "Network Timeout: request took too long, check your internet connection.";
-            },
-
-            function AjaxParseError() {
-                this.errorMessage = "Parse Error: We could not understand the response send back by our servers.";
-            }
-        ],
-        //=====================================================================================
-    },
+                function AjaxParseError() {
+                    this.errorMessage = "Parse Error: We could not understand the response send back by our servers.";
+                }
+            ],
+            //=====================================================================================
+        }
 
 
-    /**
-     * this file contains many custom errors we may encounter while running the app.
-     * This may include basic things such as network timeouts/unavaliable or ui stuff
-     *
-     * They will also all include errorMessage in order to print them neatly into our app
-     */
-    sw_errors: {
-        //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-        //  SID Errors
-        //....................................................................................
-        SID: [
-            function invalidSID() {
-                this.errorMessage = "You've submitted a session ID that doesn't exist, better luck next time!";
-            },
-            function loginExpiredSession() {
-                this.errorMessage = "You haven't logged into your account for a long time. We want to make sure this is you.";
-            }
-        ],
+        /**
+         * this file contains many custom errors we may encounter while running the app.
+         * This may include basic things such as network timeouts/unavaliable or ui stuff
+         *
+         * They will also all include errorMessage in order to print them neatly into our app
+         */
+        this.sw_errors = {
+            //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+            //  SID Errors
+            //....................................................................................
+            SID: [
+                function invalidSID() {
+                    this.errorMessage = "You've submitted a session ID that doesn't exist, better luck next time!";
+                },
+                function loginExpiredSession() {
+                    this.errorMessage = "You haven't logged into your account for a long time. We want to make sure this is you.";
+                }
+            ],
 
-        //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-        //  Login Errors
-        //....................................................................................
-        login: [
-            function loginWrongCredentials() {
-                this.errorMessage = "Invalid email or password.";
-            },
+            //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+            //  Login Errors
+            //....................................................................................
+            login: [
+                function loginWrongCredentials() {
+                    this.errorMessage = "Invalid email or password.";
+                },
 
-            function loginDifferentDevice() {
-                this.errorMessage = "We want to make sure this device belongs to the real you. Go to your email and click on the verification link sent to you to validate this device. Protecting your data and privacy means a lot to us.";
-            }
-        ],
+                function loginDifferentDevice() {
+                    this.errorMessage = "We want to make sure this device belongs to the real you. Go to your email and click on the verification link sent to you to validate this device. Protecting your data and privacy means a lot to us.";
+                }
+            ],
 
-        //=====================================================================================
+            //=====================================================================================
 
-        //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-        //  Signup Errors
-        //....................................................................................
-        signup: [
-            function signupInvalidEmailError() {
-                this.errorMessage = "The email you entered is not formatted correctly.";
-            },
-            function signupNonexistantEmailError() {
-                this.errorMessage = "The email at the domain you entered does not exist.";
-            },
-            function signupDuplicateError() {
-                // TODO create hyperlink for sign in
-                this.errorMessage = "We already have a user with that username! Try another one or sign in.";
-            },
-            function signupWeakPasswordError() {
-                this.errorMessage = "Sorry, the password you entered does not comply with our security standards. At least 8 characters.";
-            }
-        ],
-        //=====================================================================================
+            //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+            //  Signup Errors
+            //....................................................................................
+            signup: [
+                function signupInvalidEmailError() {
+                    this.errorMessage = "The email you entered is not formatted correctly.";
+                },
+                function signupNonexistantEmailError() {
+                    this.errorMessage = "The email at the domain you entered does not exist.";
+                },
+                function signupDuplicateError() {
+                    // TODO create hyperlink for sign in
+                    this.errorMessage = "We already have a user with that username! Try another one or sign in.";
+                },
+                function signupWeakPasswordError() {
+                    this.errorMessage = "Sorry, the password you entered does not comply with our security standards. At least 8 characters.";
+                }
+            ],
+            //=====================================================================================
 
-        //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-        //  Internal Server Errors
-        //....................................................................................
-        server: [
-            /**
-            * this is a catch all error that we may send if we have no idea what the problem is.
-            */
-            function serverGenericError() {
-                this.errorMessage = "Something went wrong with our servers. Please try again or contact us if the problem persists. We are truely sorry for the inconvenience :(";
-            },
+            //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+            //  Internal Server Errors
+            //....................................................................................
+            server: [
+                /**
+                * this is a catch all error that we may send if we have no idea what the problem is.
+                */
+                function serverGenericError() {
+                    this.errorMessage = "Something went wrong with our servers. Please try again or contact us if the problem persists. We are truely sorry for the inconvenience :(";
+                },
 
-            function serverMaintainenceError() {
-                this.errorMessage = "Our servers are undergoing schedualed maintainence. They should be done in roughly: ";
-            }
-        ]
-        //=====================================================================================
-    },
+                function serverMaintainenceError() {
+                    this.errorMessage = "Our servers are undergoing schedualed maintainence. They should be done in roughly: ";
+                }
+            ]
+            //=====================================================================================
+        }
 
-    // for greater error reporting results and visibility
-    debugMode: true,
+        // for greater error reporting results and visibility
+        this.debugMode = true;
+    }
 
     /**
      * Will find the error and report it in the given jqXHR request
@@ -129,7 +132,7 @@ var ErrorHandler = {
         } catch (e) {
             this.resolveError(e);
         }
-    },
+    }
 
     /**
      * 
@@ -156,7 +159,7 @@ var ErrorHandler = {
         } catch (e) {
             this.resolveError(e);
         }
-    },
+    }
 
 
     /**
@@ -170,7 +173,7 @@ var ErrorHandler = {
         } else {
             this.reportErrorDebug(error);
         }
-    },
+    }
 
     /**
      * will report the error in a more user friendly fashion and maybe execute some cleanup code
@@ -181,7 +184,7 @@ var ErrorHandler = {
      */
     reportError(error) {
         console.log(error.errorMessage);
-    },
+    }
 
     /**
      * this one is for the code gremlins
