@@ -7,7 +7,7 @@ class Signup extends Page {
      * so it can move and manipulate pages as buttons are pressed
      * 
      * @param {Integer} id - page id
-     * @param {PageTransition} pageSetObj - copy of controlling PageSet object
+     * @param {PageSet} pageSetObj - copy of controlling PageSet object
      */
     constructor(id, pageSetObj) {
         super(id, "Signup");
@@ -24,7 +24,7 @@ class Signup extends Page {
                 <br>
                 <h1>Sportwatch</h1>
                 <form>
-                    <label id="label_name" for="fname">Name</label><br>
+                    <label id="label_name" for="fname">First Name</label><br>
                     <input class="sw_text_input i_name" type="text" name="fname" placeholder="Jim">
                     <img id="i_fname" class="invalidSym" src="img/invalidSymbol.png">
                     <br>
@@ -76,6 +76,8 @@ class Signup extends Page {
                 this.setupInvalidSymbol("#i_fname", false, "Please only use letters in your name.");
             } else if(input.length > 127) {
                 this.setupInvalidSymbol("#i_fname", false, "Name is too long");
+            } else if(input.length < 3) {
+                this.setupInvalidSymbol("#i_fname", false, "Please enter your full first name");
             } else {
                 this.setupInvalidSymbol("#i_fname", true, "Nice to meet you!");
             }
@@ -84,15 +86,14 @@ class Signup extends Page {
         $("#i_fname.invalidSym").bind("touchend", (e) => {
             this.openInvalidMessage("Please enter your name", "#i_fname");
         });
-        // TODO: Make regex actually work, fix thin dialog showing (toggling quickly)
+        
         // Email
         $("input[name=email]").on("input", () => {
             let input = $("input[name=email]").val();
             
             let testMatch = input.match(/[A-Za-z0-9\-_.]*@[A-Za-z0-9\-_.]*\.(com|net|org|us|website|io)/gm);
             if(testMatch == null) {
-                this.setupInvalidSymbol("#i_email", false, 
-                                        "Email can only contain: A-Z, a-z, 0-9, hyphens, underscores, periods, and the @ symbol");
+                this.setupInvalidSymbol("#i_email", false, "Please enter a valid email");
             } else if(testMatch[0].length != input.length) {
                 this.setupInvalidSymbol("#i_email", false,
                     "Email can only contain: A-Z, a-z, 0-9, hyphens, underscores, periods, and the @ symbol");
@@ -109,12 +110,12 @@ class Signup extends Page {
         // Password
         $("input[name=password]").on("input", () => {
             let input = $("input[name=password]").val();
-
-            if ((input.match(/[`"';<>{} ]/gm) != null) || (input.length < 8) || (input.length > 250)) {
+            
+            if ((input.match(/[`"';<>{} ]/gm) != null) || (input.length < 10) || (input.length > 250)) {
                 this.setupInvalidSymbol("#i_password", false, 
-                                        "Password must be at least 8 characters long and cannot contain spaces or: \";\'<>{}");
-            } else if((input.match(/[A-Z]/gm) == null) || (input.match(/[0-9]/gm) == null) || (input.match(/!@#$%&*/gm) == null)) {
-                this.setupInvalidSymbol("#i_password", false, "Please strengthen your password (ex. add uppercase, numbers, or symbols)");
+                                        "Password must be at least 10 characters long and cannot contain spaces or: \";\'<>{}");
+            } else if((input.match(/[A-Z]/gm) == null) || (input.match(/[0-9]/gm) == null)) {
+                this.setupInvalidSymbol("#i_password", false, "Please strengthen your password (must include uppercase, and numbers)");
             } else {
                 this.setupInvalidSymbol("#i_password", true, "Great choice!");
             }
@@ -129,32 +130,57 @@ class Signup extends Page {
             // Remove .selected from both buttons
             $(".account_type_button").removeClass("selected");
             $(e.target).addClass("selected");
+            console.log("Function this: ");
+            console.log(this);
+            console.log("")
+            this.pageController.onChangePageSet(1);
         });
         
-        $("#signupPage > form").on("submit", function (e) {
+        // Animate the button to simulate a "press"
+        $("#button_signup").bind("touchstart", (e) => {
+            $("#button_signup").addClass("pressed");
+        });
+        $("#button_signup").bind("touchend", (e) => {
+            $("#button_signup").removeClass("pressed");
+        });
+        
+        $("#signupPage > form").on("submit", function(e) {
             e.preventDefault();
-            // Animate the button to simulate a "press"
-            $("#signupPage").find("#button_signup").animate({
-                backgroundColor: "crimson"
-            }, 500, function() {
-                $("#button_signup").css("background-color", "initial");
-            });
             
+            if ($("#button_signup").hasClass("invalid")) {
+                return; // Exit the handler, not valid
+            }
             
-            let email = $("input[type=email]").val();
-            let password = $("input[type=password]").val();
-            let account_type = $(".account_type_button[class*=selected]").text().toLowerCase();
-            // TODO PASSWORD STRENGTH TEST IS WEIRD
-            Authentication.signup(email, password, account_type).then((response) => {
+            // Validate inputs (one last safety check)
+            let firstName = $("input[name=fname").val();
+            let email = $("input[name=email]").val();
+            let password = $("input[name=password]").val();
+            let account_type = $(".account_type_button.selected").text().toLowerCase();
+            
+            if(firstName.length < 3) {
+                this.setupInvalidSymbol("#i_fname", false, "Please enter your full first name");
+                return;
+            }
+            if(email.indexOf("@") == -1) {
+                this.setupInvalidSymbol("#i_email", false, "Please enter a valid email");
+                return;
+            }
+            if(password.length < 10) {
+                this.setupInvalidSymbol("#i_password", false, "Password must be at least 10 characters");
+                return;
+            }
+            
+            Authentication.signup(firstName, email, password, account_type).then(function(response) {
                 localStorage.setItem("email", email);
                 localStorage.setItem("account_type", account_type);
-                console.log(response);
-                // TODO: Finish / implement post signup. Errors out right now
-            }).catch(function (error) {
-                console.log(error);
+                this.pageController.onChangePageSet(1); // 1 for Main logic
+            }.bind(this),
+            function(error) {
                 console.log("[signup.js:start()] Unable to complete signup request");
-            });
-        });
+                this.handleSignupError(error.substatus, error.msg);
+            }.bind(this));
+            
+        }.bind(this)); // Binding this is CRITICAL for changing state, etc.
         
     }
     
@@ -212,9 +238,10 @@ class Signup extends Page {
      *          --> Displays above password input field
      * 
      * @param {String} message - what the dialog will say
-     * @param {String} anchorElement - id of the anchor element (should be the invalidSymbol)
+     * @param {String} anchorElement - [default = null] id of the anchor element (should be the invalidSymbol)
+     *                                  if left null, it will center the dialog
      */
-    openInvalidMessage(message, anchorElement) {
+    openInvalidMessage(message, anchorElement = null) {
         
         let dialog = $(".invalidDialog");
         // This prevents showing the dialog if it's not ready / transitioning
@@ -222,15 +249,21 @@ class Signup extends Page {
             return;
         }
         
-        // Get position of anchor element
-        let x = $(anchorElement).position().left;
-        let y = $(anchorElement).position().top;
-        
         // Set dialog properties
         $(".invalidDialog > #d_message").html(message);
         dialog.css("width", "60%"); // Make sure it's before grabbing width
-        dialog.css("left", (x - dialog.width()) + "px");
-        dialog.css("top", (y - dialog.height() - 15) + "px");
+        
+        // Set position
+        let x = ($(window).width() / 2) - (dialog.width() / 2);
+        let y = $(window).height() / 2;
+        // If set, use the anchor element's position
+        if(anchorElement != null) {
+            // Subtract 15 to add some padding around popup
+            x = $(anchorElement).position().left - dialog.width();
+            y = $(anchorElement).position().top - dialog.height() - 15;
+        }
+        dialog.css("left", x + "px");
+        dialog.css("top", y + "px");
         dialog.fadeIn(1000);
         
         // Prevents previous timeouts from closing the new dialog
@@ -244,6 +277,44 @@ class Signup extends Page {
                 dialog.css("width", "0");
             });
         }, 5000);
+    }
+    
+    /**
+     * Handles and displays error message for signing up. It will default
+     * to opening a dialog with a vague error message.
+     * 
+     * @example handleSignupError($response["substatus"], $response["msg"]);
+     * 
+     * @param {Integer} substatus - number representing the error for signing up
+     * @param {String} msg - [default = ""] the response message from the server
+     */
+    handleSignupError(substatus, msg) {
+        
+        switch(substatus) {
+            case 2:
+                this.openInvalidMessage("The email format was invalid, please re-enter it and try again");
+                this.setupInvalidSymbol("#i_email", false, "Please enter a valid email");
+                break;
+            case 3:
+                this.openInvalidMessage("The entered email doesn't exist, please try again");
+                this.setupInvalidSymbol("#i_email", false, "Please enter a valid email");
+                break;
+            case 4:
+                this.openInvalidMessage("An account with that email already exists. Please login or reset your password");
+                this.setupInvalidSymbol("#i_email", false, "Please log in or enter a different email");
+                break;
+            case 5:
+                this.openInvalidMessage("The entered password was too weak, please add complexity");
+                this.setupInvalidSymbol("#i_password", false, "Please enter a strong password");
+                break;
+            default:
+                if((msg == undefined) || (msg.length > 0)) {
+                    msg = "(" + msg + ")";
+                }
+                this.openInvalidMessage("An unknown error occured, please try again later " + msg);
+                $("#button_signup").addClass("invalid");
+                break;
+        }
     }
     
     
