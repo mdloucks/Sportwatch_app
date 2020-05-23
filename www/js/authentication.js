@@ -67,8 +67,8 @@ class Authentication {
         return new Promise((resolve, reject) => {
             $.ajax({
                 type: "POST",
-                url: sw_urls.login,
-                timeout: ajax_config.timeout,
+                url: "https://www.sportwatch.us/mobile/login.php",
+                // timeout: ajax_config.timeout,
                 data: {
                     SID : SID
                 },
@@ -102,7 +102,7 @@ class Authentication {
      * @param {String} password The user's password
      * @param {String} account_type The user's account type ("coach or athlete")
      */
-    static signup(fname, lname, email, password, account_type) {
+    static signup(fname, email, password, account_type) {
         console.log("Signing up user...");
         return new Promise((resolve, reject) => {
             $.ajax({
@@ -111,7 +111,6 @@ class Authentication {
                 //timeout: ajax_config.timeout,
                 data: {
                     fname: fname,
-                    lname: lname,
                     email: email,
                     password: password,
                     account_type: account_type
@@ -119,19 +118,18 @@ class Authentication {
                 success: (response) => {
                     console.log(response);
                     let data = JSON.parse(response);
-
+                    
                     if(this.validateServerStatusCode(data)) {
                         this.setSID(data["SID"]);
                         resolve(data);
                     } else {
-                        ErrorHandler.handleServerStatusCodeError(data);
+                        // ErrorHandler.handleServerStatusCodeError(data);
                         reject(data);
                     }
-                    resolve(data);
                 },
                 error: (response) => {
                     let data = JSON.parse(response);
-                    ErrorHandler.handleAjaxError(data);
+                    // ErrorHandler.handleAjaxError(data);
                     reject(data);
                 }
             });

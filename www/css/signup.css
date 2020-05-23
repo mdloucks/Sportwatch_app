@@ -40,7 +40,11 @@
 #signupPage #button_signup {
     padding: 15px 35px;
     font-size: 2em;
+    background-color: red;
     transition: all 1s;
+}
+#signupPage #button_signup.pressed {
+    background-color: maroon;
 }
 #signupPage #button_signup.invalid {
     background-color: lightgray;

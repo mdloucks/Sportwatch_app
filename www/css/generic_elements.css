@@ -20,6 +20,7 @@ This is to limit the file size for our page specific styles
     background-color: red;
     color: white;
     -webkit-appearance: none;
+    outline: none;
 }
 
 .sw_text_input {
