@@ -9,12 +9,16 @@ class PageSet {
      * dedicated for this set. It's main job is to handle switching of pages.
      * These should only be used at the #app level, not for sub-transitions
      * 
+     * @example set = new PageSet("Welcome", this.swipeAgent, this);
+     * 
      * @param {String} name - name of this page set (used for error logged, etc.)
      * @param {SwipeHolder} swipeAgent - swipeHolder object defined in main
+     * @param {App} appCopy - a copy of main.js (App), used to maintain context of "this"
      */
-    constructor(name, swipeAgent) {
+    constructor(name, swipeAgent, appInstCopy) {
         this.name = name;
         this.swipeHandler = swipeAgent;
+        this.appCopy = appInstCopy;
         this.transitionObj = new PageTransition();
         
         this.pageArray = []; // Array of Page Instances
@@ -49,6 +53,18 @@ class PageSet {
     disable() {
         console.log("//////////////////////////////////////////////////////");
         console.log(`This is the default disable() function for Page Set ${this.name} OVERRIDE ME!`);
+        console.log(".....................................................");
+    }
+    
+    /**
+     * Acts as a way for the current page set to move to another. This function should
+     * be defined in the constructor to call a callback located in main.js (or the parent class)
+     * 
+     * @param {Integer} setId - the ID of the new set
+     */
+    onChangePageSet(setId) {
+        console.log("//////////////////////////////////////////////////////");
+        console.log(`This is the default onChangePageSet() function for Page Set ${this.name} OVERRIDE ME!`);
         console.log(".....................................................");
     }
     

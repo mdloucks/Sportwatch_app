@@ -1,13 +1,22 @@
 
 class WelcomeSet extends PageSet {
-
-    constructor(swipeAgent) {
-        super("WelcomeSet", swipeAgent);
+    
+    /**
+     * Contains the welcome pages and handles login / signup.
+     * 
+     * @param {SwipeHolder} swipeAgent - SwipeHolder object for handling user gestures
+     * @param {Function} changeCallback - callback used to chage states / Page Sets
+     * @param {App} appCopy - a copy of the App instance to allow for page changes
+     */
+    constructor(swipeAgent, changeCallback, appCopy) {
+        super("WelcomeSet", swipeAgent, appCopy);
+        this.onChangePageSet = function(newId) {
+            changeCallback(newId, this.appCopy);
+        };
         
         this.START_PAGE = 0; // Default page index to show
         
         // this.swipeHandler  (PageSet parent variable)
-        this.navbar = new Navbar();
     }
 
     // ---- OVERRIDE METHODS ---- //
@@ -53,7 +62,6 @@ class WelcomeSet extends PageSet {
      */
     transitionPage(pageName) {
 
-        this.navbar.focusButton("#" + pageName.toLowerCase());
         if (this.getPage(pageName).id > this.currentPageId) {
             this.transitionObj.slideLeft(pageName.toLowerCase() + "Page", 200);
         } else if (this.getPage(pageName).id < this.currentPageId) {

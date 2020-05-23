@@ -7,10 +7,9 @@ class App {
         this.activePageSet = 0; // 0=welcome, 1=main
         
         this.dbConnection;
-        // DEPRECATED: See PageSet
-        this.navbar = new Navbar();
-        this.mainPageSet = new PageTransition();
-        this.welcomePageSet = new PageTransition();
+        this.navbar = new Navbar(); // DEPRECATED: See MainSet
+        this.mainPageSet = new PageTransition(); // DEPRECATED: See PageSet
+        this.welcomePageSet = new PageTransition(); // DEPRECATED: See PageSet
         this.swipeHandler;
         
         // Page Sets
@@ -37,10 +36,10 @@ class App {
         $("#app").html(""); // Clear so it's a clean slate to add to
         
         // ---- PAGE SETS ---- //
-        this.mainSet = new MainSet(this.swipeHandler);
+        this.mainSet = new MainSet(this.swipeHandler, this.setActivePageSet, this);
         this.mainSet.constructPages();
         
-        this.welcomeSet = new WelcomeSet(this.swipeHandler);
+        this.welcomeSet = new WelcomeSet(this.swipeHandler, this.setActivePageSet, this);
         this.welcomeSet.constructPages();
         
         // And set the PageSet by checking Authentication
@@ -78,7 +77,7 @@ class App {
             console.log("[main.js:determinePageSet()] No SID data");
         }
         
-        this.setActivePageSet(1); // Default to main page, for now
+        this.setActivePageSet(0); // Default to main page, for now
     }
     
     /**
@@ -87,23 +86,25 @@ class App {
      * in or out as page sets change
      * 
      * @param {Integer} pageSetId page set id (0-1 inclusive)
+     * @param {App} _this [default = this] Used by PageSets to make sure
+     *                    the value of "this" is correctly set
      */
-    setActivePageSet(pageSetId) {
+    setActivePageSet(pageSetId, _this = this) {
         // First, disable all sets
-        this.mainSet.disable();
-        this.welcomeSet.disable();
+        _this.mainSet.disable();
+        _this.welcomeSet.disable();
         
         // Then enable the selected set
         if(pageSetId == 0) {        // Welcome
-            this.welcomeSet.activate();
-            this.activePageSet = 0;
+            _this.welcomeSet.activate();
+            _this.activePageSet = 0;
         } else if(pageSetId == 1) { // Main
-            this.mainSet.activate();
-            this.activePageSet = 1;
+            _this.mainSet.activate();
+            _this.activePageSet = 1;
         } else {
             console.log("[main.js:setActivePageSet()] Invalid page set Id: " + pageSetId);
-            this.welcomeSet.activate();
-            this.activePageSet = 0;
+            _this.welcomeSet.activate();
+            _this.activePageSet = 0;
         }
     }
     

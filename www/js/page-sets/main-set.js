@@ -1,8 +1,18 @@
 
 class MainSet extends PageSet {
     
-    constructor(swipeAgent) {
-        super("MainSet", swipeAgent);
+    /**
+     * Contains the main logic for the app, including the stopwatch and team pages.
+     * 
+     * @param {SwipeHolder} swipeAgent copy of SwipeHolder instance for gesture handling
+     * @param {Function} changeCallback the function used to change page sets, i.e. setActivePageSet()
+     * @param {App} appCopy copy of the App instance to perserve the value of "this"
+     */
+    constructor(swipeAgent, changeCallback, appCopy) {
+        super("MainSet", swipeAgent, appCopy);
+        this.onChangePageSet = function (newId) {
+            changeCallback(newId, this.appCopy);
+        };
         
         // this.swipeHandler  (PageSet parent variable)
         this.navbar = new Navbar();
