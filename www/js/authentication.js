@@ -17,8 +17,8 @@ class Authentication {
         return new Promise((resolve, reject) => {
             $.ajax({
                 type: "POST",
-                url: sw_urls.login,
-                timeout: 500,
+                url: Constant.URL.login,
+                timeout: Constant.AJAX_CFG.timeout,
                 data: {
                     email : email,
                     password : password
@@ -31,24 +31,22 @@ class Authentication {
                     try {
                         data = JSON.parse(response);
                     } catch(e) {
-                        console.log(`
-                            ${data}
-                        `);
-                        reject();
+                        console.log(`${response}`);
+                        reject(data);
                     }
 
                     if(this.validateServerStatusCode(data)) {
                         this.setSID(data["SID"]);     
                         resolve(data);
                     } else {
-                        ErrorHandler.handleServerStatusCodeError(data);
+                        // ErrorHandler.handleServerStatusCodeError(data);
                         reject(data);
                     }
                 },
                 error: (response, status) => {
                     console.log("login ajax error");
                     //let data = JSON.parse(response);
-                    ErrorHandler.handleAjaxError(response);
+                    // ErrorHandler.handleAjaxError(response);
                     reject(response);
                 }
             });
@@ -67,8 +65,8 @@ class Authentication {
         return new Promise((resolve, reject) => {
             $.ajax({
                 type: "POST",
-                url: "https://www.sportwatch.us/mobile/login.php",
-                // timeout: ajax_config.timeout,
+                url: Constant.URL.login,
+                timeout: Constant.AJAX_CFG.timeout,
                 data: {
                     SID : SID
                 },
@@ -78,7 +76,7 @@ class Authentication {
                     if(this.validateServerStatusCode(data)) {
                         resolve(data);
                     } else {
-                        ErrorHandler.handleServerStatusCodeError(data);
+                        // ErrorHandler.handleServerStatusCodeError(data);
                         reject(data);
                     }
                 },
@@ -103,12 +101,12 @@ class Authentication {
      * @param {String} account_type The user's account type ("coach or athlete")
      */
     static signup(fname, email, password, account_type) {
-        console.log("Signing up user...");
+        console.log("[authentication.js:signup()] Signing up user...");
         return new Promise((resolve, reject) => {
             $.ajax({
                 type: "POST",
-                url: "https://www.sportwatch.us/mobile/signup.php",
-                //timeout: ajax_config.timeout,
+                url: Constant.URL.signup,
+                timeout: Constant.AJAX_CFG.timeout,
                 data: {
                     fname: fname,
                     email: email,
