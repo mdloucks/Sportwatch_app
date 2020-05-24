@@ -9,21 +9,11 @@ class DatabaseConnection {
         console.log("Initializing database...");
         try {
             this.db = window.sqlitePlugin.openDatabase({ name: 'Sportwatch.db', location: 'default' });
-            console.log("Opened database:");
+            console.log("Opened database");
         } catch (err) {
             console.log("Sportwatch database failed to open.");
             throw err;
         }
-    }
-
-
-    testFunc() {
-        this.selectMultiple("SELECT * FROM athlete WHERE fname = ?", ["Seth"]).then((result) => {
-            console.log(result[0].grade);
-        });
-        this.selectSingle("SELECT fname FROM athlete WHERE lname = ?", ["Byrne"]).then((result) => {
-            console.log(result.item(0).fname);
-        });
     }
 
     /**
@@ -61,7 +51,7 @@ class DatabaseConnection {
             tx.executeSql("DROP TABLE IF EXISTS athlete_event");
             tx.executeSql("DROP TABLE IF EXISTS team");
 
-            tx.executeSql(`CREATE TABLE IF NOT EXISTS account (id_user, fname, lname, account_type, id_school, cellNum)`);
+            // tx.executeSql(`CREATE TABLE IF NOT EXISTS account (id_user, fname, lname, account_type, id_school, cellNum)`);
             tx.executeSql(`CREATE TABLE IF NOT EXISTS meet (meet_name, meet_time, meet_address)`);
             tx.executeSql(`CREATE TABLE IF NOT EXISTS athlete (fname, lname, grade, gender)`);
             tx.executeSql(`CREATE TABLE IF NOT EXISTS athlete_event (id_athlete, id_event, relay_team)`);

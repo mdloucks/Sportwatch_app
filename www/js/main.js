@@ -7,9 +7,6 @@ class App {
         this.activePageSet = 0; // 0=welcome, 1=main
 
         this.dbConnection;
-        this.navbar = new Navbar(); // DEPRECATED: See MainSet
-        this.mainPageSet = new PageTransition(); // DEPRECATED: See PageSet
-        this.welcomePageSet = new PageTransition(); // DEPRECATED: See PageSet
         this.swipeHandler;
 
         // Page Sets
@@ -44,14 +41,6 @@ class App {
 
         // And set the PageSet by checking Authentication
         this.determinePageSet();
-
-        // DEPRECATED:  See PageSet
-        // this.navbar.initNavbar(this.switchPage.bind(this));
-        // $(".navbar").css("display", "none"); // Hide until page set is found
-        // this.swipeHandler = new SwipeHolder("#app"); // Has to be after onReady
-        // this.constructPages();
-        // this.initializeFirstPage();
-
     }
 
     /**
@@ -107,133 +96,7 @@ class App {
             _this.activePageSet = 0;
         }
     }
-
-    /**
-     * @description This will set the first page. It must be called before switching to another may happen.
-     * @deprecated Use PageSet:activate() instead
-     */
-    initializeFirstPage() {
-        this.setCurrentPageID(0);
-        this.startCurrentPage();
-        this.defineSwipes(0);
-    }
-
-    /**
-     * @description This is called whenever the user switches to a new page and will receive
-     * the name of of it in the "page" argument.
-     * 
-     * @param {string} pageName 
-     * @deprecated Use PageSet:switchPage() instead
-     */
-    switchPage(pageName) {
-        this.transitionPage(pageName);
-        this.stopPreviousPage();
-        this.setCurrentPageID(this.getPage(pageName).id);
-        this.startCurrentPage();
-    }
-
-    /**
-     * @description Handle any transition display while moving from one page to another. 
-     * @param {String} pageName name of the page to transition to
-     * @deprecated Moved tomain-set.js
-     */
-    transitionPage(pageName) {
-
-        this.navbar.focusButton("#" + pageName.toLowerCase());
-        if (this.getPage(pageName).id > this.currentPageID) {
-            this.mainPageSet.slideLeft(pageName.toLowerCase() + "Page", 200);
-        } else if (this.getPage(pageName).id < this.currentPageID) {
-            this.mainPageSet.slideRight(pageName.toLowerCase() + "Page", 200);
-        } else {
-            console.log("[main.js:transitionPage()]: Tried to switch page! Page ID is already current!!");
-        }
-        this.defineSwipes(this.getPage(pageName).id);
-
-    }
-
-    /**
-     * @description create a new object for each page and populate the array.
-     * 
-     * @param {String} pageName The name of the page
-     * @deprecated Use PageSet.constructPages()
-     */
-    constructPages(pageName) {
-        this.pages = [Stopwatch, Stats, Team, Account].map((page, i) => new page(i));
-        this.pages.forEach((pageObj, pageIndex) => {
-            let shouldShow = false; // Should be page be visible at start? (only for first page)
-            if (pageIndex == 0) {
-                shouldShow = true;
-            }
-            this.mainPageSet.addPage((pageObj.name.toLowerCase() + "Page"), pageObj.getHtml(), shouldShow);
-        });
-    }
-
-
-    /**
-     * Defines the mainPageSet actions for this page (left, right, moving)
-     * 
-     * @example this.defineSwipes(this.getPage(nextPage).id); --> sets up handlers for new / next page
-     * 
-     * @param {Ingeger} pageIndex the numerical index corresponding to pages Map object
-     * @deprecated Defined in main-set.js
-     */
-    defineSwipes(pageIndex) {
-
-        // Going left (swiping right)
-        if (pageIndex > 0) {
-            this.swipeHandler.bindGestureCallback(this.swipeHandler.Gestures.SWIPERIGHT, () => {
-                this.switchPage(this.getPage(pageIndex - 1).name);
-            });
-        } else {
-            // Blank since 0 is left-most page
-            this.swipeHandler.bindGestureCallback(this.swipeHandler.Gestures.SWIPERIGHT, () => { });
-        }
-
-        // Going right (swiping left)
-        if (pageIndex < this.pages.length) {
-            this.swipeHandler.bindGestureCallback(this.swipeHandler.Gestures.SWIPELEFT, () => {
-                this.switchPage(this.getPage(pageIndex + 1).name);
-            });
-        } else {
-            this.swipeHandler.bindGestureCallback(this.swipeHandler.Gestures.SWIPELEFT, () => { });
-        }
-
-        // Moving (Left / Right)
-        // dx > 0 ==> Swiping right to left,   dx < 0 ==> Left to right
-        this.swipeHandler.bindGestureCallback(this.swipeHandler.Gestures.MOVE, (dx, dy) => {
-            if ((dx > 0) && (pageIndex < this.pages.length - 1)) {
-                this.mainPageSet.slidePageX(this.getPage(pageIndex + 1).name.toLowerCase() + "Page", true, Math.abs(dx));
-            } else if ((dx < 0) && (pageIndex > 0)) {
-                this.mainPageSet.slidePageX(this.getPage(pageIndex - 1).name.toLowerCase() + "Page", false, Math.abs(dx));
-            } else {
-                this.mainPageSet.slidePageX(this.getPage(pageIndex).name.toLowerCase() + "Page", true, 0);
-            }
-        });
-
-        // If the gesture was classified as a tap, snap it back / reset it
-        this.swipeHandler.bindGestureCallback(this.swipeHandler.Gestures.TAP, () => {
-            this.mainPageSet.slidePageX(this.getPage(pageIndex).name.toLowerCase() + "Page", true, 0);
-        });
-
-    }
-
-    /**
-     * @deprecated See welcome-set.js
-     */
-    constructWelcomePageSet() {
-
-        console.log("init welcome set");
-        this.welcomePages = [Welcome, Signup, Login].map((page, i) => new page(i, this.welcomePageSet));
-        this.welcomePages.forEach((pageObj, pageIndex) => {
-            let shouldShow = false; // Should be page be visible at start? (only for first page)
-            if (pageIndex == 0) {
-                shouldShow = true;
-            }
-            this.welcomePageSet.addPage((pageObj.name.toLowerCase() + "Page"), pageObj.getHtml(), shouldShow);
-        });
-
-    }
-
+    
     /**
      * Returns a page by passing in an integer id or string name
      * 
@@ -262,30 +125,7 @@ class App {
             throw new Error(`Incorrect datatype entered for getPage, expected integer or string, you entered ${typeof identifier}`);
         }
     }
-
-    /**
-     * @deprecated Moved to main-set.js
-     */
-    setCurrentPageID(id) {
-        this.currentPageID = id;
-    }
-
-    /**
-     * @description invoke the start() method on the current page
-     * @deprecated Moved to main-set.js
-     */
-    startCurrentPage() {
-        this.pages[this.currentPageID].start();
-    }
-
-    /**
-     * @description invoke the stop() method on the previous page, provided this is called before updating the pageID
-     * @deprecated Use main-set.js:deactivate() instead
-     */
-    stopPreviousPage() {
-        this.pages[this.currentPageID].stop();
-    }
-
+    
     onPause() {
         console.log("Device is paused");
     }
