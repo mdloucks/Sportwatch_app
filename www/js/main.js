@@ -5,13 +5,13 @@ class App {
         this.welcomePages = [];
         this.currentPageID = 0;
         this.activePageSet = 0; // 0=welcome, 1=main
-        
+
         this.dbConnection;
         this.navbar = new Navbar(); // DEPRECATED: See MainSet
         this.mainPageSet = new PageTransition(); // DEPRECATED: See PageSet
         this.welcomePageSet = new PageTransition(); // DEPRECATED: See PageSet
         this.swipeHandler;
-        
+
         // Page Sets
         this.mainSet;
         this.welcomeSet;
@@ -23,7 +23,7 @@ class App {
         document.addEventListener('pause', this.onPause.bind(this), false);
         document.addEventListener('resume', this.onResume.bind(this), false);
     }
-    
+
     onReady() {
         console.log("DEVICE READY");
         this.dbConnection = new DatabaseConnection();
@@ -31,55 +31,55 @@ class App {
         this.dbConnection.insertDummyValues();
         this.swipeHandler = new SwipeHolder("#app");
         FastClick.attach(document.body);
-        
+
         $(".loader").remove();
         $("#app").html(""); // Clear so it's a clean slate to add to
-        
+
         // ---- PAGE SETS ---- //
         this.mainSet = new MainSet(this.swipeHandler, this.setActivePageSet, this);
         this.mainSet.constructPages();
-        
+
         this.welcomeSet = new WelcomeSet(this.swipeHandler, this.setActivePageSet, this);
         this.welcomeSet.constructPages();
-        
+
         // And set the PageSet by checking Authentication
         this.determinePageSet();
-        
+
         // DEPRECATED:  See PageSet
         // this.navbar.initNavbar(this.switchPage.bind(this));
         // $(".navbar").css("display", "none"); // Hide until page set is found
         // this.swipeHandler = new SwipeHolder("#app"); // Has to be after onReady
         // this.constructPages();
         // this.initializeFirstPage();
-        
+
     }
-    
+
     /**
      * Attempts to log in the user based on SID. If invalid, it will
      * set the page set to the login / welcome pages
      */
     determinePageSet() {
-        
+
         // If session is present, attempt to log in
-        if(Authentication.hasSession()) {
-            let sid = Authentication.getSID();
-            // Authenticate and handle response (then = success)
-            Authentication.validateSID(sid).then((response) => {
-                console.log("[main.js:determinePageSet()] Valid log in data");
-                this.setActivePageSet(1); // Bring to main screen
-                return;
-                
-            }).catch((error) => {
-                console.log("[main.js:determinePageSet()] Invalid SID, logging out");
-            });
-            
-        } else {
-            console.log("[main.js:determinePageSet()] No SID data");
-        }
-        
-        this.setActivePageSet(0); // Default to main page, for now
+        // if(Authentication.hasSession()) {
+        //     let sid = Authentication.getSID();
+        //     // Authenticate and handle response (then = success)
+        //     Authentication.validateSID(sid).then((response) => {
+        //         console.log("[main.js:determinePageSet()] Valid log in data");
+        //         this.setActivePageSet(1); // Bring to main screen
+        //         return;
+
+        //     }).catch((error) => {
+        //         console.log("[main.js:determinePageSet()] Invalid SID, logging out");
+        //     });
+
+        // } else {
+        //     console.log("[main.js:determinePageSet()] No SID data");
+        // }
+
+        this.setActivePageSet(1); // Default to main page, for now
     }
-    
+
     /**
      * Sets the active page and calls all functions needed to prepare
      * for usability for the given set. Useful as a callback for logging
@@ -93,12 +93,12 @@ class App {
         // First, disable all sets
         _this.mainSet.disable();
         _this.welcomeSet.disable();
-        
+
         // Then enable the selected set
-        if(pageSetId == 0) {        // Welcome
+        if (pageSetId == 0) {        // Welcome
             _this.welcomeSet.activate();
             _this.activePageSet = 0;
-        } else if(pageSetId == 1) { // Main
+        } else if (pageSetId == 1) { // Main
             _this.mainSet.activate();
             _this.activePageSet = 1;
         } else {
@@ -107,7 +107,7 @@ class App {
             _this.activePageSet = 0;
         }
     }
-    
+
     /**
      * @description This will set the first page. It must be called before switching to another may happen.
      * @deprecated Use PageSet:activate() instead
@@ -167,8 +167,8 @@ class App {
             this.mainPageSet.addPage((pageObj.name.toLowerCase() + "Page"), pageObj.getHtml(), shouldShow);
         });
     }
-    
-    
+
+
     /**
      * Defines the mainPageSet actions for this page (left, right, moving)
      * 
@@ -209,19 +209,19 @@ class App {
                 this.mainPageSet.slidePageX(this.getPage(pageIndex).name.toLowerCase() + "Page", true, 0);
             }
         });
-        
+
         // If the gesture was classified as a tap, snap it back / reset it
         this.swipeHandler.bindGestureCallback(this.swipeHandler.Gestures.TAP, () => {
             this.mainPageSet.slidePageX(this.getPage(pageIndex).name.toLowerCase() + "Page", true, 0);
         });
 
     }
-    
+
     /**
      * @deprecated See welcome-set.js
      */
     constructWelcomePageSet() {
-        
+
         console.log("init welcome set");
         this.welcomePages = [Welcome, Signup, Login].map((page, i) => new page(i, this.welcomePageSet));
         this.welcomePages.forEach((pageObj, pageIndex) => {
@@ -231,9 +231,9 @@ class App {
             }
             this.welcomePageSet.addPage((pageObj.name.toLowerCase() + "Page"), pageObj.getHtml(), shouldShow);
         });
-        
+
     }
-    
+
     /**
      * Returns a page by passing in an integer id or string name
      * 
@@ -262,7 +262,7 @@ class App {
             throw new Error(`Incorrect datatype entered for getPage, expected integer or string, you entered ${typeof identifier}`);
         }
     }
-    
+
     /**
      * @deprecated Moved to main-set.js
      */
