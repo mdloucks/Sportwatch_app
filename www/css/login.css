@@ -1,24 +1,68 @@
 
+/**********************
+        GENERAL
+***********************/
 
-#app {
-    text-align: center;
+#loginPage h1 {
+    font-size: 3em;
+    margin-bottom: 3vh;
 }
 
-h1 {
-    font-size: 4em;
-}
-
-p {
+#loginPage p {
     font-size: 1.8em;
 }
 
-/* Form Stlying */
-
-form {
-    display: inline-block;
-    width: 100%;
-}
-
-#login_button {
+#loginPage .backButton {
     padding: 10px 20px;
+    font-size: 1.5em;
+    border-radius: 5px;
+    background-color: gray;
+    -webkit-appearance: none;
 }
+
+
+/**********************
+          FORM
+***********************/
+
+#loginPage label {
+    margin-top: 2%;
+    font-size: 2em;
+}
+
+#loginPage .sw_text_input {
+    margin-bottom: 3vh;
+}
+
+#loginPage #login_button {
+    padding: 15px 35px;
+    font-size: 2em;
+    background-color: red;
+    transition: all 1s;
+}
+#loginPage #login_button.pressed {
+    background-color: maroon;
+}
+#loginPage #login_button.invalid {
+    background-color: lightgray;
+    color: black;
+}
+
+
+/**********************
+    INVALID SYMBOL
+***********************/
+
+#loginPage .invalidDialog {
+    padding: 5px;
+    width: 0; /* Default, sets to 60% in code */
+    height: auto;
+    position: absolute;
+    left: 0;
+    top: 0;
+    text-align: cetner;
+    background-color: white;
+    border: 2px solid #8D2618;
+    border-radius: 5px;
+}
+

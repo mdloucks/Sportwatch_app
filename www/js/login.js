@@ -11,58 +11,195 @@ class Login extends Page {
         super(id, "Login");
         
         this.pageController = pageSetObj;
+        
+        // Misc variables
+        this.dialogInterval = 0;
     }
     
     getHtml() {
         return (`
             <div id="loginPage" class="div_page">
-                <br><br>
-                <h1>Sportwatch</h1>
                 <br>
-                <span class="back_arrow">&#8592</span>
-                <p>Enter your login information</p>
+                <h1>Sportwatch</h1>
                 <form>
-                    <!-- <label for="email">Email</label> -->
-                    <input class='sw_text_input' type='email' name='email' placeholder='Email'><br>
-                    <!-- <label for="password">Password</label> -->
-                    <input class='sw_text_input' type='password' name='password' placeholder='Password'><br>
-                    <input id='login_button' class='sw_big_button' type='submit' value='Login'>
+                    <label id="label_email" for="email">Email</label><br>
+                    <input class="sw_text_input" type="email" name="email" placeholder="you@website.com">
+                    <br>
+                    <label id="label_password" for="password">Password</label><br>
+                    <input class="sw_text_input" type="password" name="password" placeholder="●●●●●●●●">
+                    <br>
+                    
+                    <input id="login_button" class="sw_big_button invalid" type="submit" value="Log In">
                 </form>
+                <br><br>
+                <button id="returnWelcome" class="backButton">Back</button>
+                
+                <!-- Invalid dialog here (hidden by default) -->
+                <div class="invalidDialog" style="display: none;">
+                    <p id="d_message"></p>
+                </div>
             </div>
         `);
     }
     
     start() {
         
-        $("#loginPage > .back_arrow").bind("touchend", (e) => {
+        // Back Button
+        this.getPageElement("#returnWelcome").bind("touchend", (e) => {
             e.preventDefault();
             this.pageController.switchPage("Welcome");
         });
-        
-        // this is just for testing
-        $("input[name=email]").val("bromansalaam@gmail.com");
-        $("input[name=password]").val("testing123");
-        
-        $("#loginPage > form").on("submit", function (e) {
-            e.preventDefault();
 
-            let email = $("input[name=email]").val();
-            let password = $("input[name=password]").val();
-
-            Authentication.login(email, password).then((response) => {
-                console.log("Success!");
-                // TODO: Switch to main page set
-            }).catch((response) => {
-                console.log("Login fail");
-                // TODO: Show error
+        // When clicking on input, focus it
+        this.getPageElement("input").bind("touchend", (e) => {
+            $(e.target).focus();
+        })
+        
+        // Input Handling
+        this.getPageElement("input").on("input", (e) => {
+            
+            // Check to make sure the fields are filled in
+            this.getPageElement("#login_button").removeClass("invalid");
+            
+            // Loop through inputs to check length
+            this.getPageElement("input").each((index) => {
+                let inputEl = this.getPageElement("input").get(index); // Returns JS object, use $(...)
+                if(($(inputEl).val().length < 3) && (!this.getPageElement("#login_button").hasClass("invalid"))) {
+                    this.getPageElement("#login_button").addClass("invalid");
+                }
             });
         });
+        
+        // Animate the button to simulate a "press"
+        this.getPageElement("#login_button").bind("touchstart", (e) => {
+            this.getPageElement("#login_button").addClass("pressed");
+        });
+        this.getPageElement("#login_button").bind("touchend", (e) => {
+            this.getPageElement("#login_button").removeClass("pressed");
+        });
+        
+        // this is just for testing TOOD: Remove
+        this.getPageElement("input[name=email]").val("bromansalaam@gmail.com");
+        this.getPageElement("input[name=password]").val("Testing123");
+        this.getPageElement("#login_button").removeClass("invalid");
+        
+        this.getPageElement("form").on("submit", function (e) {
+            e.preventDefault();
+            
+            if (this.getPageElement("#login_button").hasClass("invalid")) {
+                return; // Exit the handler, not valid
+            }
+            
+            let email = this.getPageElement("input[name=email]").val();
+            let password = this.getPageElement("input[name=password]").val();
+
+            Authentication.login(email, password).then(function(response) {
+                this.pageController.onChangePageSet(1); // 1 for Main logic
+            }.bind(this),
+            function(error) {
+                console.log("[login.js:start()] Login fail");
+                console.log(error);
+                this.handleLoginError(error.substatus, error.msg);
+            }.bind(this));
+        }.bind(this)); // Binding this is CRITICAL for changing state, etc.
+        
     };
     
     stop() {
+        $("#loginPage").unbind();
+        $("#loginPage *").unbind();
+    }
+    
+    // ---- CUSTOM FUNCTIONS ---- //
+    
+    /**
+     * Opens a warning dialog when an input is invalid
+     * 
+     * @example openInvalidMessage("No spaces allowed in password", "#i_password");
+     *          --> Displays above password input field
+     * 
+     * @param {String} message - what the dialog will say
+     * @param {String} anchorElement - [default = null] id of the anchor element (should be the invalidSymbol)
+     *                                  if left null, it will center the dialog
+     */
+    openMessageDialog(message, anchorElement = null) {
+
+        let dialog = this.getPageElement(".invalidDialog");
+        // This prevents showing the dialog if it's not ready / transitioning
+        if ((dialog.css("opacity") != "0") && (dialog.css("opacity") != "1")) {
+            return;
+        }
+
+        // Set dialog properties
+        this.getPageElement(".invalidDialog > #d_message").html(message);
+        dialog.css("width", "60%"); // Make sure it's before grabbing width
+
+        // Set position
+        let x = ($(window).width() / 2) - (dialog.width() / 2);
+        let y = $(window).height() / 2;
+        // If set, use the anchor element's position
+        if (anchorElement != null) {
+            
+            // Convert to jQuery object if it's a selector
+            if (typeof anchorElement == "string") {
+                anchorElement = this.getPageElement(anchorElement);
+            }
+            
+            // Subtract 15 to add some padding around popup
+            x = this.getPageElement(anchorElement).position().left - dialog.width();
+            y = this.getPageElement(anchorElement).position().top - dialog.height() - 15;
+        }
+        dialog.css("left", x + "px");
+        dialog.css("top", y + "px");
+        dialog.fadeIn(1000);
+
+        // Prevents previous timeouts from closing the new dialog
+        if (this.dialogInterval != 0) {
+            clearInterval(this.dialogInterval);
+        }
+
+        // And disappear in a few seconds
+        this.dialogInterval = setTimeout(() => {
+            dialog.fadeOut(1000, () => {
+                dialog.css("width", "0");
+            });
+        }, 5000);
+    }
+
+    /**
+     * Handles and displays error message for signing up. It will default
+     * to opening a dialog with a vague error message.
+     * 
+     * @example handleSignupError(response.substatus, $response.msg);
+     * 
+     * @param {Integer} substatus - number representing the error for signing up
+     * @param {String} msg - [default = ""] the response message from the server
+     */
+    handleLoginError(substatus, msg) {
         
-        $("#loginPage > .back_arrow").unbind();
-        
+        switch (substatus) {
+            case 1:
+                this.openMessageDialog("Invalid credentials, please try again");
+                this.getPageElement("#button_signup").addClass("invalid");
+                break;
+            default:
+                if ((msg == undefined) || (msg.length > 0)) {
+                    msg = "(" + msg + ")";
+                }
+                this.openMessageDialog("An unknown error occured, please try again later " + msg);
+                this.getPageElement("#button_signup").addClass("invalid");
+                break;
+        }
+    }
+    
+    /**
+     * Used to get only the elements contained within this page by prepending
+     * #loginPage to every selector
+     * 
+     * @param {String} selector jQuery selection criteria
+     */
+    getPageElement(selector) {
+        return $("#loginPage " + selector);
     }
 
 }
