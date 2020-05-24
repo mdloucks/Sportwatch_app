@@ -12,7 +12,7 @@
     font-size: 1.8em;
 }
 
-.backButton {
+#signupPage .backButton {
     padding: 10px 20px;
     font-size: 1.5em;
     border-radius: 5px;
@@ -55,14 +55,14 @@
     INVALID SYMBOL
 ***********************/
 
-.invalidSym {
+#signupPage .invalidSym {
     margin: 5px 5px 2vh 5px;
     width: 40px;
     position: absolute; /* Prevents pushing of input fields */
     vertical-align: middle;
 }
 
-.invalidDialog {
+#signupPage .invalidDialog {
     padding: 5px;
     width: 0; /* Default, sets to 60% in code */
     height: auto;

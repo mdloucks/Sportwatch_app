@@ -29,7 +29,7 @@ class Signup extends Page {
                     <img id="i_fname" class="invalidSym" src="img/invalidSymbol.png">
                     <br>
                     <label id="label_email" for="email">Email</label><br>
-                    <input class="sw_text_input" type="email" name="email" placeholder="yourname@website.com">
+                    <input class="sw_text_input" type="email" name="email" placeholder="you@website.com">
                     <img id="i_email" class="invalidSym" src="img/invalidSymbol.png">
                     <br>
                     <label id="label_password" for="password">Password</label><br>
@@ -57,20 +57,20 @@ class Signup extends Page {
     
     start() {
         // Back Button
-        $("#signupPage > #returnWelcome").bind("touchend", (e) => {
+        this.getPageElement("#returnWelcome").bind("touchend", (e) => {
             e.preventDefault();
             this.pageController.switchPage("Welcome");
         });
         
         // When clicking on input, focus it
-        $("input").bind("touchend", (e) => {
+        this.getPageElement("input").bind("touchend", (e) => {
             $(e.target).focus();
         })
         
         // INPUT HANDLING
         // Name
-        $("input[name=fname]").on("input", () => {
-            let input = $("input[name=fname]").val();
+        this.getPageElement("input[name=fname").on("input", () => {
+            let input = this.getPageElement("input[name=fname]").val();
 
             if (input.replace(/[A-Za-z.]/gm, "") != "") {
                 this.setupInvalidSymbol("#i_fname", false, "Please only use letters in your name.");
@@ -83,13 +83,13 @@ class Signup extends Page {
             }
         });
         // Add starting dialog when clicked (if empty)
-        $("#i_fname.invalidSym").bind("touchend", (e) => {
+        this.getPageElement("#i_fname.invalidSym").bind("touchend", (e) => {
             this.openInvalidMessage("Please enter your name", "#i_fname");
         });
         
         // Email
-        $("input[name=email]").on("input", () => {
-            let input = $("input[name=email]").val();
+        this.getPageElement("input[name=email]").on("input", () => {
+            let input = this.getPageElement("input[name=email]").val();
             
             let testMatch = input.match(/[A-Za-z0-9\-_.]*@[A-Za-z0-9\-_.]*\.(com|net|org|us|website|io)/gm);
             if(testMatch == null) {
@@ -103,13 +103,13 @@ class Signup extends Page {
                 this.setupInvalidSymbol("#i_email", true, "Looks good!");
             }
         });
-        $("#i_email.invalidSym").bind("touchend", (e) => {
+        this.getPageElement("#i_email.invalidSym").bind("touchend", (e) => {
             this.openInvalidMessage("Please enter your email", "#i_email");
         });
         
         // Password
-        $("input[name=password]").on("input", () => {
-            let input = $("input[name=password]").val();
+        this.getPageElement("input[name=password]").on("input", () => {
+            let input = this.getPageElement("input[name=password]").val();
             
             if ((input.match(/[`"';<>{} ]/gm) != null) || (input.length < 10) || (input.length > 250)) {
                 this.setupInvalidSymbol("#i_password", false, 
@@ -120,42 +120,38 @@ class Signup extends Page {
                 this.setupInvalidSymbol("#i_password", true, "Great choice!");
             }
         });
-        $("#i_password.invalidSym").bind("touchend", (e) => {
+        this.getPageElement("#i_password.invalidSym").bind("touchend", (e) => {
             this.openInvalidMessage("Please create a <b>unique</b> password", "#i_password");
         });
         
         // REST OF FORM
         // "Radio button" logic for account types
-        $(".account_type_button").bind("touchend", (e) => {
+        this.getPageElement(".account_type_button").bind("touchend", (e) => {
             // Remove .selected from both buttons
-            $(".account_type_button").removeClass("selected");
+            this.getPageElement(".account_type_button").removeClass("selected");
             $(e.target).addClass("selected");
-            console.log("Function this: ");
-            console.log(this);
-            console.log("")
-            this.pageController.onChangePageSet(1);
         });
         
         // Animate the button to simulate a "press"
-        $("#button_signup").bind("touchstart", (e) => {
-            $("#button_signup").addClass("pressed");
+        this.getPageElement("#button_signup").bind("touchstart", (e) => {
+            this.getPageElement("#button_signup").addClass("pressed");
         });
-        $("#button_signup").bind("touchend", (e) => {
-            $("#button_signup").removeClass("pressed");
+        this.getPageElement("#button_signup").bind("touchend", (e) => {
+            this.getPageElement("#button_signup").removeClass("pressed");
         });
         
-        $("#signupPage > form").on("submit", function(e) {
+        this.getPageElement("form").on("submit", function(e) {
             e.preventDefault();
             
-            if ($("#button_signup").hasClass("invalid")) {
+            if (this.getPageElement("#button_signup").hasClass("invalid")) {
                 return; // Exit the handler, not valid
             }
             
             // Validate inputs (one last safety check)
-            let firstName = $("input[name=fname").val();
-            let email = $("input[name=email]").val();
-            let password = $("input[name=password]").val();
-            let account_type = $(".account_type_button.selected").text().toLowerCase();
+            let firstName = this.getPageElement("input[name=fname]").val();
+            let email = this.getPageElement("input[name=email]").val();
+            let password = this.getPageElement("input[name=password]").val();
+            let account_type = this.getPageElement(".account_type_button.selected").text().toLowerCase();
             
             if(firstName.length < 3) {
                 this.setupInvalidSymbol("#i_fname", false, "Please enter your full first name");
@@ -204,29 +200,29 @@ class Signup extends Page {
     setupInvalidSymbol(symbolId, isValid, errMessage) {
         
         // Prevents double binding
-        $(symbolId + ".invalidSym").unbind();
+        this.getPageElement(symbolId + ".invalidSym").unbind();
         if(isValid) {
-            $(symbolId + ".invalidSym").prop("src", "img/validSymbol.png");
+            this.getPageElement(symbolId + ".invalidSym").prop("src", "img/validSymbol.png");
             clearInterval(this.dialogInterval);
-            $(".invalidDialog").fadeOut(1000, () => {
-                $(".invalidDialog").css("width", "0"); // Will block clicks otherwise
+            this.getPageElement(".invalidDialog").fadeOut(1000, () => {
+                this.getPageElement(".invalidDialog").css("width", "0"); // Will block clicks otherwise
             })
             
         } else {
-            $(symbolId + ".invalidSym").prop("src", "img/invalidSymbol.png");
+            this.getPageElement(symbolId + ".invalidSym").prop("src", "img/invalidSymbol.png");
             // Show dialog and set up click event
             this.openInvalidMessage(errMessage, symbolId);
-            $(symbolId + ".invalidSym").bind("touchend", (e) => {
+            this.getPageElement(symbolId + ".invalidSym").bind("touchend", (e) => {
                 this.openInvalidMessage(errMessage, e.target);
             });
         }
         
         // Update submit button class / click ability
-        $("#button_signup").removeClass("invalid"); // Remove here to prevent adding multiple invalid classes
-        $(".invalidSym").each((index) => {
-            let symbol = $(".invalidSym").get(index); // Returns JS object, use $(...)
-            if (($(symbol).prop("src").includes("invalid")) && (!$("#button_signup").hasClass("invalid"))) {
-                $("#button_signup").addClass("invalid");
+        this.getPageElement("#button_signup").removeClass("invalid"); // Remove here to prevent adding multiple invalid classes
+        this.getPageElement(".invalidSym").each((index) => {
+            let symbol = this.getPageElement(".invalidSym").get(index); // Returns JS object, use $(...)
+            if (($(symbol).prop("src").includes("invalid")) && (!this.getPageElement("#button_signup").hasClass("invalid"))) {
+                this.getPageElement("#button_signup").addClass("invalid");
             }
         });
     }
@@ -243,14 +239,14 @@ class Signup extends Page {
      */
     openInvalidMessage(message, anchorElement = null) {
         
-        let dialog = $(".invalidDialog");
+        let dialog = this.getPageElement(".invalidDialog");
         // This prevents showing the dialog if it's not ready / transitioning
         if((dialog.css("opacity") != "0") && (dialog.css("opacity") != "1")) {
             return;
         }
         
         // Set dialog properties
-        $(".invalidDialog > #d_message").html(message);
+        this.getPageElement(".invalidDialog > #d_message").html(message);
         dialog.css("width", "60%"); // Make sure it's before grabbing width
         
         // Set position
@@ -258,6 +254,12 @@ class Signup extends Page {
         let y = $(window).height() / 2;
         // If set, use the anchor element's position
         if(anchorElement != null) {
+            
+            // Convert to jQuery object if it's a selector
+            if(typeof anchorElement == "string") {
+                anchorElement = this.getPageElement(anchorElement);
+            }
+            
             // Subtract 15 to add some padding around popup
             x = $(anchorElement).position().left - dialog.width();
             y = $(anchorElement).position().top - dialog.height() - 15;
@@ -283,7 +285,7 @@ class Signup extends Page {
      * Handles and displays error message for signing up. It will default
      * to opening a dialog with a vague error message.
      * 
-     * @example handleSignupError($response["substatus"], $response["msg"]);
+     * @example handleSignupError(response.substatus, response.msg);
      * 
      * @param {Integer} substatus - number representing the error for signing up
      * @param {String} msg - [default = ""] the response message from the server
@@ -312,10 +314,19 @@ class Signup extends Page {
                     msg = "(" + msg + ")";
                 }
                 this.openInvalidMessage("An unknown error occured, please try again later " + msg);
-                $("#button_signup").addClass("invalid");
+                this.getPageElement("#button_signup");
                 break;
         }
     }
     
+    /**
+     * Used to get only the elements contained within this page by prepending
+     * #signupPage to every selector
+     * 
+     * @param {String} selector jQuery selection criteria
+     */
+    getPageElement(selector) {
+        return $("#signupPage " + selector);
+    }
     
 }
