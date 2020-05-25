@@ -7,12 +7,12 @@ class Team extends Page {
     constructor(id) {
         super(id, "Team");
         this.hasStarted = false;
-        
+
         this.dbConnection = new DatabaseConnection();
         this.pageTransition = new PageTransition("#teamPage");
-        
+
         // --- PAGES ---- //
-        
+
         this.landingPage = (`
             <div id="landingPage" class="div_page">
                 <br><br>
@@ -21,7 +21,7 @@ class Team extends Page {
                 <div class="button_box"></div>
             </div>
         `);
-        
+
         this.athletePage = (`
             <div id="athletePage" class="div_page">
                 <div id="athlete_header">
@@ -34,12 +34,12 @@ class Team extends Page {
                 <div>Stats....</div>
             </div>
         `);
-        
+
     }
 
     getHtml() {
         let storage = window.localStorage;
-        
+
         return (`
             <div id="teamPage" class="div_page">
                 ${this.landingPage}
@@ -47,17 +47,17 @@ class Team extends Page {
             </div>
         `);
     }
-    
+
     start() {
-        
+
         // Only link them to pageTransition once
-        if(this.pageTransition.getPageCount() == 0) {
+        if (this.pageTransition.getPageCount() == 0) {
             this.pageTransition.addPage("landingPage", this.landingPage, true);
             this.pageTransition.addPage("athletePage", this.athletePage);
         }
-        
+
         let storage = window.localStorage;
-        
+
         if (!this.hasStarted && this.doesTeamExist()) {
             $("#landingPage").find("#teamName").text(storage.getItem("teamName"));
             this.generateAthleteList();
@@ -71,6 +71,9 @@ class Team extends Page {
     generateAthleteList() {
 
         this.dbConnection.selectSingle("SELECT *, ROWID FROM athlete", []).then((athletes) => {
+            // ValueEditor.editValues("#landingPage", athletes.item(0), function (newValues) {
+            //     console.log("hey " + JSON.stringify(newValues));
+            // });
             ButtonGenerator.generateButtonsFromDatabase("#landingPage > .button_box", athletes, (athlete) => {
                 this.startAthletePage(athlete);
             });
@@ -78,14 +81,14 @@ class Team extends Page {
     }
 
     startAthletePage(athlete) {
-        
+
         // Set athlete data before sliding
         $("#athletePage").find("#athleteName").html(`${athlete.fname} ${athlete.lname}`);
         $("#athletePage > #athlete_info").html(`${athlete.grade}th grade ${athlete.gender == 'm' ? "male" : "female"}`);
-        
+
         // After populated, slide
         this.pageTransition.slideLeft("athletePage");
-        
+
         // Slide back; athlete page will be overwritten next select
         $("#back_button").bind("touchend", (e) => {
             this.pageTransition.slideRight("landingPage");
