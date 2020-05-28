@@ -24,14 +24,27 @@ class Team extends Page {
 
         this.athletePage = (`
             <div id="athletePage" class="div_page">
-                <div id="athlete_header">
-                    <div id="back_button">&#8592;</div>
+                <div id="athlete_header" class="generic_header">
+                    <div id="back_button_athlete" class="back_button">&#8592;</div>
                     <h1 id="athleteName"></h1>
                     <img src="img/logo.png" alt=""></img>
                 </div>
         
                 <h2 id="athlete_info"></h2>
-                <div>Stats....</div>
+                <h2 id="athlete_edit">Stats &#9999;</h2>
+                <div id="athlete_stats"></div>
+            </div>
+        `);
+
+        this.editAthletePage = (`
+            <div id="editAthletePage" class="div_page">
+                <div class="generic_header">
+                    <div id="back_button_edit" class="back_button">&#8592;</div>
+                    <h1 id="athleteName"></h1>
+                </div>
+
+                <div id="athlete_edit_inputs">
+                </div>
             </div>
         `);
 
@@ -44,6 +57,7 @@ class Team extends Page {
             <div id="teamPage" class="div_page">
                 ${this.landingPage}
                 ${this.athletePage}
+                ${this.editAthletePage}
             </div>
         `);
     }
@@ -54,6 +68,7 @@ class Team extends Page {
         if (this.pageTransition.getPageCount() == 0) {
             this.pageTransition.addPage("landingPage", this.landingPage, true);
             this.pageTransition.addPage("athletePage", this.athletePage);
+            this.pageTransition.addPage("editAthletePage", this.editAthletePage);
         }
 
         let storage = window.localStorage;
@@ -61,6 +76,7 @@ class Team extends Page {
         if (!this.hasStarted && this.doesTeamExist()) {
             $("#landingPage").find("#teamName").text(storage.getItem("teamName"));
             this.generateAthleteList();
+
             this.hasStarted = true;
             // TODO: have the user create a team.
         } else {
@@ -80,6 +96,28 @@ class Team extends Page {
         });
     }
 
+    startEditAthletePage(athlete) {
+
+        $("#teamPage #editAthletePage #athlete_edit_inputs").empty();
+        $("#teamPage #editAthletePage #athleteName").html(`Editing ${athlete.fname} ${athlete.lname}`);
+
+        $("#editAthletePage p:contains('fname')").html("First Name");
+        $("#editAthletePage p:contains('lname')").html("Last Name");
+
+
+        $("#teamPage #back_button_edit").bind("touchend", (e) => {
+            this.pageTransition.slideRight("athletePage");
+        });
+
+        let blackList = ["class", "id", "html"];
+        let rename = { "fname": "First Name", "lname": "Last Name", "grade": "Grade", "gender": "Gender" };
+
+        ValueEditor.editValues("#teamPage #editAthletePage #athlete_edit_inputs", athlete, blackList, rename, (newValues) => {
+            // TODO: SAVE NEW CHANGES!
+            this.pageTransition.slideRight("athletePage");
+        });
+    }
+
     startAthletePage(athlete) {
 
         // Set athlete data before sliding
@@ -89,8 +127,15 @@ class Team extends Page {
         // After populated, slide
         this.pageTransition.slideLeft("athletePage");
 
+        $("#teamPage #athlete_edit").unbind("touchend");
+
+        $("#teamPage #athlete_edit").bind("touchend", (e) => {
+            this.pageTransition.slideLeft("editAthletePage");
+            this.startEditAthletePage(athlete);
+        });
+
         // Slide back; athlete page will be overwritten next select
-        $("#back_button").bind("touchend", (e) => {
+        $("#back_button_athlete").bind("touchend", (e) => {
             this.pageTransition.slideRight("landingPage");
         });
     }
