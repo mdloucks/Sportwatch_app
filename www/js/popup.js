@@ -1,44 +1,61 @@
 
-
 /**
- * Will display a confirmation popup for the user
- * 
- * will take an array of button names and callbacks for each button
- * 
- * @param {String} tooltip Flavor text at the top of the popup
- * @param {Array} buttons Array containing text of buttons
- * @param {Array} callbacks Array containing callback functions for each respective button
+ * @class
+ * @classdesc this class will be used to create popups and confirmation dialogues, perhaps tutorials 
  */
-function createConfirmationPopup(tooltip, buttons, callbacks, options) {
+class Popup {
 
-    let buttons_html = "";
+    /**
+     * This function is used as a wrapper in order to clean up the popup once the user makes a choice. 
+     * @param {String} element id, class, etc of the popup element
+     * @param {function} callback the callback function to call when the button is clicked
+     */
+    static callbackCleanupWrapper(element, callback) {
+        callback();
+        $(".popup").fadeOut(300, function () { $(this).remove(); });
+        $(element).unbind("touchend");
+    }
 
-    for (let i = 0; i < buttons.length; i++) {
-        buttons_html += `<button class="popup_button" id="popup_button_${i}">${buttons[i]}</button><br><br>`;
+    /**
+     * Will display a confirmation popup for the user
+     * 
+     * will take an array of button names and callbacks for each button
+     * 
+     * @param {String} tooltip Flavor text at the top of the popup
+     * @param {Array} buttons Array containing text of buttons
+     * @param {Array} callbacks Array containing callback functions for each respective button
+     */
+    static createConfirmationPopup(tooltip, buttons, callbacks, options) {
 
-        $(document).on("click", `#popup_button_${i}`, function (e) {
+        if (buttons.length != callbacks.length) {
+            throw new Error(`OutOfBounds exception, improper length. buttons: ${buttons.length} callbacks: ${callbacks.length}`);
+        }
+
+        $("#app").append(`
+            <div class="popup">
+    
+                <div class="popup_content">
+                    <span class="close">&times;</span>
+                    <p class="popup_tooltip">${tooltip}</p><br>
+                </div>
+            </div>
+        `);
+
+        for (let i = 0; i < buttons.length; i++) {
+
+            let button = ButtonGenerator.generateButton({ id: `popup_button_${i}`, class: "popup_button", html: buttons[i] }, function () {
+                Popup.callbackCleanupWrapper(`#popup_button_${i}`, callbacks[i]);
+            });
+
+            $(".popup_content").append(button);
+        }
+
+        $(".popup:first").css("display", "block");
+
+        $(document).on("touchend", `.close:first`, function (e) {
             e.preventDefault();
-            callbacks[i](); 
+            $(".close").unbind();
+            $(".popup").fadeOut(300, function () { $(this).remove(); });
         });
     }
-    
-    $("#app").append(`
-        <div class="popup">
-
-            <!-- Modal content -->
-            <div class="popup-content">
-                <span class="close">&times;</span>
-                <p class="popup_tooltip">${tooltip}</p><br>
-                ${buttons_html}
-            </div>
-        </div>
-    `);
-
-    $(".popup:first").css("display", "block");
-
-    $(document).on("click", `.close:first`, function (e) {
-        console.log("close");
-        e.preventDefault();
-        $(".popup:first").fadeOut();
-    });
 }

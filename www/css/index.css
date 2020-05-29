@@ -91,6 +91,47 @@ https://css-tricks.com/places-its-tempting-to-use-display-none-but-dont/ */
   border: 0;
 }
 
+/* Commonly used sportwatch styles */
+.generic_header {
+  border-bottom: solid #000 5px;
+  vertical-align: middle;
+  text-align: center;
+  width: 100%;
+}
+
+.generic_header * {
+  font-size: 3em;
+  display: inline-block;
+}
+
+.back_button {
+  position: absolute;
+  left: 10%;
+  font-size: 4em;
+  font-weight: bold;
+}
+
+/* CSS FOR GENERATED BUTTON BOX */
+.button_box {
+  width: 100%;
+  text-align: center;
+  display: block;
+  margin: auto;
+}
+
+/* CSS FOR GENERATED BUTTONS */
+.generated_button {
+  background-color: rgb(245, 77, 77);
+  text-align: center;
+  border: 1px solid red;
+  color: white;
+  padding: 10px 24px;
+  width: 75%;
+  margin-left: 12.5%;
+  margin-top: 1em;
+  display: block;
+}
+
 /* ---- MISC ---- */
 
 @keyframes spin {

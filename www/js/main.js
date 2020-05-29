@@ -44,14 +44,6 @@ class App {
 
         // And set the PageSet by checking Authentication
         this.determinePageSet();
-
-        // DEPRECATED:  See PageSet
-        // this.navbar.initNavbar(this.switchPage.bind(this));
-        // $(".navbar").css("display", "none"); // Hide until page set is found
-        // this.swipeHandler = new SwipeHolder("#app"); // Has to be after onReady
-        // this.constructPages();
-        // this.initializeFirstPage();
-
     }
 
     /**
