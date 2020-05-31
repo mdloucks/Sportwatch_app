@@ -21,7 +21,7 @@ class MainSet extends PageSet {
     // ---- OVERRIDE METHODS ---- //
     
     constructPages() {
-        this.pageArray = [Stopwatch, Stats, Team, Account].map((page, i) => new page(i));
+        this.pageArray = [Stopwatch, Stats, Team, Account].map((page, i) => new page(i, this));
         this.pageArray.forEach((pageObj, pageIndex) => {
             let shouldShow = false; // Should be page be visible at start? (only for first page)
             if (pageIndex == 0) {
@@ -98,7 +98,7 @@ class MainSet extends PageSet {
         }
 
         // Going right (swiping left)
-        if (pageIndex < this.pageArray.length) {
+        if (pageIndex < this.pageArray.length - 1) {
             this.swipeHandler.bindGestureCallback(this.swipeHandler.Gestures.SWIPELEFT, () => {
                 this.switchPage(this.getPage(pageIndex + 1).name);
             });
@@ -118,11 +118,17 @@ class MainSet extends PageSet {
             }
         });
 
-        // If the gesture was classified as a tap, snap it back / reset it
+        // If the gesture was classified as a tap or scroll, snap it back / reset it
         this.swipeHandler.bindGestureCallback(this.swipeHandler.Gestures.TAP, () => {
             this.transitionObj.slidePageX(this.getPage(pageIndex).name.toLowerCase() + "Page", true, 0);
         });
-
+        this.swipeHandler.bindGestureCallback(this.swipeHandler.Gestures.SWIPEUP, () => {
+            this.transitionObj.slidePageX(this.getPage(pageIndex).name.toLowerCase() + "Page", true, 0);
+        });
+        this.swipeHandler.bindGestureCallback(this.swipeHandler.Gestures.SWIPEDOWN, () => {
+            this.transitionObj.slidePageX(this.getPage(pageIndex).name.toLowerCase() + "Page", true, 0);
+        });
+        
     }
     
     
