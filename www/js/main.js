@@ -50,23 +50,23 @@ class App {
     determinePageSet() {
 
         // If session is present, attempt to log in
-        // if(Authentication.hasSession()) {
-        //     let sid = Authentication.getSID();
-        //     // Authenticate and handle response (then = success)
-        //     Authentication.validateSID(sid).then((response) => {
-        //         console.log("[main.js:determinePageSet()] Valid log in data");
-        //         this.setActivePageSet(1); // Bring to main screen
-        //         return;
+        if(Authentication.hasSession()) {
+            let sid = Authentication.getSID();
+            // Authenticate and handle response (then = success)
+            Authentication.validateSID(sid).then((response) => {
+                console.log("[main.js:determinePageSet()] Valid log in data");
+                this.setActivePageSet(1); // Bring to main screen
+                return;
 
-        //     }).catch((error) => {
-        //         console.log("[main.js:determinePageSet()] Invalid SID, logging out");
-        //     });
+            }).catch((error) => {
+                console.log("[main.js:determinePageSet()] Invalid SID, logging out");
+            });
 
-        // } else {
-        //     console.log("[main.js:determinePageSet()] No SID data");
-        // }
+        } else {
+            console.log("[main.js:determinePageSet()] No SID data");
+        }
 
-        this.setActivePageSet(1); // Default to main page, for now
+        this.setActivePageSet(0); // Default to main page, for now
     }
 
     /**

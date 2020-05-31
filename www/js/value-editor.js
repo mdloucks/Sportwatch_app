@@ -38,8 +38,8 @@ class ValueEditor {
                 return;
             }
 
-            let valueName
-
+            let valueName;
+            
             if (Object.keys(rename).includes(key)) {
                 valueName = $("<p>", {
                     "html": rename[key],
