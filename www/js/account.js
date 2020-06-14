@@ -4,8 +4,10 @@
  */
 class Account extends Page {
 
-    constructor(id) {
+    constructor(id, pageSetObj) {
         super(id, "Account");
+
+        this.pageController = pageSetObj;
 
         this.currentPageId = "catagoryPage";
 
@@ -35,13 +37,13 @@ class Account extends Page {
 
         this.dbConnection = new DatabaseConnection();
         this.pageTransition = new PageTransition("#teamPage");
+        this.pageController.swipeHandler.addScrollPage("#accountPage > #settingsPage");
 
         this.inputDivIdentifier = "#accountPage #settingsPage #account_edit_inputs";
 
         // each setting category will have its own function to call to specify what happens
         this.accountButtons = {
             "My Account": this.startMyAccount,
-            "Change Password": this.startChangePassword,
             "Team Preferences": this.startTeamPreferences,
             "Notifications": this.startNotifications,
             "Sign Out": this.startSignOut,
@@ -64,8 +66,6 @@ class Account extends Page {
      * @returns {function} the function that is called when the page changes.
      */
     start() {
-
-
 
         // Only add content if it isn't there yet (check if any catagories are there yet)
         if ($(".cat_button").length) {
@@ -242,7 +242,8 @@ class Account extends Page {
     }
 
     startSignOut() {
-        // TODO: sign out!
+        localStorage.removeItem("SID");
+        this.pageController.onChangePageSet(0); // 0 for Welcome
     }
 
     startDeleteAccount() {
@@ -252,7 +253,7 @@ class Account extends Page {
 
         let button = ButtonGenerator.generateButton({ html: "Delete Account", class: "generated_button" }, () => {
             Popup.createConfirmationPopup("Are you sure you want to delete your account?", ["Yes", "No"], [() => {
-                // TODO: delete account here
+                // TODO: delete account here (needs password)
                 console.log("DELETING ACCOUNT");
             }, () => {
                 // do nothing
@@ -264,6 +265,40 @@ class Account extends Page {
 
         this.pageTransition.slideLeft("settingsPage");
     }
+
+    /**
+     * Callback to handle the server response when editing an account. Since
+     * behavior and errors vary based on the information being changed, a
+     * sectionNum variable will help narrow down the errors
+     * 
+     * @param {AssociativeArray} response decoded JSON response from the server
+     */
+    handleAccountResponse(response) {
+
+        // BASIC ACCOUNT SETTINGS
+        // If positive, let the use know it was successful
+        if (response.status > 0) {
+            if ("didSetPassword" in response) {
+                if (response.didSetPassword == 0) {
+                    Popup.createConfirmationPopup("Warning: Password was not updated! Please try later", ["OK"], [() => { }]);
+                    return;
+                }
+            }
+            Popup.createConfirmationPopup("Successfully saved!", ["OK"], [() => { }]);
+            response = BackendAgent.beautifyResponse(response);
+            // Populate fields with the updated values
+            $('#settingsPage input[name="First Name"]').val(response.fname);
+            $('#settingsPage input[name="Last Name"]').val(response.lname);
+            $('#settingsPage input[name="Gender"]').val(response.gender);
+            $('#settingsPage input[name="Phone Number"]').val(response.cellNum);
+            $('#settingsPage input[name="State"]').val(response.state);
+            $('#settingsPage input[name="Phone Number"]').val(response.cellNum);
+        } else {
+            Popup.createConfirmationPopup("Edit Failed!", ["Close"], [() => { }]);
+        }
+
+    }
+
 }
 
 

@@ -8,8 +8,8 @@
   position: absolute;
   /*top: 15%; */
   top: 0;
-  width: 99%; /* 100% is larger than header, producing "scoll" */
-  height: 85%;
+  width: 100%; /* 100% is larger than header, producing "scoll" */
+  min-height: 85%;
   text-align: center;
   background-color: #fff;
   transition: left 0.5s;
@@ -111,7 +111,11 @@ https://css-tricks.com/places-its-tempting-to-use-display-none-but-dont/ */
 
 /* Setting -- Account */
 
-.act_drop_wrapper {
+#settingsPage > #account_edit_inputs > p {
+    margin-bottom: 5px;
+}
+
+/* .act_drop_wrapper {
   margin: 20px;
   margin-left: 7%;
   width: 85%;
@@ -151,4 +155,4 @@ https://css-tricks.com/places-its-tempting-to-use-display-none-but-dont/ */
 
 .dropdown_expanded {
   height: 300px;
-}
+} */

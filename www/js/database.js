@@ -9,7 +9,7 @@ class DatabaseConnection {
         console.log("Initializing database...");
         try {
             this.db = window.sqlitePlugin.openDatabase({ name: 'Sportwatch.db', location: 'default' });
-            console.log("Opened database:");
+            console.log("Opened database");
         } catch (err) {
             console.log("Sportwatch database failed to open.");
             throw err;
@@ -49,6 +49,8 @@ class DatabaseConnection {
             tx.executeSql("DROP TABLE IF EXISTS relay_result");
             tx.executeSql("DROP TABLE IF EXISTS relay_team");
 
+            // tx.executeSql(`CREATE TABLE IF NOT EXISTS account (id_user, fname, lname, account_type, id_school, cellNum)`);
+            tx.executeSql(`CREATE TABLE IF NOT EXISTS meet (meet_name, meet_time, meet_address)`);
             tx.executeSql(`CREATE TABLE IF NOT EXISTS athlete (fname, lname, grade, gender)`);
 
             tx.executeSql(`CREATE TABLE IF NOT EXISTS event (event_name, gender, unit, is_relay, timestamp)`);
