@@ -60,15 +60,16 @@ class BackendAgent {
      * Aside: I used a callback function since I think it's cleaner than a promise,
      * but feel free to change it if you'd like. (so much for "brevity is the soul of wit"!)
      * 
-     * @example updateAccount(this.afterSaveFunc, {"fname": "Joe", "email": "newmail@email.com"}, "currentPass123");
+     * @example updateAccount({"fname": "Joe", "email": "newmail@email.com"}, this.afterSaveFunc, "currentPass123");
      *          --> Updates Joe's email to newmail@mail.com if the password was correct
      * 
-     * @param {Function} callback function that should handle and error or success response
      * @param {AssociativeArray} newValues list of new values to update (technically an object)
      *                                     if left blank, it will pull everything from local storage
+     * @param {Function} callback function that should handle and error or success response
+     *                            (takes AssociativeArray as parameter, but may return string if response is malformed)
      * @param {String} currentPassword user's current password, needed for email & password change
      */
-    static updateAccount(callback, newValues = {}, currentPassword = "") {
+    static updateAccount(newValues = {}, callback = (response) => { }, currentPassword = "") {
         
         let storage = window.localStorage;
         let userEmail = storage.getItem("email");
@@ -94,12 +95,10 @@ class BackendAgent {
         }
         
         // Push the new info (new info needs "New" appended to the end)
-        console.log("Pre: " + JSON.stringify(postArray));
         let keys = Object.keys(newValues);
         for(let n = 0; n < keys.length; n++) {
             postArray[keys[n] + "New"] = newValues[keys[n]];
         }
-        console.log("Requesting: " + JSON.stringify(postArray));
         // Submit the request and call the callback
         $.ajax({
             type: "POST",
