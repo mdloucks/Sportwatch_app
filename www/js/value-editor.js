@@ -23,11 +23,11 @@ class ValueEditor {
      * 
      * @param {String} the element to append to
      * @param {Object} valueDict a map or dictionary to route all of the different values
+     * @param {*} callback the function to be called when the user is done
      * @param {Array} blackList an array of attributes to skip to adding to the edit list
      * @param {Object} rename an object to rename the given fields in key pair notation
-     * @param {*} callback the function to be called when the user is done
      */
-    static editValues(element, valueMap, blackList = [], rename = {}, callback = ValueEditor.defaultCallbackFunction) {
+    static editValues(element, valueMap, callback = ValueEditor.defaultCallbackFunction, blackList = [], rename = {}) {
 
         let inputs = [];
 
@@ -38,7 +38,7 @@ class ValueEditor {
                 return;
             }
 
-            let valueName
+            let valueName;
 
             if (Object.keys(rename).includes(key)) {
                 valueName = $("<p>", {

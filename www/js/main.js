@@ -32,6 +32,8 @@ class App {
         this.swipeHandler = new SwipeHolder("#app");
         FastClick.attach(document.body);
 
+
+
         $(".loader").remove();
         $("#app").html(""); // Clear so it's a clean slate to add to
 

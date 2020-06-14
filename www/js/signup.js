@@ -1,7 +1,7 @@
 
 
 class Signup extends Page {
-    
+
     /**
      * Allows the user to signup. It needs the PageSet object copy
      * so it can move and manipulate pages as buttons are pressed
@@ -11,13 +11,13 @@ class Signup extends Page {
      */
     constructor(id, pageSetObj) {
         super(id, "Signup");
-        
+
         this.pageController = pageSetObj;
-        
+
         // Misc variables
         this.dialogInterval = 0;
     }
-    
+
     getHtml() {
         return (`
             <div id="signupPage" class="div_page">
@@ -38,8 +38,8 @@ class Signup extends Page {
                     <br>
                     
                     <p id="p_accountType">Select Role</p>
-                    <button id="athlete" class="account_type_button selected" type="button">Athlete</button>
-                    <button id="coach" class="account_type_button" type="button">Coach</button>
+                    <button id="athlete" class="accountType_button selected" type="button">Athlete</button>
+                    <button id="coach" class="accountType_button" type="button">Coach</button>
                     <br><br><br>
                     
                     <input id="button_signup" class="sw_big_button invalid" type="submit" value="Sign Up">
@@ -54,19 +54,19 @@ class Signup extends Page {
             </div>
         `);
     }
-    
+
     start() {
         // Back Button
         this.getPageElement("#returnWelcome").bind("touchend", (e) => {
             e.preventDefault();
             this.pageController.switchPage("Welcome");
         });
-        
+
         // When clicking on input, focus it
         this.getPageElement("input").bind("touchend", (e) => {
             $(e.target).focus();
         })
-        
+
         // INPUT HANDLING
         // Name
         this.getPageElement("input[name=fname").on("input", () => {
@@ -74,9 +74,9 @@ class Signup extends Page {
 
             if (input.replace(/[A-Za-z.]/gm, "") != "") {
                 this.setupInvalidSymbol("#i_fname", false, "Please only use letters in your name.");
-            } else if(input.length > 127) {
+            } else if (input.length > 127) {
                 this.setupInvalidSymbol("#i_fname", false, "Name is too long");
-            } else if(input.length < 3) {
+            } else if (input.length < 3) {
                 this.setupInvalidSymbol("#i_fname", false, "Please enter your full first name");
             } else {
                 this.setupInvalidSymbol("#i_fname", true, "Nice to meet you!");
@@ -86,18 +86,18 @@ class Signup extends Page {
         this.getPageElement("#i_fname.invalidSym").bind("touchend", (e) => {
             this.openInvalidMessage("Please enter your name", "#i_fname");
         });
-        
+
         // Email
         this.getPageElement("input[name=email]").on("input", () => {
             let input = this.getPageElement("input[name=email]").val();
-            
+
             let testMatch = input.match(/[A-Za-z0-9\-_.]*@[A-Za-z0-9\-_.]*\.(com|net|org|us|website|io)/gm);
-            if(testMatch == null) {
+            if (testMatch == null) {
                 this.setupInvalidSymbol("#i_email", false, "Please enter a valid email");
-            } else if(testMatch[0].length != input.length) {
+            } else if (testMatch[0].length != input.length) {
                 this.setupInvalidSymbol("#i_email", false,
                     "Email can only contain: A-Z, a-z, 0-9, hyphens, underscores, periods, and the @ symbol");
-            }else if(input.length > 250) {
+            } else if (input.length > 250) {
                 this.setupInvalidSymbol("#i_email", false, "Email is too long");
             } else {
                 this.setupInvalidSymbol("#i_email", true, "Looks good!");
@@ -106,15 +106,15 @@ class Signup extends Page {
         this.getPageElement("#i_email.invalidSym").bind("touchend", (e) => {
             this.openInvalidMessage("Please enter your email", "#i_email");
         });
-        
+
         // Password
         this.getPageElement("input[name=password]").on("input", () => {
             let input = this.getPageElement("input[name=password]").val();
-            
+
             if ((input.match(/[`"';<>{} ]/gm) != null) || (input.length < 10) || (input.length > 250)) {
-                this.setupInvalidSymbol("#i_password", false, 
-                                        "Password must be at least 10 characters long and cannot contain spaces or: \";\'<>{}");
-            } else if((input.match(/[A-Z]/gm) == null) || (input.match(/[0-9]/gm) == null)) {
+                this.setupInvalidSymbol("#i_password", false,
+                    "Password must be at least 10 characters long and cannot contain spaces or: \";\'<>{}");
+            } else if ((input.match(/[A-Z]/gm) == null) || (input.match(/[0-9]/gm) == null)) {
                 this.setupInvalidSymbol("#i_password", false, "Please strengthen your password (must include uppercase, and numbers)");
             } else {
                 this.setupInvalidSymbol("#i_password", true, "Great choice!");
@@ -123,15 +123,15 @@ class Signup extends Page {
         this.getPageElement("#i_password.invalidSym").bind("touchend", (e) => {
             this.openInvalidMessage("Please create a <b>unique</b> password", "#i_password");
         });
-        
+
         // REST OF FORM
         // "Radio button" logic for account types
-        this.getPageElement(".account_type_button").bind("touchend", (e) => {
+        this.getPageElement(".accountType_button").bind("touchend", (e) => {
             // Remove .selected from both buttons
-            this.getPageElement(".account_type_button").removeClass("selected");
+            this.getPageElement(".accountType_button").removeClass("selected");
             $(e.target).addClass("selected");
         });
-        
+
         // Animate the button to simulate a "press"
         this.getPageElement("#button_signup").bind("touchstart", (e) => {
             this.getPageElement("#button_signup").addClass("pressed");
@@ -139,54 +139,54 @@ class Signup extends Page {
         this.getPageElement("#button_signup").bind("touchend", (e) => {
             this.getPageElement("#button_signup").removeClass("pressed");
         });
-        
-        this.getPageElement("form").on("submit", function(e) {
+
+        this.getPageElement("form").on("submit", function (e) {
             e.preventDefault();
-            
+
             if (this.getPageElement("#button_signup").hasClass("invalid")) {
                 return; // Exit the handler, not valid
             }
-            
+
             // Validate inputs (one last safety check)
             let firstName = this.getPageElement("input[name=fname]").val();
             let email = this.getPageElement("input[name=email]").val();
             let password = this.getPageElement("input[name=password]").val();
-            let account_type = this.getPageElement(".account_type_button.selected").text().toLowerCase();
-            
-            if(firstName.length < 3) {
+            let accountType = this.getPageElement(".accountType_button.selected").text().toLowerCase();
+
+            if (firstName.length < 3) {
                 this.setupInvalidSymbol("#i_fname", false, "Please enter your full first name");
                 return;
             }
-            if(email.indexOf("@") == -1) {
+            if (email.indexOf("@") == -1) {
                 this.setupInvalidSymbol("#i_email", false, "Please enter a valid email");
                 return;
             }
-            if(password.length < 10) {
+            if (password.length < 10) {
                 this.setupInvalidSymbol("#i_password", false, "Password must be at least 10 characters");
                 return;
             }
-            
-            Authentication.signup(firstName, email, password, account_type).then(function(response) {
+
+            Authentication.signup(firstName, email, password, accountType).then(function (response) {
                 localStorage.setItem("email", email);
-                localStorage.setItem("account_type", account_type);
+                localStorage.setItem("accountType", accountType);
                 this.pageController.onChangePageSet(1); // 1 for Main logic
             }.bind(this),
-            function(error) {
-                console.log("[signup.js:start()] Unable to complete signup request");
-                this.handleSignupError(error.substatus, error.msg);
-            }.bind(this));
-            
+                function (error) {
+                    console.log("[signup.js:start()] Unable to complete signup request");
+                    this.handleSignupError(error.substatus, error.msg);
+                }.bind(this));
+
         }.bind(this)); // Binding this is CRITICAL for changing state, etc.
-        
+
     }
-    
+
     stop() {
         $("#signupPage").unbind();
         $("#signupPage *").unbind();
     }
-    
+
     // ---- CUSTOM FUNCTIONS ---- //
-    
+
     /**
      * Defines the symbol behavior for an input.
      * 
@@ -198,16 +198,16 @@ class Signup extends Page {
      * @param {String} errMessage - message to display if invalid
      */
     setupInvalidSymbol(symbolId, isValid, errMessage) {
-        
+
         // Prevents double binding
         this.getPageElement(symbolId + ".invalidSym").unbind();
-        if(isValid) {
+        if (isValid) {
             this.getPageElement(symbolId + ".invalidSym").prop("src", "img/validSymbol.png");
             clearInterval(this.dialogInterval);
             this.getPageElement(".invalidDialog").fadeOut(1000, () => {
                 this.getPageElement(".invalidDialog").css("width", "0"); // Will block clicks otherwise
             })
-            
+
         } else {
             this.getPageElement(symbolId + ".invalidSym").prop("src", "img/invalidSymbol.png");
             // Show dialog and set up click event
@@ -216,7 +216,7 @@ class Signup extends Page {
                 this.openInvalidMessage(errMessage, e.target);
             });
         }
-        
+
         // Update submit button class / click ability
         this.getPageElement("#button_signup").removeClass("invalid"); // Remove here to prevent adding multiple invalid classes
         this.getPageElement(".invalidSym").each((index) => {
@@ -226,7 +226,7 @@ class Signup extends Page {
             }
         });
     }
-    
+
     /**
      * Opens a warning dialog when an input is invalid
      * 
@@ -238,28 +238,28 @@ class Signup extends Page {
      *                                  if left null, it will center the dialog
      */
     openInvalidMessage(message, anchorElement = null) {
-        
+
         let dialog = this.getPageElement(".invalidDialog");
         // This prevents showing the dialog if it's not ready / transitioning
-        if((dialog.css("opacity") != "0") && (dialog.css("opacity") != "1")) {
+        if ((dialog.css("opacity") != "0") && (dialog.css("opacity") != "1")) {
             return;
         }
-        
+
         // Set dialog properties
         this.getPageElement(".invalidDialog > #d_message").html(message);
         dialog.css("width", "60%"); // Make sure it's before grabbing width
-        
+
         // Set position
         let x = ($(window).width() / 2) - (dialog.width() / 2);
         let y = $(window).height() / 2;
         // If set, use the anchor element's position
-        if(anchorElement != null) {
-            
+        if (anchorElement != null) {
+
             // Convert to jQuery object if it's a selector
-            if(typeof anchorElement == "string") {
+            if (typeof anchorElement == "string") {
                 anchorElement = this.getPageElement(anchorElement);
             }
-            
+
             // Subtract 15 to add some padding around popup
             x = $(anchorElement).position().left - dialog.width();
             y = $(anchorElement).position().top - dialog.height() - 15;
@@ -267,12 +267,12 @@ class Signup extends Page {
         dialog.css("left", x + "px");
         dialog.css("top", y + "px");
         dialog.fadeIn(1000);
-        
+
         // Prevents previous timeouts from closing the new dialog
-        if(this.dialogInterval != 0) {
+        if (this.dialogInterval != 0) {
             clearInterval(this.dialogInterval);
         }
-        
+
         // And disappear in a few seconds
         this.dialogInterval = setTimeout(() => {
             dialog.fadeOut(1000, () => {
@@ -280,7 +280,7 @@ class Signup extends Page {
             });
         }, 5000);
     }
-    
+
     /**
      * Handles and displays error message for signing up. It will default
      * to opening a dialog with a vague error message.
@@ -291,8 +291,8 @@ class Signup extends Page {
      * @param {String} msg - [default = ""] the response message from the server
      */
     handleSignupError(substatus, msg) {
-        
-        switch(substatus) {
+
+        switch (substatus) {
             case 2:
                 this.openInvalidMessage("The email format was invalid, please re-enter it and try again");
                 this.setupInvalidSymbol("#i_email", false, "Please enter a valid email");
@@ -310,7 +310,7 @@ class Signup extends Page {
                 this.setupInvalidSymbol("#i_password", false, "Please enter a strong password");
                 break;
             default:
-                if((msg == undefined) || (msg.length > 0)) {
+                if ((msg == undefined) || (msg.length > 0)) {
                     msg = "(" + msg + ")";
                 }
                 this.openInvalidMessage("An unknown error occured, please try again later " + msg);
@@ -318,7 +318,7 @@ class Signup extends Page {
                 break;
         }
     }
-    
+
     /**
      * Used to get only the elements contained within this page by prepending
      * #signupPage to every selector
@@ -328,5 +328,5 @@ class Signup extends Page {
     getPageElement(selector) {
         return $("#signupPage " + selector);
     }
-    
+
 }

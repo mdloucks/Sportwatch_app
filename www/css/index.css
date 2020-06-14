@@ -132,6 +132,19 @@ https://css-tricks.com/places-its-tempting-to-use-display-none-but-dont/ */
   display: block;
 }
 
+/* generic table layout */
+.table_container {
+  width: 100%;
+  display: table;
+  width: 100%;
+  table-layout: fixed;
+}
+
+.table_container * {
+  display: table-cell;
+  text-align: center;
+}
+
 /* ---- MISC ---- */
 
 @keyframes spin {

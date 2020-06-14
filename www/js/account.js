@@ -188,7 +188,7 @@ class Account extends Page {
             "Phone Number": "203984234",
         };
 
-        ValueEditor.editValues(this.inputDivIdentifier, valuesToEdit, [], {}, (newValues) => {
+        ValueEditor.editValues(this.inputDivIdentifier, valuesToEdit, (newValues) => {
             // TODO: update users info
             console.log("account edit " + JSON.stringify(newValues));
         });
@@ -201,7 +201,7 @@ class Account extends Page {
 
         let valuesToEdit = { "Password": "", "New Password": "", "Confirm New Password": "" };
 
-        ValueEditor.editValues(this.inputDivIdentifier, valuesToEdit, [], {}, (newValues) => {
+        ValueEditor.editValues(this.inputDivIdentifier, valuesToEdit, (newValues) => {
             // TODO: change user's password
             console.log("change password " + JSON.stringify(newValues));
         });
@@ -220,10 +220,10 @@ class Account extends Page {
             "School": storage.getItem("schoolName") | "",
         };
 
-        ValueEditor.editValues(this.inputDivIdentifier, valuesToEdit, [], {}, (newValues) => {
+        ValueEditor.editValues(this.inputDivIdentifier, valuesToEdit, (newValues) => {
 
-            storage.teamName = newVales["Team Name"];
-            storage.schoolName = newVales["School"];
+            storage.setItem('teamName', newVales["Team Name"]);
+            storage.setItem('schoolName', newVales["School"]);
 
             // TODO: change user's password
             console.log("set values " + JSON.stringify(newValues));

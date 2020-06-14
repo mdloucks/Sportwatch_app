@@ -27,7 +27,6 @@ class Team extends Page {
                 <div id="athlete_header" class="generic_header">
                     <div id="back_button_athlete" class="back_button">&#8592;</div>
                     <h1 id="athleteName"></h1>
-                    <img src="img/logo.png" alt=""></img>
                 </div>
         
                 <h2 id="athlete_info"></h2>
@@ -51,7 +50,6 @@ class Team extends Page {
     }
 
     getHtml() {
-        let storage = window.localStorage;
 
         return (`
             <div id="teamPage" class="div_page">
@@ -86,13 +84,17 @@ class Team extends Page {
 
     generateAthleteList() {
 
-        this.dbConnection.selectSingle("SELECT *, ROWID FROM athlete", []).then((athletes) => {
-            // ValueEditor.editValues("#landingPage", athletes.item(0), function (newValues) {
-            //     console.log("hey " + JSON.stringify(newValues));
-            // });
-            ButtonGenerator.generateButtonsFromDatabase("#landingPage > .button_box", athletes, (athlete) => {
+        let conditionalAttributes = {
+            "gender": {
+                "m": { style: "background-color: lightblue; color: black; border: 1px solid black;" },
+                "f": { style: "background-color: lightpink; color: black; border: 1px solid black;" }
+            }
+        };
+
+        this.dbConnection.selectValues("SELECT *, ROWID FROM athlete", []).then((athletes) => {
+            ButtonGenerator.generateButtonsFromDatabase("#teamPage #landingPage > .button_box", athletes, (athlete) => {
                 this.startAthletePage(athlete);
-            });
+            }, [], conditionalAttributes);
         });
     }
 
@@ -112,10 +114,10 @@ class Team extends Page {
         let blackList = ["class", "id", "html"];
         let rename = { "fname": "First Name", "lname": "Last Name", "grade": "Grade", "gender": "Gender" };
 
-        ValueEditor.editValues("#teamPage #editAthletePage #athlete_edit_inputs", athlete, blackList, rename, (newValues) => {
+        ValueEditor.editValues("#teamPage #editAthletePage #athlete_edit_inputs", rename, (newValues) => {
             // TODO: SAVE NEW CHANGES!
             this.pageTransition.slideRight("athletePage");
-        });
+        }, athlete, blackList);
     }
 
     startAthletePage(athlete) {

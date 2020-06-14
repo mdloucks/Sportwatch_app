@@ -16,16 +16,6 @@ class DatabaseConnection {
         }
     }
 
-
-    testFunc() {
-        this.selectMultiple("SELECT * FROM athlete WHERE fname = ?", ["Seth"]).then((result) => {
-            console.log(result[0].grade);
-        });
-        this.selectSingle("SELECT fname FROM athlete WHERE lname = ?", ["Byrne"]).then((result) => {
-            console.log(result.item(0).fname);
-        });
-    }
-
     /**
      * Probably not the most efficient, but it bascially returns a promise
      * to handle handle if tables are created or not. (Create them if not)
@@ -53,22 +43,19 @@ class DatabaseConnection {
     createNewTables() {
         this.db.transaction(function (tx) {
 
-            tx.executeSql("DROP TABLE IF EXISTS account");
             tx.executeSql("DROP TABLE IF EXISTS athlete");
             tx.executeSql("DROP TABLE IF EXISTS event");
-            tx.executeSql("DROP TABLE IF EXISTS meet");
             tx.executeSql("DROP TABLE IF EXISTS event_result");
-            tx.executeSql("DROP TABLE IF EXISTS athlete_event");
-            tx.executeSql("DROP TABLE IF EXISTS team");
+            tx.executeSql("DROP TABLE IF EXISTS relay_result");
+            tx.executeSql("DROP TABLE IF EXISTS relay_team");
 
-            tx.executeSql(`CREATE TABLE IF NOT EXISTS account (id_user, fname, lname, account_type, id_school, cellNum)`);
-            tx.executeSql(`CREATE TABLE IF NOT EXISTS meet (meet_name, meet_time, meet_address)`);
             tx.executeSql(`CREATE TABLE IF NOT EXISTS athlete (fname, lname, grade, gender)`);
-            tx.executeSql(`CREATE TABLE IF NOT EXISTS athlete_event (id_athlete, id_event, relay_team)`);
-            // TODO rework relay team system
-            tx.executeSql(`CREATE TABLE IF NOT EXISTS event (id_meet, event_name, gender, is_relay_team)`);
-            tx.executeSql(`CREATE TABLE IF NOT EXISTS event_result (id_event, athlete_name, result)`);
-            tx.executeSql(`CREATE TABLE IF NOT EXISTS team (id_team, id_user, user_role)`);
+
+            tx.executeSql(`CREATE TABLE IF NOT EXISTS event (event_name, gender, unit, is_relay, timestamp)`);
+            tx.executeSql(`CREATE TABLE IF NOT EXISTS event_result (id_event, id_athlete, value)`);
+
+            tx.executeSql(`CREATE TABLE IF NOT EXISTS relay_team (team_name)`);
+            tx.executeSql(`CREATE TABLE IF NOT EXISTS relay_result (id_event, id_relay_team, id_athlete, value)`);
 
         }, function (error) {
             console.log('Transaction ERROR: ' + error.message);
@@ -79,13 +66,12 @@ class DatabaseConnection {
 
 
     /**
-     * 
      * example ("SELECT * from athlete WHERE id = ?", 3)
      * 
      * @param {*} row the given id
      * @param {Array} table 
      */
-    selectSingle(query, values) {
+    selectValues(query, values) {
         return new Promise((resolve, reject) => {
             this.db.transaction(function (tx) {
                 tx.executeSql(query, values, function (tx, rs) {
@@ -105,7 +91,18 @@ class DatabaseConnection {
         });
     }
 
-    selectMultiple(query, values) {
+    /**
+     * @description This function will return the given query in an object instead of the custom sqlite structure which
+     * requires you to reference each item within with .item(i)
+     * 
+     * @example selectMultiple("SELECT *, ROWID FROM athlete", []).then((athletes) => {
+            console.log(JSON.stringify(athletes)); -> [{"fname":"John","lname":"Smith","grade":"10","gender":"m","rowid":1} ....]
+        });
+     * 
+     * @param {String} query the query to be submitted to the database
+     * @param {Array} values the list of values to give to the query
+     */
+    selectValuesAsObject(query, values) {
         return new Promise((resolve, reject) => {
             this.db.transaction(function (tx) {
                 tx.executeSql(query, values, function (tx, rs) {
@@ -140,6 +137,52 @@ class DatabaseConnection {
 
     /**
      * 
+     * will update the values present in the given table with the given values
+     * 
+     * @param {String} table the name of the table
+     * @param {Array} rowNames Array filled with the names of all of the rows
+     * @param {Array} newValues Array filled with the new values of the rows, must be equal in length to rowNames
+     * @param {Object} options an object of key/pairs for the corresponsing values ex. WHERE {"fname": "John"}
+     */
+    updateValues(table, rowNames, newValues, options) {
+
+        return new Promise((resolve, reject) => {
+
+            if (rowNames.length != newValues.length) {
+                throw new Error(`Out of bounds exception! rowNames: ${rowNames.length} newValues: ${newValues.length}`)
+            }
+
+            this.db.transaction(function (tx) {
+
+                let setString = "";
+
+                for (let i = 0; i < rowNames.length; i++) {
+                    setString += ` = ${rowNames[i]} = ${newValues[i]},`;
+                }
+
+
+
+                let query = `UPDATE ${table} SET ${setString} `;
+
+                tx.executeSql(query, values, function (tx, rs) {
+                    if (rs.rows.length === 0) {
+                        console.log("empty set");
+                        resolve(false);
+                    }
+
+                });
+            }, function (error) {
+                console.log('Transaction ERROR: ' + error.message);
+                console.log(JSON.stringify(error));
+                reject(error);
+            }, function () {
+                // success
+            });
+        });
+    }
+
+    /**
+     * @description insert some data into the given table
      * 
      * Array formats
      * [item, item...] or [[item, item...], [item, item...]]
@@ -193,8 +236,33 @@ class DatabaseConnection {
     insertDummyValues() {
         this.db.transaction(function (tx) {
             tx.executeSql("INSERT INTO athlete VALUES (?, ?, ?, ?)", ["John", "Smith", "10", "m"]);
-            tx.executeSql("INSERT INTO athlete VALUES (?, ?, ?, ?)", ["Bill", "Washington", "9", "m"]);
-            tx.executeSql("INSERT INTO athlete VALUES (?, ?, ?, ?)", ["Suzie", "Walton", "11", "m"]);
+            tx.executeSql("INSERT INTO athlete VALUES (?, ?, ?, ?)", ["Bill", "Washington", "12", "m"]);
+            tx.executeSql("INSERT INTO athlete VALUES (?, ?, ?, ?)", ["George", "Harris", "9", "m"]);
+            tx.executeSql("INSERT INTO athlete VALUES (?, ?, ?, ?)", ["Tyrone", "Shreider", "9", "m"]);
+            tx.executeSql("INSERT INTO athlete VALUES (?, ?, ?, ?)", ["Levi", "Hemmingway", "10", "m"]);
+
+            tx.executeSql("INSERT INTO athlete VALUES (?, ?, ?, ?)", ["Suzie", "Walton", "11", "f"]);
+            tx.executeSql("INSERT INTO athlete VALUES (?, ?, ?, ?)", ["Grace", "Dalton", "9", "f"]);
+
+            tx.executeSql("INSERT INTO event VALUES (?, ?, ?, ?, ?)", ["400m", "m", "s", "false", 0]);
+            tx.executeSql("INSERT INTO event VALUES (?, ?, ?, ?, ?)", ["800m", "f", "s", "false", 0]);
+            tx.executeSql("INSERT INTO event VALUES (?, ?, ?, ?, ?)", ["400x400m Relay", "m", "s", "true", 0]);
+
+            // 400m
+            tx.executeSql("INSERT INTO event_result VALUES (?, ?, ?)", [0, 0, 56.2]);
+            tx.executeSql("INSERT INTO event_result VALUES (?, ?, ?)", [0, 1, 57.6]);
+
+            // 800m
+            tx.executeSql("INSERT INTO event_result VALUES (?, ?, ?)", [1, 2, 112.3]);
+
+            // 400x400m Relay
+            tx.executeSql("INSERT INTO relay_team VALUES (?)", ["Hemlock"]);
+
+            tx.executeSql("INSERT INTO relay_result VALUES (?, ?, ?, ?)", [2, 0, 0, 67.4]);
+            tx.executeSql("INSERT INTO relay_result VALUES (?, ?, ?, ?)", [2, 0, 1, 66.4]);
+            tx.executeSql("INSERT INTO relay_result VALUES (?, ?, ?, ?)", [2, 0, 2, 69.4]);
+            tx.executeSql("INSERT INTO relay_result VALUES (?, ?, ?, ?)", [2, 0, 3, 64.4]);
+
         }, function (error) {
             console.log('Transaction ERROR: ' + error.message);
         }, function () {
