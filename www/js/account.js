@@ -3,7 +3,7 @@
  * @class
  */
 class Account extends Page {
-
+    // TODO: !! Convert to PageTransition compliant class !!
     constructor(id, pageSetObj) {
         super(id, "Account");
         
@@ -83,7 +83,7 @@ class Account extends Page {
         });
         
         // When clicking on input, focus it
-        this.getPageElement("input").bind("touchend", (e) => {
+        $("#account_edit_inputs input").bind("touchend", (e) => {
             $(e.target).focus();
         })
 

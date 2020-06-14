@@ -11,7 +11,7 @@ class Stats extends Page {
         this.hasStarted = false;
 
         this.landingPage = (`
-            <div id="landingPage">
+            <div id="landingPage" class="div_page">
                 <br><br>
                 <h1>Stats</h1><br><br>
                 <div class="button_box"></div>
@@ -19,7 +19,7 @@ class Stats extends Page {
         `);
 
         this.eventPage = (`
-        <div id="eventPage">
+        <div id="eventPage" class="div_page">
             <div id="event_header" class="generic_header">
                 <div id="back_button_event" class="back_button">&#8592;</div>
                 <h1 id="event_name"></h1>
@@ -45,7 +45,7 @@ class Stats extends Page {
         `);
 
         this.addEventPage = (`
-            <div id="addEventPage">
+            <div id="addEventPage" class="div_page">
                 <div id="add_event_header" class="generic_header">
                     <div id="back_button_add_event" class="back_button">&#8592;</div>
                     <h1>Add Event</h1>
