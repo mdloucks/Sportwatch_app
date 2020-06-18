@@ -258,10 +258,16 @@ class DatabaseConnection {
 
             tx.executeSql("INSERT INTO event_result VALUES (?, ?, ?)", [1, 3, 59.6]);
 
+            tx.executeSql("INSERT INTO event_result VALUES (?, ?, ?)", [1, 6, 49.6]);
+            tx.executeSql("INSERT INTO event_result VALUES (?, ?, ?)", [1, 6, 59.3]);
+
+            tx.executeSql("INSERT INTO event_result VALUES (?, ?, ?)", [1, 7, 120.6]);
+            tx.executeSql("INSERT INTO event_result VALUES (?, ?, ?)", [1, 7, 103.6]);
+
             // 800m
-            tx.executeSql("INSERT INTO event_result VALUES (?, ?, ?)", [2, 1, 112.3]);
-            tx.executeSql("INSERT INTO event_result VALUES (?, ?, ?)", [2, 2, 157.6]);
-            tx.executeSql("INSERT INTO event_result VALUES (?, ?, ?)", [2, 3, 197.6]);
+            tx.executeSql("INSERT INTO event_result VALUES (?, ?, ?)", [2, 3, 112.3]);
+            tx.executeSql("INSERT INTO event_result VALUES (?, ?, ?)", [2, 4, 157.6]);
+            tx.executeSql("INSERT INTO event_result VALUES (?, ?, ?)", [2, 5, 197.6]);
 
             // 400x400m Relay
             tx.executeSql("INSERT INTO relay_team VALUES (?)", ["Hemlock"]);
