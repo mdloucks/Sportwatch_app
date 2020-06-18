@@ -192,7 +192,7 @@ class PageTransition {
             $(prevPageId).css("left", "");
 
             // Set up location (opposite of direction of the slide)
-            $(".div_page").css("transition", "left 0s");
+            $(".div_page").css("transition", "left 0");
             if (slideLeft) {
                 $(targetPageId).css("left", "100%");
             } else {
@@ -222,7 +222,7 @@ class PageTransition {
         // Hide old page once new page is in focus
         setTimeout(() => {
             $(prevPageId).addClass("hidden");
-            // Remove transition time in order to set up page locations
+            // Remove transition time in order to set up page locations for next time
             $(".div_page").css("transition", "");
             if (slideLeft) {
                 $(prevPageId).css("left", "0");

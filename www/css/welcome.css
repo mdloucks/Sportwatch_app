@@ -3,25 +3,29 @@
         GENERAL
 ***********************/
 
-header { 
+#welcomePage header { 
     text-align: center;
 }
 
-header > span {
+#welcomePage header > span {
     margin-left: 0;
     margin-right: 0;
     font-size: 4em;
     display: inline-block;
 }
 
-header > p {
+#welcomePage header > p {
     margin-left: auto;
     font-size: 3.5em;
     display: inline-block;
 }
 
-.selection {
+#welcomePage .selection {
     display: flex;
     align-items: center;
     justify-content: center;
+}
+
+#welcomePage .sw_big_button {
+    width: 30%;
 }

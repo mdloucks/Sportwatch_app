@@ -3,12 +3,12 @@
  * @class
  */
 class Account extends Page {
-
+    // TODO: !! Convert to PageTransition compliant class !!
     constructor(id, pageSetObj) {
         super(id, "Account");
-
+        
         this.pageController = pageSetObj;
-
+        
         this.currentPageId = "catagoryPage";
 
         // ---- PAGES ---- //
@@ -38,7 +38,7 @@ class Account extends Page {
         this.dbConnection = new DatabaseConnection();
         this.pageTransition = new PageTransition("#teamPage");
         this.pageController.swipeHandler.addScrollPage("#accountPage > #settingsPage");
-
+        
         this.inputDivIdentifier = "#accountPage #settingsPage #account_edit_inputs";
 
         // each setting category will have its own function to call to specify what happens
@@ -66,7 +66,7 @@ class Account extends Page {
      * @returns {function} the function that is called when the page changes.
      */
     start() {
-
+        
         // Only add content if it isn't there yet (check if any catagories are there yet)
         if ($(".cat_button").length) {
             return;
@@ -81,7 +81,11 @@ class Account extends Page {
         Object.keys(this.accountButtons).forEach((key, index) => {
             this.addSettingCatagory(key, this.accountButtons[key].bind(this));
         });
-
+        
+        // When clicking on input, focus it
+        $("#account_edit_inputs input").bind("touchend", (e) => {
+            $(e.target).focus();
+        })
 
 
         // // ---- DEVELOPER PAGE LOGIC ---- //
@@ -123,12 +127,13 @@ class Account extends Page {
 
         $(".back_button").bind("touchend", (e) => {
             e.preventDefault();
-            console.log("BACK");
             this.pageTransition.slideRight("catagoryPage");
         });
     }
 
     stop() {
+        $("#accountPage").unbind();
+        $("#accountPage *").unbind();
     }
 
     /**
@@ -175,40 +180,101 @@ class Account extends Page {
         //     $(e.delegateTarget).addClass("cat_button_selected");
         // });
     }
-
+    
+    // ---- PAGE START METHODS ---- //
+    
     startMyAccount() {
         this.setupSettingsPage("My Account");
-
-        console.log("GOING TO MY ACCOUNT");
-
-        let valuesToEdit = {
-            "First Name": "blank",
-            "Last Name": "blank",
-            "Email": "example123@email.com",
-            "Phone Number": "203984234",
-        };
-
-        ValueEditor.editValues(this.inputDivIdentifier, valuesToEdit, (newValues) => {
-            // TODO: update users info
-            console.log("account edit " + JSON.stringify(newValues));
-        });
-
+        
+        // Populate the account fields and prepare edits
+        BackendAgent.getAccount((accountInfo) => {
+            
+            // May have errored out
+            if(accountInfo.status < 0) {
+                Popup.createConfirmationPopup("Sorry, an error occured. Please try again later", ["OK"], [() => {
+                    this.pageTransition.slideRight("catagoryPage");
+                }]);
+                return;
+            }
+            accountInfo = BackendAgent.beautifyResponse(accountInfo);
+            
+            let displayNames = {
+                "fname": "First Name",
+                "lname": "Last Name",
+                "gender": "Gender",
+                "cellNum": "Phone Number",
+                "state": "State",
+                "dob": "Date of Birth",
+                "email": "Email",
+                "password": "New Password",
+                "passwordConfirm": "Confirm New Password",
+                "passwordOld": "Current Password"
+            }; // TODO: Add account type change, and also possibly school change
+            // TODO: Make state change a dropdown instead of typing, sanitize to abbreviation
+            
+            let ignoredValues = ["status", "substatus", "msg", "id_user", "accountType", "isAdmin",
+                "id_school", "id_team", "schoolName", "teamName", "email"];
+            
+            let sensitiveValues = {
+                "email": accountInfo["email"],
+                "password": "", // The new password
+                "passwordConfirm": "",
+                "passwordOld": ""
+            };
+            
+            // Basic values (not requiring a password)
+            ValueEditor.editValues(this.inputDivIdentifier, accountInfo, (newValues) => {
+                BackendAgent.updateAccount(newValues, (response) => {
+                    // If positive, let the use know it was successful
+                    if (response.status > 0) {
+                        Popup.createConfirmationPopup("Successfully saved!", ["OK"], [() => { }]);
+                        if ("didSetPassword" in response) {
+                            if (response.didSetPassword == 0) {
+                                Popup.createConfirmationPopup("Warning: Password was not updated! Please try again", ["OK"], [() => { }]);
+                                return;
+                            }
+                        }
+                        response = BackendAgent.beautifyResponse(response);
+                        // Populate fields with the updated values
+                        $('#settingsPage input[name="First Name"]').val(response.fname);
+                        $('#settingsPage input[name="Last Name"]').val(response.lname);
+                        $('#settingsPage input[name="Gender"]').val(response.gender);
+                        $('#settingsPage input[name="Phone Number"]').val(response.cellNum);
+                        $('#settingsPage input[name="State"]').val(response.state);
+                        $('#settingsPage input[name="Date of Birth"]').val(response.dob);
+                    } else {
+                        Popup.createConfirmationPopup("Edit Failed!", ["Close"], [() => { }]);
+                    }
+                });
+            }, ignoredValues, displayNames);
+            
+            // Email & Password (requires current password)
+            ValueEditor.editValues(this.inputDivIdentifier, sensitiveValues, (newValues) => {
+                
+                if(newValues["passwordOld"].length == 0) {
+                    Popup.createConfirmationPopup("Please enter your current password", ["OK"], [() => { }]);
+                } else if(newValues["passwordNew"] != newValues["passwordNew2"]) {
+                    Popup.createConfirmationPopup("New passwords do not match", ["OK"], [() => { }]);
+                } else {
+                    let currentPassword = newValues["passwordOld"];
+                    delete newValues["passwordOld"];
+                    // Delete since backend doesn't need verification
+                    delete newValues["passwordConfirm"];
+                    
+                    BackendAgent.updateAccount(newValues, (response) => {
+                        if(("didSetPassword" in response) && (response.didSetPassword == 1)) {
+                            Popup.createConfirmationPopup("Successfully updated!", ["OK"], [() => { }]);
+                        } else {
+                            Popup.createConfirmationPopup("Unable to change, please try again", ["Close"], [() => { }]);
+                        }
+                    }, currentPassword);
+                }
+            }, [], displayNames);
+        }); // End of population function
+        
         this.pageTransition.slideLeft("settingsPage");
     }
-
-    startChangePassword() {
-        this.setupSettingsPage("Change Password");
-
-        let valuesToEdit = { "Password": "", "New Password": "", "Confirm New Password": "" };
-
-        ValueEditor.editValues(this.inputDivIdentifier, valuesToEdit, (newValues) => {
-            // TODO: change user's password
-            console.log("change password " + JSON.stringify(newValues));
-        });
-
-        this.pageTransition.slideLeft("settingsPage");
-    }
-
+    
     startTeamPreferences() {
         let storage = window.localStorage;
 
@@ -220,10 +286,10 @@ class Account extends Page {
             "School": storage.getItem("schoolName") | "",
         };
 
-        ValueEditor.editValues(this.inputDivIdentifier, valuesToEdit, (newValues) => {
+        ValueEditor.editValues(this.inputDivIdentifier, valuesToEdit, [], {}, (newValues) => {
 
-            storage.setItem('teamName', newVales["Team Name"]);
-            storage.setItem('schoolName', newVales["School"]);
+            storage.teamName = newVales["Team Name"];
+            storage.schoolName = newVales["School"];
 
             // TODO: change user's password
             console.log("set values " + JSON.stringify(newValues));
@@ -265,7 +331,7 @@ class Account extends Page {
 
         this.pageTransition.slideLeft("settingsPage");
     }
-
+    
     /**
      * Callback to handle the server response when editing an account. Since
      * behavior and errors vary based on the information being changed, a
@@ -274,12 +340,12 @@ class Account extends Page {
      * @param {AssociativeArray} response decoded JSON response from the server
      */
     handleAccountResponse(response) {
-
+        
         // BASIC ACCOUNT SETTINGS
         // If positive, let the use know it was successful
-        if (response.status > 0) {
-            if ("didSetPassword" in response) {
-                if (response.didSetPassword == 0) {
+        if(response.status > 0) {
+            if("didSetPassword" in response) {
+                if(response.didSetPassword == 0) {
                     Popup.createConfirmationPopup("Warning: Password was not updated! Please try later", ["OK"], [() => { }]);
                     return;
                 }
@@ -296,9 +362,9 @@ class Account extends Page {
         } else {
             Popup.createConfirmationPopup("Edit Failed!", ["Close"], [() => { }]);
         }
-
+        
     }
-
+    
 }
 
 
