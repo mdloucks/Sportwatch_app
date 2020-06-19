@@ -1,6 +1,6 @@
 
 class Login extends Page {
-    
+
     /**
      * Page where users can log in and receive an SID
      * 
@@ -9,13 +9,13 @@ class Login extends Page {
      */
     constructor(id, pageSetObj) {
         super(id, "Login");
-        
+
         this.pageController = pageSetObj;
-        
+
         // Misc variables
         this.dialogInterval = 0;
     }
-    
+
     getHtml() {
         return (`
             <div id="loginPage" class="div_page">
@@ -41,9 +41,9 @@ class Login extends Page {
             </div>
         `);
     }
-    
+
     start() {
-        
+
         // Back Button
         this.getPageElement("#returnWelcome").bind("touchend", (e) => {
             e.preventDefault();
@@ -54,22 +54,22 @@ class Login extends Page {
         this.getPageElement("input").bind("touchend", (e) => {
             $(e.target).focus();
         })
-        
+
         // Input Handling
         this.getPageElement("input").on("input", (e) => {
-            
+
             // Check to make sure the fields are filled in
             this.getPageElement("#login_button").removeClass("invalid");
-            
+
             // Loop through inputs to check length
             this.getPageElement("input").each((index) => {
                 let inputEl = this.getPageElement("input").get(index); // Returns JS object, use $(...)
-                if(($(inputEl).val().length < 3) && (!this.getPageElement("#login_button").hasClass("invalid"))) {
+                if (($(inputEl).val().length < 3) && (!this.getPageElement("#login_button").hasClass("invalid"))) {
                     this.getPageElement("#login_button").addClass("invalid");
                 }
             });
         });
-        
+
         // Animate the button to simulate a "press"
         this.getPageElement("#login_button").bind("touchstart", (e) => {
             this.getPageElement("#login_button").addClass("pressed");
@@ -77,41 +77,41 @@ class Login extends Page {
         this.getPageElement("#login_button").bind("touchend", (e) => {
             this.getPageElement("#login_button").removeClass("pressed");
         });
-        
+
         // this is just for testing TOOD: Remove
         this.getPageElement("input[name=email]").val("bromansalaam@gmail.com");
         this.getPageElement("input[name=password]").val("Testing123");
         this.getPageElement("#login_button").removeClass("invalid");
-        
-        this.getPageElement("form").on("submit", function (e) {
+
+        this.getPageElement("form").on("touchend", function (e) {
             e.preventDefault();
-            
+
             if (this.getPageElement("#login_button").hasClass("invalid")) {
                 return; // Exit the handler, not valid
             }
-            
+
             let email = this.getPageElement("input[name=email]").val();
             let password = this.getPageElement("input[name=password]").val();
 
-            Authentication.login(email, password).then(function(response) {
+            Authentication.login(email, password).then(function (response) {
                 this.pageController.onChangePageSet(1); // 1 for Main logic
             }.bind(this),
-            function(error) {
-                console.log("[login.js:start()] Login fail");
-                console.log(error);
-                this.handleLoginError(error.substatus, error.msg);
-            }.bind(this));
+                function (error) {
+                    console.log("[login.js:start()] Login fail");
+                    console.log(error);
+                    this.handleLoginError(error.substatus, error.msg);
+                }.bind(this));
         }.bind(this)); // Binding this is CRITICAL for changing state, etc.
-        
+
     };
-    
+
     stop() {
         $("#loginPage").unbind();
         $("#loginPage *").unbind();
     }
-    
+
     // ---- CUSTOM FUNCTIONS ---- //
-    
+
     /**
      * Opens a warning dialog when an input is invalid
      * 
@@ -139,12 +139,12 @@ class Login extends Page {
         let y = $(window).height() / 2;
         // If set, use the anchor element's position
         if (anchorElement != null) {
-            
+
             // Convert to jQuery object if it's a selector
             if (typeof anchorElement == "string") {
                 anchorElement = this.getPageElement(anchorElement);
             }
-            
+
             // Subtract 15 to add some padding around popup
             x = this.getPageElement(anchorElement).position().left - dialog.width();
             y = this.getPageElement(anchorElement).position().top - dialog.height() - 15;
@@ -176,7 +176,7 @@ class Login extends Page {
      * @param {String} msg - [default = ""] the response message from the server
      */
     handleLoginError(substatus, msg) {
-        
+
         switch (substatus) {
             case 1:
                 this.openMessageDialog("Invalid credentials, please try again");
@@ -191,7 +191,7 @@ class Login extends Page {
                 break;
         }
     }
-    
+
     /**
      * Used to get only the elements contained within this page by prepending
      * #loginPage to every selector
