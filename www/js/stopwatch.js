@@ -8,6 +8,9 @@ class Stopwatch extends Page {
         super(id, "Stopwatch");
         this.clockLoop = null;
 
+        this.dbConnection = new DatabaseConnection();
+        this.pageTransition = new PageTransition("#stopwatchPage");
+
         this.clock = {
             radius: 100,
             pointSize: 7,
@@ -32,6 +35,35 @@ class Stopwatch extends Page {
 
         this.c = null;
         this.ctx = null;
+
+        this.landingPage = (`
+            <div id="landingPage" class="div_page">
+                <canvas id="stopwatch_canvas" class="stopwatch_canvas" width="400px" height="300px"></canvas>
+                <div class="stopwatch_lap_times"></div>
+                <div class="stopwatch_button_container">
+                    <a id="stopwatch_reset" class="stopwatch_button">Reset</a>
+                    <button id="stopwatch_start_stop" class="stopwatch_button">&#9654;</button>
+                    <a id="stopwatch_lap" class="stopwatch_button">Lap</a>
+                </div>
+            </div>
+        `);
+
+        this.selectEventPage = (`
+            <div id="selectEventPage" class="div_page">
+                <div class="button_box">
+
+                </div>
+            </div>
+        `);
+
+        this.selectAthletePage = (`
+            <div id="selectAthletePage" class="div_page">
+                <div class="button_box">
+
+                </div>
+            </div>
+        `);
+
     }
 
     /**
@@ -40,13 +72,9 @@ class Stopwatch extends Page {
     getHtml() {
         return (`
             <div id="stopwatchPage" class="div_page">
-                <canvas id="stopwatch_canvas" class="stopwatch_canvas" width="400px" height="300px"></canvas>
-                <div class="stopwatch_lap_times"></div>
-                <div class="stopwatch_button_container">
-                    <a id="stopwatch_reset" class="stopwatch_button">Reset</a>
-                    <button id="stopwatch_start_stop" class="stopwatch_button">&#9654;</button>
-                    <a id="stopwatch_lap" class="stopwatch_button">Lap</a>
-                </div>
+                ${this.landingPage}
+                ${this.selectEventPage}
+                ${this.selectAthletePage}
             </div>
         `);
     }
@@ -58,6 +86,12 @@ class Stopwatch extends Page {
      * @returns {function} a function that will stop the this.clock interval
      */
     start() {
+
+        if (this.pageTransition.getPageCount() == 0) {
+            this.pageTransition.addPage("landingPage", this.landingPage, true);
+            this.pageTransition.addPage("selectEventPage", this.selectEventPage);
+            this.pageTransition.addPage("selectAthletePage", this.selectAthletePage);
+        }
 
         this.setupStopwatch();
     }
@@ -78,7 +112,7 @@ class Stopwatch extends Page {
             this.c = $("#stopwatch_canvas")[0];
             this.ctx = this.c.getContext("2d");
         }
-        
+
         // Switched the variable because if the user changes pages
         // before starting the stopwatch, the events are bound twice
         // I recorded a video of the issue if you wanted to see it, let me know
@@ -126,8 +160,7 @@ class Stopwatch extends Page {
                             `);
                     console.log("lap!");
                 } else if ($("#stopwatch_lap").html() == "Save") {
-                    // TODO: take the user to save their data
-                    console.log("SAVE!");
+                    this.startSelectEventPage();
                 } else {
                     throw new Error(`innerHTML: ${$("#stopwatch_lap").html()} is invalid for #stopwatch_lap`);
                 }
@@ -263,6 +296,24 @@ class Stopwatch extends Page {
         }
 
         return clockText;
+    }
+
+    startSelectEventPage() {
+
+        this.pageTransition.slideLeft("selectAthletePage");
+
+        this.dbConnection.selectValues("SELECT * FROM event GROUP BY event_name", []).then((events) => {
+            console.log(JSON.stringify(events));
+            ButtonGenerator.generateButtonsFromDatabase("#stopwatchPage #selectEventPage .button_box", events, (event) => {
+                this.startSelectAthletePage(event);
+            });
+
+            $("#stopwatchPage #selectEventPage .button_box").append("<div>dovhjreiuvheriuvhe</div>");
+        });
+    }
+
+    startSelectAthletePage(event) {
+
     }
 
     /**
