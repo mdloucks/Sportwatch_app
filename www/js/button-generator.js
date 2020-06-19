@@ -56,6 +56,7 @@ class ButtonGenerator {
                 // set attributes
                 if (key === "rowid") {
                     attributes.id = `generated_button_${databaseResults.item(i)[key]}`;
+                    attributes.rowid = databaseResults.item(i)[key];
                     // exclude adding to innerHTML if it's on the blacklist
                 } else if (blackList.includes(key)) {
                     attributes[key] = databaseResults.item(i)[key];

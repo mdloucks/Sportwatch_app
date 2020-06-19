@@ -52,7 +52,7 @@ class App {
     determinePageSet() {
 
         // If session is present, attempt to log in
-        if(Authentication.hasSession()) {
+        if (Authentication.hasSession()) {
             let sid = Authentication.getSID();
             // Authenticate and handle response (then = success)
             Authentication.validateSID(sid).then((response) => {
@@ -68,7 +68,7 @@ class App {
             console.log("[main.js:determinePageSet()] No SID data");
         }
 
-        this.setActivePageSet(0); // Default to main page, for now
+        this.setActivePageSet(1); // Default to main page, for now
     }
 
     /**
@@ -98,7 +98,7 @@ class App {
             _this.activePageSet = 0;
         }
     }
-    
+
     /**
      * Returns a page by passing in an integer id or string name
      * 
@@ -127,7 +127,7 @@ class App {
             throw new Error(`Incorrect datatype entered for getPage, expected integer or string, you entered ${typeof identifier}`);
         }
     }
-    
+
     onPause() {
         console.log("Device is paused");
     }

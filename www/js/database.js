@@ -6,10 +6,8 @@
 class DatabaseConnection {
 
     constructor() {
-        console.log("Initializing database...");
         try {
             this.db = window.sqlitePlugin.openDatabase({ name: 'Sportwatch.db', location: 'default' });
-            console.log("Opened database");
         } catch (err) {
             console.log("Sportwatch database failed to open.");
             throw err;
@@ -70,8 +68,8 @@ class DatabaseConnection {
     /**
      * example ("SELECT * from athlete WHERE id = ?", 3)
      * 
-     * @param {*} row the given id
-     * @param {Array} table 
+     * @param {*} query the given query
+     * @param {Array} values 
      */
     selectValues(query, values) {
         return new Promise((resolve, reject) => {
@@ -251,19 +249,33 @@ class DatabaseConnection {
             tx.executeSql("INSERT INTO event VALUES (?, ?, ?, ?, ?)", ["400x400m Relay", "m", "s", "true", 0]);
 
             // 400m
-            tx.executeSql("INSERT INTO event_result VALUES (?, ?, ?)", [0, 0, 56.2]);
-            tx.executeSql("INSERT INTO event_result VALUES (?, ?, ?)", [0, 1, 57.6]);
+            tx.executeSql("INSERT INTO event_result VALUES (?, ?, ?)", [1, 1, 56.2]);
+            tx.executeSql("INSERT INTO event_result VALUES (?, ?, ?)", [1, 1, 59.2]);
+
+            tx.executeSql("INSERT INTO event_result VALUES (?, ?, ?)", [1, 2, 57.6]);
+            tx.executeSql("INSERT INTO event_result VALUES (?, ?, ?)", [1, 2, 58.6]);
+            tx.executeSql("INSERT INTO event_result VALUES (?, ?, ?)", [1, 2, 52.6]);
+
+            tx.executeSql("INSERT INTO event_result VALUES (?, ?, ?)", [1, 3, 59.6]);
+
+            tx.executeSql("INSERT INTO event_result VALUES (?, ?, ?)", [1, 6, 49.6]);
+            tx.executeSql("INSERT INTO event_result VALUES (?, ?, ?)", [1, 6, 59.3]);
+
+            tx.executeSql("INSERT INTO event_result VALUES (?, ?, ?)", [1, 7, 120.6]);
+            tx.executeSql("INSERT INTO event_result VALUES (?, ?, ?)", [1, 7, 103.6]);
 
             // 800m
-            tx.executeSql("INSERT INTO event_result VALUES (?, ?, ?)", [1, 2, 112.3]);
+            tx.executeSql("INSERT INTO event_result VALUES (?, ?, ?)", [2, 3, 112.3]);
+            tx.executeSql("INSERT INTO event_result VALUES (?, ?, ?)", [2, 4, 157.6]);
+            tx.executeSql("INSERT INTO event_result VALUES (?, ?, ?)", [2, 5, 197.6]);
 
             // 400x400m Relay
             tx.executeSql("INSERT INTO relay_team VALUES (?)", ["Hemlock"]);
 
-            tx.executeSql("INSERT INTO relay_result VALUES (?, ?, ?, ?)", [2, 0, 0, 67.4]);
-            tx.executeSql("INSERT INTO relay_result VALUES (?, ?, ?, ?)", [2, 0, 1, 66.4]);
-            tx.executeSql("INSERT INTO relay_result VALUES (?, ?, ?, ?)", [2, 0, 2, 69.4]);
-            tx.executeSql("INSERT INTO relay_result VALUES (?, ?, ?, ?)", [2, 0, 3, 64.4]);
+            tx.executeSql("INSERT INTO relay_result VALUES (?, ?, ?, ?)", [3, 0, 0, 67.4]);
+            tx.executeSql("INSERT INTO relay_result VALUES (?, ?, ?, ?)", [3, 0, 1, 66.4]);
+            tx.executeSql("INSERT INTO relay_result VALUES (?, ?, ?, ?)", [3, 0, 2, 69.4]);
+            tx.executeSql("INSERT INTO relay_result VALUES (?, ?, ?, ?)", [3, 0, 3, 64.4]);
 
         }, function (error) {
             console.log('Transaction ERROR: ' + error.message);
