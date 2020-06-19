@@ -42,7 +42,7 @@ class Stopwatch extends Page {
                 <div class="stopwatch_lap_times"></div>
                 <div class="stopwatch_button_container">
                     <a id="stopwatch_reset" class="stopwatch_button">Reset</a>
-                    <button id="stopwatch_start_stop" class="stopwatch_button">&#9654;</button>
+                    <button id="stopwatch_start_stop" class="play_button"></button>
                     <a id="stopwatch_lap" class="stopwatch_button">Lap</a>
                 </div>
             </div>
@@ -50,6 +50,11 @@ class Stopwatch extends Page {
 
         this.selectEventPage = (`
             <div id="selectEventPage" class="div_page">
+
+                <div class="generic_header">
+                    <div class="back_button">&#8592;</div>
+                    <h1>Chose An Event</h1>
+                </div>
                 <div class="button_box">
 
                 </div>
@@ -58,6 +63,10 @@ class Stopwatch extends Page {
 
         this.selectAthletePage = (`
             <div id="selectAthletePage" class="div_page">
+                <div class="generic_header">
+                    <div class="back_button">&#8592;</div>
+                    <h1>Choose An Athlete</h1>
+                </div>
                 <div class="button_box">
 
                 </div>
@@ -150,6 +159,10 @@ class Stopwatch extends Page {
                 this.resetStopwatch(this.clock, this.ctx);
             });
 
+            $("#stopwatchPage .back_button").bind("touchend", (e) => {
+                this.pageTransition.slideRight("landingPage");
+            });
+
             $("#stopwatch_lap").bind("touchend", (e) => {
                 e.preventDefault();
 
@@ -197,7 +210,7 @@ class Stopwatch extends Page {
 
     startStopwatch() {
         this.clock.isRunning = true;
-        $("#stopwatch_start_stop").html("&#9632");
+        $("#stopwatch_start_stop").toggleClass("paused");
         $("#stopwatch_lap").html("Lap");
         this.clock.start = 0;
     }
@@ -205,7 +218,7 @@ class Stopwatch extends Page {
     stopStopwatch() {
         this.clock.isRunning = false;
         $("#stopwatch_lap").html("Save");
-        $("#stopwatch_start_stop").html("&#9654");
+        $("#stopwatch_start_stop").toggleClass("paused");
     }
 
     toggleStopwatch() {
@@ -222,6 +235,7 @@ class Stopwatch extends Page {
         if (!this.clock.hasStarted) {
             console.log("Starting stopwatch first time");
             this.startStopwatch();
+            $("#stopwatch_start_stop").addClass("paused");
             this.clock.hasStarted = true;
             $(".stopwatch_button_container a").css("animation", "fadein 2s");
             $(".stopwatch_button_container a").css("visibility", "visible");
@@ -247,7 +261,6 @@ class Stopwatch extends Page {
 
         $(".stopwatch_lap_times").empty();
         $("#stopwatch_lap").html("Lap");
-        $("#stopwatch_start_stop").html("&#9654");
 
         this.clock.angle = this.clock.initialAngle;
         this.clock.epoch = 0;
@@ -300,20 +313,26 @@ class Stopwatch extends Page {
 
     startSelectEventPage() {
 
-        this.pageTransition.slideLeft("selectAthletePage");
+        this.pageTransition.slideLeft("selectEventPage");
+        $("#stopwatchPage #selectEventPage .button_box").empty();
 
         this.dbConnection.selectValues("SELECT * FROM event GROUP BY event_name", []).then((events) => {
-            console.log(JSON.stringify(events));
             ButtonGenerator.generateButtonsFromDatabase("#stopwatchPage #selectEventPage .button_box", events, (event) => {
                 this.startSelectAthletePage(event);
-            });
-
-            $("#stopwatchPage #selectEventPage .button_box").append("<div>dovhjreiuvheriuvhe</div>");
+            }, ["gender", "unit", "is_relay", "timestamp"]);
         });
     }
 
     startSelectAthletePage(event) {
+        this.pageTransition.slideLeft("selectAthletePage");
 
+        $("#stopwatchPage #selectAthletePage .button_box").empty();
+
+        this.dbConnection.selectValues("SELECT * FROM athlete", []).then((athletes) => {
+            ButtonGenerator.generateButtonsFromDatabase("#stopwatchPage #selectAthletePage .button_box", athletes, (athlete) => {
+                // TODO: insert time
+            });
+        });
     }
 
     /**
