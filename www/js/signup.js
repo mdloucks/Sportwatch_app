@@ -57,13 +57,13 @@ class Signup extends Page {
 
     start() {
         // Back Button
-        this.getPageElement("#returnWelcome").bind("touchend", (e) => {
+        this.getPageElement("#returnWelcome").click((e) => {
             e.preventDefault();
             this.pageController.switchPage("Welcome");
         });
 
         // When clicking on input, focus it
-        this.getPageElement("input").bind("touchend", (e) => {
+        this.getPageElement("input").click((e) => {
             $(e.target).focus();
         })
 
@@ -83,7 +83,7 @@ class Signup extends Page {
             }
         });
         // Add starting dialog when clicked (if empty)
-        this.getPageElement("#i_fname.invalidSym").bind("touchend", (e) => {
+        this.getPageElement("#i_fname.invalidSym").click((e) => {
             this.openInvalidMessage("Please enter your name", "#i_fname");
         });
 
@@ -103,7 +103,7 @@ class Signup extends Page {
                 this.setupInvalidSymbol("#i_email", true, "Looks good!");
             }
         });
-        this.getPageElement("#i_email.invalidSym").bind("touchend", (e) => {
+        this.getPageElement("#i_email.invalidSym").click((e) => {
             this.openInvalidMessage("Please enter your email", "#i_email");
         });
 
@@ -120,18 +120,18 @@ class Signup extends Page {
                 this.setupInvalidSymbol("#i_password", true, "Great choice!");
             }
         });
-        this.getPageElement("#i_password.invalidSym").bind("touchend", (e) => {
+        this.getPageElement("#i_password.invalidSym").click((e) => {
             this.openInvalidMessage("Please create a <b>unique</b> password", "#i_password");
         });
 
         // REST OF FORM
         // "Radio button" logic for account types
-        this.getPageElement(".accountType_button").bind("touchend", (e) => {
+        this.getPageElement(".accountType_button").click((e) => {
             // Remove .selected from both buttons
             this.getPageElement(".accountType_button").removeClass("selected");
             $(e.target).addClass("selected");
         });
-
+        
         // Animate the button to simulate a "press"
         this.getPageElement("#button_signup").bind("touchstart", (e) => {
             this.getPageElement("#button_signup").addClass("pressed");
@@ -212,7 +212,7 @@ class Signup extends Page {
             this.getPageElement(symbolId + ".invalidSym").prop("src", "img/invalidSymbol.png");
             // Show dialog and set up click event
             this.openInvalidMessage(errMessage, symbolId);
-            this.getPageElement(symbolId + ".invalidSym").bind("touchend", (e) => {
+            this.getPageElement(symbolId + ".invalidSym").click((e) => {
                 this.openInvalidMessage(errMessage, e.target);
             });
         }

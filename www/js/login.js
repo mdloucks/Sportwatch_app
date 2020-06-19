@@ -45,13 +45,13 @@ class Login extends Page {
     start() {
 
         // Back Button
-        this.getPageElement("#returnWelcome").bind("touchend", (e) => {
+        this.getPageElement("#returnWelcome").click((e) => {
             e.preventDefault();
             this.pageController.switchPage("Welcome");
         });
 
         // When clicking on input, focus it
-        this.getPageElement("input").bind("touchend", (e) => {
+        this.getPageElement("input").click((e) => {
             $(e.target).focus();
         })
 
@@ -83,7 +83,7 @@ class Login extends Page {
         this.getPageElement("input[name=password]").val("Testing123");
         this.getPageElement("#login_button").removeClass("invalid");
 
-        this.getPageElement("form").on("touchend", function (e) {
+        this.getPageElement("form").on("submit", function (e) {
             e.preventDefault();
 
             if (this.getPageElement("#login_button").hasClass("invalid")) {
@@ -94,6 +94,7 @@ class Login extends Page {
             let password = this.getPageElement("input[name=password]").val();
 
             Authentication.login(email, password).then(function (response) {
+                localStorage.setItem("email", email);
                 this.pageController.onChangePageSet(1); // 1 for Main logic
             }.bind(this),
                 function (error) {
