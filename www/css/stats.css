@@ -12,12 +12,6 @@
   background-color: rgb(245, 77, 77);
 }
 
-#statsPage #eventPage .selected {
-  color: white;
-  background-color: black;
-  border: 1px solid rgb(245, 77, 77);
-}
-
 #statsPage #eventPage #event_results {
   width: 100%;
   table-layout: fixed;

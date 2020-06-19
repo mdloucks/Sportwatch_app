@@ -69,7 +69,7 @@ class Stopwatch extends Page {
                 </div>
                 <div class="button_box">
 
-                </div>
+                </div><br><br>
             </div>
         `);
 
@@ -311,27 +311,54 @@ class Stopwatch extends Page {
         return clockText;
     }
 
+    /**
+     * this function will start the select event page
+     */
     startSelectEventPage() {
 
         this.pageTransition.slideLeft("selectEventPage");
         $("#stopwatchPage #selectEventPage .button_box").empty();
 
-        this.dbConnection.selectValues("SELECT * FROM event GROUP BY event_name", []).then((events) => {
+        this.dbConnection.selectValues("SELECT *, rowid FROM event", []).then((events) => {
             ButtonGenerator.generateButtonsFromDatabase("#stopwatchPage #selectEventPage .button_box", events, (event) => {
                 this.startSelectAthletePage(event);
             }, ["gender", "unit", "is_relay", "timestamp"]);
         });
     }
 
+    /**
+     * This function will start the select athlete page
+     * @param {row} event the event selected
+     */
     startSelectAthletePage(event) {
         this.pageTransition.slideLeft("selectAthletePage");
 
         $("#stopwatchPage #selectAthletePage .button_box").empty();
 
-        this.dbConnection.selectValues("SELECT * FROM athlete", []).then((athletes) => {
+        let query = (`
+            SELECT *, athlete.rowid FROM athlete
+            INNER JOIN athlete_event_register
+            ON athlete.id_athlete_event_register = athlete_event_register.rowid
+            WHERE athlete_event_register.event_id_1 = ? 
+            OR athlete_event_register.event_id_2 = ?
+            OR athlete_event_register.event_id_3 = ?
+            OR athlete_event_register.event_id_4 = ?
+            OR athlete_event_register.event_id_5 = ?
+        `);
+
+        this.dbConnection.selectValues(query, [event.rowid, event.rowid, event.rowid, event.rowid, event.rowid]).then((athletes) => {
+
             ButtonGenerator.generateButtonsFromDatabase("#stopwatchPage #selectAthletePage .button_box", athletes, (athlete) => {
-                // TODO: insert time
-            });
+
+                // TODO: send these values to the server
+                this.pageTransition.slideRight("landingPage");
+                this.dbConnection.insertValues("event_result", [event.rowid, athlete.rowid, this.clock.seconds]);
+                console.log("VALUES INSERTED " + event.rowid + " " + athlete.rowid + " " + this.clock.seconds);
+
+                // TODO: create confirmation popup
+                // Popup.createFadeoutPopup("Times Saved!");
+
+            }, ["event_id_1", "event_id_2", "event_id_3", "event_id_4", "event_id_5", "id_athlete_event_register"]);
         });
     }
 

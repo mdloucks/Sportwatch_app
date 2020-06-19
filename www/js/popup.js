@@ -58,4 +58,22 @@ class Popup {
             $(".popup").fadeOut(300, function () { $(this).remove(); });
         });
     }
+
+    /**
+     * This function will create a simple popup which will fade out immediately
+     * @param {String} text the text to be displayed
+     */
+    static createFadeoutPopup(text) {
+        $("#app").append(`
+            <div class="popup">
+                <div class="popup_content">
+                    ${text}
+                </div>
+            </div>
+        `);
+
+        $(".popup:first").fadeOut(1000, function () {
+            $(this).remove();
+        });
+    }
 }

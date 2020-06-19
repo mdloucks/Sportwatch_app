@@ -49,8 +49,9 @@ class DatabaseConnection {
 
             // tx.executeSql(`CREATE TABLE IF NOT EXISTS account (id_user, fname, lname, account_type, id_school, cellNum)`);
             tx.executeSql(`CREATE TABLE IF NOT EXISTS meet (meet_name, meet_time, meet_address)`);
-            tx.executeSql(`CREATE TABLE IF NOT EXISTS athlete (fname, lname, grade, gender)`);
+            tx.executeSql(`CREATE TABLE IF NOT EXISTS athlete (fname, lname, grade, gender, id_athlete_event_register)`);
 
+            tx.executeSql(`CREATE TABLE IF NOT EXISTS athlete_event_register (event_id_1, event_id_2, event_id_3, event_id_4, event_id_5)`);
             tx.executeSql(`CREATE TABLE IF NOT EXISTS event (event_name, gender, unit, is_relay, timestamp)`);
             tx.executeSql(`CREATE TABLE IF NOT EXISTS event_result (id_event, id_athlete, value)`);
 
@@ -235,18 +236,30 @@ class DatabaseConnection {
 
     insertDummyValues() {
         this.db.transaction(function (tx) {
-            tx.executeSql("INSERT INTO athlete VALUES (?, ?, ?, ?)", ["John", "Smith", "10", "m"]);
-            tx.executeSql("INSERT INTO athlete VALUES (?, ?, ?, ?)", ["Bill", "Washington", "12", "m"]);
-            tx.executeSql("INSERT INTO athlete VALUES (?, ?, ?, ?)", ["George", "Harris", "9", "m"]);
-            tx.executeSql("INSERT INTO athlete VALUES (?, ?, ?, ?)", ["Tyrone", "Shreider", "9", "m"]);
-            tx.executeSql("INSERT INTO athlete VALUES (?, ?, ?, ?)", ["Levi", "Hemmingway", "10", "m"]);
 
-            tx.executeSql("INSERT INTO athlete VALUES (?, ?, ?, ?)", ["Suzie", "Walton", "11", "f"]);
-            tx.executeSql("INSERT INTO athlete VALUES (?, ?, ?, ?)", ["Grace", "Dalton", "9", "f"]);
+            // m
+            tx.executeSql("INSERT INTO athlete VALUES (?, ?, ?, ?, ?)", ["John", "Smith", "10", "m", 1]);
+            tx.executeSql("INSERT INTO athlete VALUES (?, ?, ?, ?, ?)", ["Bill", "Washington", "12", "m", 2]);
+            tx.executeSql("INSERT INTO athlete VALUES (?, ?, ?, ?, ?)", ["George", "Harris", "9", "m", 3]);
+            tx.executeSql("INSERT INTO athlete VALUES (?, ?, ?, ?, ?)", ["Tyrone", "Shreider", "9", "m", 4]);
+            tx.executeSql("INSERT INTO athlete VALUES (?, ?, ?, ?, ?)", ["Levi", "Hemmingway", "10", "m", 5]);
+
+            // f
+            tx.executeSql("INSERT INTO athlete VALUES (?, ?, ?, ?, ?)", ["Suzie", "Walton", "11", "f", 6]);
+            tx.executeSql("INSERT INTO athlete VALUES (?, ?, ?, ?, ?)", ["Grace", "Dalton", "9", "f", 7]);
 
             tx.executeSql("INSERT INTO event VALUES (?, ?, ?, ?, ?)", ["400m", "m", "s", "false", 0]);
             tx.executeSql("INSERT INTO event VALUES (?, ?, ?, ?, ?)", ["800m", "f", "s", "false", 0]);
             tx.executeSql("INSERT INTO event VALUES (?, ?, ?, ?, ?)", ["400x400m Relay", "m", "s", "true", 0]);
+
+            // register athletes for athlete_event_register
+            tx.executeSql("INSERT INTO athlete_event_register VALUES (?, ?, ?, ?, ?)", [1]);
+            tx.executeSql("INSERT INTO athlete_event_register VALUES (?, ?, ?, ?, ?)", [1]);
+            tx.executeSql("INSERT INTO athlete_event_register VALUES (?, ?, ?, ?, ?)", [1, 2]);
+            tx.executeSql("INSERT INTO athlete_event_register VALUES (?, ?, ?, ?, ?)", [2]);
+            tx.executeSql("INSERT INTO athlete_event_register VALUES (?, ?, ?, ?, ?)", [2]);
+            tx.executeSql("INSERT INTO athlete_event_register VALUES (?, ?, ?, ?, ?)", [1]);
+            tx.executeSql("INSERT INTO athlete_event_register VALUES (?, ?, ?, ?, ?)", [1]);
 
             // 400m
             tx.executeSql("INSERT INTO event_result VALUES (?, ?, ?)", [1, 1, 56.2]);

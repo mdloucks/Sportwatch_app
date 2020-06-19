@@ -77,8 +77,6 @@ class ButtonGenerator {
                 }
             });
 
-            // console.log(JSON.stringify(attributes));
-
             attributes.html = innerHTML;
 
             let button = ButtonGenerator.generateButton(attributes, callback);

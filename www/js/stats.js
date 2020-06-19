@@ -90,7 +90,7 @@ class Stats extends Page {
                 this.startEventPage(event);
             }, ["gender", "unit", "is_relay", "timestamp"]);
 
-            let addButton = ButtonGenerator.generateButton({ text: "Add Event", class: "add_event_button" }, () => {
+            let addButton = ButtonGenerator.generateButton({ text: "Add Event", class: "add_button" }, () => {
                 this.startAddEventPage();
             });
 
@@ -103,6 +103,10 @@ class Stats extends Page {
 
     }
 
+    /**
+     * @description This function will start the event page
+     * @param {row} event the event to display results for
+     */
     startEventPage(event) {
 
         this.pageTransition.slideLeft("eventPage");
@@ -121,27 +125,27 @@ class Stats extends Page {
 
         // Sort alphabetically
         $("#statsPage #eventPage #sort_alphabet").bind("touchend", (e) => {
-            $("#statsPage #eventPage #sort_alphabet").addClass("selected");
-            $("#statsPage #eventPage #sort_times").removeClass("selected");
-            $("#statsPage #eventPage #sort_gender").removeClass("selected");
+            $("#statsPage #eventPage #sort_alphabet").addClass("button_selected");
+            $("#statsPage #eventPage #sort_times").removeClass("button_selected");
+            $("#statsPage #eventPage #sort_gender").removeClass("button_selected");
 
             this.generateAthleteTimes(event, "A-z");
         });
 
         // sort based on fasted time
         $("#statsPage #eventPage #sort_times").bind("touchend", (e) => {
-            $("#statsPage #eventPage #sort_times").addClass("selected");
-            $("#statsPage #eventPage #sort_alphabet").removeClass("selected");
-            $("#statsPage #eventPage #sort_gender").removeClass("selected");
+            $("#statsPage #eventPage #sort_times").addClass("button_selected");
+            $("#statsPage #eventPage #sort_alphabet").removeClass("button_selected");
+            $("#statsPage #eventPage #sort_gender").removeClass("button_selected");
 
             this.generateAthleteTimes(event, "0-9");
         });
 
         // sort based on gender
         $("#statsPage #eventPage #sort_gender").bind("touchend", (e) => {
-            $("#statsPage #eventPage #sort_gender").addClass("selected");
-            $("#statsPage #eventPage #sort_alphabet").removeClass("selected");
-            $("#statsPage #eventPage #sort_times").removeClass("selected");
+            $("#statsPage #eventPage #sort_gender").addClass("button_selected");
+            $("#statsPage #eventPage #sort_alphabet").removeClass("button_selected");
+            $("#statsPage #eventPage #sort_times").removeClass("button_selected");
 
             this.generateAthleteTimes(event, "M/F");
         });
@@ -149,6 +153,12 @@ class Stats extends Page {
         this.generateAthleteTimes(event);
     }
 
+    /**
+     * @description this will generate all of the times for the given event in the specified order 
+     * and append it to the table
+     * @param {row} event the event row from the database
+     * @param {String} order what order to generate the times in
+     */
     generateAthleteTimes(event, order) {
 
         this.clearResultsTable();
@@ -172,8 +182,8 @@ class Stats extends Page {
                 console.log(JSON.stringify(athletes[i]));
 
                 let name = athletes[i].fname + "\t" + athletes[i].lname;
-                let min = Math.min(...athletes[i].values);
-                let max = Math.max(...athletes[i].values);
+                let min = Math.min(...athletes[i].values).toFixed(2);
+                let max = Math.max(...athletes[i].values).toFixed(2);
                 let average = (athletes[i].values.reduce((a, b) => a + b, 0) / athletes[i].values.length).toFixed(2);
 
                 let info_box;
@@ -197,6 +207,12 @@ class Stats extends Page {
         });
     }
 
+    /**
+     * @description This function will merge the athlete times into one array inside of the athlete object
+     * instead of having multiple objects, just access .values It will also sort these values
+     * @param {row} rows the event rows
+     * @param {String} order what to order the rows
+     */
     constructAthleteTimeArray(rows, order) {
 
         let array = [];
@@ -221,9 +237,6 @@ class Stats extends Page {
         } else if (order == "M/F") {
             array.sort((a, b) => (a.gender > b.gender) ? 1 : ((b.gender > a.gender) ? -1 : 0));
         }
-
-        console.log(JSON.stringify(array));
-        console.log(array.length);
 
         return array;
     }
