@@ -36,7 +36,7 @@ class Account extends Page {
         `);
 
         this.dbConnection = new DatabaseConnection();
-        this.pageTransition = new PageTransition("#teamPage");
+        this.pageTransition = new PageTransition("#accountPage");
         this.pageController.swipeHandler.addScrollPage("#accountPage > #settingsPage");
         
         this.inputDivIdentifier = "#accountPage #settingsPage #account_edit_inputs";
@@ -125,15 +125,17 @@ class Account extends Page {
 
         // ---- MISC PAGE LOGIC ---- //
 
-        $(".back_button").bind("touchend", (e) => {
+        $("#accountPage .back_button").bind("touchend", (e) => {
             e.preventDefault();
             this.pageTransition.slideRight("catagoryPage");
         });
     }
 
     stop() {
-        $("#accountPage").unbind();
-        $("#accountPage *").unbind();
+        // For now, don't unbind because adding the click events back is difficult
+        // TODO: Change structure so it can properly unbind
+        // $("#accountPage").unbind();
+        // $("#accountPage *").unbind();
     }
 
     /**
@@ -286,7 +288,7 @@ class Account extends Page {
             "School": storage.getItem("schoolName") | "",
         };
 
-        ValueEditor.editValues(this.inputDivIdentifier, valuesToEdit, [], {}, (newValues) => {
+        ValueEditor.editValues(this.inputDivIdentifier, valuesToEdit, (newValues) => {
 
             storage.teamName = newVales["Team Name"];
             storage.schoolName = newVales["School"];

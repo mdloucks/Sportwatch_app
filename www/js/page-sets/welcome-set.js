@@ -32,6 +32,8 @@ class WelcomeSet extends PageSet {
             }
             this.transitionObj.addPage((pageObj.name.toLowerCase() + "Page"), pageObj.getHtml(), shouldShow);
         });
+        
+        this.disable(); // Disable until enabled
     }
 
     activate() {
@@ -43,6 +45,7 @@ class WelcomeSet extends PageSet {
 
     disable() {
         this.transitionObj.hidePages();
+        this.transitionObj.setCurrentPage(this.pageArray[this.START_PAGE].name.toLowerCase() + "Page");
         this.clearSwipes();
     }
 

@@ -1,7 +1,7 @@
 #stopwatchPage > .stopwatch_canvas {
   margin-top: 1em;
-  height: 300px;
-  width: 400px;
+  height: 75vw;
+  width: 100vw;
 }
 
 #stopwatchPage > .stopwatch_button_container {

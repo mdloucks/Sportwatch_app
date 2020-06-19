@@ -32,6 +32,7 @@ class MainSet extends PageSet {
         
         // Include this hear so it's easier to enable / disable later
         this.navbar.initNavbar(this.switchPage.bind(this));
+        this.disable(); // Disable until enabled
     }
     
     activate() {
@@ -45,16 +46,24 @@ class MainSet extends PageSet {
     
     disable() {
         this.transitionObj.hidePages();
+        this.transitionObj.setCurrentPage(this.pageArray[0].name.toLowerCase() + "Page");
         this.clearSwipes();
         
         $(".navbar").css("display", "none");
+        this.navbar.focusButton("#" + this.pageArray[0].name.toLowerCase());
     }
     
     switchPage(pageName) {
-        this.pageArray[this.currentPageId].stop(); // Stop current page
-        this.transitionPage(pageName); // Begin transition
-        this.currentPageId = (this.getPage(pageName).id);
-        this.pageArray[this.currentPageId].start();
+        // Will return false if it's in the middle of another page switch
+        if(this.transitionPage(pageName) !== false) {
+            this.pageArray[this.currentPageId].stop(); // Stop current page
+            this.currentPageId = (this.getPage(pageName).id);
+            this.pageArray[this.currentPageId].start();
+        }
+        // this.pageArray[this.currentPageId].stop(); // Stop current page
+        // this.transitionPage(pageName); // Begin transition
+        // this.currentPageId = (this.getPage(pageName).id);
+        // this.pageArray[this.currentPageId].start();
     }
     
     
@@ -110,9 +119,9 @@ class MainSet extends PageSet {
         // dx > 0 ==> Swiping right to left,   dx < 0 ==> Left to right
         this.swipeHandler.bindGestureCallback(this.swipeHandler.Gestures.MOVE, (dx, dy) => {
             if ((dx > 0) && (pageIndex < this.pageArray.length - 1)) {
-                this.transitionObj.slidePageX(this.getPage(pageIndex + 1).name.toLowerCase() + "Page", true, Math.abs(dx));
+                this.transitionObj.slidePageX(this.getPage(pageIndex + 1).name.toLowerCase() + "Page", true, Math.abs(dx), 200);
             } else if ((dx < 0) && (pageIndex > 0)) {
-                this.transitionObj.slidePageX(this.getPage(pageIndex - 1).name.toLowerCase() + "Page", false, Math.abs(dx));
+                this.transitionObj.slidePageX(this.getPage(pageIndex - 1).name.toLowerCase() + "Page", false, Math.abs(dx), 200);
             } else {
                 this.transitionObj.slidePageX(this.getPage(pageIndex).name.toLowerCase() + "Page", true, 0);
             }
@@ -120,13 +129,13 @@ class MainSet extends PageSet {
 
         // If the gesture was classified as a tap or scroll, snap it back / reset it
         this.swipeHandler.bindGestureCallback(this.swipeHandler.Gestures.TAP, () => {
-            this.transitionObj.slidePageX(this.getPage(pageIndex).name.toLowerCase() + "Page", true, 0);
+            this.transitionObj.slidePageX(this.getPage(pageIndex).name.toLowerCase() + "Page", true, 0, 200);
         });
         this.swipeHandler.bindGestureCallback(this.swipeHandler.Gestures.SWIPEUP, () => {
-            this.transitionObj.slidePageX(this.getPage(pageIndex).name.toLowerCase() + "Page", true, 0);
+            this.transitionObj.slidePageX(this.getPage(pageIndex).name.toLowerCase() + "Page", true, 0, 200);
         });
         this.swipeHandler.bindGestureCallback(this.swipeHandler.Gestures.SWIPEDOWN, () => {
-            this.transitionObj.slidePageX(this.getPage(pageIndex).name.toLowerCase() + "Page", true, 0);
+            this.transitionObj.slidePageX(this.getPage(pageIndex).name.toLowerCase() + "Page", true, 0, 200);
         });
         
     }
