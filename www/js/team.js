@@ -114,10 +114,10 @@ class Team extends Page {
         let blackList = ["class", "id", "html"];
         let rename = { "fname": "First Name", "lname": "Last Name", "grade": "Grade", "gender": "Gender" };
 
-        ValueEditor.editValues("#teamPage #editAthletePage #athlete_edit_inputs", rename, (newValues) => {
+        ValueEditor.editValues("#teamPage #editAthletePage #athlete_edit_inputs", athlete, (newValues) => {
             // TODO: SAVE NEW CHANGES!
             this.pageTransition.slideRight("athletePage");
-        }, athlete, blackList);
+        }, blackList, rename);
     }
 
     startAthletePage(athlete) {

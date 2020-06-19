@@ -4,42 +4,6 @@
 
 /* General Page Styling */
 
-#accountPage .div_page {
-    position: absolute;
-    /*top: 15%; */
-    top: 0;
-    width: 100%; /* 100% is larger than header, producing "scoll" */
-    min-height: 85%;
-    text-align: center;
-    background-color: #fff;
-    transition: left 0.5s;
-}
-
-#accountPage .div_page.current_page {
-    left: 0%;
-}
-
-#accountPage .div_page.page_right {
-    left: 100%;
-}
-
-#accountPage .div_page.page_left {
-    left: -100%;
-}
-
-/* Shamelessly stole from:
-https://css-tricks.com/places-its-tempting-to-use-display-none-but-dont/ */
-#accountPage .hidden {
-    position: absolute !important;
-    overflow: hidden !important;
-    clip: rect(0 0 0 0);
-    height: 1px !important;
-    width: 1px !important;
-    margin: -1px !important;
-    padding: 0;
-    border: 0;
-}
-
 #accountPage .back_arrow {
     position: relative;
     right: 20%;
