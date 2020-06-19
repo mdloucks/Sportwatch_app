@@ -47,6 +47,7 @@ class MainSet extends PageSet {
     disable() {
         this.transitionObj.hidePages();
         this.transitionObj.setCurrentPage(this.pageArray[0].name.toLowerCase() + "Page");
+        this.currentPageId = this.pageArray[0].id;
         this.clearSwipes();
         
         $(".navbar").css("display", "none");
