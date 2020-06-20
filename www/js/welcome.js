@@ -35,22 +35,21 @@ class Welcome extends Page {
     
     start() {
         // Very similar to main.js's defineSwipes
-        $("#welcomePage").find("#signup").bind("touchend", (e) => {
+        $("#welcomePage").find("#signup").click((e) => {
             e.preventDefault();
             this.pageController.switchPage("Signup");
         });
 
-        $("#welcomePage").find("#login").bind("touchend", (e) => {
+        $("#welcomePage").find("#login").click((e) => {
             e.preventDefault();
             this.pageController.switchPage("Login");
         });
     }
     
     stop() {
-        
         // Clear click hanlders to prevent duplicate event firing
-        $("#welcomePage").find("#signup").unbind();
-        $("#welcomePage").find("#login").unbind()
+        $("#signupPage").unbind();
+        $("#signupPage *").unbind();
     }
     
 }

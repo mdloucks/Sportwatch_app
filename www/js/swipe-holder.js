@@ -89,7 +89,13 @@ class SwipeHolder {
                 // Update the touchHistory, setting the ending touch (index 1)
                 let currentTouchIndex = this.getIndexFromId(touch.identifier);
                 this.touchHistory[currentTouchIndex][1] = touch;
-                this.evaluateGesture(currentTouchIndex);
+                let gesture = this.evaluateGesture(currentTouchIndex);
+                
+                if(gesture == this.Gestures.TAP) {
+                    // Matt, you can remove this log statement after you see the magic
+                    console.log("[swipe-holder.js:attachToElement()]: Tapped");
+                    $(e.target).trigger("click");
+                }
             }
             this.callbacks[this.Gestures.STOP]();
         });
@@ -135,7 +141,6 @@ class SwipeHolder {
      */
     addScrollPage(pageSelector) {
         this.scrollPages.push(pageSelector);
-        console.log("Added " + pageSelector);
     }
     
     /**
