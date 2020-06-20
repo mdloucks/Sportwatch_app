@@ -98,11 +98,6 @@ class Stats extends Page {
         });
     }
 
-    startAddEventPage() {
-        // TODO: implement
-
-    }
-
     /**
      * @description This function will start the event page
      * @param {row} event the event to display results for
@@ -195,9 +190,9 @@ class Stats extends Page {
                 }
 
                 info_box.append($("<td>", { text: name }));
-                info_box.append($("<td>", { text: max }));
-                info_box.append($("<td>", { text: average }));
                 info_box.append($("<td>", { text: min }));
+                info_box.append($("<td>", { text: average }));
+                info_box.append($("<td>", { text: max }));
 
                 $("#statsPage #eventPage #event_results").append(info_box);
             }
@@ -233,7 +228,7 @@ class Stats extends Page {
         } else if (order == "0-9") {
             array.sort((a, b) => (Math.max(...a.values) > Math.max(...b.values)) ? 1 : ((Math.max(b.values) > Math.max(a.values)) ? -1 : 0));
         } else if (order == "M/F") {
-            array.sort((a, b) => (a.gender > b.gender) ? 1 : ((b.gender > a.gender) ? -1 : 0));
+            array.sort((a, b) => (a.gender < b.gender) ? 1 : ((b.gender < a.gender) ? -1 : 0));
         }
 
         return array;
@@ -251,6 +246,14 @@ class Stats extends Page {
                 <th>Worst</th>
             </tr>
         `);
+    }
+
+    /**
+     * this function is called when the add event button is pressed
+     */
+    startAddEventPage() {
+
+
     }
 
     addEvent(event) {

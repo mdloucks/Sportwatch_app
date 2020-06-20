@@ -114,7 +114,7 @@ class ButtonGenerator {
      */
     static generateButton(attributes, callback = ButtonGenerator.defaultCallbackFunction) {
         let button = $("<button>", attributes);
-        button.bind("touchend", callback.bind(this, attributes));
+        button.click(callback.bind(this, attributes));
         return button;
     }
 }
