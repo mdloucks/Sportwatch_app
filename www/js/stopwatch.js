@@ -171,7 +171,6 @@ class Stopwatch extends Page {
                     $(".stopwatch_lap_times").prepend(`
                                 <div>#${n + 1}: ${this.generateClockText(this.clock)}</div>
                             `);
-                    console.log("lap!");
                 } else if ($("#stopwatch_lap").html() == "Save") {
                     this.startSelectEventPage();
                 } else {
@@ -224,16 +223,13 @@ class Stopwatch extends Page {
     toggleStopwatch() {
         // on start
         if (!this.clock.isRunning) {
-            console.log("Starting stopwatch");
             this.startStopwatch();
             // on stop
         } else {
-            console.log("Stopping stopwatch");
             this.stopStopwatch();
         }
 
         if (!this.clock.hasStarted) {
-            console.log("Starting stopwatch first time");
             this.startStopwatch();
             $("#stopwatch_start_stop").addClass("paused");
             this.clock.hasStarted = true;

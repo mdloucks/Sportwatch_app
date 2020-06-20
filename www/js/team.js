@@ -150,9 +150,9 @@ class Team extends Page {
         let storage = window.localStorage;
 
         // local check
-        if (storage.getItem("teamName") == null) {
-            return false;
-        }
+        // if (storage.getItem("teamName") == null) {
+        //     return false;
+        // }
 
         // TODO: query server database to see if user has a team
 

@@ -179,8 +179,6 @@ class Stats extends Page {
                     continue;
                 }
 
-                console.log(JSON.stringify(athletes[i]));
-
                 let name = athletes[i].fname + "\t" + athletes[i].lname;
                 let min = Math.min(...athletes[i].values).toFixed(2);
                 let max = Math.max(...athletes[i].values).toFixed(2);
