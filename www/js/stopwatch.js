@@ -210,7 +210,12 @@ class Stopwatch extends Page {
 
     startStopwatch() {
         this.clock.isRunning = true;
-        $("#stopwatch_start_stop").toggleClass("paused");
+        // Check to see if already the play button (i.e. from reset)
+        if(!$("#stopwatch_start_stop").hasClass("paused")) {
+            // FYI, paused is the pause button, not indicative of stopwatch state
+            $("#stopwatch_start_stop").addClass("paused");
+        }
+        
         $("#stopwatch_lap").html("Lap");
         this.clock.start = 0;
     }
@@ -218,7 +223,7 @@ class Stopwatch extends Page {
     stopStopwatch() {
         this.clock.isRunning = false;
         $("#stopwatch_lap").html("Save");
-        $("#stopwatch_start_stop").toggleClass("paused");
+        $("#stopwatch_start_stop").removeClass("paused");
     }
 
     toggleStopwatch() {
@@ -258,7 +263,8 @@ class Stopwatch extends Page {
 
         this.ctx.fillText(resetText, this.clock.centerX - (this.ctx.measureText(resetText).width / 2),
             this.clock.centerY + (this.clock.textHeight / 2));
-
+        
+        this.stopStopwatch();
         $(".stopwatch_lap_times").empty();
         $("#stopwatch_lap").html("Lap");
 

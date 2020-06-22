@@ -12,8 +12,9 @@ class Navbar {
      * @example myFunction(pageID) -> initNavbar(myFunction)
      * 
      * @param {function} cb the function to call when a button is pressed; the function will pass in a page name
+     * @param {Array} pageNames allows manual specification of page names (i.e. CreateTeam for Team button)
      */
-    initNavbar(cb) {
+    initNavbar(cb, pageNames = []) {
 
         // read all of the pages that are listed on the .navbar into an array
         let _this = this;
@@ -24,7 +25,12 @@ class Navbar {
             _this.pageIDs.push("#".concat(this.id));
             _this.pageNames.push(this.innerHTML);
         });
-
+        
+        // Overwrite page names if manual was given
+        if(_this.pageNames.length != 0) {
+            _this.pageNames = pageNames;
+        }
+        
         if (this.pageIDs.length != this.pageNames.length) {
             throw new Exception("Length mismatch between page names and ID's!");
         }
@@ -50,7 +56,7 @@ class Navbar {
     focusButton(buttonID) {
         // $(buttonID).css("background-color", "green");
         $(".navbar > *").removeClass("active"); // Un-select all buttons
-        $(buttonID).addClass("active"); // Select the clicked one
+        $(".navbar > " + buttonID).addClass("active"); // Select the clicked one
     }
 }
 

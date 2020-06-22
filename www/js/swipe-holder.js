@@ -91,9 +91,8 @@ class SwipeHolder {
                 this.touchHistory[currentTouchIndex][1] = touch;
                 let gesture = this.evaluateGesture(currentTouchIndex);
                 
+                // Trigger click event (fixes issue on Android)
                 if(gesture == this.Gestures.TAP) {
-                    // Matt, you can remove this log statement after you see the magic
-                    console.log("[swipe-holder.js:attachToElement()]: Tapped");
                     $(e.target).trigger("click");
                 }
             }

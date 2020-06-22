@@ -189,16 +189,16 @@ class Account extends Page {
         this.setupSettingsPage("My Account");
         
         // Populate the account fields and prepare edits
-        BackendAgent.getAccount((accountInfo) => {
+        AccountBackend.getAccount((accountInfo) => {
             
             // May have errored out
             if(accountInfo.status < 0) {
-                Popup.createConfirmationPopup("Sorry, an error occured. Please try again later", ["OK"], [() => {
+                Popup.createConfirmationPopup("Sorry, an error occured. Please try again later or sign out and re-log in", ["OK"], [() => {
                     this.pageTransition.slideRight("catagoryPage");
                 }]);
                 return;
             }
-            accountInfo = BackendAgent.beautifyResponse(accountInfo);
+            accountInfo = AccountBackend.beautifyResponse(accountInfo);
             
             let displayNames = {
                 "fname": "First Name",
@@ -226,9 +226,9 @@ class Account extends Page {
             
             // Basic values (not requiring a password)
             ValueEditor.editValues(this.inputDivIdentifier, accountInfo, (newValues) => {
-                BackendAgent.updateAccount(newValues, (response) => {
-                    // If positive, let the use know it was successful
-                    if (response.status > 0) {
+                AccountBackend.updateAccount(newValues, (response) => {
+                    
+                    if (response.status > 0) { // EDIT SUCCESS
                         Popup.createConfirmationPopup("Successfully saved!", ["OK"], [() => { }]);
                         if ("didSetPassword" in response) {
                             if (response.didSetPassword == 0) {
@@ -236,7 +236,7 @@ class Account extends Page {
                                 return;
                             }
                         }
-                        response = BackendAgent.beautifyResponse(response);
+                        response = AccountBackend.beautifyResponse(response);
                         // Populate fields with the updated values
                         $('#settingsPage input[name="First Name"]').val(response.fname);
                         $('#settingsPage input[name="Last Name"]').val(response.lname);
@@ -244,10 +244,38 @@ class Account extends Page {
                         $('#settingsPage input[name="Phone Number"]').val(response.cellNum);
                         $('#settingsPage input[name="State"]').val(response.state);
                         $('#settingsPage input[name="Date of Birth"]').val(response.dob);
-                    } else {
-                        Popup.createConfirmationPopup("Edit Failed!", ["Close"], [() => { }]);
+                        
+                    } else { // EDIT FAILED
+                        if(response.substatus == 5) {
+                            
+                            // Was the response from the backend (contains list of invalid) or frontend
+                            if(response.msg.includes(":")) { // BACKEND
+                                // Isolate the invalid parameters
+                                let invalidParams = response.msg; // Formatted "some params invalid: fnameNew lnameNew ..."
+                                invalidParams = invalidParams.substring(invalidParams.indexOf(":") + 2, invalidParams.length);
+                                invalidParams = invalidParams.replace(/New/gm, ""); // Remove "New" from variable names
+                                invalidParams = invalidParams.replace(/ /gm, ", "); // Add commas for pretty formatting
+                                
+                                // Convert variable names to human-readable named
+                                let keys = Object.keys(displayNames);
+                                for(let n = 0; n < keys.length; n++) {
+                                    // Replace the key with the display name
+                                    invalidParams = invalidParams.replace(keys[n], displayNames[keys[n]]);
+                                }
+                                
+                                Popup.createConfirmationPopup("The following were invalid, please correct to save: " + invalidParams,
+                                                                ["OK"], [() => { }]);
+                            } else { // FRONTEND
+                                Popup.createConfirmationPopup("Some parameters were invalid, please try again", ["Close"], [() => { }]);
+                            }
+                            
+                            
+                        } else {
+                            Popup.createConfirmationPopup("An unknown error occured, please try again later", ["Close"], [() => { }]);
+                        }
                     }
-                });
+                }); // End of Backend callback
+                
             }, ignoredValues, displayNames);
             
             // Email & Password (requires current password)
@@ -263,14 +291,24 @@ class Account extends Page {
                     // Delete since backend doesn't need verification
                     delete newValues["passwordConfirm"];
                     
-                    BackendAgent.updateAccount(newValues, (response) => {
+                    // Submit the backend request if frontend checks passed
+                    AccountBackend.updateAccount(newValues, (response) => {
                         if(("didSetPassword" in response) && (response.didSetPassword == 1)) {
                             Popup.createConfirmationPopup("Successfully updated!", ["OK"], [() => { }]);
-                        } else {
-                            Popup.createConfirmationPopup("Unable to change, please try again", ["Close"], [() => { }]);
+                            
+                        } else { // Failure
+                            if(response.substatus == 5) {
+                                Popup.createConfirmationPopup("Email or password were incorrectly formatted, please try again",
+                                                                ["Close"], [() => { }]);
+                            } else if(response.substatus == 6) {
+                                Popup.createConfirmationPopup("Incorrect password, please try again", ["Close"], [() => { }]);
+                            } else {
+                                Popup.createConfirmationPopup("An unknown error occured, please try again later", ["Close"], [() => { }]);
+                            }
                         }
                     }, currentPassword);
-                }
+                } // End of edit handling if statement
+                
             }, [], displayNames);
         }); // End of population function
         
@@ -296,7 +334,12 @@ class Account extends Page {
             // TODO: change user's password
             console.log("set values " + JSON.stringify(newValues));
         });
-
+        
+        // TODO: Remove later
+        Popup.createConfirmationPopup("This feature is still in development. Please come back later", ["OK"], [() => {
+            this.pageTransition.slideRight("catagoryPage");
+        }]);
+        
         this.pageTransition.slideLeft("settingsPage");
     }
 
@@ -305,7 +348,12 @@ class Account extends Page {
 
         // TODO: Matt is lazy and doesn't feel like adding the radio buttons right now, but they will be here next push maybe
         // plus we're not in the position to notify the user of anything so let it wait
-
+        
+        // TODO: Remove later
+        Popup.createConfirmationPopup("This feature is still in development. Please come back later", ["OK"], [() => {
+            this.pageTransition.slideRight("catagoryPage");
+        }]);
+        
         this.pageTransition.slideLeft("settingsPage");
     }
 
@@ -330,41 +378,13 @@ class Account extends Page {
         });
 
         $(this.inputDivIdentifier).append(button);
-
+        
+        // TODO: Remove later
+        Popup.createConfirmationPopup("This feature is still in development. Please come back later", ["OK"], [() => {
+            this.pageTransition.slideRight("catagoryPage");
+        }]);
+        
         this.pageTransition.slideLeft("settingsPage");
-    }
-    
-    /**
-     * Callback to handle the server response when editing an account. Since
-     * behavior and errors vary based on the information being changed, a
-     * sectionNum variable will help narrow down the errors
-     * 
-     * @param {AssociativeArray} response decoded JSON response from the server
-     */
-    handleAccountResponse(response) {
-        
-        // BASIC ACCOUNT SETTINGS
-        // If positive, let the use know it was successful
-        if(response.status > 0) {
-            if("didSetPassword" in response) {
-                if(response.didSetPassword == 0) {
-                    Popup.createConfirmationPopup("Warning: Password was not updated! Please try later", ["OK"], [() => { }]);
-                    return;
-                }
-            }
-            Popup.createConfirmationPopup("Successfully saved!", ["OK"], [() => { }]);
-            response = BackendAgent.beautifyResponse(response);
-            // Populate fields with the updated values
-            $('#settingsPage input[name="First Name"]').val(response.fname);
-            $('#settingsPage input[name="Last Name"]').val(response.lname);
-            $('#settingsPage input[name="Gender"]').val(response.gender);
-            $('#settingsPage input[name="Phone Number"]').val(response.cellNum);
-            $('#settingsPage input[name="State"]').val(response.state);
-            $('#settingsPage input[name="Phone Number"]').val(response.cellNum);
-        } else {
-            Popup.createConfirmationPopup("Edit Failed!", ["Close"], [() => { }]);
-        }
-        
     }
     
 }
