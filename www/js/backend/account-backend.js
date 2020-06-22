@@ -2,10 +2,8 @@
  * @classdesc Used to interface and make calls to the backend
  * @class
  */
-class BackendAgent {
+class AccountBackend {
     // Docs: https://www.sportwatch.us/mobile/docs/
-    
-    // ---- ACCOUNT ---- //
     
     /**
      * Submits a request to pull the account information from the backend for
@@ -37,7 +35,7 @@ class BackendAgent {
             timeout: Constant.AJAX_CFG.timeout,
             data: postArray,
             success: (response) => {
-                console.log("[backend-agent.js:getAccount()] " + response);
+                console.log("[account-backend.js:getAccount()] " + response);
                 try {
                     response = JSON.parse(response);
                 } catch (e) {
@@ -46,7 +44,7 @@ class BackendAgent {
                 callback(response);
             },
             error: (error) => {
-                console.log("[backend-agent.js:getAccount()] " + error);
+                console.log("[account-backend.js:getAccount()] " + error);
                 callback(response);
             }
         });
@@ -80,7 +78,14 @@ class BackendAgent {
             // except email and password since they require the current password
             newValues = this.getLocalValues(["fname", "lname", "gender", "state", "dob", "id_school", "id_team", "cellNum"]);
         }
-        newValues = this.sanitizePostRequest(newValues);
+        newValues = this.sanitizePostRequest(newValues, false);
+        
+        // If sanitation failed, return an error
+        if(newValues == false) {
+            console.log("Was invalid");
+            let returnObj = {"status": -6, "substatus": 5, "msg": "invalid params"};
+            return returnObj;
+        }
         
         // Prepare the array
         let postArray = {};
@@ -106,7 +111,7 @@ class BackendAgent {
             timeout: Constant.AJAX_CFG.timeout,
             data: postArray,
             success: (response) => {
-                console.log("[backend-agent.js:updateAccount()] " + response);
+                console.log("[account-backend.js:updateAccount()] " + response);
                 try {
                     response = JSON.parse(response);
                 } catch(e) {
@@ -115,7 +120,7 @@ class BackendAgent {
                 callback(response);
             },
             error: (error) => {
-                console.log("[backend-agent.js:updateAccount()] " + error);
+                console.log("[account-backend.js:updateAccount()] " + error);
                 callback(response);
             }
         });
