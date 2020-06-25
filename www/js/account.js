@@ -37,7 +37,7 @@ class Account extends Page {
 
         this.dbConnection = new DatabaseConnection();
         this.pageTransition = new PageTransition("#accountPage");
-        this.pageController.swipeHandler.addScrollPage("#accountPage > #settingsPage");
+        // this.pageController.swipeHandler.addScrollPage("#accountPage > #settingsPage");
         
         this.inputDivIdentifier = "#accountPage #settingsPage #account_edit_inputs";
 
@@ -83,7 +83,7 @@ class Account extends Page {
         });
         
         // When clicking on input, focus it
-        $("#account_edit_inputs input").bind("touchend", (e) => {
+        $("#account_edit_inputs input").click((e) => {
             $(e.target).focus();
         })
 
@@ -111,7 +111,7 @@ class Account extends Page {
             );
         });
 
-        $("#create_tables").bind("touchend", (e) => {
+        $("#create_tables").click((e) => {
             e.preventDefault();
             this.dbConnection.createNewTables();
             console.log("Created new tables!");
@@ -125,7 +125,7 @@ class Account extends Page {
 
         // ---- MISC PAGE LOGIC ---- //
 
-        $("#accountPage .back_button").bind("touchend", (e) => {
+        $("#accountPage .back_button").click((e) => {
             e.preventDefault();
             this.pageTransition.slideRight("catagoryPage");
         });
@@ -168,7 +168,7 @@ class Account extends Page {
         var buttonHtml = "<button class=\"cat_button\"><p class=\"cat_desc\">" + text +
             "</p><p class=\"cat_arrow\">&#9658</p></button><br>";
         $(container).append(buttonHtml);
-        $(container + " button").last().bind("touchend", (e) => {
+        $(container + " button").last().click((e) => {
             e.preventDefault();
             // If button has not already been pressed
             if (!e.delegateTarget.classList.contains("cat_button_selected")) {
@@ -177,7 +177,7 @@ class Account extends Page {
         });
 
         // // Add color animation
-        // $(container + " button").last().bind("touchend", (e) => {
+        // $(container + " button").last().click((e) => {
         //     e.preventDefault();
         //     $(e.delegateTarget).addClass("cat_button_selected");
         // });

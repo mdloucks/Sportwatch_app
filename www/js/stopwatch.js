@@ -143,27 +143,27 @@ class Stopwatch extends Page {
 
             this.ctx.fillText("0.00", this.clock.centerX - (this.ctx.measureText("0.00").width / 2),
                 this.clock.centerY + (this.clock.textHeight / 2));
-
-            $("#stopwatch_start_stop").bind("touchend", (e) => {
+            
+            $("#stopwatch_start_stop").click((e) => {
                 e.preventDefault();
                 this.toggleStopwatch(this.clock);
             });
 
-            $("#stopwatch_canvas").bind("touchend", (e) => {
+            $("#stopwatch_canvas").click((e) => {
                 e.preventDefault();
                 this.toggleStopwatch(this.clock);
             });
 
-            $("#stopwatch_reset").bind("touchend", (e) => {
+            $("#stopwatch_reset").click((e) => {
                 e.preventDefault();
                 this.resetStopwatch(this.clock, this.ctx);
             });
 
-            $("#stopwatchPage .back_button").bind("touchend", (e) => {
+            $("#stopwatchPage .back_button").click((e) => {
                 this.pageTransition.slideRight("landingPage");
             });
 
-            $("#stopwatch_lap").bind("touchend", (e) => {
+            $("#stopwatch_lap").click((e) => {
                 e.preventDefault();
 
                 if ($("#stopwatch_lap").html() == "Lap") {

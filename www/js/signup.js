@@ -181,8 +181,8 @@ class Signup extends Page {
     }
 
     stop() {
-        $("#signupPage").unbind();
-        $("#signupPage *").unbind();
+        $("#signupPage").unbind().off();
+        $("#signupPage *").unbind().off();
     }
 
     // ---- CUSTOM FUNCTIONS ---- //
@@ -200,7 +200,7 @@ class Signup extends Page {
     setupInvalidSymbol(symbolId, isValid, errMessage) {
 
         // Prevents double binding
-        this.getPageElement(symbolId + ".invalidSym").unbind();
+        this.getPageElement(symbolId + ".invalidSym").unbind().off();
         if (isValid) {
             this.getPageElement(symbolId + ".invalidSym").prop("src", "img/validSymbol.png");
             clearInterval(this.dialogInterval);

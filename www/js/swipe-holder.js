@@ -72,7 +72,7 @@ class SwipeHolder {
         });
         // MOVING TOUCH
         $(elementId).bind("touchmove", (e) => {
-            e.preventDefault();
+            // e.preventDefault();
             let touch = e.changedTouches[0];
             this.tryScrolling(touch);
             this.currentTouch = touch; // So current finger position can be ascertained
@@ -83,7 +83,9 @@ class SwipeHolder {
         });
         // END TOUCH
         $(elementId).bind("touchend", (e) => {
-            e.preventDefault();
+            e.preventDefault(); // Helps prevent "double clicking"
+            e.stopPropagation();
+            
             for (let l = 0; l < e.changedTouches.length; l++) {
                 let touch = e.changedTouches[l];
                 // Update the touchHistory, setting the ending touch (index 1)

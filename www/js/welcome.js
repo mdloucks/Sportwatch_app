@@ -48,8 +48,8 @@ class Welcome extends Page {
     
     stop() {
         // Clear click hanlders to prevent duplicate event firing
-        $("#welcomePage").unbind();
-        $("#welcomePage *").unbind();
+        $("#welcomePage").unbind().off();
+        $("#welcomePage *").unbind().off();
     }
     
 }

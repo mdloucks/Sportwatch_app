@@ -107,8 +107,8 @@ class Login extends Page {
     };
 
     stop() {
-        $("#loginPage").unbind();
-        $("#loginPage *").unbind();
+        $("#loginPage").unbind().off();
+        $("#loginPage *").unbind().off();
     }
 
     // ---- CUSTOM FUNCTIONS ---- //
