@@ -54,6 +54,10 @@ class Navbar {
      * @param {String} buttonID ID of the navbar button being passed in
      */
     focusButton(buttonID) {
+        /* Not a big deal right now, but this function is being called twice
+           during click events. Once, from the click event defined above, and
+           again when transitionPage() is called within each Page Set
+        */
         // $(buttonID).css("background-color", "green");
         $(".navbar > *").removeClass("active"); // Un-select all buttons
         $(".navbar > " + buttonID).addClass("active"); // Select the clicked one

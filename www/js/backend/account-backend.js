@@ -11,7 +11,7 @@ class AccountBackend {
      * thing to store in local storage is the email
      * 
      * @example getAccount((response) => { $("fname").val(response.fname) });
-     *          --> Returns account info for the user currently logged in
+     *          --> Returns account info for the user currently logged in as JSON (string if error)
      * 
      * @param {Function} callback function to handle the callback info
      * @param {String} email [defaults to localStorage value] email of the user to get info for
