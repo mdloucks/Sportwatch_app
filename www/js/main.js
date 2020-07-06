@@ -41,6 +41,17 @@ class App {
 
         // And set the PageSet by checking Authentication
         this.determinePageSet();
+        
+        // TODO: Remove, just for demo purpose
+        // Save a record for the 100m Hurdle as a practice and use the logged in user's email by leaving \/ that blank
+        RecordBackend.saveRecord((response) => { /* Callback */ }, 17.9228, DEFINITIONS["100m_hurdle"], "", {"isPractice": true});
+        // Save a relay record tied to Dan Wright (example435@email.com). Will automatically index and sort times
+        RecordBackend.saveRecord((r) => { }, [18.2, 25.601, 10.9009, 32.000], DEFINITIONS["4x100m_relay"], "example435@email.com", {"isSplit": true});
+        // Grab the record with an internal (backend) ID of 12
+        RecordBackend.getRecord((r) => { /* Process record */ }, {"id_record": 12})
+        // Grab all of the records for the user with the email example@email.com
+        RecordBackend.getRecord((r) => { console.log(r) }, {"accountIdentity": {"email": "example@email.com"}})
+        
     }
 
     /**
@@ -140,5 +151,8 @@ class App {
 }
 
 // this is the main entry point for the app
-let app = new App();
-app.initialize();
+setTimeout(() => {
+    let app = new App();
+    app.initialize();
+}, 3000);
+// app.initialize();
