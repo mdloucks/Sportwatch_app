@@ -33,21 +33,21 @@ class TeamBackend {
         
         // Set primary coach as logged in user if not given
         if(!("primaryCoach" in details)) {
-            postArray.primaryCoach = localStorage.getItem("email");
+            details.primaryCoach = localStorage.getItem("email");
         }
         if(!("schoolName" in details)) {
             // TODO: Actually use the school's name in localStorage
             //       (likely change to school id instead of name)
-            // postArray.schoolName = localStorage.getItem("school");
-            postArray.schoolName = "Hemlock High School";
+            // details.schoolName = localStorage.getItem("school");
+            details.schoolName = "Hemlock High School";
         }
         
         // Convert booleans into integers since mySQL doesn't like them
         if("isLocked" in details) {
-            postArray.isLocked = (details.isLocked ? 1 : 0);
+            details.isLocked = (details.isLocked ? 1 : 0);
         }
         if("force" in details) {
-            postArray.force = (details.force ? 1 : 0);
+            details.force = (details.force ? 1 : 0);
         }
         
         // Submit the request and call the callback

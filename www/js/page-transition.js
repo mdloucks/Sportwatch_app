@@ -52,7 +52,7 @@ class PageTransition {
      * @param {Boolean} showPage should the page be shown after it is added?
      */
     addPage(pageKey, pageHtml, showPage = false) {
-        console.log("added " + pageKey);
+        
         // Make sure these values were set
         if ((pageKey !== "") && (pageHtml !== "")) {
             // This is the provided div_page id found in pageHtml
@@ -115,7 +115,6 @@ class PageTransition {
      * Hides all of the pages contained in this page object.
      */
     hidePages() {
-        console.log("page-transition.js:hidePages() - start");
         // Have to loop through to prevent hiding of separate pageTransition instances
         this.pages.forEach((value, key) => {
             // If it isn't already hidden
@@ -123,7 +122,6 @@ class PageTransition {
                 $(this.sourceElement + " > #" + key).addClass("hidden");
             }
         });
-        console.log("page-transition.js:hidePages() - end");
     }
 
     /**
@@ -214,7 +212,7 @@ class PageTransition {
      * @param {Integer} duration the duration of the transition, in milliseconds
      */
     slidePage(targetPageKey, slideLeft, duration) {
-        console.log("s1");
+        
         // Create ID's for previous and new page after removing any sneaky #'s
         let prevPageId = "#" + this.currentPage.replace("#", "");
         let targetPageId = "#" + targetPageKey.replace("#", "");
@@ -263,7 +261,7 @@ class PageTransition {
         // Hide old page once new page is in focus
         this.timeoutId = setTimeout(() => {
             $(this.sourceElement + " > " + prevPageId).addClass("hidden");
-            console.log("Hide page1 ");
+            
             // Remove transition time in order to set up page locations for next time
             $(this.sourceElement + " > .div_page").css("transition", "");
             $(this.sourceElement + " > " + prevPageId).removeClass("page_left");
@@ -287,7 +285,7 @@ class PageTransition {
      * @param {Integer} duration [default = 1000] duration of delay in the event it's snapped back
     */
     slidePageX(targetPageKey, slideLeft, dx, duration = 1000) {
-        console.log("s2");
+        
         // Find ID's for previous and new page
         let prevPageId = "#" + this.currentPage.replace("#", "");
         let targetPageId = "#" + targetPageKey.replace("#", "");
@@ -326,7 +324,6 @@ class PageTransition {
             
             this.timeoutId = setTimeout(() => {
                 // Remove CSS styling for normal activity next swipe
-                console.log("Hide page3 ");
                 // Hide all, then remove to avoid cross-sourceElement modification
                 $(this.sourceElement + " > .div_page").addClass("hidden");
                 $(this.sourceElement + " > " + targetPageId).removeClass("hidden");
