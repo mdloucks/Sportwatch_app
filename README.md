@@ -9,7 +9,7 @@ There is also no need to create a new project, as the config file is already pre
 
 First, [install npm](https://www.npmjs.com/get-npm)
 
-then run install cordova
+then install cordova
 
 `npm install -g cordova`
 
@@ -19,9 +19,6 @@ clone the repository
 git clone https://github.com/LawnmowerDave/Sportwatch_app
 cd Sportwatch_app
 ```
-
-NOTE: master is in the wrong directory, please clone navigator_rework using this command. <br>
-`git clone --branch <branchname> <remote-repo>`
 
 Add the platform of your choice, or both <br>
 `cordova platform add android` <br>
