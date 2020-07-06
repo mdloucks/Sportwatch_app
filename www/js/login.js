@@ -95,6 +95,7 @@ class Login extends Page {
 
             Authentication.login(email, password).then(function (response) {
                 localStorage.setItem("email", email);
+                this.pageController.transitionObj.forceHaltSlide(); // See account.js for explanation
                 this.pageController.onChangePageSet(1); // 1 for Main logic
             }.bind(this),
                 function (error) {

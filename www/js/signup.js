@@ -169,6 +169,7 @@ class Signup extends Page {
             Authentication.signup(firstName, email, password, accountType).then(function (response) {
                 localStorage.setItem("email", email);
                 localStorage.setItem("accountType", accountType);
+                this.pageController.transitionObj.forceHaltSlide();
                 this.pageController.onChangePageSet(1); // 1 for Main logic
             }.bind(this),
                 function (error) {

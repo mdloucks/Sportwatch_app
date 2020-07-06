@@ -68,7 +68,7 @@ class Account extends Page {
     start() {
         
         // Only add content if it isn't there yet (check if any catagories are there yet)
-        if ($(".cat_button").length) {
+        if ($("#accountPage .cat_button").length) {
             return;
         }
 
@@ -127,6 +127,7 @@ class Account extends Page {
 
         $("#accountPage .back_button").click((e) => {
             e.preventDefault();
+            $("#accountPage .cat_button").removeClass("cat_button_selected");
             this.pageTransition.slideRight("catagoryPage");
         });
     }
@@ -134,8 +135,8 @@ class Account extends Page {
     stop() {
         // For now, don't unbind because adding the click events back is difficult
         // TODO: Change structure so it can properly unbind
-        // $("#accountPage").unbind();
-        // $("#accountPage *").unbind();
+        // $("#accountPage").unbind().off();
+        // $("#accountPage *").unbind().off();
     }
 
     /**
@@ -172,8 +173,9 @@ class Account extends Page {
             e.preventDefault();
             // If button has not already been pressed
             if (!e.delegateTarget.classList.contains("cat_button_selected")) {
+                $(e.target).addClass("cat_button_selected");
+                callback();
             }
-            callback();
         });
 
         // // Add color animation
@@ -348,6 +350,7 @@ class Account extends Page {
 
         // TODO: Matt is lazy and doesn't feel like adding the radio buttons right now, but they will be here next push maybe
         // plus we're not in the position to notify the user of anything so let it wait
+        // Seth: Next push, huh? *raises eyebrow* ^_*
         
         // TODO: Remove later
         Popup.createConfirmationPopup("This feature is still in development. Please come back later", ["OK"], [() => {
@@ -359,6 +362,18 @@ class Account extends Page {
 
     startSignOut() {
         localStorage.removeItem("SID");
+        
+        /*
+         * forceHaltSlide() is important and needed because when the use taps
+         * "Sign Out", SwipeHandler registers it as a TAP Gesture. In MainSet,
+         * PageTransition is bound to the TAP event and calls the slidePageX()
+         * function (this is to "snap back" pages that aren't slid far enough).
+         * However, the delay built into the slidePageX() function will re-hide
+         * and re-show parts of the MainSet. forceHaltSlide() stop this
+         * 
+         * TL;DR: forceHaltSlide() facilitates smooth PageSet transitions
+         */
+        this.pageController.transitionObj.forceHaltSlide();
         this.pageController.onChangePageSet(0); // 0 for Welcome
     }
 

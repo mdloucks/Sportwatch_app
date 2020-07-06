@@ -32,6 +32,11 @@ class PageTransition {
         if (firstPageHtml !== "") {
             this.addPage(firstPageKey, firstPageHtml, true);
         }
+        
+        // Used only for the duration delays (i.e. after pages finish sliding),
+        // which will help detect in-progress animations, and stop animations
+        // from finishing if PageSet is changing. TL;DR: Don't delete this!!!
+        this.timeoutId = -1; // Value returned by setTimeout
     }
 
     /**
@@ -47,6 +52,7 @@ class PageTransition {
      * @param {Boolean} showPage should the page be shown after it is added?
      */
     addPage(pageKey, pageHtml, showPage = false) {
+        console.log("added " + pageKey);
         // Make sure these values were set
         if ((pageKey !== "") && (pageHtml !== "")) {
             // This is the provided div_page id found in pageHtml
@@ -109,13 +115,15 @@ class PageTransition {
      * Hides all of the pages contained in this page object.
      */
     hidePages() {
-        // Have to loop through to prevent hiding of separate pageTrans
+        console.log("page-transition.js:hidePages() - start");
+        // Have to loop through to prevent hiding of separate pageTransition instances
         this.pages.forEach((value, key) => {
             // If it isn't already hidden
             if (!$(this.sourceElement + " > #" + key).hasClass("hidden")) {
                 $(this.sourceElement + " > #" + key).addClass("hidden");
             }
         });
+        console.log("page-transition.js:hidePages() - end");
     }
 
     /**
@@ -139,6 +147,26 @@ class PageTransition {
         }
     }
     
+    /**
+     * Halts any sliding timeouts. This function should be used with EXTREME CARE,
+     * as mis-use can cause pages to remain visible enough after they have moved
+     * off the viewport. This function's main purpose is to prevent a TAP Gesture
+     * from triggering slidePageX(), and consequently hiding the page after a
+     * 200 millisecond delay.
+     * 
+     * @example page.onChangePageSet(0); ... transitionObj.forceHaltSlide();
+     * 
+     * @returns
+     * True, if a page was sliding and was stopped. False if there was no
+     * sliding delay set
+     */
+    forceHaltSlide() {
+        if(this.timeoutId != -1) {
+            clearTimeout(this.timeoutId);
+            return true;
+        }
+        return false;
+    }
     
     /**
      * Gets size / length of pages map. Useful for checking if pages
@@ -186,6 +214,7 @@ class PageTransition {
      * @param {Integer} duration the duration of the transition, in milliseconds
      */
     slidePage(targetPageKey, slideLeft, duration) {
+        console.log("s1");
         // Create ID's for previous and new page after removing any sneaky #'s
         let prevPageId = "#" + this.currentPage.replace("#", "");
         let targetPageId = "#" + targetPageKey.replace("#", "");
@@ -232,14 +261,16 @@ class PageTransition {
         }, 2);
 
         // Hide old page once new page is in focus
-        setTimeout(() => {
+        this.timeoutId = setTimeout(() => {
             $(this.sourceElement + " > " + prevPageId).addClass("hidden");
+            console.log("Hide page1 ");
             // Remove transition time in order to set up page locations for next time
             $(this.sourceElement + " > .div_page").css("transition", "");
             $(this.sourceElement + " > " + prevPageId).removeClass("page_left");
             $(this.sourceElement + " > " + prevPageId).removeClass("page_right");
             
             this.currentPage = targetPageId.replace("#", "");
+            this.timeoutId = -1; // Reset the value to signal completion
         }, duration);
     }
 
@@ -256,7 +287,7 @@ class PageTransition {
      * @param {Integer} duration [default = 1000] duration of delay in the event it's snapped back
     */
     slidePageX(targetPageKey, slideLeft, dx, duration = 1000) {
-
+        console.log("s2");
         // Find ID's for previous and new page
         let prevPageId = "#" + this.currentPage.replace("#", "");
         let targetPageId = "#" + targetPageKey.replace("#", "");
@@ -293,14 +324,19 @@ class PageTransition {
             $(targetPageId).removeClass("page_left");
             $(targetPageId).removeClass("page_right");
             
-            setTimeout(() => {
+            this.timeoutId = setTimeout(() => {
                 // Remove CSS styling for normal activity next swipe
-                $(this.sourceElement + " > .div_page").not(targetPageId).addClass("hidden");
+                console.log("Hide page3 ");
+                // Hide all, then remove to avoid cross-sourceElement modification
+                $(this.sourceElement + " > .div_page").addClass("hidden");
+                $(this.sourceElement + " > " + targetPageId).removeClass("hidden");
+                // $(this.sourceElement + " > .div_page").not(targetPageId).addClass("hidden");
                 $(this.sourceElement + " > .div_page").removeClass("page_left");
                 $(this.sourceElement + " > .div_page").removeClass("page_right");
                 $(this.sourceElement + " > .div_page").css("transition", "");
                 
                 this.currentPage = targetPageId.replace("#", "");
+                this.timeoutId = -1; // Reset to signal completion
             }, duration);
             return;
         }
