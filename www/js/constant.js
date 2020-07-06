@@ -14,6 +14,7 @@ Constant.URL = {
     signup: "https://www.sportwatch.us/mobile/signup.php",
     login: "https://www.sportwatch.us/mobile/login.php",
     account_action: "https://www.sportwatch.us/mobile/account-action.php",
+    record_action: "https://www.sportwatch.us/mobile/record-action.php",
     team_create: "https://www.sportwatch.us/mobile/create_team.php",
     team_action: "https://www.sportwatch.us/mobile/team_action.php"
 };

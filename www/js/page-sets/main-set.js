@@ -21,7 +21,20 @@ class MainSet extends PageSet {
     // ---- OVERRIDE METHODS ---- //
     
     constructPages() {
-        this.pageArray = [Stopwatch, Stats, Team, Account].map((page, i) => new page(i, this));
+        let pageClassArray = [Stopwatch, Stats, Team, Account];
+        let pageNameArray = ["Stopwatch", "Stats", "Team", "Account"];
+        
+        // TODO: To make this cleaner instead of page arrays, use a single "TeamManager" (WIP name)
+        //       and have it dynamically show the appropriate team page (i.e. this.pageController.show("CreateTeam"))
+        
+        // Replace Team class with CreateTeam if the stored ID is missing or invalid
+        if((localStorage.getItem("id_team") == null) || (localStorage.getItem("id_team") == undefined)) {
+            pageClassArray[2] = CreateTeam;
+            pageNameArray[2] = "CreateTeam";
+            $(".navbar > #team").prop("id", "createteam"); // Can't camel case, toLowerCase() is called later
+        }
+        
+        this.pageArray = pageClassArray.map((page, i) => new page(i, this));
         this.pageArray.forEach((pageObj, pageIndex) => {
             let shouldShow = false; // Should be page be visible at start? (only for first page)
             if (pageIndex == 0) {
@@ -30,8 +43,8 @@ class MainSet extends PageSet {
             this.transitionObj.addPage((pageObj.name.toLowerCase() + "Page"), pageObj.getHtml(), shouldShow);
         });
         
-        // Include this hear so it's easier to enable / disable later
-        this.navbar.initNavbar(this.switchPage.bind(this));
+        // Include this here so it's easier to enable / disable later
+        this.navbar.initNavbar(this.switchPage.bind(this), pageNameArray);
         this.disable(); // Disable until enabled
     }
     
@@ -56,7 +69,7 @@ class MainSet extends PageSet {
     
     switchPage(pageName) {
         // Will return false if it's in the middle of another page switch
-        if(this.transitionPage(pageName) !== false) {
+        if(this.transitionPage(pageName) != false) {
             this.pageArray[this.currentPageId].stop(); // Stop current page
             this.currentPageId = (this.getPage(pageName).id);
             this.pageArray[this.currentPageId].start();

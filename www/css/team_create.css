@@ -1,23 +1,23 @@
 
 /* ---- TITLE BASE STYLING ---- */
 
-#div_createBase {
+#createteamPage #banner {
     padding: 5px;
-    margin: 0 auto;
+    margin: 2vh auto;
     width: 80%;
     border: 1vw solid black;
     border-radius: 3vw;
     background-color: crimson;
 }
 
-#div_createBase h1 {
+#createteamPage #banner h1 {
     margin-top: 2%;
     color: white;
     font-size: 3vh;
     font-family: Arial;
 }
 
-.step {
+#createteamPage .step {
   /* padding: 4% 6% 4% 6%; */
   padding: 1em 1.5em;
   display: inline-block;
@@ -25,90 +25,125 @@
   font-size: 2.5vmax;
   border: 0.7vw solid black;
   border-radius: 100%;
-  transition: background-color 1s;
+  transition: background-color 1.5s;
 }
 
-.step_selected {
+#createteamPage .step_selected {
     background-color: pink;
 }
 
-#step2 {
+#createteamPage #step2 {
     margin: 5% 12% 2% 12%;
+}
+
+#createteamPage .div_page { /* To move below banner */
+    top: 25vh;
+}
+
+/* ---- GENERAL ---- */
+
+#createteamPage .button_progression {
+    margin: 5px;
+    padding: 5px;
+    width: 15vw;
+    height: 12vw; /* 50 + 2px border on input */
+    vertical-align: top;
+    background-color: crimson;
+    background-image: url("../img/arrow.png");
+    background-size: 15vw 12vw;
+    border-radius: 5px;
+    transition: background-color 0.5s;
+}
+
+#createteamPage .button_back {
+    background-color: lightgray;
+    transform: rotate(180deg); /* So arrow points left */
+}
+
+#createteamPage button {
+    outline: none;
+}
+#createteamPage input {
+    outline: none;
 }
 
 /* ---- TIPS ---- */
 
-.ul_tips {
+#createteamPage .ul_tips {
     margin: auto;
     margin-top: 0;
+    padding-left: 0;
     width: 30em;
     overflow: auto;
     text-align: center;
     list-style-position: inside;
 }
 
-#p_tipHeading {
+#createteamPage #p_tipHeading {
     margin-top: 10%;
     margin-bottom: 0;
     font-size: 2em;
 }
 
-.tips {
+#createteamPage .tips {
     margin-bottom: 0;
     /* float: left; */
     font-size: 2em;
 }
 
 /* Use when a condition hasn't been met */
-.tips.bolded {
+#createteamPage .tips.bolded {
     font-weight: bold;
 }
 
 /* ---- NAME TEAM ---- */
 
-#namePage h1 {
-    font-size: 30px;
+#createteamPage #namePage h1 {
+    font-size: 3em;
 }
 
-#input_teamName {
+#createteamPage #input_teamName {
     margin-top: 0;
     margin-right: -4px; /* Push against submit button */
-    outline: none;
-    font-size: 25px;
+    font-size: 2.5em;
     border-radius: 5px 0 0 5px;
 }
 
-#button_submitName {
+#createteamPage #button_submitName {
     padding: 5px;
     width: 50px;
+    height: 54px; /* 50 + 2px border on input */
     vertical-align: top;
     background-color: crimson;
+    background-image: url("../img/arrow.png");
+    background-size: 50px 54px;
     border-radius: 0 5px 5px 0;
     transition: background-color 0.5s;
 }
 
-#button_submitName:disabled {
+#createteamPage #button_submitName:disabled {
     background-color: dimgray;
     opacity: 1;
 }
 
 
-/* ---- NAME TEAM ---- */
-#schoolPage h1 {
-    font-size: 30px;
-}
-
-#schoolPage .sw_text_input {
+/* ---- SCHOOL ---- */
+#createteamPage #schoolPage h1 {
     font-size: 2.5em;
 }
 
-#button_submitSchool {
+#createteamPage #schoolPage .sw_text_input {
+    margin-top: 0;
+    font-size: 20px;
+}
+
+#createteamPage #button_submitSchool {
     padding: 5px;
     background-color: crimson;
     font-size: 20px;
 }
 
-#div_continueCont {
+#createteamPage #div_continueCont {
     margin: auto;
     width: 40vw;
     height: 8vh;
@@ -116,21 +151,33 @@
     border-radius: 5px;
 }
 
-#div_continueCont p {
+#createteamPage #div_continueCont p {
     display: inline;
     vertical-align: middle;
     font-size: 2em;
 }
 
-#div_continueCont img {
+#createteamPage #div_continueCont img {
     float: right;
     width: 50px;
 }
 
+/* ---- INVITE ATHLETES ---- */
+
+#createteamPage #button_createTeam {
+    margin: 5px;
+    padding: 15px;
+    background-color: crimson;
+    border-radius: 5px;
+    font-size: 1.5em;
+    font-weight: bold;
+    color: white;
+    transition: background-color 0.5s;
+}
 
 /* ---- MISC ---- */
 
-.div_page {
-    top: 40%; /* To move past title of create team */
-    height: unset; /* Prevent long scrolling */
-}
+/*.div_page {
+    top: 40%; // To move past title of create team
+    height: unset; // Prevent long scrolling
+} */
