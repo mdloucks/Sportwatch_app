@@ -72,7 +72,12 @@ class SwipeHolder {
         });
         // MOVING TOUCH
         $(elementId).bind("touchmove", (e) => {
-            // e.preventDefault();
+            e.preventDefault();
+            /* preventDefault() is VITAL for smooth transitions when swiping between
+               pages!! It is also, however, the thing prohibiting native scrolling
+               and overflow for tall pages. I currently don't have a solution...
+            */
+            
             let touch = e.changedTouches[0];
             this.tryScrolling(touch);
             this.currentTouch = touch; // So current finger position can be ascertained
