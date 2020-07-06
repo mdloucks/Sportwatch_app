@@ -2,8 +2,6 @@ class App {
 
     constructor() {
         this.pages = [];
-        this.welcomePages = [];
-        this.currentPageID = 0;
         this.activePageSet = 0; // 0=welcome, 1=main
 
         this.dbConnection;
@@ -62,13 +60,16 @@ class App {
 
             }).catch((error) => {
                 console.log("[main.js:determinePageSet()] Invalid SID, logging out");
+                this.setActivePageSet(0); // Go back to welcome page
             });
 
         } else {
             console.log("[main.js:determinePageSet()] No SID data");
+            this.setActivePageSet(0); // Direct to welcome page
         }
-
-        this.setActivePageSet(0); // Default to welcome page
+        
+        // NOTE: Authentication.validateSID is asyncronous, so anything put here
+        //       to be executed should not modify significant variables
     }
 
     /**
@@ -82,9 +83,10 @@ class App {
      */
     setActivePageSet(pageSetId, _this = this) {
         // First, disable all sets
-        _this.mainSet.disable();
         _this.welcomeSet.disable();
-
+        _this.mainSet.disable();
+        
+        
         // Then enable the selected set
         if (pageSetId == 0) {        // Welcome
             _this.welcomeSet.activate();
