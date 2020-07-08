@@ -7,7 +7,6 @@ class CreateTeam extends Page {
     constructor(id) {
         super(id, "CreateTeam");
         
-        this.dbConnection = new DatabaseConnection();
         this.transitionObj = new PageTransition("#createteamPage");
         // Team properties
         this.teamName = "";

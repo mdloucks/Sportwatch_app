@@ -1,0 +1,73 @@
+{
+    "record_definition": [
+        ["second", "75m"],
+        ["second", "100m"],
+        ["second", "200m"],
+        ["second", "400m"],
+        ["second", "800m"],
+        ["second", "1500m"],
+        ["second", "100m hurdle"],
+        ["second", "110m hurdle"],
+        ["second", "400m hurdle"],
+        ["second", "4x100m relay"],
+        ["second", "4x400m relay"],
+        ["meter", "long jump"],
+        ["meter", "triple jump"],
+        ["meter", "high jump"],
+        ["meter", "pole vault"],
+        ["meter", "discus"],
+        ["meter", "javelin"],
+        ["meter", " hammer"],
+        ["meter", "shot put"],
+        ["second", "other"],
+        ["minute", "other"]
+    ],
+    "athlete": [
+        ["John", "Smith", "10", "m", 1],
+        ["Bill", "Washington", "12", "m", 2],
+        ["George", "Harris", "9", "m", 3],
+        ["Tyrone", "Shreider", "9", "m", 4],
+        ["Levi", "Hemmingway", "10", "m", 5],
+
+        ["Suzie", "Walton", "11", "f", 6],
+        ["Grace", "Dalton", "9", "f", 7]
+    ],
+    "event": [
+        ["400m", "m", "s", "false", 0],
+        ["800m", "f", "s", "false", 0],
+        ["400x400m Relay", "m", "s", "true", 0]
+    ],
+    "athlete_event_register": [
+        [1, null, null, null, null],
+        [1, null, null, null, null],
+        [1, 2, null, null, null],
+        [2, null, null, null, null],
+        [2, null, null, null, null],
+        [1, null, null, null, null],
+        [1, null, null, null, null],
+    ],
+    "event_results": [
+        [1, 1, 56.2],
+        [1, 1, 59.2],
+        [1, 2, 57.6],
+        [1, 2, 58.6],
+        [1, 2, 52.6],
+        [1, 3, 59.6],
+        [1, 6, 49.6],
+        [1, 6, 59.3],
+        [1, 7, 120.6],
+        [1, 7, 103.6],
+        [2, 3, 112.3],
+        [2, 4, 157.6],
+        [2, 5, 197.6]
+    ],
+    "relay_team": [
+        ["Hemlock"]
+    ],
+    "relay_result": [
+        [3, 0, 0, 67.4],
+        [3, 0, 1, 66.4],
+        [3, 0, 2, 69.4],
+        [3, 0, 3, 64.4]
+    ]
+}

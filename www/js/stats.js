@@ -6,7 +6,6 @@ class Stats extends Page {
 
     constructor(id) {
         super(id, "Stats");
-        this.dbConnection = new DatabaseConnection();
         this.pageTransition = new PageTransition("#statsPage");
         this.hasStarted = false;
 
@@ -85,7 +84,7 @@ class Stats extends Page {
     }
 
     startLandingPage() {
-        this.dbConnection.selectValues("SELECT *, rowid FROM event", []).then((events) => {
+        dbConnection.selectValues("SELECT *, rowid FROM event", []).then((events) => {
             ButtonGenerator.generateButtonsFromDatabase("#statsPage #landingPage .button_box", events, (event) => {
                 this.startEventPage(event);
             }, ["gender", "unit", "is_relay", "timestamp"]);
@@ -164,7 +163,7 @@ class Stats extends Page {
             WHERE event_result.id_event = ?
         `;
 
-        this.dbConnection.selectValues(query, [event.rowid]).then((results) => {
+        dbConnection.selectValues(query, [event.rowid]).then((results) => {
 
             let athletes = this.constructAthleteTimeArray(results, order);
 
@@ -252,12 +251,29 @@ class Stats extends Page {
      * this function is called when the add event button is pressed
      */
     startAddEventPage() {
+        this.pageTransition.slideLeft("addEventPage");
 
-
+        dbConnection.selectValues("SELECT *, rowid FROM record_definition", []).then((record_definitions) => {
+            ButtonGenerator.generateButtonsFromDatabase("#statsPage #addEventPage .button_box", record_definitions, (record_definition) => {
+                this.addEvent(record_definition)
+            }, ["unit"]);
+        });
+        
     }
 
     addEvent(event) {
+        console.log("Inserted values " + JSON.stringify(event));
 
+        let is_relay = (event.record_identity.includes("relay") == true) ? true : false
+        let data = [event.record_identity, "m", event.unit, is_relay, Date.now()];
+
+        console.log(data);
+        console.log(data.length);
+        
+        
+        
+        dbConnection.insertValues("event", data);
+        this.pageTransition.slideRight("landingPage");
     }
 
 

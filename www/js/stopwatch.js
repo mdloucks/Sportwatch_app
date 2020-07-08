@@ -8,7 +8,6 @@ class Stopwatch extends Page {
         super(id, "Stopwatch");
         this.clockLoop = null;
 
-        this.dbConnection = new DatabaseConnection();
         this.pageTransition = new PageTransition("#stopwatchPage");
 
         this.clock = {
@@ -321,7 +320,7 @@ class Stopwatch extends Page {
         this.pageTransition.slideLeft("selectEventPage");
         $("#stopwatchPage #selectEventPage .button_box").empty();
 
-        this.dbConnection.selectValues("SELECT *, rowid FROM event", []).then((events) => {
+        dbConnection.selectValues("SELECT *, rowid FROM event", []).then((events) => {
             ButtonGenerator.generateButtonsFromDatabase("#stopwatchPage #selectEventPage .button_box", events, (event) => {
                 this.startSelectAthletePage(event);
             }, ["gender", "unit", "is_relay", "timestamp"]);
@@ -348,13 +347,13 @@ class Stopwatch extends Page {
             OR athlete_event_register.event_id_5 = ?
         `);
 
-        this.dbConnection.selectValues(query, [event.rowid, event.rowid, event.rowid, event.rowid, event.rowid]).then((athletes) => {
+        dbConnection.selectValues(query, [event.rowid, event.rowid, event.rowid, event.rowid, event.rowid]).then((athletes) => {
 
             ButtonGenerator.generateButtonsFromDatabase("#stopwatchPage #selectAthletePage .button_box", athletes, (athlete) => {
 
                 // TODO: send these values to the server
                 this.pageTransition.slideRight("landingPage");
-                this.dbConnection.insertValues("event_result", [event.rowid, athlete.rowid, this.clock.seconds]);
+                dbConnection.insertValues("event_result", [event.rowid, athlete.rowid, this.clock.seconds]);
                 console.log("VALUES INSERTED " + event.rowid + " " + athlete.rowid + " " + this.clock.seconds);
 
                 // TODO: create confirmation popup

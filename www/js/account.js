@@ -35,7 +35,6 @@ class Account extends Page {
             </div>
         `);
 
-        this.dbConnection = new DatabaseConnection();
         this.pageTransition = new PageTransition("#accountPage");
         // this.pageController.swipeHandler.addScrollPage("#accountPage > #settingsPage");
         
@@ -113,14 +112,14 @@ class Account extends Page {
 
         $("#create_tables").click((e) => {
             e.preventDefault();
-            this.dbConnection.createNewTables();
+            dbConnection.createNewTables();
             console.log("Created new tables!");
         });
 
         $("#database_command").on("submit", function (e) {
             e.preventDefault();
             console.log($('#db_command').val());
-            this.dbConnection.executeCommand($('#db_command').val());
+            dbConnection.executeCommand($('#db_command').val());
         });
 
         // ---- MISC PAGE LOGIC ---- //

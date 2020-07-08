@@ -1,3 +1,79 @@
+let json = {
+    "record_definition": [
+        ["second", "75m"],
+        ["second", "100m"],
+        ["second", "200m"],
+        ["second", "400m"],
+        ["second", "800m"],
+        ["second", "1500m"],
+        ["second", "100m hurdle"],
+        ["second", "110m hurdle"],
+        ["second", "400m hurdle"],
+        ["second", "4x100m relay"],
+        ["second", "4x400m relay"],
+        ["meter", "long jump"],
+        ["meter", "triple jump"],
+        ["meter", "high jump"],
+        ["meter", "pole vault"],
+        ["meter", "discus"],
+        ["meter", "javelin"],
+        ["meter", " hammer"],
+        ["meter", "shot put"],
+        ["second", "other"],
+        ["minute", "other"]
+    ],
+    "athlete": [
+        ["John", "Smith", "10", "m", 1],
+        ["Bill", "Washington", "12", "m", 2],
+        ["George", "Harris", "9", "m", 3],
+        ["Tyrone", "Shreider", "9", "m", 4],
+        ["Levi", "Hemmingway", "10", "m", 5],
+
+        ["Suzie", "Walton", "11", "f", 6],
+        ["Grace", "Dalton", "9", "f", 7]
+    ],
+    "event": [
+        ["400m", "m", "s", "false", 0],
+        ["800m", "f", "s", "false", 0],
+        ["400x400m Relay", "m", "s", "true", 0]
+    ],
+    "athlete_event_register": [
+        [1, null, null, null, null],
+        [1, null, null, null, null],
+        [1, 2, null, null, null],
+        [2, null, null, null, null],
+        [2, null, null, null, null],
+        [1, null, null, null, null],
+        [1, null, null, null, null],
+    ],
+    "event_result": [
+        [1, 1, 56.2],
+        [1, 1, 59.2],
+        [1, 2, 57.6],
+        [1, 2, 58.6],
+        [1, 2, 52.6],
+        [1, 3, 59.6],
+        [1, 6, 49.6],
+        [1, 6, 59.3],
+        [1, 7, 120.6],
+        [1, 7, 103.6],
+        [2, 3, 112.3],
+        [2, 4, 157.6],
+        [2, 5, 197.6]
+    ],
+    "relay_team": [
+        ["Hemlock"]
+    ],
+    "relay_result": [
+        [3, 0, 0, 67.4],
+        [3, 0, 1, 66.4],
+        [3, 0, 2, 69.4],
+        [3, 0, 3, 64.4]
+    ]
+}
+
+
+
 
 /**
  * @classdesc an interface for a database connection
@@ -57,6 +133,8 @@ class DatabaseConnection {
 
             tx.executeSql(`CREATE TABLE IF NOT EXISTS relay_team (team_name)`);
             tx.executeSql(`CREATE TABLE IF NOT EXISTS relay_result (id_event, id_relay_team, id_athlete, value)`);
+
+            tx.executeSql(`CREATE TABLE IF NOT EXISTS record_definition (unit, record_identity)`);
 
         }, function (error) {
             console.log('Transaction ERROR: ' + error.message);
@@ -215,8 +293,6 @@ class DatabaseConnection {
 
                 if (data[0][0] !== undefined) {
                     for (let i = 0; i < data.length; i++) {
-                        console.log(JSON.stringify(data[i]));
-
                         tx.executeSql(`INSERT INTO ${table} VALUES ${query_wildcards}`, data[i]);
                     }
                 } else {
@@ -234,62 +310,30 @@ class DatabaseConnection {
         });
     }
 
-    insertDummyValues() {
+    /**
+     * read from a json file and populate the database with the entries within
+     */
+    insertDatabasePresetValues() {
+        
         this.db.transaction(function (tx) {
+            
+            // $.getJSON("json/database-presets.json", function(json) {
+            // });
+                
+            if(Object.keys(json).length == 0) {
+                console.log("TABLE JSON IS MISSING");
+                
+            }
 
-            // m
-            tx.executeSql("INSERT INTO athlete VALUES (?, ?, ?, ?, ?)", ["John", "Smith", "10", "m", 1]);
-            tx.executeSql("INSERT INTO athlete VALUES (?, ?, ?, ?, ?)", ["Bill", "Washington", "12", "m", 2]);
-            tx.executeSql("INSERT INTO athlete VALUES (?, ?, ?, ?, ?)", ["George", "Harris", "9", "m", 3]);
-            tx.executeSql("INSERT INTO athlete VALUES (?, ?, ?, ?, ?)", ["Tyrone", "Shreider", "9", "m", 4]);
-            tx.executeSql("INSERT INTO athlete VALUES (?, ?, ?, ?, ?)", ["Levi", "Hemmingway", "10", "m", 5]);
+            Object.keys(json).forEach(element => {
 
-            // f
-            tx.executeSql("INSERT INTO athlete VALUES (?, ?, ?, ?, ?)", ["Suzie", "Walton", "11", "f", 6]);
-            tx.executeSql("INSERT INTO athlete VALUES (?, ?, ?, ?, ?)", ["Grace", "Dalton", "9", "f", 7]);
+                for (let i = 0; i < json[element].length; i++) {
 
-            tx.executeSql("INSERT INTO event VALUES (?, ?, ?, ?, ?)", ["400m", "m", "s", "false", 0]);
-            tx.executeSql("INSERT INTO event VALUES (?, ?, ?, ?, ?)", ["800m", "f", "s", "false", 0]);
-            tx.executeSql("INSERT INTO event VALUES (?, ?, ?, ?, ?)", ["400x400m Relay", "m", "s", "true", 0]);
-
-            // register athletes for athlete_event_register
-            tx.executeSql("INSERT INTO athlete_event_register VALUES (?, ?, ?, ?, ?)", [1]);
-            tx.executeSql("INSERT INTO athlete_event_register VALUES (?, ?, ?, ?, ?)", [1]);
-            tx.executeSql("INSERT INTO athlete_event_register VALUES (?, ?, ?, ?, ?)", [1, 2]);
-            tx.executeSql("INSERT INTO athlete_event_register VALUES (?, ?, ?, ?, ?)", [2]);
-            tx.executeSql("INSERT INTO athlete_event_register VALUES (?, ?, ?, ?, ?)", [2]);
-            tx.executeSql("INSERT INTO athlete_event_register VALUES (?, ?, ?, ?, ?)", [1]);
-            tx.executeSql("INSERT INTO athlete_event_register VALUES (?, ?, ?, ?, ?)", [1]);
-
-            // 400m
-            tx.executeSql("INSERT INTO event_result VALUES (?, ?, ?)", [1, 1, 56.2]);
-            tx.executeSql("INSERT INTO event_result VALUES (?, ?, ?)", [1, 1, 59.2]);
-
-            tx.executeSql("INSERT INTO event_result VALUES (?, ?, ?)", [1, 2, 57.6]);
-            tx.executeSql("INSERT INTO event_result VALUES (?, ?, ?)", [1, 2, 58.6]);
-            tx.executeSql("INSERT INTO event_result VALUES (?, ?, ?)", [1, 2, 52.6]);
-
-            tx.executeSql("INSERT INTO event_result VALUES (?, ?, ?)", [1, 3, 59.6]);
-
-            tx.executeSql("INSERT INTO event_result VALUES (?, ?, ?)", [1, 6, 49.6]);
-            tx.executeSql("INSERT INTO event_result VALUES (?, ?, ?)", [1, 6, 59.3]);
-
-            tx.executeSql("INSERT INTO event_result VALUES (?, ?, ?)", [1, 7, 120.6]);
-            tx.executeSql("INSERT INTO event_result VALUES (?, ?, ?)", [1, 7, 103.6]);
-
-            // 800m
-            tx.executeSql("INSERT INTO event_result VALUES (?, ?, ?)", [2, 3, 112.3]);
-            tx.executeSql("INSERT INTO event_result VALUES (?, ?, ?)", [2, 4, 157.6]);
-            tx.executeSql("INSERT INTO event_result VALUES (?, ?, ?)", [2, 5, 197.6]);
-
-            // 400x400m Relay
-            tx.executeSql("INSERT INTO relay_team VALUES (?)", ["Hemlock"]);
-
-            tx.executeSql("INSERT INTO relay_result VALUES (?, ?, ?, ?)", [3, 0, 0, 67.4]);
-            tx.executeSql("INSERT INTO relay_result VALUES (?, ?, ?, ?)", [3, 0, 1, 66.4]);
-            tx.executeSql("INSERT INTO relay_result VALUES (?, ?, ?, ?)", [3, 0, 2, 69.4]);
-            tx.executeSql("INSERT INTO relay_result VALUES (?, ?, ?, ?)", [3, 0, 3, 64.4]);
-
+                    let row_length = json[element][0].length;
+                    
+                    tx.executeSql(`INSERT INTO ${element} VALUES (${"?, ".repeat(row_length).slice(0, -2)})`, json[element][i]);
+                }
+            });
         }, function (error) {
             console.log('Transaction ERROR: ' + error.message);
         }, function () {
