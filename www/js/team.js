@@ -14,8 +14,10 @@ class Team extends Page {
 
         this.landingPage = (`
             <div id="landingPage" class="div_page">
-                <br><br>
-                <h1 id="teamName">Team Page</h1>
+                <br>
+                <div class="generic_header">
+                    <h1>Team</h1>
+                </div><br><br>
                 <br>
                 <div class="button_box"></div>
             </div>
@@ -81,6 +83,9 @@ class Team extends Page {
         }
     }
 
+    /**
+     * this function will generate a list of athletes to append to the button box on the landing page
+     */
     generateAthleteList() {
 
         let conditionalAttributes = {
@@ -99,26 +104,32 @@ class Team extends Page {
 
     startEditAthletePage(athlete) {
 
-        $("#teamPage #editAthletePage #athlete_edit_inputs").empty();
-        $("#teamPage #editAthletePage #athleteName").html(`Editing ${athlete.fname} ${athlete.lname}`);
+        // TODO: this section of the app will be subject to further review regarding what values we wish the coach to edit
 
-        $("#editAthletePage p:contains('fname')").html("First Name");
-        $("#editAthletePage p:contains('lname')").html("Last Name");
+        // $("#teamPage #editAthletePage #athlete_edit_inputs").empty();
+        // $("#teamPage #editAthletePage #athleteName").html(`Editing ${athlete.fname} ${athlete.lname}`);
+
+        // $("#editAthletePage p:contains('fname')").html("First Name");
+        // $("#editAthletePage p:contains('lname')").html("Last Name");
 
 
-        $("#teamPage #back_button_edit").bind("touchend", (e) => {
-            this.pageTransition.slideRight("athletePage");
-        });
+        // $("#teamPage #back_button_edit").bind("touchend", (e) => {
+        //     this.pageTransition.slideRight("athletePage");
+        // });
 
-        let blackList = ["class", "id", "html"];
-        let rename = { "fname": "First Name", "lname": "Last Name", "grade": "Grade", "gender": "Gender" };
+        // let blackList = ["class", "id", "html"];
+        // let rename = { "fname": "First Name", "lname": "Last Name", "grade": "Grade", "gender": "Gender" };
 
-        ValueEditor.editValues("#teamPage #editAthletePage #athlete_edit_inputs", athlete, (newValues) => {
-            // TODO: SAVE NEW CHANGES!
-            this.pageTransition.slideRight("athletePage");
-        }, blackList, rename);
+        // ValueEditor.editValues("#teamPage #editAthletePage #athlete_edit_inputs", athlete, (newValues) => {
+        //     // TODO: SAVE NEW CHANGES!
+        //     this.pageTransition.slideRight("athletePage");
+        // }, blackList, rename);
     }
 
+    /**
+     * This function will take a athlete and display all of their stats on the screen.
+     * @param {Object} athlete the athlete object to display
+     */
     startAthletePage(athlete) {
 
         // Set athlete data before sliding

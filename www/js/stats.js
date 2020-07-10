@@ -11,9 +11,13 @@ class Stats extends Page {
 
         this.landingPage = (`
             <div id="landingPage" class="div_page">
-                <br><br>
-                <h1>Stats</h1><br><br>
+                <br>
+                <div class="generic_header">
+                    <h1>Stats</h1>
+                </div><br><br>
+
                 <div class="button_box"></div><br><br>
+                <div id="add_event_box"></div>
             </div>
         `);
 
@@ -49,10 +53,11 @@ class Stats extends Page {
                 </div>
 
                 <div class="button_box">
-                    <button id="create_custom_event">Custom...</button>
+                    
                 </div>
             </div>
         `);
+        // TODO: allow user to make custom events <button id="create_custom_event">Custom...</button>
 
     }
 
@@ -84,8 +89,16 @@ class Stats extends Page {
     }
 
     startLandingPage() {
+
+        this.pageTransition.slideRight("landingPage");
+
+        $("#statsPage #landingPage .button_box").empty();
+        $("#statsPage #landingPage #add_event_box").empty();
+
         dbConnection.selectValues("SELECT *, rowid FROM event", []).then((events) => {
             ButtonGenerator.generateButtonsFromDatabase("#statsPage #landingPage .button_box", events, (event) => {
+                console.log(`EVENTS ${events}`);
+                
                 this.startEventPage(event);
             }, ["gender", "unit", "is_relay", "timestamp"]);
 
@@ -93,7 +106,7 @@ class Stats extends Page {
                 this.startAddEventPage();
             });
 
-            $("#statsPage #landingPage").append(addButton);
+            $("#statsPage #landingPage #add_event_box").append(addButton);
         });
     }
 
@@ -262,18 +275,12 @@ class Stats extends Page {
     }
 
     addEvent(event) {
-        console.log("Inserted values " + JSON.stringify(event));
 
         let is_relay = (event.record_identity.includes("relay") == true) ? true : false
         let data = [event.record_identity, "m", event.unit, is_relay, Date.now()];
-
-        console.log(data);
-        console.log(data.length);
-        
-        
         
         dbConnection.insertValues("event", data);
-        this.pageTransition.slideRight("landingPage");
+        this.startLandingPage();
     }
 
 

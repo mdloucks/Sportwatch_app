@@ -264,7 +264,7 @@ class DatabaseConnection {
      * @description insert some data into the given table
      * 
      * Array formats
-     * [item, item...] or [[item, item...], [item, item...]]
+     * [item, item...]
      * 
      * @param {String} table name of the table
      * @param {Array} data data to be inserted
@@ -272,33 +272,13 @@ class DatabaseConnection {
     insertValues(table, data) {
         return new Promise((resolve, reject) => {
 
-            let query_wildcards = "(";
-            let length;
+            let queryWildcards = "(" + "?, ".repeat(data.length).slice(0, -2) + ")";
 
-            if (data[0][0] !== undefined) {
-                length = data[0].length;
-            } else {
-                length = data.length;
-            }
-
-            console.log(length);
-
-            for (let i = 0; i < length; i++) {
-                query_wildcards += "?,";
-            }
-            query_wildcards = query_wildcards.slice(0, -1);
-            query_wildcards += ")";
+            console.log(`INSERT INTO ${table} VALUES ${queryWildcards} ${JSON.stringify(data)}`);
 
             this.db.transaction(function (tx) {
 
-                if (data[0][0] !== undefined) {
-                    for (let i = 0; i < data.length; i++) {
-                        tx.executeSql(`INSERT INTO ${table} VALUES ${query_wildcards}`, data[i]);
-                    }
-                } else {
-                    console.log("normal");
-                    tx.executeSql(`INSERT INTO ${table} VALUES ${query_wildcards}`, data);
-                }
+                tx.executeSql(`INSERT INTO ${table} VALUES ${queryWildcards}`, data);
 
                 resolve();
             }, function (error) {

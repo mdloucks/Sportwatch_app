@@ -28,11 +28,11 @@ class MainSet extends PageSet {
         //       and have it dynamically show the appropriate team page (i.e. this.pageController.show("CreateTeam"))
         
         // Replace Team class with CreateTeam if the stored ID is missing or invalid
-        if((localStorage.getItem("id_team") == null) || (localStorage.getItem("id_team") == undefined)) {
-            pageClassArray[2] = CreateTeam;
-            pageNameArray[2] = "CreateTeam";
-            $(".navbar > #team").prop("id", "createteam"); // Can't camel case, toLowerCase() is called later
-        }
+        // if((localStorage.getItem("id_team") == null) || (localStorage.getItem("id_team") == undefined)) {
+        //     pageClassArray[2] = CreateTeam;
+        //     pageNameArray[2] = "CreateTeam";
+        //     $(".navbar > #team").prop("id", "createteam"); // Can't camel case, toLowerCase() is called later
+        // }
         
         this.pageArray = pageClassArray.map((page, i) => new page(i, this));
         this.pageArray.forEach((pageObj, pageIndex) => {
