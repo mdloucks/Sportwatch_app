@@ -4,10 +4,11 @@
  */
 class Stopwatch extends Page {
 
-    constructor(id) {
+    constructor(id, pageSetObject) {
         super(id, "Stopwatch");
         this.clockLoop = null;
 
+        this.pageController = pageSetObject;
         this.pageTransition = new PageTransition("#stopwatchPage");
 
         this.clock = {

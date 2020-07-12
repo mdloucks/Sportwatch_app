@@ -4,8 +4,9 @@
  */
 class Stats extends Page {
 
-    constructor(id) {
+    constructor(id, pageSetObject) {
         super(id, "Stats");
+        this.pageController = pageSetObject;
         this.pageTransition = new PageTransition("#statsPage");
         this.hasStarted = false;
 

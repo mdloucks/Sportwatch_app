@@ -4,10 +4,12 @@
  */
 class CreateTeam extends Page {
     
-    constructor(id) {
+    constructor(id, pageSetObject) {
         super(id, "CreateTeam");
         
+        this.pageController = pageSetObject;
         this.transitionObj = new PageTransition("#createteamPage");
+        
         // Team properties
         this.teamName = "";
         this.schoolName = ""; // TODO: Change to ID or maybe an auto-complete
