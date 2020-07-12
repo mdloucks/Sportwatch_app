@@ -1,9 +1,9 @@
 # Sportwatch_app
-Welcome to sportwatch, a track meet management and data analytics mobile app
+Welcome to Sportwatch, a track meet management and data analytics mobile app
 
 <h1>Building</h1>
 
-This will be a short guide to building sportwatch on a new machine based on [this guide](https://cordova.apache.org/docs/en/latest/guide/cli/)
+This will be a short guide to building Sportwatch on a new machine based on [this guide](https://cordova.apache.org/docs/en/latest/guide/cli/)
 
 There is also no need to create a new project, as the config file is already present in this github.
 
