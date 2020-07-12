@@ -57,3 +57,13 @@
 #teamPage #editAthletePage .generated_button {
   margin-top: 2.5em;
 }
+
+/*^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ 
+// athleteStats elements
+.......................................................................................................*/
+
+#athlete_stats_container {
+    font-size: 2em;
+    border: 1px solid black;
+    background-color: lightslategray;
+}

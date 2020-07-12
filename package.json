@@ -10,6 +10,7 @@
     "author": "Sportwatch Team",
     "license": "Apache-2.0",
     "dependencies": {
+        "chart.js": "^2.9.3",
         "cordova-android": "^8.1.0",
         "cordova-browser": "^6.0.0",
         "cordova-ios": "^5.1.1",

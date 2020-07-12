@@ -31,22 +31,40 @@ class Team extends Page {
                 </div>
         
                 <h2 id="athlete_info"></h2>
-                <h2 id="athlete_edit">Stats &#9999;</h2>
-                <div id="athlete_stats"></div>
+                
+                <div id="athlete_events"></div>
             </div>
         `);
 
-        this.editAthletePage = (`
-            <div id="editAthletePage" class="div_page">
-                <div class="generic_header">
-                    <div id="back_button_edit" class="back_button">&#8592;</div>
-                    <h1 id="athleteName"></h1>
-                </div>
 
-                <div id="athlete_edit_inputs">
-                </div>
-            </div>
+        this.athleteStatPage = (`
+        <div id="athleteStatPage" class="div_page">
+            <br>
+            <div class="generic_header">
+                <div id="back_button_athlete_stats" class="back_button">&#8592;</div>
+                <h1>Athlete Stats</h1>
+            </div><br><br>
+            <br>
+            <div id="athlete_stats_container"></div>
+            <canvas id="athlete_stat_chart" width="400" height="400"></canvas>
+        </div>
         `);
+
+        // TODO: figure out edit stats for athletes
+        // <h2 id="athlete_edit">Stats &#9999;</h2>
+        // <div id="athlete_stats"></div>
+
+        // this.editAthletePage = (`
+        //     <div id="editAthletePage" class="div_page">
+        //         <div class="generic_header">
+        //             <div id="back_button_edit" class="back_button">&#8592;</div>
+        //             <h1 id="athleteName"></h1>
+        //         </div>
+
+        //         <div id="athlete_edit_inputs">
+        //         </div>
+        //     </div>
+        // `);
 
     }
 
@@ -56,9 +74,10 @@ class Team extends Page {
             <div id="teamPage" class="div_page">
                 ${this.landingPage}
                 ${this.athletePage}
-                ${this.editAthletePage}
+                ${this.athleteStatPage}
             </div>
         `);
+            // ${this.editAthletePage}
     }
 
     start() {
@@ -66,15 +85,16 @@ class Team extends Page {
         // Only link them to pageTransition once
         if (this.pageTransition.getPageCount() == 0) {
             this.pageTransition.addPage("landingPage", this.landingPage, true);
-            this.pageTransition.addPage("athletePage", this.athletePage);
-            this.pageTransition.addPage("editAthletePage", this.editAthletePage);
+            this.pageTransition.addPage("athletePage", this.athletePage, false);
+            this.pageTransition.addPage("athleteStatPage", this.athleteStatPage, false);
+            // this.pageTransition.addPage("editAthletePage", this.editAthletePage);
         }
 
         let storage = window.localStorage;
 
         if (!this.hasStarted && this.doesTeamExist()) {
             $("#landingPage").find("#teamName").text(storage.getItem("teamName"));
-            this.generateAthleteList();
+            this.startLandingPage();
 
             this.hasStarted = true;
             // TODO: have the user create a team.
@@ -86,7 +106,7 @@ class Team extends Page {
     /**
      * this function will generate a list of athletes to append to the button box on the landing page
      */
-    generateAthleteList() {
+    startLandingPage() {
 
         let conditionalAttributes = {
             "gender": {
@@ -98,7 +118,7 @@ class Team extends Page {
         dbConnection.selectValues("SELECT *, ROWID FROM athlete", []).then((athletes) => {
             ButtonGenerator.generateButtonsFromDatabase("#teamPage #landingPage > .button_box", athletes, (athlete) => {
                 this.startAthletePage(athlete);
-            }, [], conditionalAttributes);
+            }, ["grade", "gender", "id_athlete_event_register"], conditionalAttributes);
         });
     }
 
@@ -132,24 +152,103 @@ class Team extends Page {
      */
     startAthletePage(athlete) {
 
+        $("#teamPage #athletePage #athlete_events").empty()
+
+        let query = `
+            SELECT * FROM event
+            INNER JOIN athlete ON event_result.id_athlete = athlete.rowid
+            WHERE event_result.id_event = ?
+        `;
+
+        dbConnection.selectValues("SELECT *, rowid FROM event", []).then((events) => {
+            ButtonGenerator.generateButtonsFromDatabase("#teamPage #athletePage #athlete_events", events, (event) => {
+                this.startAthleteStatPage(athlete, event);
+            }, ["gender", "unit", "is_relay", "timestamp"]);
+        });
+
         // Set athlete data before sliding
         $("#athletePage").find("#athleteName").html(`${athlete.fname} ${athlete.lname}`);
-        $("#athletePage > #athlete_info").html(`${athlete.grade}th grade ${athlete.gender == 'm' ? "male" : "female"}`);
+        $("#athletePage > #athlete_info").html(`${athlete.grade}th grade ${athlete.gender == 'm' ? "male" : "female"} &#9999;`);
 
         // After populated, slide
         this.pageTransition.slideLeft("athletePage");
 
-        $("#teamPage #athlete_edit").unbind("touchend");
+        // $("#teamPage #athlete_edit").unbind("touchend");
 
-        $("#teamPage #athlete_edit").bind("touchend", (e) => {
-            this.pageTransition.slideLeft("editAthletePage");
-            this.startEditAthletePage(athlete);
-        });
+        // $("#teamPage #athlete_edit").bind("touchend", (e) => {
+        //     this.pageTransition.slideLeft("editAthletePage");
+        //     this.startEditAthletePage(athlete);
+        // });
 
         // Slide back; athlete page will be overwritten next select
         $("#back_button_athlete").bind("touchend", (e) => {
             this.pageTransition.slideRight("landingPage");
         });
+    }
+
+    startAthleteStatPage(athlete, event) {
+        this.pageTransition.slideLeft("athleteStatPage");
+
+        $("#teamPage #athleteStatPage #athlete_stats_container").empty();
+
+        $("#teamPage #athleteStatPage #back_button_athlete_stats").bind("touchend", () => {
+            this.pageTransition.slideRight("athletePage");
+        });
+
+        let query = `
+            SELECT * FROM event_result
+            INNER JOIN athlete ON event_result.id_athlete = athlete.rowid
+            WHERE (event_result.id_event = ?) AND (athlete.rowid = ?)
+        `;
+
+        let length;
+        let data = [];
+
+        dbConnection.selectValues(query, [event.rowid, athlete.rowid]).then((results) => {
+
+            length = results.length;
+
+            for (let i = 0; i < results.length; i++) {
+                data.push({x: i, y: results.item(i).value});
+                
+                // TODO: find place to put these ,fix scroll
+                // let element = $("<div>", {html: `${results.item(i).value}`})
+                // $("#teamPage #athleteStatPage #athlete_stats_container").append(element);
+            }
+        });
+
+        // athlete_stat_chart
+
+        var canvas = document.getElementById('athlete_stat_chart');
+        var ctx = canvas.getContext('2d');
+
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+        var scatterChart = new Chart(ctx, {
+            type: 'line',
+            data: {
+                datasets: [{
+                    label: 'Athlete Times',
+                    data: data,
+                    fill: false,
+                    borderColor: "#rgb(245, 77, 77)",
+                    borderDash: [5, 5],
+                    backgroundColor: "#e755ba",
+                    pointBackgroundColor: "#55bae7",
+                    pointBorderColor: "#55bae7",
+                }]
+            },
+            options: {
+                scales: {
+                    xAxes: [{
+                        type: 'linear',
+                        position: 'bottom'
+                    }]
+                }
+            }
+        });
+
+        // table_container
     }
 
     /**
