@@ -149,11 +149,11 @@ let dbConnection;
 
 // this is the main entry point for the app
 setTimeout(() => {
-    let app = new App();
-    app.initialize();
-
     dbConnection = new DatabaseConnection();
     dbConnection.createNewTables();
     dbConnection.insertDatabasePresetValues();
+    
+    let app = new App();
+    app.initialize();
 }, 500);
 // app.initialize();

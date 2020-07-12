@@ -11,7 +11,7 @@
     <plugin name="cordova-plugin-whitelist" spec="1" />
     <!-- TODO: check these values for security purposes, they outline CORS -->
     <access origin="*" />
-    <allow-navigation href="*"/>
+    <!-- <allow-navigation href="*"/> -->
     <allow-intent href="http://*/*" />
     <allow-intent href="https://*/*" />
     <allow-intent href="tel:*" />

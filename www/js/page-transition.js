@@ -82,7 +82,7 @@ class PageTransition {
             }
             if (!showPage) {
                 // $(divId).addClass("page_right");
-                $("#" + pageKey).addClass("hidden");
+                $(this.sourceElement + " > #" + pageKey).addClass("hidden");
             } else {
                 this.currentPage = pageKey;
             }
