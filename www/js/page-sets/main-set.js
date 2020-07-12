@@ -21,8 +21,8 @@ class MainSet extends PageSet {
     // ---- OVERRIDE METHODS ---- //
     
     constructPages() {
-        let pageClassArray = [Stopwatch, Stats, Team, Account];
-        let pageNameArray = ["Stopwatch", "Stats", "Team", "Account"];
+        let pageClassArray = [Stopwatch, Stats, TeamLanding, Account];
+        let pageNameArray = ["Stopwatch", "Stats", "TeamLanding", "Account"];
         
         // TODO: To make this cleaner instead of page arrays, use a single "TeamManager" (WIP name)
         //       and have it dynamically show the appropriate team page (i.e. this.pageController.show("CreateTeam"))
@@ -41,6 +41,9 @@ class MainSet extends PageSet {
                 shouldShow = true;
             }
             this.transitionObj.addPage((pageObj.name.toLowerCase() + "Page"), pageObj.getHtml(), shouldShow);
+            // Start the pages so they display correctly when sliding
+            pageObj.start();
+            pageObj.stop();
         });
         
         // Include this here so it's easier to enable / disable later
@@ -68,16 +71,15 @@ class MainSet extends PageSet {
     }
     
     switchPage(pageName) {
-        // Will return false if it's in the middle of another page switch
-        if(this.transitionPage(pageName) != false) {
-            this.pageArray[this.currentPageId].stop(); // Stop current page
-            this.currentPageId = (this.getPage(pageName).id);
-            this.pageArray[this.currentPageId].start();
+        // If it's a team thing, let the team-landing determine which page to show
+        if(pageName == "TeamLanding") {
+            
         }
-        // this.pageArray[this.currentPageId].stop(); // Stop current page
-        // this.transitionPage(pageName); // Begin transition
-        // this.currentPageId = (this.getPage(pageName).id);
-        // this.pageArray[this.currentPageId].start();
+        
+        this.pageArray[this.currentPageId].stop(); // Stop current page
+        this.transitionPage(pageName); // Begin transition
+        this.currentPageId = (this.getPage(pageName).id);
+        this.pageArray[this.currentPageId].start();
     }
     
     

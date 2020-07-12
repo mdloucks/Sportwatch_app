@@ -89,6 +89,10 @@ class CreateTeam extends Page {
             this.transitionObj.addPage("namePage", this.namePage, true);
             this.transitionObj.addPage("schoolPage", this.schoolPage);
             this.transitionObj.addPage("inviteAthletePage", this.inviteAthletePage);
+        } else {
+            // Hide other pages besides current (see team.js for full explanation)
+            this.transitionObj.hidePages();
+            this.transitionObj.showCurrentPage();
         }
         
         // ---- VALUE POPULATION ---- //
@@ -189,7 +193,6 @@ class CreateTeam extends Page {
             e.preventDefault();
             document.activeElement.blur();
             
-            console.log("Triggered");
             if(this.nameIsValid) {
                 this.teamName = this.getPageElement("#input_teamName").val().trim();
                 console.log("Saved team name: " + this.teamName);

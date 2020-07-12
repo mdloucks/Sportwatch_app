@@ -4,7 +4,7 @@
  */
 class Team extends Page {
 
-    constructor(id) {
+    constructor(id, pageSetObject) {
         super(id, "Team");
         this.hasStarted = false;
 
@@ -88,6 +88,18 @@ class Team extends Page {
             this.pageTransition.addPage("athletePage", this.athletePage, false);
             this.pageTransition.addPage("athleteStatPage", this.athleteStatPage, false);
             // this.pageTransition.addPage("editAthletePage", this.editAthletePage);
+        } else {
+            // Hide all and show (needed for new team-landing.js)
+            this.transitionObj.hidePages();
+            this.transitionObj.showCurrentPage();
+            /*
+             * Explanation: team-landing.js calls start() on all team objects
+             * to set up the sub-pages for each. Consequently, this populates
+             * the PageTransition page count, so when the user swipes to the
+             * 'Team' tab and start() is called again, the former if branch is skipped,
+             * showing every page. The latter if branch will hide the other pages
+             * and only show the current page, resulting in the desired outcome
+             */
         }
 
         let storage = window.localStorage;
