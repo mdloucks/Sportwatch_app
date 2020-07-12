@@ -1,0 +1,43 @@
+
+/* ---- GENERAL ---- */
+
+#jointeamPage .sectionWrapper {
+    margin: 0 4vw 4vw 4vw;
+    padding: 10px;
+    background-color: lightgray;
+    border-radius: 15px;
+}
+
+#jointeamPage .sectionLabel {
+    margin: 10px 5px;
+    font-size: 2em;
+}
+
+#jointeamPage #input_inviteCode {
+    width: 50%;
+    margin-bottom: 0; /* Reset from generic_elements.css */
+    text-align: center;
+    font-size: 2em;
+    border: 3px solid black;
+}
+
+#jointeamPage #button_join {
+    width: 30%;
+    margin: 15px 10px 10px 10px;
+    padding: 15px;
+    background-color: crimson;
+    border-radius: 5px;
+    font-size: 2em;
+    font-weight: bold;
+    color: white;
+    transition: background-color 0.5s;
+    outline: none;
+    -webkit-appearance: none;
+}
+
+#jointeamPage #button_join:disabled {
+    background-color: gray;
+    opacity: 1;
+}
+
+

@@ -18,7 +18,7 @@ class TeamLanding extends Page {
         
         // ---- OBJECTS (not women!) ---- //
         this.createTeam = new CreateTeam(0, pageSetObject);
-        // -- insert join team here -- //
+        this.joinTeam = new JoinTeam(1, pageSetObject);
         this.mainTeam = new Team(2, pageSetObject);
         
         // ---- PAGES ---- //
@@ -31,12 +31,14 @@ class TeamLanding extends Page {
             </div>
         `);
         this.createPageHtml = this.createTeam.getHtml();
+        this.joinPageHtml = this.joinTeam.getHtml();
         this.mainPageHtml = this.mainTeam.getHtml();
         
         // Start and stop to configure functionality
         this.createTeam.start();
         this.createTeam.stop();
-        // -- insert join team here -- //
+        this.joinTeam.start();
+        this.joinTeam.stop();
         this.mainTeam.start();
         this.mainTeam.stop();
         
@@ -66,9 +68,8 @@ class TeamLanding extends Page {
                 
                 // Add delay so you can see the dramatic color change....
                 setTimeout(() => {
-                    // TODO:
-                    // $("#teamlandingPage").html(this.joinPageHtml);
-                    // this.joinTeam.start();
+                    $("#teamlandingPage").html(this.joinPageHtml);
+                    this.joinTeam.start();
                 }, 200);
             });
             
@@ -91,63 +92,9 @@ class TeamLanding extends Page {
     
     stop() {
         this.createTeam.stop();
-        // -- insert join team stoppage here as well -- //
+        this.joinTeam.stop();
         this.mainTeam.stop();
     }
     
-    // CUSTOM FUNCTIONS
     
 }
-
-
-// function initTeamPage() {
-
-//     CSSManager.resetStyling();
-//     // No .css file since this page is so small
-    
-//     // ---- CALLBACK / STATE BIND FUNCTIONS ---- //
-
-//     this.joinTeam = function () {
-//         throw new Error("JOIN TEAM IS NOT SETUP");
-//     }
-//     this.onJoinTeam = (callback) => {
-//         this.joinTeam = callback;
-//     }
-
-//     this.createTeam = function () {
-//         throw new Error("CREATE TEAM IS NOT SETUP");
-//     }
-//     this.onCreateTeam = function (callback) {
-//         this.createTeam = callback;
-//     }
-    
-//     // ---- PAGES / FUNCTIONALITY ---- //
-    
-//     $("#app").html(`
-//         <br>
-//         <input id="join_team" type="image" src="img/joinTeam.png" 
-//             style="width: 250px; height: 200px; margin: 5px; padding: 15px; border: solid 2px gray; border-radius: 15px; transition: background-color 0.25s;"></input>
-//         <input id="create_team" type="image" src="img/createTeam.png" 
-//             style="width: 250px; height: 200px; margin: 5px; padding: 15px; border: solid 2px gray; border-radius: 15px; transition: background-color 0.25s;"></input>
-//     `);
-    
-//     // TODO Implement page changes here when the buttons are clicked
-//     $("#app").on("click", "#join_team", (e) => {
-//         e.preventDefault();
-//         $("#join_team").css("background-color", "gray");
-        
-//         setTimeout(() => {
-//             this.joinTeam();
-//         }, 200);
-//     });
-    
-//     $("#app").on("click", "#create_team", (e) => {
-//         e.preventDefault();
-//         $("#create_team").css("background-color", "gray");
-        
-//         setTimeout(() => {
-//             this.createTeam();
-//         }, 200);
-//     });
-    
-// }

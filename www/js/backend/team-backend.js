@@ -16,8 +16,8 @@ class TeamBackend {
      * 
      * @example createTeam("Rock and Roll Runners", {"primaryCoach": "example85@email.com", "force": 1});
      * 
-     * @param {Function} cb the callback used to handle the server response (include status, substatus, msg)
      * @param {String} teamName name of the new team
+     * @param {Function} cb the callback used to handle the server response (include status, substatus, msg)
      * @param {AssociativeArray} details can specify optional parameters to use when creating the team
      *                           primaryCoach {String} [default is logged in user] email of the primary coach
      *                           secondaryCoach {String} email of the secondary coach
@@ -26,7 +26,7 @@ class TeamBackend {
      *                           isLocked {Boolean} should the other users be unable to join the team? (toggable)
      *                           force {Boolean} should the team be created even if errors exist?
      */
-    static createTeam(cb, teamName, details = { }) {
+    static createTeam(teamName, cb, details = { }) {
         
         // Instead of creating post array, just use details as post object
         details.teamName = teamName
@@ -71,6 +71,100 @@ class TeamBackend {
             }
         });
         
+    }
+    
+    /**
+     * Makes a request to the backend to join the team with the given
+     * invite code. It will fail if the team doesn't exist or is locked. It
+     * will also still succeed if the user is already in the team, but substatus
+     * will be set to 2.
+     * 
+     * @param {String} inviteCode 7-character invite code that is unique to every team
+     * @param {Function} cb callback function that takes in response JSON (or string on error)
+     */
+    static joinTeam(inviteCode, cb) {
+        
+        let requestArray = { };
+        let storage = window.localStorage;
+        
+        // Prepare the request array
+        requestArray.accountEmail = storage.getItem("email");
+        requestArray.teamIdentity = { "inviteCode" : inviteCode };
+        
+        // Submit the request and call the callback
+        $.ajax({
+            type: "POST",
+            url: Constant.URL.team_action + "?intent=3",
+            timeout: Constant.AJAX_CFG.timeout,
+            data: requestArray,
+            success: (response) => {
+                console.log("[team-backend.js:joinTeam()] " + response);
+                try {
+                    response = JSON.parse(response);
+                } catch (e) {
+                    // Couldn't parse, so just use string
+                }
+                cb(response);
+            },
+            error: (error) => {
+                console.log("[team-backend.js:joinTeam()] " + error);
+                cb(response);
+            }
+        });
+    }
+    
+    /**
+     * Submits a request to pull the team information from the backend for
+     * use in the app. Likely includes name, school, etc. since the only NEEDED
+     * thing to store in local storage is the id_team
+     * 
+     * @example getTeamInfo((response) => { localstorage.setItem("teamName", response.teamName) }, {"inviteCode": "123aaaa"});
+     *          --> Returns team info for the team with invite code "123aaaa"
+     * 
+     * @param {Function} cb function to handle the callback info
+     * @param {AssociativeArray} teamIdentity [defaults to localStorage id_team] data (like inviteCode) to identify a team
+     */
+    static getTeamInfo(cb, teamIdentity = { }) {
+        
+        let storage = window.localStorage;
+        
+        // If teamIdentity is empty or omitted, try pulling the local storage value
+        if(Object.keys(teamIdentity).length == 0) {
+            if((storage.getItem("id_team") == null) || (storage.getItem("id_team") == undefined)) {
+                console.log("[team-backend.js:getTeamInfo()] No teamIdentity given, cannot proceed!");
+                // Simulate the response
+                cb("{\"status\": -5, \"substatus\": 6, \"msg\": \"accuracy = 0 of 8. duplicates: false\"}");
+                
+            } else {
+                teamIdentity = { "id_team": storage.getItem("id_team") };
+            }
+        }
+        
+        // Prepare the array
+        let postArray = { };
+        postArray.accountEmail = storage.getItem("email");
+        postArray.teamIdentity = teamIdentity;
+        
+        // Submit the request and call the callback
+        $.ajax({
+            type: "POST",
+            url: Constant.URL.team_action + "?intent=0",
+            timeout: Constant.AJAX_CFG.timeout,
+            data: postArray,
+            success: (response) => {
+                console.log("[team-backend.js:getTeamInfo()] " + response);
+                try {
+                    response = JSON.parse(response);
+                } catch (e) {
+                    // Couldn't parse, so just use string
+                }
+                cb(response);
+            },
+            error: (error) => {
+                console.log("[team-backend.js:getTeamInfo()] " + error);
+                cb(response);
+            }
+        });
     }
     
     // ---- UTIL FUNCTIONs ---- //

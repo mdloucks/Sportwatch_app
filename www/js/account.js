@@ -134,6 +134,7 @@ class Account extends Page {
     stop() {
         // For now, don't unbind because adding the click events back is difficult
         // TODO: Change structure so it can properly unbind
+        $("#accountPage .cat_button").removeClass("cat_button_selected");
         // $("#accountPage").unbind().off();
         // $("#accountPage *").unbind().off();
     }
@@ -361,7 +362,8 @@ class Account extends Page {
 
     startSignOut() {
         localStorage.removeItem("SID");
-        
+        localStorage.removeItem("id_team");
+        localStorage.removeItem("teamName");
         /*
          * forceHaltSlide() is important and needed because when the use taps
          * "Sign Out", SwipeHandler registers it as a TAP Gesture. In MainSet,

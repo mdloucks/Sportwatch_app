@@ -6,7 +6,8 @@ class Team extends Page {
     constructor(id, pageSetObject) {
         super(id, "Team");
         this.hasStarted = false;
-
+        
+        this.pageController = pageSetObject;
         this.pageTransition = new PageTransition("#teamPage");
 
         // --- PAGES ---- //
