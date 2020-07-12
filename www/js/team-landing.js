@@ -1,3 +1,8 @@
+/**
+ * @classdesc Acts as the landing page to determine which page to show. See team-main.js for
+ *            main team functionality.
+ * @class
+ */
 class TeamLanding extends Page {
     
     /**

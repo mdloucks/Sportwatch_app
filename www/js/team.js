@@ -3,7 +3,6 @@
  * @class
  */
 class Team extends Page {
-
     constructor(id, pageSetObject) {
         super(id, "Team");
         this.hasStarted = false;
@@ -90,8 +89,8 @@ class Team extends Page {
             // this.pageTransition.addPage("editAthletePage", this.editAthletePage);
         } else {
             // Hide all and show (needed for new team-landing.js)
-            this.transitionObj.hidePages();
-            this.transitionObj.showCurrentPage();
+            this.pageTransition.hidePages();
+            this.pageTransition.showCurrentPage();
             /*
              * Explanation: team-landing.js calls start() on all team objects
              * to set up the sub-pages for each. Consequently, this populates
@@ -271,6 +270,8 @@ class Team extends Page {
         let storage = window.localStorage;
 
         // local check
+        // TODO: Seth recommends using id_team since all other info (including teamName)
+        //       can be retrieved. Plus, storing the id is better for backend integration
         // if (storage.getItem("teamName") == null) {
         //     return false;
         // }

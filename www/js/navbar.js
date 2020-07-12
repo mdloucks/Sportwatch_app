@@ -18,9 +18,7 @@ class Navbar {
 
         // read all of the pages that are listed on the .navbar into an array
         let _this = this;
-
-        let pageIDsLength = $(".navbar div").length;
-
+        
         $(".navbar").children('div').each(function (index) {
             _this.pageIDs.push("#".concat(this.id));
             _this.pageNames.push(this.innerHTML);

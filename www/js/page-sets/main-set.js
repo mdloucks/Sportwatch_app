@@ -21,20 +21,7 @@ class MainSet extends PageSet {
     // ---- OVERRIDE METHODS ---- //
     
     constructPages() {
-        let pageClassArray = [Stopwatch, Stats, TeamLanding, Account];
-        let pageNameArray = ["Stopwatch", "Stats", "TeamLanding", "Account"];
-        
-        // TODO: To make this cleaner instead of page arrays, use a single "TeamManager" (WIP name)
-        //       and have it dynamically show the appropriate team page (i.e. this.pageController.show("CreateTeam"))
-        
-        // Replace Team class with CreateTeam if the stored ID is missing or invalid
-        // if((localStorage.getItem("id_team") == null) || (localStorage.getItem("id_team") == undefined)) {
-        //     pageClassArray[2] = CreateTeam;
-        //     pageNameArray[2] = "CreateTeam";
-        //     $(".navbar > #team").prop("id", "createteam"); // Can't camel case, toLowerCase() is called later
-        // }
-        
-        this.pageArray = pageClassArray.map((page, i) => new page(i, this));
+        this.pageArray = [Stopwatch, Stats, TeamLanding, Account].map((page, i) => new page(i, this));
         this.pageArray.forEach((pageObj, pageIndex) => {
             let shouldShow = false; // Should be page be visible at start? (only for first page)
             if (pageIndex == 0) {
@@ -47,7 +34,7 @@ class MainSet extends PageSet {
         });
         
         // Include this here so it's easier to enable / disable later
-        this.navbar.initNavbar(this.switchPage.bind(this), pageNameArray);
+        this.navbar.initNavbar(this.switchPage.bind(this), ["Stopwatch", "Stats", "TeamLanding", "Account"]);
         this.disable(); // Disable until enabled
     }
     
@@ -71,11 +58,7 @@ class MainSet extends PageSet {
     }
     
     switchPage(pageName) {
-        // If it's a team thing, let the team-landing determine which page to show
-        if(pageName == "TeamLanding") {
-            
-        }
-        
+        console.log("Switching to " + pageName);
         this.pageArray[this.currentPageId].stop(); // Stop current page
         this.transitionPage(pageName); // Begin transition
         this.currentPageId = (this.getPage(pageName).id);
