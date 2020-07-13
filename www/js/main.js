@@ -22,7 +22,7 @@ class App {
         console.log("DEVICE READY");
 
         this.swipeHandler = new SwipeHolder("#app");
-        FastClick.attach(document.body);
+        // FastClick.attach(document.body);
 
         $(".loader").remove();
         $("#app").html(""); // Clear so it's a clean slate to add to
@@ -155,5 +155,5 @@ setTimeout(() => {
     
     let app = new App();
     app.initialize();
-}, 500);
+}, 1000);
 // app.initialize();

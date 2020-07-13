@@ -65,6 +65,7 @@ span {
   min-height: 85%;
   text-align: center;
   background-color: #fff;
+  overflow-x: hidden;
 }
 
 .div_page.current_page {

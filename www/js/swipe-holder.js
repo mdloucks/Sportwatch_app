@@ -32,6 +32,19 @@ class SwipeHolder {
             SWIPELEFT: 7
         };
 
+        this.Intents = {
+            NONE: 0,
+            SWIPE: 1, // x motion after sufficient threshold (eg. every swipe starts with PAN)
+            SCROLL: 2, // y motion
+            PAN: 3 // x motion
+        }
+
+        this.isEvaluatingIntent = true;
+        this.currentIntent = this.Intents.NONE;
+        // the threshold at which the linear combination of the xy vectors should be evaluated
+        this.intentEvaluationThreshold = 12;
+        
+
         // Define dummy callbacks
         this.callbacks[this.Gestures.BEGIN] = () => { };
         this.callbacks[this.Gestures.MOVE] = () => { };
@@ -58,8 +71,10 @@ class SwipeHolder {
      * @param {String} elementId - id the of the target element with selector included
      */
     attachToElement(elementId) {
+
         // START TOUCH
         $(elementId).bind("touchstart", (e) => {
+
             // Now, add to the arrays for each touch
             for (let t = 0; t < e.changedTouches.length; t++) {
                 let touch = e.changedTouches[t];
@@ -72,24 +87,44 @@ class SwipeHolder {
         });
         // MOVING TOUCH
         $(elementId).bind("touchmove", (e) => {
-            e.preventDefault();
+
+            //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+            // The problem is that you are able to move the screen arbitrarily along both axis via scrolling or
+            // the MOVE enum entry.
+            // This solution attempts to remedy that by finding the intent, or direction the user was originally wishing
+            // to scroll and then limiting their movement to that axis until a release happens.
+            //............................................................................................................
+           
+           let touch = e.changedTouches[0];
+           // this.tryScrolling(touch);
+           this.currentTouch = touch; // So current finger position can be ascertained
+           
+           let dx = this.touchHistory[0][0].pageX - touch.pageX;
+           let dy = this.touchHistory[0][0].pageY - touch.pageY;
+           
+           let combination = Math.abs(dx) + Math.abs(dy);
+
+           this.evaluateIntent(combination);
+
             /* preventDefault() is VITAL for smooth transitions when swiping between
-               pages!! It is also, however, the thing prohibiting native scrolling
-               and overflow for tall pages. I currently don't have a solution...
+            pages!! It is also, however, the thing prohibiting native scrolling
+            and overflow for tall pages. I currently don't have a solution...
             */
             
-            let touch = e.changedTouches[0];
-            this.tryScrolling(touch);
-            this.currentTouch = touch; // So current finger position can be ascertained
-            
-            let dx = this.touchHistory[0][0].pageX - touch.pageX;
-            let dy = this.touchHistory[0][0].pageY - touch.pageY;
-            this.callbacks[this.Gestures.MOVE](dx, dy);
+            // only call the move callback and preventDefault when we have properly evaluated the intent as PAN
+            if(this.currentIntent == this.Intents.PAN & e.cancelable) {
+                this.callbacks[this.Gestures.MOVE](dx, dy);
+                e.preventDefault();
+            } else if(this.currentIntent == this.Intents.SCROLL) {
+                // allow default scroll behavior to happen...
+            }
         });
         // END TOUCH
         $(elementId).bind("touchend", (e) => {
             e.preventDefault(); // Helps prevent "double clicking"
             e.stopPropagation();
+
+            this.isEvaluatingIntent = true;
             
             for (let l = 0; l < e.changedTouches.length; l++) {
                 let touch = e.changedTouches[l];
@@ -106,6 +141,18 @@ class SwipeHolder {
             this.callbacks[this.Gestures.STOP]();
         });
     };
+
+    evaluateIntent(combination) {
+        if(combination >= this.intentEvaluationThreshold && this.isEvaluatingIntent) {
+            if(Math.abs(deltaX) > Math.abs(deltaY)) {
+                this.currentIntent = this.Intents.PAN;
+                this.isEvaluatingIntent = false;
+            } else {
+                this.currentIntent = this.Intents.SCROLL;
+                this.isEvaluatingIntent = false;
+            }
+        }
+    }
     
     /**
      * Loops through the pages that are registered to scroll. If a page
