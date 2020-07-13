@@ -13,7 +13,6 @@ class Popup {
     static callbackCleanupWrapper(element, callback) {
         callback();
         $(".popup").fadeOut(300, function () { $(this).remove(); });
-        $(element).unbind("touchend");
     }
 
     /**
@@ -52,7 +51,7 @@ class Popup {
 
         $(".popup:first").css("display", "block");
 
-        $(document).on("touchend", `.close:first`, function (e) {
+        $(".close:first").on("click", function (e) {
             e.preventDefault();
             $(".close").unbind();
             $(".popup").fadeOut(300, function () { $(this).remove(); });

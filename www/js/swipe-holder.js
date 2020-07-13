@@ -102,9 +102,7 @@ class SwipeHolder {
            let dx = this.touchHistory[0][0].pageX - touch.pageX;
            let dy = this.touchHistory[0][0].pageY - touch.pageY;
            
-           let combination = Math.abs(dx) + Math.abs(dy);
-
-           this.evaluateIntent(combination);
+           this.evaluateIntent(dx, dy);
 
             /* preventDefault() is VITAL for smooth transitions when swiping between
             pages!! It is also, however, the thing prohibiting native scrolling
@@ -142,9 +140,12 @@ class SwipeHolder {
         });
     };
 
-    evaluateIntent(combination) {
+    evaluateIntent(dx, dy) {
+
+        let combination = Math.abs(dx) + Math.abs(dy);
+
         if(combination >= this.intentEvaluationThreshold && this.isEvaluatingIntent) {
-            if(Math.abs(deltaX) > Math.abs(deltaY)) {
+            if(Math.abs(dx) > Math.abs(dy)) {
                 this.currentIntent = this.Intents.PAN;
                 this.isEvaluatingIntent = false;
             } else {

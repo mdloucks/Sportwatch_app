@@ -133,10 +133,10 @@ class Signup extends Page {
         });
         
         // Animate the button to simulate a "press"
-        this.getPageElement("#button_signup").bind("touchstart", (e) => {
+        this.getPageElement("#button_signup").click((e) => {
             this.getPageElement("#button_signup").addClass("pressed");
         });
-        this.getPageElement("#button_signup").bind("touchend", (e) => {
+        this.getPageElement("#button_signup").click((e) => {
             this.getPageElement("#button_signup").removeClass("pressed");
         });
 

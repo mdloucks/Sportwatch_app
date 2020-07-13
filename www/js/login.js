@@ -71,10 +71,10 @@ class Login extends Page {
         });
 
         // Animate the button to simulate a "press"
-        this.getPageElement("#login_button").bind("touchstart", (e) => {
+        this.getPageElement("#login_button").click((e) => {
             this.getPageElement("#login_button").addClass("pressed");
         });
-        this.getPageElement("#login_button").bind("touchend", (e) => {
+        this.getPageElement("#login_button").click((e) => {
             this.getPageElement("#login_button").removeClass("pressed");
         });
 

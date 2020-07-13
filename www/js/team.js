@@ -145,7 +145,7 @@ class Team extends Page {
         // $("#editAthletePage p:contains('lname')").html("Last Name");
 
 
-        // $("#teamPage #back_button_edit").bind("touchend", (e) => {
+        // $("#teamPage #back_button_edit").bind("click", (e) => {
         //     this.pageTransition.slideRight("athletePage");
         // });
 
@@ -185,15 +185,15 @@ class Team extends Page {
         // After populated, slide
         this.pageTransition.slideLeft("athletePage");
 
-        // $("#teamPage #athlete_edit").unbind("touchend");
+        // $("#teamPage #athlete_edit").unbind("click");
 
-        // $("#teamPage #athlete_edit").bind("touchend", (e) => {
+        // $("#teamPage #athlete_edit").bind("click", (e) => {
         //     this.pageTransition.slideLeft("editAthletePage");
         //     this.startEditAthletePage(athlete);
         // });
 
         // Slide back; athlete page will be overwritten next select
-        $("#back_button_athlete").bind("touchend", (e) => {
+        $("#back_button_athlete").bind("click", (e) => {
             this.pageTransition.slideRight("landingPage");
         });
     }
@@ -203,7 +203,7 @@ class Team extends Page {
 
         $("#teamPage #athleteStatPage #athlete_stats_container").empty();
 
-        $("#teamPage #athleteStatPage #back_button_athlete_stats").bind("touchend", () => {
+        $("#teamPage #athleteStatPage #back_button_athlete_stats").bind("click", () => {
             this.pageTransition.slideRight("athletePage");
         });
 

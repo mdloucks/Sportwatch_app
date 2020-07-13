@@ -63,7 +63,7 @@ class ValueEditor {
         });
 
         let button = $("<button>", { html: "Change!", class: "generated_button" });
-        button.bind("touchend", ValueEditor.extractValues.bind(this, inputs, callback));
+        button.bind("click", ValueEditor.extractValues.bind(this, inputs, callback));
 
         $(element).append(button);
     }

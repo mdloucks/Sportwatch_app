@@ -123,16 +123,16 @@ class Stats extends Page {
 
         $("#statsPage #eventPage #event_name").html(event.event_name);
 
-        $("#statsPage #eventPage #back_button_event").bind("touchend", (e) => {
+        $("#statsPage #eventPage #back_button_event").bind("click", (e) => {
             this.pageTransition.slideRight("landingPage");
         });
 
-        $("#statsPage #eventPage #sort_alphabet").unbind("touchend");
-        $("#statsPage #eventPage #sort_times").unbind("touchend");
-        $("#statsPage #eventPage #sort_gender").unbind("touchend");
+        $("#statsPage #eventPage #sort_alphabet").unbind("click");
+        $("#statsPage #eventPage #sort_times").unbind("click");
+        $("#statsPage #eventPage #sort_gender").unbind("click");
 
         // Sort alphabetically
-        $("#statsPage #eventPage #sort_alphabet").bind("touchend", (e) => {
+        $("#statsPage #eventPage #sort_alphabet").bind("click", (e) => {
             $("#statsPage #eventPage #sort_alphabet").addClass("button_selected");
             $("#statsPage #eventPage #sort_times").removeClass("button_selected");
             $("#statsPage #eventPage #sort_gender").removeClass("button_selected");
@@ -141,7 +141,7 @@ class Stats extends Page {
         });
 
         // sort based on fasted time
-        $("#statsPage #eventPage #sort_times").bind("touchend", (e) => {
+        $("#statsPage #eventPage #sort_times").bind("click", (e) => {
             $("#statsPage #eventPage #sort_times").addClass("button_selected");
             $("#statsPage #eventPage #sort_alphabet").removeClass("button_selected");
             $("#statsPage #eventPage #sort_gender").removeClass("button_selected");
@@ -150,7 +150,7 @@ class Stats extends Page {
         });
 
         // sort based on gender
-        $("#statsPage #eventPage #sort_gender").bind("touchend", (e) => {
+        $("#statsPage #eventPage #sort_gender").bind("click", (e) => {
             $("#statsPage #eventPage #sort_gender").addClass("button_selected");
             $("#statsPage #eventPage #sort_alphabet").removeClass("button_selected");
             $("#statsPage #eventPage #sort_times").removeClass("button_selected");
