@@ -42,7 +42,7 @@ class Stopwatch extends Page {
                 <div class="stopwatch_lap_times"></div>
                 <div class="stopwatch_button_container">
                     <a id="stopwatch_reset" class="stopwatch_button">Reset</a>
-                    <button id="stopwatch_start_stop" class="play_button"></button>
+                    <button id="stopwatch_start_stop" class="play_button noSelect"></button>
                     <a id="stopwatch_lap" class="stopwatch_button">Lap</a>
                 </div>
             </div>
@@ -137,7 +137,7 @@ class Stopwatch extends Page {
 
             this.clock.textHeight = this.measureTextHeight(0, 0, 50, 100);
 
-            this.ctx.clearRect(0, 0, 500, 500);
+            this.ctx.clearRect(0, 0, this.c.width, this.c.height);
             this.drawCircle();
             this.drawPoint(this.clock.initialAngle, 1);
 
@@ -208,6 +208,7 @@ class Stopwatch extends Page {
     }
 
     startStopwatch() {
+
         this.clock.isRunning = true;
         // Check to see if already the play button (i.e. from reset)
         if (!$("#stopwatch_start_stop").hasClass("paused")) {
@@ -234,6 +235,7 @@ class Stopwatch extends Page {
             this.stopStopwatch();
         }
 
+        // start first time
         if (!this.clock.hasStarted) {
             this.startStopwatch();
             $("#stopwatch_start_stop").addClass("paused");

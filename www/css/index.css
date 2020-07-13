@@ -187,3 +187,19 @@ input {
   -ms-user-select: auto !important;
   user-select: auto !important;
 }
+
+/* disable orange outline */
+*:focus {
+    outline: none;
+}
+
+/* remove blue selection color */
+.noSelect {
+    -webkit-touch-callout: none;
+    -webkit-user-select: none;
+    -webkit-tap-highlight-color: transparent;
+    -khtml-user-select: none;
+    -moz-user-select: none;
+    -ms-user-select: none;
+    user-select: none;
+}
