@@ -26,6 +26,7 @@ class AccountBackend {
         
         // Prepare the array
         let postArray = {};
+        postArray.SID = storage.getItem("SID");
         postArray.accountIdentity = { "email": userEmail };
         
         // Submit the request and call the callback
@@ -89,6 +90,7 @@ class AccountBackend {
         
         // Prepare the array
         let postArray = {};
+        postArray.SID = storage.getItem("SID");
         postArray.accountIdentity = {"email": userEmail};
         
         // If currentPassword isn't set, remove email and password from newValues

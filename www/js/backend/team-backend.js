@@ -29,7 +29,8 @@ class TeamBackend {
     static createTeam(teamName, cb, details = { }) {
         
         // Instead of creating post array, just use details as post object
-        details.teamName = teamName
+        details.SID = localStorage.getItem("SID");
+        details.teamName = teamName;
         
         // Set primary coach as logged in user if not given
         if(!("primaryCoach" in details)) {
@@ -88,6 +89,7 @@ class TeamBackend {
         let storage = window.localStorage;
         
         // Prepare the request array
+        requestArray.SID = storage.getItem("SID");
         requestArray.accountEmail = storage.getItem("email");
         requestArray.teamIdentity = { "inviteCode" : inviteCode };
         
@@ -142,6 +144,7 @@ class TeamBackend {
         
         // Prepare the array
         let postArray = { };
+        postArray.SID = storage.getItem("SID");
         postArray.accountEmail = storage.getItem("email");
         postArray.teamIdentity = teamIdentity;
         
@@ -202,243 +205,6 @@ class TeamBackend {
         };
         
         return returnArray;
-    }
-    
-    /**
-     * Returns easy-to-read, human-readable values for certain fields. It will also
-     * remove server variables (status, substatus, msg) and handle null values.
-     * Should be run before showing data to a user, unless it's an error
-     * 
-     * @example accountInfo = BackendAgent.beautifyResponse({"status": 6, "fname": "Seth", "cellNum": "9896426863"});
-     *              --> Returns {"fname": "Seth", "cellNum": "(989) 642-6863"}
-     * 
-     * @param {AssociativeArray} payload response directly from the server
-     * @returns
-     * Associative Array / Object of beautified values
-     */
-    static beautifyResponse(payload) {
-
-        delete payload["status"];
-        delete payload["substatus"];
-        delete payload["msg"];
-
-        // -- ACCOUNT RESPONSE -- //
-        // Name
-        if ("fname" in payload) {
-            if ((payload["fname"] == null) || (payload["fname"] == undefined)) {
-                payload["fname"] = "";
-            }
-        }
-        if ("lname" in payload) {
-            if ((payload["lname"] == null) || (payload["lname"] == undefined)) {
-                payload["lname"] = "";
-            }
-        }
-        // Gender
-        if ("gender" in payload) {
-            if ((payload["gender"] == null) || (payload["gender"] == undefined)) {
-                payload["gender"] = "";
-            } else {
-                if (payload["gender"] == "M") {
-                    payload["gender"] = "Male";
-                } else if (payload["gender"] == "F") {
-                    payload["gender"] = "Female";
-                } else {
-                    payload["gender"] = "Other";
-                }
-            }
-        }
-        if ("state" in payload) {
-            if ((payload["state"] == null) || (payload["state"] == undefined)) {
-                payload["state"] = "";
-            } else {
-                // TODO: Select state from dropdown menu
-            }
-        }
-        // Date of Birth
-        if ("dob" in payload) {
-            if ((payload["dob"] == null) || (payload["dob"] == undefined)) {
-                payload["dob"] = "";
-            } else {
-                let year = payload["dob"].substr(0, 4);
-                let month = payload["dob"].substr(5, 2);
-                let day = payload["dob"].substr(8, 2);
-                payload["dob"] = month + "/" + day + "/" + year;
-                // TODO: Change this to a fancy, printed version (i.e. September, 27th, 2005)
-            }
-        }
-        // Phone number
-        if ("cellNum" in payload) {
-            if ((payload["cellNum"] == null) || (payload["cellNum"] == undefined)) {
-                payload["cellNum"] = "";
-            } else {
-                let number = payload["cellNum"];
-                if (number.length == 11) { // Full 10-digit with area code and country prefix
-                    let prefix = "+" + number.substr(0, 1) + " (" + number.substr(1, 3) + ") ";
-                    payload["cellNum"] = prefix + number.substr(4, 3) + "-" + number.substr(7, 4);
-                } else if (number.length == 10) { // Full 10-digit with area code
-                    payload["cellNum"] = "(" + number.substr(0, 3) + ") " + number.substr(3, 3) + "-" + number.substr(6, 4);
-                } else if (number.length == 7) { // No area code
-                    payload["cellNum"] = number.substr(0, 3) + "-" + number.substr(4, 4);
-                } // Else leave the number as is
-            }
-        }
-
-        return payload;
-    }
-    
-    /**
-     * Will cleanse and attempt to sanitize the post array values. If a value
-     * is undefined, it will be deleted from the array.
-     * If a value isn't valid (i.e. too short, etc.), it will return false, unless
-     * removeInvalid is set to true; then it will simply be removed from the array
-     * 
-     * @example postArray = BackendAgent.sanitizePostRequest({"fname": "Samantha", "gender": 46}, true);
-     *                      --> Will return {"fname": "Samantha"} (having removed invalid "gender")
-     * 
-     * @param {AssociativeArray} postArray the data being sent to the server
-     * @param {Boolean} removeInvalid [default = true] should invalid values be deleted, or
-     *                                 should this function just return false upon invalid?
-     * 
-     * @returns
-     * A cleaned postArray. False, if an invalid variable was found and removeInvalid was set to false
-     */
-    static sanitizePostRequest(postArray, removeInvalid = true) {
-        
-        // -- ACCOUNT -- //
-        // Name
-        if("fname" in postArray) {
-            let cleanedInput = this.getValidInput(postArray["fname"], /[^A-Za-z. ]/gm, 0, 60);
-            if(cleanedInput !== false) {
-                postArray["fname"] = cleanedInput;
-            } else {
-                if(removeInvalid) {
-                    delete postArray["fname"];
-                } else {
-                    return false;
-                }
-            }
-        }
-        if("lname" in postArray) {
-            let cleanedInput = this.getValidInput(postArray["lname"], /[^A-Za-z. ]/gm, 0, 60);
-            if(cleanedInput !== false) {
-                postArray["lname"] = cleanedInput;
-            } else {
-                if(removeInvalid) {
-                    delete postArray["lname"];
-                } else {
-                    return false;
-                }
-            }
-        }
-        // Gender
-        if("gender" in postArray) {
-            let cleanedInput = this.getValidInput(postArray["gender"], /[^A-Za-z]/gm, 0, 15);
-            if(cleanedInput !== false) {
-                cleanedInput = cleanedInput.toLowerCase();
-                if((cleanedInput == "male") || (cleanedInput == "m")) {
-                    postArray["gender"] = "M";
-                } else if((cleanedInput == "female") || (cleanedInput == "f")) {
-                    postArray["gender"] = "F";
-                } else {
-                    postArray["gender"] = "O";
-                }
-            } else {
-                if(removeInvalid) {
-                    delete postArray["gender"];
-                } else {
-                    return false;
-                }
-            }
-        }
-        // State
-        if("state" in postArray) {
-            let cleanedInput = this.getValidInput(postArray["state"], /[^A-Za-z]/gm, 0, 2);
-            if(cleanedInput !== false) {
-                postArray["state"] = cleanedInput.toUpperCase();
-            } else {
-                if(removeInvalid) {
-                    delete postArray["state"];
-                } else {
-                    return false;
-                }
-            }
-        }
-        // Email
-        if("email" in postArray) {
-            let cleanedInput = this.getValidInput(postArray["email"], /[^A-Za-z0-9.@\-_]/gm, 5, 128);
-            if(cleanedInput !== false) {
-                postArray["email"] = cleanedInput;
-            } else {
-                if(removeInvalid) {
-                    delete postArray["email"];
-                } else {
-                    return false;
-                }
-            }
-        }
-        // Password
-        if("password" in postArray) {
-            let cleanedInput = this.getValidInput(postArray["password"], /[ ;\"\'\/]/gm, 7, 128);
-            if(cleanedInput !== false) {
-                postArray["password"] = cleanedInput;
-            } else {
-                if(removeInvalid) {
-                    delete postArray["password"];
-                } else {
-                    return false;
-                }
-            }
-        }
-        // Account Type
-        if("accountType" in postArray) {
-            let cleanedInput = this.getValidInput(postArray["accountType"], /[^A-Za-z]/gm, 3, 30);
-            if(cleanedInput !== false) {
-                cleanedInput = cleanedInput.toLowerCase();
-                if(cleanedInput == "coach") {
-                    postArray["accountType"] = "Coach";
-                } else {
-                    postArray["accountType"] = "Athlete";
-                }
-            } else {
-                if(removeInvalid) {
-                    delete postArray["accountType"];
-                } else {
-                    return false;
-                }
-            }
-        }
-        // Date of Birth (should be formatted: mm/dd/year)
-        if("dob" in postArray) {
-            let cleanedInput = this.getValidInput(postArray["dob"], /[^0-9]/gm, 5, 10);
-            if(cleanedInput !== false) {
-                let month = cleanedInput.substr(0, 2);
-                let day = cleanedInput.substr(2, 2);
-                let year = cleanedInput.substr(4, 4);
-                postArray["dob"] = year + "-" + month + "-" + day;
-            } else {
-                if(removeInvalid) {
-                    delete postArray["dob"];
-                } else {
-                    return false;
-                }
-            }
-        }
-        // Phone Number
-        if ("cellNum" in postArray) {
-            let cleanedInput = this.getValidInput(postArray["cellNum"], /[^0-9]/gm, 5, 11);
-            if (cleanedInput !== false) {
-                postArray["cellNum"] = cleanedInput;
-            } else {
-                if (removeInvalid) {
-                    delete postArray["cellNum"];
-                } else {
-                    return false;
-                }
-            }
-        }
-        
-        return postArray;
     }
     
     /**
