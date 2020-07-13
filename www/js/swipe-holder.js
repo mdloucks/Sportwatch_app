@@ -119,8 +119,17 @@ class SwipeHolder {
         });
         // END TOUCH
         $(elementId).bind("touchend", (e) => {
-            e.preventDefault(); // Helps prevent "double clicking"
-            e.stopPropagation();
+            /**
+             * Matt comment
+             * 
+             * TODO: set pls disable clicks while a slide transition is happening by calling e.preventDefault
+             * You can click a button multiple times while it's sliding if you hit it a lot which can cause duplicates.
+             * 
+             * Also sorry if commenting out the propagation thing broke anything. Thanks!
+             * 
+             */
+            // e.preventDefault(); // Helps prevent "double clicking"
+            // e.stopPropagation();
 
             this.isEvaluatingIntent = true;
             
@@ -131,10 +140,10 @@ class SwipeHolder {
                 this.touchHistory[currentTouchIndex][1] = touch;
                 let gesture = this.evaluateGesture(currentTouchIndex);
                 
-                // Trigger click event (fixes issue on Android)
-                if(gesture == this.Gestures.TAP) {
-                    $(e.target).trigger("click");
-                }
+                // // Trigger click event (fixes issue on Android)
+                // if(gesture == this.Gestures.TAP) {
+                //     $(e.target).trigger("click");
+                // }
             }
             this.callbacks[this.Gestures.STOP]();
         });

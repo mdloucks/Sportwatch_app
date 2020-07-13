@@ -143,7 +143,7 @@ class Stopwatch extends Page {
 
             this.ctx.fillText("0.00", this.clock.centerX - (this.ctx.measureText("0.00").width / 2),
                 this.clock.centerY + (this.clock.textHeight / 2));
-            
+
             $("#stopwatch_start_stop").click((e) => {
                 e.preventDefault();
                 this.toggleStopwatch(this.clock);
@@ -172,7 +172,7 @@ class Stopwatch extends Page {
                                 <div>#${n + 1}: ${this.generateClockText(this.clock)}</div>
                             `);
                 } else if ($("#stopwatch_lap").html() == "Save") {
-                    this.startSelectEventPage();
+                    this.startSelectAthletePage();
                 } else {
                     throw new Error(`innerHTML: ${$("#stopwatch_lap").html()} is invalid for #stopwatch_lap`);
                 }
@@ -210,11 +210,11 @@ class Stopwatch extends Page {
     startStopwatch() {
         this.clock.isRunning = true;
         // Check to see if already the play button (i.e. from reset)
-        if(!$("#stopwatch_start_stop").hasClass("paused")) {
+        if (!$("#stopwatch_start_stop").hasClass("paused")) {
             // FYI, paused is the pause button, not indicative of stopwatch state
             $("#stopwatch_start_stop").addClass("paused");
         }
-        
+
         $("#stopwatch_lap").html("Lap");
         this.clock.start = 0;
     }
@@ -259,7 +259,7 @@ class Stopwatch extends Page {
 
         this.ctx.fillText(resetText, this.clock.centerX - (this.ctx.measureText(resetText).width / 2),
             this.clock.centerY + (this.clock.textHeight / 2));
-        
+
         this.stopStopwatch();
         $(".stopwatch_lap_times").empty();
         $("#stopwatch_lap").html("Lap");
@@ -316,41 +316,13 @@ class Stopwatch extends Page {
     /**
      * this function will start the select event page
      */
-    startSelectEventPage() {
+    startSelectEventPage(athlete) {
 
         this.pageTransition.slideLeft("selectEventPage");
         $("#stopwatchPage #selectEventPage .button_box").empty();
 
         dbConnection.selectValues("SELECT *, rowid FROM event", []).then((events) => {
             ButtonGenerator.generateButtonsFromDatabase("#stopwatchPage #selectEventPage .button_box", events, (event) => {
-                this.startSelectAthletePage(event);
-            }, ["gender", "unit", "is_relay", "timestamp"]);
-        });
-    }
-
-    /**
-     * This function will start the select athlete page
-     * @param {row} event the event selected
-     */
-    startSelectAthletePage(event) {
-        this.pageTransition.slideLeft("selectAthletePage");
-
-        $("#stopwatchPage #selectAthletePage .button_box").empty();
-
-        let query = (`
-            SELECT *, athlete.rowid FROM athlete
-            INNER JOIN athlete_event_register
-            ON athlete.id_athlete_event_register = athlete_event_register.rowid
-            WHERE athlete_event_register.event_id_1 = ? 
-            OR athlete_event_register.event_id_2 = ?
-            OR athlete_event_register.event_id_3 = ?
-            OR athlete_event_register.event_id_4 = ?
-            OR athlete_event_register.event_id_5 = ?
-        `);
-
-        dbConnection.selectValues(query, [event.rowid, event.rowid, event.rowid, event.rowid, event.rowid]).then((athletes) => {
-
-            ButtonGenerator.generateButtonsFromDatabase("#stopwatchPage #selectAthletePage .button_box", athletes, (athlete) => {
 
                 // TODO: send these values to the server
                 this.pageTransition.slideRight("landingPage");
@@ -360,7 +332,25 @@ class Stopwatch extends Page {
                 // TODO: create confirmation popup
                 // Popup.createFadeoutPopup("Times Saved!");
 
-            }, ["event_id_1", "event_id_2", "event_id_3", "event_id_4", "event_id_5", "id_athlete_event_register"]);
+            }, ["gender", "unit", "is_relay", "timestamp"]);
+        });
+    }
+
+    /**
+     * This function will start the select athlete page
+     * @param {row} event the event selected
+     */
+    startSelectAthletePage() {
+        this.pageTransition.slideLeft("selectAthletePage");
+
+        $("#stopwatchPage #selectAthletePage .button_box").empty();
+
+
+        dbConnection.selectValues("SELECT *, rowid FROM athlete", []).then((athletes) => {
+
+            ButtonGenerator.generateButtonsFromDatabase("#stopwatchPage #selectAthletePage .button_box", athletes, (athlete) => {
+                this.startSelectEventPage(athlete)
+            }, ["gender", "unit", "is_relay", "timestamp"]);
         });
     }
 
