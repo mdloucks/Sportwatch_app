@@ -48,19 +48,7 @@ class Stopwatch extends Page {
             </div>
         `);
 
-        this.selectEventPage = (`
-            <div id="selectEventPage" class="div_page">
 
-                <div class="generic_header">
-                    <div class="back_button">&#9668;</div>
-                    <h1>Chose An Event</h1>
-                    <div></div>
-                </div>
-                <div class="button_box">
-
-                </div>
-            </div>
-        `);
 
         this.selectAthletePage = (`
             <div id="selectAthletePage" class="div_page">
@@ -75,6 +63,26 @@ class Stopwatch extends Page {
             </div>
         `);
 
+        this.selectEventPage = (`
+        <div id="selectEventPage" class="div_page">
+
+            <div class="generic_header">
+                <div class="back_button">&#9668;</div>
+                <h1>Chose An Event</h1>
+                <div></div>
+            </div>
+
+            <div id="saved_events_box" class="button_box">
+
+            </div>
+
+            <div class="subheading_text">Save to new event</div>
+
+            <div id="new_events_box" class="button_box">
+            
+            </div>
+        </div>
+        `);
     }
 
     /**
@@ -84,8 +92,8 @@ class Stopwatch extends Page {
         return (`
             <div id="stopwatchPage" class="div_page">
                 ${this.landingPage}
-                ${this.selectEventPage}
                 ${this.selectAthletePage}
+                ${this.selectEventPage}
             </div>
         `);
     }
@@ -100,8 +108,8 @@ class Stopwatch extends Page {
 
         if (this.pageTransition.getPageCount() == 0) {
             this.pageTransition.addPage("landingPage", this.landingPage, true);
-            this.pageTransition.addPage("selectEventPage", this.selectEventPage);
             this.pageTransition.addPage("selectAthletePage", this.selectAthletePage);
+            this.pageTransition.addPage("selectEventPage", this.selectEventPage);
         }
 
         this.setupStopwatch();
@@ -318,29 +326,6 @@ class Stopwatch extends Page {
     }
 
     /**
-     * this function will start the select event page
-     */
-    startSelectEventPage(athlete) {
-
-        this.pageTransition.slideLeft("selectEventPage");
-        $("#stopwatchPage #selectEventPage .button_box").empty();
-
-        dbConnection.selectValues("SELECT *, rowid FROM event", []).then((events) => {
-            ButtonGenerator.generateButtonsFromDatabase("#stopwatchPage #selectEventPage .button_box", events, (event) => {
-
-                // TODO: send these values to the server
-                this.pageTransition.slideRight("landingPage");
-                dbConnection.insertValues("event_result", [event.rowid, athlete.rowid, this.clock.seconds]);
-                console.log("VALUES INSERTED " + event.rowid + " " + athlete.rowid + " " + this.clock.seconds);
-
-                // TODO: create confirmation popup
-                // Popup.createFadeoutPopup("Times Saved!");
-
-            }, ["gender", "unit", "is_relay", "timestamp"]);
-        });
-    }
-
-    /**
      * This function will start the select athlete page
      * @param {row} event the event selected
      */
@@ -349,14 +334,80 @@ class Stopwatch extends Page {
 
         $("#stopwatchPage #selectAthletePage .button_box").empty();
 
+        let conditionalAttributes = {
+            "gender": {
+                "m": { style: "background-color: lightblue; color: black; border: 1px solid black;" },
+                "f": { style: "background-color: lightpink; color: black; border: 1px solid black;" }
+            }
+        };
 
+        // generate a list of athletes for the user to select
         dbConnection.selectValues("SELECT *, rowid FROM athlete", []).then((athletes) => {
-
             ButtonGenerator.generateButtonsFromDatabase("#stopwatchPage #selectAthletePage .button_box", athletes, (athlete) => {
                 this.startSelectEventPage(athlete)
-            }, ["gender", "unit", "is_relay", "timestamp"]);
+            }, ["gender", "unit", "is_relay", "timestamp"], conditionalAttributes);
         });
     }
+
+    /**
+     * this function will start the select event page
+     */
+    startSelectEventPage(athlete) {
+
+        this.pageTransition.slideLeft("selectEventPage");
+
+        $("#stopwatchPage #selectEventPage #saved_events_box").empty();
+        $("#stopwatchPage #selectEventPage #new_events_box").empty();
+
+        // user selects an existing event
+        dbConnection.selectValues("SELECT *, rowid FROM event", []).then((events) => {
+            ButtonGenerator.generateButtonsFromDatabase("#stopwatchPage #selectEventPage #saved_events_box", events, (event) => {
+                console.log("SAVE FOR OLD EVENT!!!");
+                this.saveTime(event, athlete);
+            }, ["gender", "unit", "is_relay", "timestamp"]);
+        });
+
+        // User selects a new event that the athlete is not already registered in
+        dbConnection.selectValues("SELECT *, rowid FROM record_definition", []).then((record_definitions) => {
+            ButtonGenerator.generateButtonsFromDatabase("#stopwatchPage #selectEventPage #new_events_box", record_definitions, (record_definition) => {
+                this.saveTime(event, athlete);
+
+                let is_relay = (record_definition.record_identity.includes("relay") == true) ? true : false
+                let data = [record_definition.record_identity, athlete.gender, record_definition.unit, is_relay, Date.now()];
+                
+                console.log("NEW EVENT " + JSON.stringify(data));
+                dbConnection.insertValues("event", data);
+
+                // last_insert_rowid() will return the id of the last value inserted, which in this case would be the event.
+                dbConnection.selectValues("SELECT last_insert_rowid()", []).then((row) => {
+                    this.saveTime({"rowid": row.item(0)["last_insert_rowid()"]}, athlete);
+                });
+
+            }, ["unit"]);
+        });
+    }
+
+    /**
+     * @description this function is called when the user chooses an event to save 
+     * 
+     * @param {Object} event the event to save
+     * @param {Object} athlete the event to for
+     */
+    saveTime(event, athlete) {
+        // TODO: send these values to the server
+        this.pageTransition.slideRight("landingPage");
+
+        console.log(JSON.stringify(event));
+        dbConnection.insertValues("event_result", [event.rowid, athlete.rowid, this.clock.seconds]);
+
+        console.log("VALUES INSERTED for  " + athlete.fname + " " + event.rowid + " " + athlete.rowid + " " + this.clock.seconds);
+
+        this.resetStopwatch();
+        // TODO: save lap times
+        // TODO: create confirmation popup
+        // Popup.createFadeoutPopup("Times Saved!");
+    }
+
 
     /**
      * @description The sorry saps who made CanvasRenderingContext2D allow you to measure the 

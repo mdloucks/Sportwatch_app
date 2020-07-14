@@ -172,6 +172,15 @@ https://css-tricks.com/places-its-tempting-to-use-display-none-but-dont/ */
     text-align: center;
 }
 
+.subheading_text {
+    text-align: center;
+    width: 100%;
+    font-size: 2.5em;
+    padding-top: 1em;
+    padding-bottom: 1em;
+    font-weight: bold;
+}
+
 /* ---- MISC ---- */
 
 @keyframes spin {
