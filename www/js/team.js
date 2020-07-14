@@ -6,7 +6,7 @@ class Team extends Page {
     constructor(id, pageSetObject) {
         super(id, "Team");
         this.hasStarted = false;
-        
+
         this.pageController = pageSetObject;
         this.pageTransition = new PageTransition("#teamPage");
 
@@ -14,12 +14,11 @@ class Team extends Page {
 
         this.landingPage = (`
             <div id="landingPage" class="div_page">
-                <br>
                 <div class="generic_header">
+                    <div></div>
                     <h1>Team</h1>
                     <div></div>
-                </div><br><br>
-                <br>
+                </div>
                 <div class="button_box"></div>
             </div>
         `);
@@ -41,14 +40,13 @@ class Team extends Page {
 
         this.athleteStatPage = (`
         <div id="athleteStatPage" class="div_page">
-            <br>
             <div class="generic_header">
                 <div id="back_button_athlete_stats" class="back_button">&#9668;</div>
                 <h1>Athlete Stats</h1>
-            </div><br><br>
-            <br>
-            <div id="athlete_stats_container"></div>
-            <canvas id="athlete_stat_chart" width="400" height="400"></canvas>
+                <div></div>
+            </div>
+            <table id="athlete_stats_container"></table>
+            <canvas id="athlete_stat_chart"></canvas>
         </div>
         `);
 
@@ -79,7 +77,7 @@ class Team extends Page {
                 ${this.athleteStatPage}
             </div>
         `);
-            // ${this.editAthletePage}
+        // ${this.editAthletePage}
     }
 
     start() {
@@ -124,8 +122,12 @@ class Team extends Page {
 
         let conditionalAttributes = {
             "gender": {
-                "m": { style: "background-color: lightblue; color: black; border: 1px solid black;" },
-                "f": { style: "background-color: lightpink; color: black; border: 1px solid black;" }
+                "m": {
+                    style: "background-color: lightblue; color: black; border: 1px solid black;"
+                },
+                "f": {
+                    style: "background-color: lightpink; color: black; border: 1px solid black;"
+                }
             }
         };
 
@@ -201,6 +203,7 @@ class Team extends Page {
     }
 
     startAthleteStatPage(athlete, event) {
+
         this.pageTransition.slideLeft("athleteStatPage");
 
         $("#teamPage #athleteStatPage #athlete_stats_container").empty();
@@ -220,18 +223,63 @@ class Team extends Page {
 
         dbConnection.selectValues(query, [event.rowid, athlete.rowid]).then((results) => {
 
-            length = results.length;
+            length = results.length | 0;
 
             for (let i = 0; i < results.length; i++) {
-                data.push({x: i, y: results.item(i).value});
-                
-                // TODO: find place to put these ,fix scroll
-                // let element = $("<div>", {html: `${results.item(i).value}`})
-                // $("#teamPage #athleteStatPage #athlete_stats_container").append(element);
+                data.push({
+                    x: i,
+                    y: results.item(i).value
+                });
+            }
+
+            // show different things if there is data or not
+            if (length == 0) {
+                $("#athlete_stat_chart").remove();
+                $("#athlete_stats_container").remove();
+                $("#teamPage #athleteStatPage .subheading_text").remove();
+
+                console.log("NO DATA");
+
+                $("#teamPage #athleteStatPage").append(`<div class="subheading_text">No data available</div>`);
+            } else {
+                this.showData(results, data);
             }
         });
+    }
 
-        // athlete_stat_chart
+    /**
+     * @description this object will display a table as well as a graph for the given results by startAthleteStatPage
+     * 
+     * @param {Object} data data to graph
+     */
+    showData(results, data) {
+        $("#athlete_stat_chart").remove();
+        $("#athlete_stats_container").remove();
+
+        $("#teamPage #athleteStatPage").append(`<canvas id="athlete_stat_chart"></canvas>`);
+        $("#teamPage #athleteStatPage").append(`<table id="athlete_stats_container"></table>`);
+
+        // populate table
+
+        $("#teamPage #athleteStatPage #athlete_stats_container").append(`
+            <tr>
+                <th>Date</th>
+                <th>Value</th>
+            </tr>
+        `);
+
+        for (let i = 0; i < results.length; i++) {
+            // TODO: add date to event results
+            let row = (`
+                <tr>
+                    <td>123</td>
+                    <td>${results.item(i).value}</td>
+                </tr>
+            `);
+
+            $("#teamPage #athleteStatPage #athlete_stats_container").append(row);
+        }
+
 
         var canvas = document.getElementById('athlete_stat_chart');
         var ctx = canvas.getContext('2d');
@@ -242,11 +290,9 @@ class Team extends Page {
             type: 'line',
             data: {
                 datasets: [{
-                    label: 'Athlete Times',
                     data: data,
                     fill: false,
                     borderColor: "#rgb(245, 77, 77)",
-                    borderDash: [5, 5],
                     backgroundColor: "#e755ba",
                     pointBackgroundColor: "#55bae7",
                     pointBorderColor: "#55bae7",
@@ -258,11 +304,15 @@ class Team extends Page {
                         type: 'linear',
                         position: 'bottom'
                     }]
-                }
+                },
+                legend: {
+                    display: false
+                },
+                tooltips: {
+                    enabled: false
+                },
             }
         });
-
-        // table_container
     }
 
     /**

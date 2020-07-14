@@ -18,8 +18,8 @@ class Stats extends Page {
                     <div></div>
                 </div>
 
+                <div class="subheading_text">Your Stats by Event</div>
                 <div class="button_box"></div><br><br>
-                <div id="add_event_box"></div>
             </div>
         `);
 
