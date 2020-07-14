@@ -27,7 +27,7 @@ class Account extends Page {
         this.settingsPage = (`
             <div id="settingsPage" class="div_page">
                 <div class="generic_header">
-                    <div class="back_button">&#8592;</div>
+                    <div class="back_button">&#9668;</div>
                     <h1 id="settingsName"></h1>
                 </div>
 
@@ -93,7 +93,7 @@ class Account extends Page {
 
             $(this.inputDivIdentifier).html(`            
                 <div id="devPage" class="div_page">
-                <span class="back_button">&#8592</span>
+                <span class="back_button">&#9668;</span>
                 <br>
                 <h2>Developer tools</h2>
                 <br>

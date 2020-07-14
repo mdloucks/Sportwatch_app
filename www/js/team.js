@@ -17,6 +17,7 @@ class Team extends Page {
                 <br>
                 <div class="generic_header">
                     <h1>Team</h1>
+                    <div></div>
                 </div><br><br>
                 <br>
                 <div class="button_box"></div>
@@ -26,8 +27,9 @@ class Team extends Page {
         this.athletePage = (`
             <div id="athletePage" class="div_page">
                 <div id="athlete_header" class="generic_header">
-                    <div id="back_button_athlete" class="back_button">&#8592;</div>
+                    <div id="back_button_athlete" class="back_button">&#9668;</div>
                     <h1 id="athleteName"></h1>
+                    <div></div>
                 </div>
         
                 <h2 id="athlete_info"></h2>
@@ -41,7 +43,7 @@ class Team extends Page {
         <div id="athleteStatPage" class="div_page">
             <br>
             <div class="generic_header">
-                <div id="back_button_athlete_stats" class="back_button">&#8592;</div>
+                <div id="back_button_athlete_stats" class="back_button">&#9668;</div>
                 <h1>Athlete Stats</h1>
             </div><br><br>
             <br>
