@@ -85,11 +85,11 @@ class Stats extends Page {
         }
 
         if (!this.hasStarted) {
-            this.startLandingPage();
-
+            
             this.hasStarted = true;
         }
-
+        
+        this.startLandingPage();
     }
 
     startLandingPage() {
@@ -106,11 +106,12 @@ class Stats extends Page {
                 this.startEventPage(event);
             }, ["gender", "unit", "is_relay", "timestamp"]);
 
-            let addButton = ButtonGenerator.generateButton({ text: "Add Event", class: "add_button" }, () => {
-                this.startAddEventPage();
-            });
+            // DEPRECATED: remove this sometime
+            // let addButton = ButtonGenerator.generateButton({ text: "Add Event", class: "add_button" }, () => {
+            //     this.startAddEventPage();
+            // });
 
-            $("#statsPage #landingPage #add_event_box").append(addButton);
+            // $("#statsPage #landingPage #add_event_box").append(addButton);
         });
     }
 
@@ -125,6 +126,8 @@ class Stats extends Page {
         this.clearResultsTable();
 
         $("#statsPage #eventPage #event_name").html(event.event_name);
+
+        $("#statsPage #eventPage #back_button_event").unbind("click");
 
         $("#statsPage #eventPage #back_button_event").bind("click", (e) => {
             this.pageTransition.slideRight("landingPage");
@@ -143,7 +146,8 @@ class Stats extends Page {
 
             } else if(e.target.id == "worst_sort") {
                 this.generateAthleteTimes(event, "0-9");
-
+            } else {
+                this.generateAthleteTimes(event, "M/F");
             }
 
         });
@@ -286,6 +290,14 @@ class Stats extends Page {
      * this function is called when the add event button is pressed
      */
     startAddEventPage() {
+        console.log("START ADD EVENT");
+
+        $("#statsPage #eventPage #back_button_add_event").bind("click", (e) => {
+            console.log("BACK");
+            this.pageTransition.slideRight("landingPage");
+        });
+
+
         this.pageTransition.slideLeft("addEventPage");
 
         dbConnection.selectValues("SELECT *, rowid FROM record_definition", []).then((record_definitions) => {
