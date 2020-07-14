@@ -12,10 +12,11 @@ class Stats extends Page {
 
         this.landingPage = (`
             <div id="landingPage" class="div_page">
-                <br>
                 <div class="generic_header">
+                    <div></div>
                     <h1>Stats</h1>
-                </div><br><br>
+                    <div></div>
+                </div>
 
                 <div class="button_box"></div><br><br>
                 <div id="add_event_box"></div>
@@ -25,26 +26,27 @@ class Stats extends Page {
         this.eventPage = (`
         <div id="eventPage" class="div_page">
             <div id="event_header" class="generic_header">
-                <div id="back_button_event" class="back_button">&#8592;</div>
+                <div id="back_button_event" class="back_button">Back</div>
                 <h1 id="event_name"></h1>
-            </div><br><br>
-
-            <div class="table_container sportwatch_selector">
-                <div id="sort_alphabet">A-z</div>
-                <div id="sort_times">0-9</div>
-                <div id="sort_gender">M/F</div>
-            </div><br><br>
+                <div></div>
+            </div>
 
             <table id="event_results">
                 <tr class="column_names">
-                    <th>Name</th>
-                    <th>Best</th>
-                    <th>Average</th>
-                    <th>Worst</th>
+                    <th id="name_sort">Name<span>&#9660;</span>></th>
+                    <th id="best_sort">Best</th>
+                    <th id="avg_sort">Avg</th>
+                    <th id="worst_sort">Worst</th>
                 </tr>
             </table>
         </div>
         `);
+
+    //     <div class="table_container sportwatch_selector">
+    //     <div id="sort_alphabet">A-z</div>
+    //     <div id="sort_times">0-9</div>
+    //     <div id="sort_gender">M/F</div>
+    // </div><br><br>
 
         this.addEventPage = (`
             <div id="addEventPage" class="div_page">
@@ -127,36 +129,54 @@ class Stats extends Page {
             this.pageTransition.slideRight("landingPage");
         });
 
-        $("#statsPage #eventPage #sort_alphabet").unbind("click");
-        $("#statsPage #eventPage #sort_times").unbind("click");
-        $("#statsPage #eventPage #sort_gender").unbind("click");
+        $("#event_results").click((e) => {
+            // TODO: configure the sort for these
+            if(e.target.id == "name_sort") {
+                this.generateAthleteTimes(event, "A-z");
 
-        // Sort alphabetically
-        $("#statsPage #eventPage #sort_alphabet").bind("click", (e) => {
-            $("#statsPage #eventPage #sort_alphabet").addClass("button_selected");
-            $("#statsPage #eventPage #sort_times").removeClass("button_selected");
-            $("#statsPage #eventPage #sort_gender").removeClass("button_selected");
+            } else if(e.target.id == "best_sort") {
+                this.generateAthleteTimes(event, "0-9");
 
-            this.generateAthleteTimes(event, "A-z");
+            } else if(e.target.id == "avg_sort") {
+                this.generateAthleteTimes(event, "0-9");
+
+            } else if(e.target.id == "worst_sort") {
+                this.generateAthleteTimes(event, "0-9");
+
+            }
+
         });
 
-        // sort based on fasted time
-        $("#statsPage #eventPage #sort_times").bind("click", (e) => {
-            $("#statsPage #eventPage #sort_times").addClass("button_selected");
-            $("#statsPage #eventPage #sort_alphabet").removeClass("button_selected");
-            $("#statsPage #eventPage #sort_gender").removeClass("button_selected");
+        // $("#statsPage #eventPage #sort_alphabet").unbind("click");
+        // $("#statsPage #eventPage #sort_times").unbind("click");
+        // $("#statsPage #eventPage #sort_gender").unbind("click");
 
-            this.generateAthleteTimes(event, "0-9");
-        });
+        // // Sort alphabetically
+        // $("#statsPage #eventPage #sort_alphabet").bind("click", (e) => {
+        //     $("#statsPage #eventPage #sort_alphabet").addClass("button_selected");
+        //     $("#statsPage #eventPage #sort_times").removeClass("button_selected");
+        //     $("#statsPage #eventPage #sort_gender").removeClass("button_selected");
 
-        // sort based on gender
-        $("#statsPage #eventPage #sort_gender").bind("click", (e) => {
-            $("#statsPage #eventPage #sort_gender").addClass("button_selected");
-            $("#statsPage #eventPage #sort_alphabet").removeClass("button_selected");
-            $("#statsPage #eventPage #sort_times").removeClass("button_selected");
+        //     this.generateAthleteTimes(event, "A-z");
+        // });
 
-            this.generateAthleteTimes(event, "M/F");
-        });
+        // // sort based on fasted time
+        // $("#statsPage #eventPage #sort_times").bind("click", (e) => {
+        //     $("#statsPage #eventPage #sort_times").addClass("button_selected");
+        //     $("#statsPage #eventPage #sort_alphabet").removeClass("button_selected");
+        //     $("#statsPage #eventPage #sort_gender").removeClass("button_selected");
+
+        //     this.generateAthleteTimes(event, "0-9");
+        // });
+
+        // // sort based on gender
+        // $("#statsPage #eventPage #sort_gender").bind("click", (e) => {
+        //     $("#statsPage #eventPage #sort_gender").addClass("button_selected");
+        //     $("#statsPage #eventPage #sort_alphabet").removeClass("button_selected");
+        //     $("#statsPage #eventPage #sort_times").removeClass("button_selected");
+
+        //     this.generateAthleteTimes(event, "M/F");
+        // });
 
         this.generateAthleteTimes(event);
     }
@@ -253,12 +273,12 @@ class Stats extends Page {
     clearResultsTable() {
         $("#statsPage #eventPage #event_results").html(`
             <tr class="column_names">
-                <th>Name</th>
-                <th>Best</th>
-                <th>Average</th>
-                <th>Worst</th>
+                <th id="name_sort">Name</th>
+                <th id="best_sort">Best</th>
+                <th id="avg_sort">Avg</th>
+                <th id="worst_sort">Worst</th>
             </tr>
-        `);
+        `); // <span>&#9660;</span>
     }
 
     /**
