@@ -52,8 +52,9 @@ class Stopwatch extends Page {
             <div id="selectEventPage" class="div_page">
 
                 <div class="generic_header">
-                    <div class="back_button">&#8592;</div>
+                    <div class="back_button">&#9668;</div>
                     <h1>Chose An Event</h1>
+                    <div></div>
                 </div>
                 <div class="button_box">
 
@@ -64,8 +65,9 @@ class Stopwatch extends Page {
         this.selectAthletePage = (`
             <div id="selectAthletePage" class="div_page">
                 <div class="generic_header">
-                    <div class="back_button">&#8592;</div>
+                    <div class="back_button">&#9668;</div>
                     <h1>Choose An Athlete</h1>
+                    <div></div>
                 </div>
                 <div class="button_box">
 

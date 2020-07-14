@@ -29,6 +29,7 @@ class Account extends Page {
                 <div class="generic_header">
                     <div class="back_button">&#9668;</div>
                     <h1 id="settingsName"></h1>
+                    <div></div>
                 </div>
 
                 <div id="account_edit_inputs"></div>
