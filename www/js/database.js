@@ -76,11 +76,17 @@ let json = {
  */
 class DatabaseConnection {
 
+    /**
+     * Quick References
+     * 
+     * SELECT Count(*) FROM table -> returns the number of rows in a table
+     */
     constructor() {
         try {
             this.db = window.sqlitePlugin.openDatabase({ name: 'Sportwatch.db', location: 'default' });
         } catch (err) {
             console.log("Sportwatch database failed to open.");
+            // TODO: send this error to the server and try to handle it in some way
             throw err;
         }
     }
@@ -115,11 +121,11 @@ class DatabaseConnection {
             tx.executeSql("DROP TABLE IF EXISTS athlete");
             tx.executeSql("DROP TABLE IF EXISTS event");
             tx.executeSql("DROP TABLE IF EXISTS event_result");
-            tx.executeSql("DROP TABLE IF EXISTS relay_result");
             tx.executeSql("DROP TABLE IF EXISTS relay_team");
+            tx.executeSql("DROP TABLE IF EXISTS relay_result");
+            tx.executeSql("DROP TABLE IF EXISTS record_definition");
 
             // tx.executeSql(`CREATE TABLE IF NOT EXISTS account (id_user, fname, lname, account_type, id_school, cellNum)`);
-            tx.executeSql(`CREATE TABLE IF NOT EXISTS meet (meet_name, meet_time, meet_address)`);
             tx.executeSql(`CREATE TABLE IF NOT EXISTS athlete (fname, lname, grade, gender)`);
 
             tx.executeSql(`CREATE TABLE IF NOT EXISTS event (event_name, gender, unit, is_relay, timestamp)`);
@@ -294,7 +300,8 @@ class DatabaseConnection {
                 
             if(Object.keys(json).length == 0) {
                 console.log("TABLE JSON IS MISSING");
-                
+            } else {
+                console.log("inserting JSON values");
             }
 
             Object.keys(json).forEach(element => {
