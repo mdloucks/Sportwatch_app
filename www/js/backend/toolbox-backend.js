@@ -1,42 +1,38 @@
 /**
- * @classdesc Used to interface and make calls to the backend
+ * @classdesc Used to interface and make miscellaneous calls to the backend, like
+ *            syncing local database to backend or searching
  * @class
  */
-class AccountBackend {
+class ToolboxBackend {
     // Docs: https://www.sportwatch.us/mobile/docs/
     
     /**
-     * Submits a request to pull the account information from the backend for
-     * use in the app. Likely includes state, cell, etc. since the only NEEDED
-     * thing to store in local storage is the email
+     * Pulls all of the user information (id, name, cellNum, etc.) for each
+     * athlete registered in the given school ID.
      * 
-     * @example getAccount((response) => { $("fname").val(response.fname) });
-     *          --> Returns account info for the user currently logged in as JSON (string if error)
+     * @example getUsersInSchool(1, (response) => { let name = response.matches[0].fname; })
      * 
+     * @param {String} schoolId school ID to retrieve athletes for
      * @param {Function} callback function to handle the callback info
-     * @param {String} email [defaults to localStorage value] email of the user to get info for
      */
-    static getAccount(callback, email = "") {
+    static getUsersInSchool(schoolId, callback) {
         
         let storage = window.localStorage;
-        let userEmail = email;
-        if(userEmail.length == 0) {
-            userEmail = storage.getItem("email");
-        }
         
-        // Prepare the array
+        // Prepare the request
         let postArray = {};
         postArray.SID = storage.getItem("SID");
-        postArray.accountIdentity = { "email": userEmail };
+        postArray.searchIn = "user";
+        postArray.criteria = {"id_school": schoolId};
         
         // Submit the request and call the callback
         $.ajax({
             type: "POST",
-            url: Constant.URL.account_action + "?intent=0",
+            url: Constant.URL.toolbox + "?intent=0",
             timeout: Constant.AJAX_CFG.timeout,
             data: postArray,
             success: (response) => {
-                console.log("[account-backend.js:getAccount()] " + response);
+                console.log("[toolbox-backend.js:getUsersInSchool()] " + response);
                 try {
                     response = JSON.parse(response);
                 } catch (e) {
@@ -45,88 +41,58 @@ class AccountBackend {
                 callback(response);
             },
             error: (error) => {
-                console.log("[account-backend.js:getAccount()] " + error);
+                console.log("[toolbox-backend.js:getUSersInSchool()] " + error);
                 callback(error);
             }
         });
     }
     
     /**
-     * Makes a request to the server to update user information. The callback takes
-     * a decoded JSON array, or possibly a string in case of an error. The JSON will
-     * include "status", "substatus", and "msg".
-     * NOTE: currentPassword is needed when changing email or password!
-     * Aside: I used a callback function since I think it's cleaner than a promise,
-     * but feel free to change it if you'd like. (so much for "brevity is the soul of wit"!)
+     * Searches for the user's information based on the session ID. This is
+     * particularly helpful after loggin in, when only the session ID is known.
      * 
-     * @example updateAccount({"fname": "Joe", "email": "newmail@email.com"}, this.afterSaveFunc, "currentPass123");
-     *          --> Updates Joe's email to newmail@mail.com if the password was correct
+     * @example getUserBySID((response) => { console.log("Name: " + response.matches[0].fname) })
      * 
-     * @param {AssociativeArray} newValues list of new values to update (technically an object)
-     *                                     if left blank, it will pull everything from local storage
-     * @param {Function} callback function that should handle and error or success response
-     *                            (takes AssociativeArray as parameter, but may return string if response is malformed)
-     * @param {String} currentPassword user's current password, needed for email & password change
+     * @param {Function} cb function to handle the callback info
+     * @param {String} SID [defaults to stored SID] the session ID to use for lookup
      */
-    static updateAccount(newValues = {}, callback = (response) => { }, currentPassword = "") {
+    static getUserBySID(cb, SID = "") {
         
         let storage = window.localStorage;
-        let userEmail = storage.getItem("email");
-        
-        // Were new values defined; if not, pull them from local storage
-        if(Object.keys(newValues).length == 0) {
-            // Grab all of the values that can be set via account-action.php
-            // except email and password since they require the current password
-            newValues = this.getLocalValues(["fname", "lname", "gender", "state", "dob", "id_school", "id_team", "cellNum"]);
-        }
-        newValues = this.sanitizePostRequest(newValues, false);
-        
-        // If sanitation failed, return an error
-        if(newValues == false) {
-            console.log("Was invalid");
-            let returnObj = {"status": -6, "substatus": 5, "msg": "invalid params"};
-            return returnObj;
+        let sessionId = SID;
+        if(sessionId.length == 0) {
+            sessionId = storage.getItem("SID");
         }
         
         // Prepare the array
         let postArray = {};
-        postArray.SID = storage.getItem("SID");
-        postArray.accountIdentity = {"email": userEmail};
+        postArray.SID = storage.getItem("SID"); // Kind of silly, but still needed
+        postArray.searchIn = "user_session_data";
+        postArray.criteria = {"SID": sessionId};
         
-        // If currentPassword isn't set, remove email and password from newValues
-        if(currentPassword.length == 0) {
-            delete newValues.email;
-            delete newValues.password;
-        } else {
-            postArray["passwordOld"] = currentPassword;
-        }
-        
-        // Push the new info (new info needs "New" appended to the end)
-        let keys = Object.keys(newValues);
-        for(let n = 0; n < keys.length; n++) {
-            postArray[keys[n] + "New"] = newValues[keys[n]];
-        }
         // Submit the request and call the callback
         $.ajax({
             type: "POST",
-            url: Constant.URL.account_action + "?intent=1",
+            url: Constant.URL.toolbox + "?intent=0",
             timeout: Constant.AJAX_CFG.timeout,
             data: postArray,
             success: (response) => {
-                console.log("[account-backend.js:updateAccount()] " + response);
+                console.log("[toolbox-backend.js:getUserBySID()] " + response);
                 try {
                     response = JSON.parse(response);
-                } catch(e) {
+                } catch (e) {
                     // Couldn't parse, so just use string
                 }
                 callback(response);
             },
             error: (error) => {
-                console.log("[account-backend.js:updateAccount()] " + error);
+                console.log("[toolbox-backend.js:getUserBySID()] " + error);
                 callback(error);
             }
         });
     }
+    
+    // ---- UTIL FUNCTIONs ---- //
     
     /**
      * Used to recall values from local storage and will check to make sure

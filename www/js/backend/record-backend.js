@@ -93,7 +93,7 @@ class RecordBackend {
             },
             error: (error) => {
                 console.log("[record-backend.js:saveRecord()] " + error);
-                cb(response);
+                cb(error);
             }
         });
         
@@ -141,7 +141,7 @@ class RecordBackend {
             },
             error: (error) => {
                 console.log("[record-backend.js:getRecord()] " + error);
-                callback(response);
+                callback(error);
             }
         });
     }
