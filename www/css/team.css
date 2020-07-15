@@ -82,4 +82,8 @@
     height: 400px;
 }
 
+/* ---- MISC ---- */
 
+#teamPage {
+    height: 100%; /* Since it's embedded in another div page */
+}

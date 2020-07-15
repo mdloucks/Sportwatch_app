@@ -11,12 +11,13 @@ class Constant {
 Constant.DIR_CSS = "css/";
 
 Constant.URL = {
-    signup: "https://www.sportwatch.us/mobile/signup.php",
-    login: "https://www.sportwatch.us/mobile/login.php",
-    account_action: "https://www.sportwatch.us/mobile/account-action.php",
-    record_action: "https://www.sportwatch.us/mobile/record-action.php",
-    team_create: "https://www.sportwatch.us/mobile/team-create.php",
-    team_action: "https://www.sportwatch.us/mobile/team-action.php"
+    signup: "https://sportwatch.us/mobile/signup.php",
+    login: "https://sportwatch.us/mobile/login.php",
+    account_action: "https://sportwatch.us/mobile/account-action.php",
+    record_action: "https://sportwatch.us/mobile/record-action.php",
+    team_create: "https://sportwatch.us/mobile/team-create.php",
+    team_action: "https://sportwatch.us/mobile/team-action.php",
+    toolbox: "https://sportwatch.us/mobile/other-action.php"
 };
 
 /**

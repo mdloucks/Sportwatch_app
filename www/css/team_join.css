@@ -40,4 +40,8 @@
     opacity: 1;
 }
 
+/* ---- MISC ---- */
 
+#jointeamPage {
+    height: 100%; /* Since it's embedded in another div page */
+}
