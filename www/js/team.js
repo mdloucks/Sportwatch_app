@@ -241,6 +241,11 @@ class Team extends Page {
                 console.log("NO DATA");
 
                 $("#teamPage #athleteStatPage").append(`<div class="subheading_text">No data available</div>`);
+                // don't need to graph for a single point, only show table
+            } else if(length == 1) {
+                $("#athlete_stat_chart").remove();
+                this.createTable(results);
+                // there is enough data, graph
             } else {
                 this.showData(results, data);
             }
@@ -248,15 +253,12 @@ class Team extends Page {
     }
 
     /**
-     * @description this object will display a table as well as a graph for the given results by startAthleteStatPage
+     * @description construct a table to display the given results
      * 
-     * @param {Object} data data to graph
+     * @param {Object} results database results
      */
-    showData(results, data) {
-        $("#athlete_stat_chart").remove();
+    createTable(results) {        
         $("#athlete_stats_container").remove();
-
-        $("#teamPage #athleteStatPage").append(`<canvas id="athlete_stat_chart"></canvas>`);
         $("#teamPage #athleteStatPage").append(`<table id="athlete_stats_container"></table>`);
 
         // populate table
@@ -279,7 +281,16 @@ class Team extends Page {
 
             $("#teamPage #athleteStatPage #athlete_stats_container").append(row);
         }
+    }
 
+    /**
+     * @description display a graph to #athleteStatPage
+     * 
+     * @param {Array} data an xy array for the data to display
+     */
+    createGraph(data) {
+        $("#athlete_stat_chart").remove();
+        $("#teamPage #athleteStatPage").append(`<canvas id="athlete_stat_chart"></canvas>`);
 
         var canvas = document.getElementById('athlete_stat_chart');
         var ctx = canvas.getContext('2d');

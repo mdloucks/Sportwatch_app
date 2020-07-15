@@ -135,6 +135,9 @@ class Stats extends Page {
 
         $("#event_results").click((e) => {
             // TODO: configure the sort for these
+
+            this.clearResultsTable();
+
             if(e.target.id == "name_sort") {
                 this.generateAthleteTimes(event, "A-z");
 
