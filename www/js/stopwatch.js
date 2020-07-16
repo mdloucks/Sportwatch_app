@@ -398,7 +398,7 @@ class Stopwatch extends Page {
         this.pageTransition.slideRight("landingPage");
 
         console.log(JSON.stringify(event));
-        dbConnection.insertValues("event_result", [event.rowid, athlete.rowid, this.clock.seconds]);
+        dbConnection.insertValues("event_result", [event.rowid, athlete.rowid, this.clock.seconds, Date.now()]);
 
         console.log("VALUES INSERTED for  " + athlete.fname + " " + event.rowid + " " + athlete.rowid + " " + this.clock.seconds);
 
