@@ -38,23 +38,23 @@ let json = {
         ["400x400m Relay", "m", "s", "true", 0]
     ],
     "event_result": [
-        [1, 1, 56.1],
-        [1, 1, 59.2],
-        [1, 1, 56.8],
-        [1, 1, 64.2],
-        [1, 1, 52.3],
-        [1, 1, 69.2],
-        [1, 2, 57.6],
-        [1, 2, 58.6],
-        [1, 2, 52.6],
-        [1, 3, 59.6],
-        [1, 6, 49.6],
-        [1, 6, 59.3],
-        [1, 7, 120.6],
-        [1, 7, 103.6],
-        [2, 3, 112.3],
-        [2, 4, 157.6],
-        [2, 5, 197.6]
+        [1, 1, 56.1, Date.now()],
+        [1, 1, 59.2, Date.now() + 10000000],
+        [1, 1, 56.8, Date.now() + 20000000],
+        [1, 1, 64.2, Date.now() + 40000000],
+        [1, 1, 52.3, Date.now() + 60000000],
+        [1, 1, 69.2, Date.now() + 90000000],
+        [1, 2, 57.6, Date.now()],
+        [1, 2, 58.6, Date.now()],
+        [1, 2, 52.6, Date.now()],
+        [1, 3, 59.6, Date.now()],
+        [1, 6, 49.6, Date.now()],
+        [1, 6, 59.3, Date.now()],
+        [1, 7, 120.6, Date.now()],
+        [1, 7, 103.6, Date.now()],
+        [2, 3, 112.3, Date.now()],
+        [2, 4, 157.6, Date.now()],
+        [2, 5, 197.6, Date.now()]
     ],
     "relay_team": [
         ["Hemlock"]
@@ -129,7 +129,7 @@ class DatabaseConnection {
             tx.executeSql(`CREATE TABLE IF NOT EXISTS athlete (fname, lname, grade, gender)`);
 
             tx.executeSql(`CREATE TABLE IF NOT EXISTS event (event_name, gender, unit, is_relay, timestamp)`);
-            tx.executeSql(`CREATE TABLE IF NOT EXISTS event_result (id_event, id_athlete, value)`);
+            tx.executeSql(`CREATE TABLE IF NOT EXISTS event_result (id_event, id_athlete, value, timestamp)`);
 
             tx.executeSql(`CREATE TABLE IF NOT EXISTS relay_team (team_name)`);
             tx.executeSql(`CREATE TABLE IF NOT EXISTS relay_result (id_event, id_relay_team, id_athlete, value)`);
