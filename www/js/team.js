@@ -227,7 +227,7 @@ class Team extends Page {
 
             for (let i = 0; i < results.length; i++) {
                 data.push({
-                    x: i,
+                    x: i + 1,
                     y: results.item(i).value
                 });
             }
@@ -238,8 +238,6 @@ class Team extends Page {
                 $("#athlete_stats_container").remove();
                 $("#teamPage #athleteStatPage .subheading_text").remove();
 
-                console.log("NO DATA");
-
                 $("#teamPage #athleteStatPage").append(`<div class="subheading_text">No data available</div>`);
                 // don't need to graph for a single point, only show table
             } else if(length == 1) {
@@ -247,7 +245,8 @@ class Team extends Page {
                 this.createTable(results);
                 // there is enough data, graph
             } else {
-                this.showData(results, data);
+                this.createGraph(data);
+                this.createTable(results);
             }
         });
     }
@@ -265,6 +264,7 @@ class Team extends Page {
 
         $("#teamPage #athleteStatPage #athlete_stats_container").append(`
             <tr>
+                <th>Result</th>
                 <th>Date</th>
                 <th>Value</th>
             </tr>
@@ -274,7 +274,8 @@ class Team extends Page {
             // TODO: add date to event results
             let row = (`
                 <tr>
-                    <td>123</td>
+                    <td>${i + 1}</td>
+                    <td>${new Date(results.item(i).timestamp).toLocaleDateString("en-US")}</td>
                     <td>${results.item(i).value}</td>
                 </tr>
             `);

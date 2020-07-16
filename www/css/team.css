@@ -12,7 +12,7 @@
 }
 
 #teamPage button:focus {
-  background-color: crimson;
+  background-color: #dd3333;
 }
 
 #teamPage .generic_header .back_button {
