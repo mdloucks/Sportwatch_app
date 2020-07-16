@@ -60,6 +60,12 @@
     transform: rotate(180deg); /* So arrow points left */
 }
 
+/* Have to specify createTeam button due to CSS specificity :< */
+#createteamPage button:disabled, #createteamPage #button_createTeam:disabled {
+    background-color: dimgray;
+    opacity: 1;
+}
+
 #createteamPage button {
     outline: none;
 }
@@ -137,12 +143,71 @@
     font-size: 20px;
 }
 
-#createteamPage #button_submitSchool {
-    padding: 5px;
-    background-color: crimson;
-    font-size: 20px;
+
+/* ---- OPTIONS ---- */
+
+
+
+
+/* ---- POST CREATE ---- */
+
+#createteamPage #namePage h1 {
+    font-size: 3em;
 }
 
+
+/* ---- INVITE ATHLETES ---- */
+
+#createteamPage .sectionWrapper {
+    margin: 5vw;
+    padding: 10px;
+    border: 1px solid black;
+    border-radius: 15px;
+}
+
+#createteamPage #button_sendInvite {
+    padding: 10px;
+    font-size: 1.5em;
+    color: white;
+    border: 1px solid black;
+    border-radius: 5px;
+}
+
+#createteamPage #schoolAthletesList {
+    height: 25vh;
+    overflow: auto;
+}
+
+#createteamPage .button_schoolAthlete {
+    margin: 5px auto;
+    padding: 10px;
+    width: 85%;
+    display: block;
+    border: 2px solid crimson;
+    border-radius: 5px;
+    text-align: center;
+    font-size: 1.5em;
+    -webkit-appearance: none;
+}
+
+#createteamPage #button_createTeam {
+    margin: 5px;
+    padding: 15px;
+    background-color: crimson;
+    border-radius: 5px;
+    font-size: 1.5em;
+    font-weight: bold;
+    color: white;
+    transition: background-color 0.5s;
+}
+
+/* ---- MISC ---- */
+
+#createteamPage {
+    height: 100%; /* Since it's embedded in another div page */
+}
+
+/*
 #createteamPage #div_continueCont {
     margin: auto;
     width: 40vw;
@@ -161,23 +226,4 @@
     float: right;
     width: 50px;
 }
-
-/* ---- INVITE ATHLETES ---- */
-
-#createteamPage #button_createTeam {
-    margin: 5px;
-    padding: 15px;
-    background-color: crimson;
-    border-radius: 5px;
-    font-size: 1.5em;
-    font-weight: bold;
-    color: white;
-    transition: background-color 0.5s;
-}
-
-/* ---- MISC ---- */
-
-/*.div_page {
-    top: 40%; // To move past title of create team
-    height: unset; // Prevent long scrolling
-} */
+*/

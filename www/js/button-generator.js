@@ -87,7 +87,7 @@ class ButtonGenerator {
     /**
      * This function will generate a list of buttons and append it to the given element
      * 
-     * @example generateButton(#app, {innerHTML: ["This is the innerHTML of the button!, id: "#stopwatch_button""}, ...], function() {})
+     * @example generateButton("#app", [{"html": "This is the HTML of the button!", "id": "#stopwatch_button", ...}, ...], function() {})
      * 
      * @param {String} element the element to generate the buttons on
      * @param {Array} attributes A js array containing all of the attribute objects for the element

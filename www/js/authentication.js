@@ -36,7 +36,8 @@ class Authentication {
                     }
 
                     if(this.validateServerStatusCode(data)) {
-                        this.setSID(data["SID"]);     
+                        this.setSID(data["SID"]);
+                        localStorage.setItem("email", email);
                         resolve(data);
                     } else {
                         // ErrorHandler.handleServerStatusCodeError(data);
@@ -74,6 +75,7 @@ class Authentication {
                     let data = JSON.parse(response);
 
                     if(this.validateServerStatusCode(data)) {
+                        localStorage.setItem("email", data.email);
                         resolve(data);
                     } else {
                         // ErrorHandler.handleServerStatusCodeError(data);
@@ -83,6 +85,7 @@ class Authentication {
                 error: (response) => {
                     // TODO: redo this to handle no internet connection
                     // $("#app").html(`<p>Invalid SID or Connection Error</p>`);
+                    console.log(response);
                     let data = JSON.parse(response);
                     ErrorHandler.handleAjaxError(data);
                     reject(data);
@@ -119,6 +122,7 @@ class Authentication {
                     
                     if(this.validateServerStatusCode(data)) {
                         this.setSID(data["SID"]);
+                        localStorage.setItem("email", email);
                         resolve(data);
                     } else {
                         // ErrorHandler.handleServerStatusCodeError(data);

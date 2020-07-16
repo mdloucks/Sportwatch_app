@@ -94,6 +94,8 @@ class TeamLanding extends Page {
         this.createTeam.stop();
         this.joinTeam.stop();
         this.mainTeam.stop();
+        $("#teamlandingPage").unbind().off();
+        $("#teamlandingPage *").unbind().off();
     }
     
     

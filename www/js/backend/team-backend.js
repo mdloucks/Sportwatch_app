@@ -68,7 +68,7 @@ class TeamBackend {
             },
             error: (error) => {
                 console.log("[team-backend.js:createTeam()] " + error);
-                cb(response);
+                cb(error);
             }
         });
         
@@ -110,7 +110,7 @@ class TeamBackend {
             },
             error: (error) => {
                 console.log("[team-backend.js:joinTeam()] " + error);
-                cb(response);
+                cb(error);
             }
         });
     }
@@ -165,7 +165,47 @@ class TeamBackend {
             },
             error: (error) => {
                 console.log("[team-backend.js:getTeamInfo()] " + error);
+                cb(error);
+            }
+        });
+    }
+    
+    /**
+     * Attempts to send an email to the given parameter, including the team's
+     * invite code and instructions on joining the team.
+     * 
+     * @param {String} inviteEmail the address to send the invite code email to
+     * @param {Function} cb callback function that takes in response JSON (or string on error)
+     */
+    static inviteToTeam(inviteEmail, cb) {
+        
+        let requestArray = { };
+        let storage = window.localStorage;
+        
+        // Prepare the request array
+        requestArray.SID = storage.getItem("SID");
+        requestArray.accountEmail = storage.getItem("email");
+        requestArray.teamIdentity = { "id_team" : storage.getItem("id_team") };
+        requestArray.invitedEmail = inviteEmail;
+        
+        // Submit the request and call the callback
+        $.ajax({
+            type: "POST",
+            url: Constant.URL.team_action + "?intent=5",
+            timeout: Constant.AJAX_CFG.timeout,
+            data: requestArray,
+            success: (response) => {
+                console.log("[team-backend.js:inviteToTeam()] " + response);
+                try {
+                    response = JSON.parse(response);
+                } catch (e) {
+                    // Couldn't parse, so just use string
+                }
                 cb(response);
+            },
+            error: (error) => {
+                console.log("[team-backend.js:inviteToTeam()] " + error);
+                cb(error);
             }
         });
     }
