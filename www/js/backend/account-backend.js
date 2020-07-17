@@ -83,7 +83,7 @@ class AccountBackend {
         
         // If sanitation failed, return an error
         if(newValues == false) {
-            console.log("Was invalid");
+            console.log("[account-backend.js:updateAccount()]: Was invalid");
             let returnObj = {"status": -6, "substatus": 5, "msg": "invalid params"};
             return returnObj;
         }
