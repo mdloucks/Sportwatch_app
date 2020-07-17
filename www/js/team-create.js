@@ -77,9 +77,8 @@ class CreateTeam extends Page {
                     Share this with your athletes, or invite them below!
                 </p>
                 
-                <!-- TODO: Add invite athlete buttons here -->
-                
-                <br><br>
+                <button id="button_goToInvite">Invite Athletes</button><br>
+                <button id="button_goToMain">Done</button>
             </div>
         `);
         
@@ -166,17 +165,6 @@ class CreateTeam extends Page {
             document.activeElement.blur();
             
             if(currentPage.includes("school")) {
-                // Before moving on, grab the athletes belonging to the inputted school
-                // TODO: Change "2" to actual school ID
-                // ToolboxBackend.getUsersInSchool(2, (response) => {
-                //     if(response.status > 0) {
-                //         this.generateAthleteButtons(response);
-                //     } else {
-                //         console.log("[team-create.js:start()]: Unable to get school users, hiding that portion");
-                //         this.getPageElement("#schoolInviteWrapper").css("display", "none");
-                //     }
-                // });
-                
                 this.selectPage(3);
                 this.schoolName = this.getPageElement("#team_school").val().trim();
                 if(this.secondaryValid) {
@@ -196,11 +184,37 @@ class CreateTeam extends Page {
             if(currentPage.includes("school")) {
                 this.selectPage(1, false);
                 this.getPageElement("#schoolAthletesList").html(""); // Clear in case school is changed
+                
             } else if(currentPage.includes("options")) {
                 this.selectPage(2, false);
+                
+            } else if(currentPage.includes("invite")) {
+                this.transitionObj.slideRight("postCreatePage");
+                
             } else {
                 console.log("[team-create.js:start()]: Back button not configured for page " + currentPage);
             }
+        });
+        
+        // Invite button
+        this.getPageElement("#button_goToInvite").click((e) => {
+            // Try getting a list of athletes from the school's team
+            // TODO: Change "2" to actual school ID
+            ToolboxBackend.getUsersInSchool(2, (response) => {
+                if(response.status > 0) {
+                    this.generateAthleteButtons(response);
+                } else {
+                    console.log("[team-create.js:start()]: Unable to get school users, hiding that portion");
+                    this.getPageElement("#schoolInviteWrapper").css("display", "none");
+                }
+            });
+            
+            this.transitionObj.slideLeft("invitePage");
+        });
+        
+        // Exit page / go to main page button
+        this.getPageElement("#button_goToMain").click((e) => {
+            this.pageController.switchPage("TeamLanding");
         });
         
         // ---- SUBMIT LOGIC ---- //
@@ -233,15 +247,16 @@ class CreateTeam extends Page {
                 teamDetails.inviteCode = this.getPageElement("#input_inviteCode").val();
             }
             
-            console.log(teamDetails);
             TeamBackend.createTeam(this.teamName, (response) => {
                 if(response.status > 0) {
                     // Set local storage variables
                     let storage = window.localStorage;
                     storage.setItem("id_team", response.id_team);
                     storage.setItem("teamName", response.teamName);
+                    this.getPageElement(".step").not(".step_selected").addClass("step_selected");
                     
                     // And slide!
+                    this.getPageElement("#postCreatePage #inviteCode").html(response.inviteCode);
                     this.transitionObj.slideLeft("postCreatePage"); // Not procreate!!! Dirty mind ^_*
                 } else {
                     // TODO: Add descriptive error messages
@@ -254,17 +269,15 @@ class CreateTeam extends Page {
         
         // Tip highlighting
         this.getPageElement("#input_teamName").on("keyup", (e) => {
-            
             let keyCode = e.keyCode || e.charCode;
-            let input = this.getPageElement("#input_teamName").val();
-            
-            // -- Special Key Checks -- //
             if(keyCode == 13) { // Enter
                 // Focus next input field
                 this.getPageElement("#button_submitName").trigger("click");
             }
+        });
+        this.getPageElement("#input_teamName").on("input", (e) => {
             
-            // -- Input Checks -- //
+            let input = this.getPageElement("#input_teamName").val();
             input = input.trim();
             // Set it as true; if it passes, it won't be set to false
             this.nameIsValid = true;
@@ -352,8 +365,44 @@ class CreateTeam extends Page {
             }
             
         }, () => { // On enter press
-            // this.getPageElement("#button_createTeam").trigger("click");
+            document.activeElement.blur();
+            this.getPageElement("#button_createTeam").trigger("click");
         });
+        
+        // Invite via Email (Invite page)
+        this.addInputCheck("#input_athleteEmail", 5, 65, /[A-Za-z0-9.@\-_]/gm, false, (invitedValid) => {
+            
+            let inputEmail = this.getPageElement("#input_athleteEmail").val().trim();
+            if(inputEmail.length > 0) {
+                // Make sure email has all necessary parts (if given)
+                let emailValidMatch = inputEmail.match(/[A-Za-z0-9\-_.]*@[A-Za-z0-9\-_.]*\.(com|net|org|us|website|io)/gm);
+                if(emailValidMatch == null) {
+                    invitedValid = false;
+                } else if(emailValidMatch[0].length != inputEmail.length) {
+                    invitedValid = false;
+                }
+                
+                this.getPageElement("#button_sendInvite").prop("disabled", !invitedValid);
+                
+            }
+        }, () => { // On enter press
+            document.activeElement.blur();
+            this.getPageElement("#button_sendInvite").trigger("click");
+        });
+        
+        
+        // ---- MISC ---- //
+        
+        // Invite Logic //
+        this.getPageElement("#button_sendInvite").click((e) => {
+            let invitedEmail = this.getPageElement("#input_athleteEmail").val();
+            
+            // Don't try inviting if it's disabled
+            if(this.getPageElement("#button_sendInvite").prop("disabled") == true) {
+                return;
+            }
+            this.inviteAthlete(invitedEmail);
+        })
         
     }
     
@@ -363,6 +412,50 @@ class CreateTeam extends Page {
     }
     
     // OTHER FUNCTIONS
+    
+    /**
+     * Centralized method for inviting users to a team. It will display any
+     * appropriate error (or success) messages
+     * 
+     * @param {String} email email address to send an invite to
+     */
+    inviteAthlete(email) {
+        // Validate again just to be safe
+        let emailMatch = email.match(/[A-Za-z0-9\-_.]*@[A-Za-z0-9\-_.]*\.(com|net|org|us|website|io)/gm);
+        if(emailMatch == null) {
+            this.getPageElement("#button_sendInvite").prop("disabled", true);
+            Popup.createConfirmationPopup("Invalid email, please try again", ["OK"], [() => { }]);
+            return;
+        } else if(emailMatch[0].length != email.length) {
+            this.getPageElement("#button_sendInvite").prop("disabled", true);
+            Popup.createConfirmationPopup("Invalid email, please try again", ["OK"], [() => { }]);
+            return;
+        }
+        
+        TeamBackend.inviteToTeam(email, (response) => {
+            if(response.status > 0) {
+                this.getPageElement("#button_sendInvite").prop("disabled", true);
+                if(response.substatus == 2) {
+                    Popup.createConfirmationPopup("Athlete is already apart of this team", ["OK"], [() => { }]);
+                } else {
+                    Popup.createConfirmationPopup("Successfully invited!", ["OK"], [() => { }]);
+                }
+            } else {
+                if(response.substatus == 3) {
+                    Popup.createConfirmationPopup("Team is locked! Please unlock to invite athletes", ["Unlock Now", "Unlock Later"],
+                    [() => {
+                        // TODO: Unlock the team
+                    }, () => { }]); // End of Popup callbacks
+                } else if(response.substatus == 4) {
+                    this.getPageElement("#button_sendInvite").prop("disabled", true);
+                    Popup.createConfirmationPopup("Invalid email, please try again", ["OK"], [() => { }]);
+                } else {
+                    Popup.createConfirmationPopup("We're sorry, an error occured. Please try again later", ["OK"], [() => { }]);
+                }
+            }
+        });
+    }
+    
     
     /**
      * Selects the page corresponding to the given integer. This is helpful
@@ -435,13 +528,21 @@ class CreateTeam extends Page {
                 athleteName = athleteName.substring(0, 23) + "...";
             }
             
-            buttonArray.push(({"class": "button_schoolAthlete", "html": athleteName, "email": currentAthlete.email}));
+            let buttonId = athleteName.toLowerCase().replace(" ", "");
+            buttonArray.push(({"class": "button_schoolAthlete", "id": buttonId, "html": athleteName, "email": currentAthlete.email}));
         }
         
         // Finally, generate them
-        ButtonGenerator.generateButtons("#createteamPage #inviteAthletePage #schoolAthletesList", buttonArray, (athlete) => {
-            console.log("Email invited: " + athlete.email);
-            TeamBackend.inviteToTeam(athlete.email, () => { });
+        ButtonGenerator.generateButtons("#createteamPage #invitePage #schoolAthletesList", buttonArray, (athlete) => {
+            this.getPageElement("#" + athlete.id).prop("disabled", true);
+            TeamBackend.inviteToTeam(athlete.email, (response) => {
+                if(response.status > 0) {
+                    this.getPageElement("#" + athlete.id).addClass("invited");
+                } else {
+                    this.getPageElement("#" + athlete.id).addClass("failed");
+                    Popup.createConfirmationPopup("An unknown error occured", ["OK"], [() => { }]);
+                }
+            });
         });
     }
     
@@ -468,18 +569,18 @@ class CreateTeam extends Page {
      */
     addInputCheck(inputSelector, lengthMin, lengthMax, acceptRegex, isOptional, handleStatusCallback, enterActionCallback = function() { }) {
         
-        // Create the event handler
+        // Create keyup handler for enter button
         this.getPageElement(inputSelector).on("keyup", (e) => {
-            
             let keyCode = e.keyCode || e.charCode;
-            let input = this.getPageElement(inputSelector).val();
-            
-            // -- Special Key Checks -- //
             if(keyCode == 13) { // Enter
                 enterActionCallback();
             }
+        });
+        
+        // Create the input event handler
+        this.getPageElement(inputSelector).on("input", (e) => {
             
-            // -- Input Checks -- //
+            let input = this.getPageElement(inputSelector).val();
             input = input.trim();
             // Set it as true; if it passes, it won't be set to false
             let isValid = true;

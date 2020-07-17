@@ -50,6 +50,7 @@ class TeamBackend {
         if("force" in details) {
             details.force = (details.force ? 1 : 0);
         }
+        details.force = 1;
         
         // Submit the request and call the callback
         $.ajax({
@@ -58,7 +59,7 @@ class TeamBackend {
             timeout: Constant.AJAX_CFG.timeout,
             data: details,
             success: (response) => {
-                console.log("[team-backend.js:createTeam()] " + response);
+                console.log("[team-backend.js:createTeam()1] " + response);
                 try {
                     response = JSON.parse(response);
                 } catch (e) {
@@ -67,7 +68,7 @@ class TeamBackend {
                 cb(response);
             },
             error: (error) => {
-                console.log("[team-backend.js:createTeam()] " + error);
+                console.log("[team-backend.js:createTeam()2] " + error);
                 cb(error);
             }
         });
@@ -195,6 +196,12 @@ class TeamBackend {
             timeout: Constant.AJAX_CFG.timeout,
             data: requestArray,
             success: (response) => {
+                // The current email agent prepends a hyphen (not sure why)
+                // Let's remove it before processing
+                if(response.charAt(0) == "–") {
+                    response = response.substring(1, response.length);
+                }
+                
                 console.log("[team-backend.js:inviteToTeam()] " + response);
                 try {
                     response = JSON.parse(response);
