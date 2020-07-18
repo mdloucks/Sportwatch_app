@@ -35,11 +35,6 @@ class Signup extends Page {
                     <label id="label_password" for="password">Password</label><br>
                     <input class="sw_text_input" type="password" name="password" placeholder="●●●●●●●●">
                     <img id="i_password" class="invalidSym" src="img/invalidSymbol.png">
-                    <br>
-                    
-                    <p id="p_accountType">Select Role</p>
-                    <button id="athlete" class="accountType_button selected" type="button">Athlete</button>
-                    <button id="coach" class="accountType_button" type="button">Coach</button>
                     <br><br><br>
                     
                     <input id="button_signup" class="sw_big_button invalid" type="submit" value="Sign Up">
@@ -125,13 +120,6 @@ class Signup extends Page {
         });
 
         // REST OF FORM
-        // "Radio button" logic for account types
-        this.getPageElement(".accountType_button").click((e) => {
-            // Remove .selected from both buttons
-            this.getPageElement(".accountType_button").removeClass("selected");
-            $(e.target).addClass("selected");
-        });
-        
         // Animate the button to simulate a "press"
         this.getPageElement("#button_signup").click((e) => {
             this.getPageElement("#button_signup").addClass("pressed");
@@ -151,7 +139,6 @@ class Signup extends Page {
             let firstName = this.getPageElement("input[name=fname]").val();
             let email = this.getPageElement("input[name=email]").val();
             let password = this.getPageElement("input[name=password]").val();
-            let accountType = this.getPageElement(".accountType_button.selected").text().toLowerCase();
 
             if (firstName.length < 3) {
                 this.setupInvalidSymbol("#i_fname", false, "Please enter your full first name");
@@ -166,9 +153,8 @@ class Signup extends Page {
                 return;
             }
 
-            Authentication.signup(firstName, email, password, accountType).then(function (response) {
+            Authentication.signup(firstName, email, password).then(function (response) {
                 localStorage.setItem("email", email);
-                localStorage.setItem("accountType", accountType);
                 this.pageController.transitionObj.forceHaltSlide();
                 this.pageController.onChangePageSet(1); // 1 for Main logic
             }.bind(this),
