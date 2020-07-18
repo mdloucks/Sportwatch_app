@@ -16,6 +16,8 @@ class TeamLanding extends Page {
         
         this.pageController = pageSetObject;
         
+        this.transitionObj = new PageTransition("#teamlandingPage");
+        
         // ---- OBJECTS (not women!) ---- //
         this.createTeam = new CreateTeam(0, pageSetObject);
         this.joinTeam = new JoinTeam(1, pageSetObject);
@@ -47,19 +49,36 @@ class TeamLanding extends Page {
     getHtml() {
         return (`
             <div id="teamlandingPage" class="div_page">
-                <h1>Team Page</h1>
+                ${this.landingPageHtml}
+                ${this.createPageHtml}
+                ${this.joinPageHtml}
+                ${this.mainPageHtml}
             </div>
         `);
     }
     
     start() {
+        
+        // Add pages
+        if (this.transitionObj.getPageCount() == 0) {
+            this.transitionObj.addPage("landingPage", this.landingPageHtml, true);
+            this.transitionObj.addPage("createteamPage", this.createPageHtml);
+            this.transitionObj.addPage("jointeamPage", this.joinPageHtml);
+            this.transitionObj.addPage("teamPage", this.mainPageHtml);
+        } else {
+            // Hide other pages
+            this.transitionObj.hidePages();
+        }
+        
         let storage = window.localStorage;
         
         // If not teamId is stored, show the landing page (Join / Create)
         if((storage.getItem("id_team") == null) || (storage.getItem("id_team") == undefined)) {
             
             // Start the Team Welcome / Landing page (this page's html)
-            $("#teamlandingPage").html(this.landingPageHtml);
+            // $("#teamlandingPage").html(this.landingPageHtml);
+            this.transitionObj.setCurrentPage("landingPage");
+            this.transitionObj.showCurrentPage();
             
             // -- FUNCTIONALITY -- //
             $("#teamlandingPage").on("click", "#joinTeam", (e) => {
@@ -68,7 +87,9 @@ class TeamLanding extends Page {
                 
                 // Add delay so you can see the dramatic color change....
                 setTimeout(() => {
-                    $("#teamlandingPage").html(this.joinPageHtml);
+                    // this.transitionObj.setCurrentPage("jointeamPage");
+                    // this.transitionObj.showCurrentPage();
+                    this.transitionObj.slideRight("jointeamPage");
                     this.joinTeam.start();
                 }, 200);
             });
@@ -78,14 +99,17 @@ class TeamLanding extends Page {
                 $("#createTeam").css("background-color", "gray");
                 
                 setTimeout(() => {
-                    $("#teamlandingPage").html(this.createPageHtml);
+                    // this.transitionObj.setCurrentPage("createteamPage");
+                    // this.transitionObj.showCurrentPage();
+                    this.transitionObj.slideRight("createteamPage");
                     this.createTeam.start();
                 }, 200);
             });
             
         } else {
             // Main Team page
-            $("#teamlandingPage").html(this.mainPageHtml);
+            this.transitionObj.setCurrentPage("teamPage");
+            this.transitionObj.showCurrentPage();
             this.mainTeam.start();
         }
     }
@@ -94,8 +118,11 @@ class TeamLanding extends Page {
         this.createTeam.stop();
         this.joinTeam.stop();
         this.mainTeam.stop();
-        $("#teamlandingPage").unbind().off();
-        $("#teamlandingPage *").unbind().off();
+        // $("#teamlandingPage").unbind().off();
+        // $("#teamlandingPage *").unbind().off();
+        // Only unbind the landing page to avoid interefering with other team pages
+        $("#teamlandingPage > #landingPage").unbind().off();
+        $("#teamlandingPage > #landingPage *").unbind().off();
     }
     
     
