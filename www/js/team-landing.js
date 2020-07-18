@@ -101,7 +101,8 @@ class TeamLanding extends Page {
                 setTimeout(() => {
                     // this.transitionObj.setCurrentPage("createteamPage");
                     // this.transitionObj.showCurrentPage();
-                    this.transitionObj.slideRight("createteamPage");
+                    console.log(this.createTeam.transitionObj);
+                    this.transitionObj.slideLeft("createteamPage");
                     this.createTeam.start();
                 }, 200);
             });

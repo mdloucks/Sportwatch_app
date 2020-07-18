@@ -55,9 +55,9 @@ class CreateTeam extends Page {
         
         this.optionsPage = (`
             <div id="optionsPage" class="div_page">
-                <h1 id="h1_secondaryCoach">Secondary Coach (Optional)</h1>
+                <!-- <h1 id="h1_secondaryCoach">Secondary Coach (Optional)</h1>
                 <input id="input_secondaryCoach" class="sw_text_input" type="text" placeholder="assistant@sportwatch.us"></input>
-                <br>
+                <br> -->
                 <h1 id="h1_inviteCode">Invite Code (Optional)</h1>
                 <input id="input_inviteCode" class="sw_text_input" type="text" placeholder="6e3bs36"></input>
                 <br><br>
