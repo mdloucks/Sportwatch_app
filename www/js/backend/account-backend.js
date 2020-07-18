@@ -83,9 +83,12 @@ class AccountBackend {
         
         // If sanitation failed, return an error
         if(newValues == false) {
-            console.log("[account-backend.js:updateAccount()]: Was invalid");
-            let returnObj = {"status": -6, "substatus": 5, "msg": "invalid params"};
-            return returnObj;
+            let returnObj = { };
+            returnObj.status = -6;
+            returnObj.substatus = 5;
+            returnObj.msg = "invalid params";
+            callback(returnObj);
+            return;
         }
         
         // Prepare the array
@@ -152,6 +155,7 @@ class AccountBackend {
                 let value = storage.getItem(key);
                 if((typeof value == "string") && (value.length > 0)) {
                     // Filter with a generic regex (replace most special characters)
+                    // Should be fine since passwords shouldn't be stored anyway
                     returnArray[key] = value.replace(/[^A-Za-z0-9@\-_\. ]/gm, "");
                     
                 } else {

@@ -50,7 +50,6 @@ class TeamBackend {
         if("force" in details) {
             details.force = (details.force ? 1 : 0);
         }
-        details.force = 1;
         
         // Submit the request and call the callback
         $.ajax({

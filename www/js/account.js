@@ -172,9 +172,16 @@ class Account extends Page {
         $(container).append(buttonHtml);
         $(container + " button").last().click((e) => {
             e.preventDefault();
+            
+            let clickedElement = $(e.target);
+            // If the p element was clicked, ascend to actual button element
+            if(!clickedElement.hasClass("cat_button")) {
+                clickedElement = clickedElement.parent();
+            }
+            
             // If button has not already been pressed
-            if (!e.delegateTarget.classList.contains("cat_button_selected")) {
-                $(e.target).addClass("cat_button_selected");
+            if (!clickedElement.hasClass("cat_button_selected")) {
+                $(clickedElement).addClass("cat_button_selected");
                 callback();
             }
         });
@@ -269,9 +276,8 @@ class Account extends Page {
                                 Popup.createConfirmationPopup("The following were invalid, please correct to save: " + invalidParams,
                                                                 ["OK"], [() => { }]);
                             } else { // FRONTEND
-                                Popup.createConfirmationPopup("Some parameters were invalid, please try again", ["Close"], [() => { }]);
+                                Popup.createConfirmationPopup("Some parameters were invalid, please try again", ["OK"], [() => { }]);
                             }
-                            
                             
                         } else {
                             Popup.createConfirmationPopup("An unknown error occured, please try again later", ["Close"], [() => { }]);
