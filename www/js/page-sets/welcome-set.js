@@ -44,6 +44,7 @@ class WelcomeSet extends PageSet {
     }
 
     disable() {
+        this.pageArray[this.currentPageId].stop(); // Stop current page
         this.transitionObj.hidePages();
         this.transitionObj.setCurrentPage(this.pageArray[this.START_PAGE].name.toLowerCase() + "Page");
         this.currentPageId = this.pageArray[this.START_PAGE].id;
