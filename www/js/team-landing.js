@@ -19,8 +19,8 @@ class TeamLanding extends Page {
         this.transitionObj = new PageTransition("#teamlandingPage");
         
         // ---- OBJECTS (not women!) ---- //
-        this.createTeam = new CreateTeam(0, pageSetObject);
-        this.joinTeam = new JoinTeam(1, pageSetObject);
+        this.createTeam = new CreateTeam(0, pageSetObject, this.transitionObj);
+        this.joinTeam = new JoinTeam(1, pageSetObject, this.transitionObj);
         this.mainTeam = new Team(2, pageSetObject);
         
         // ---- PAGES ---- //
@@ -72,56 +72,60 @@ class TeamLanding extends Page {
         
         let storage = window.localStorage;
         
-        // If not teamId is stored, show the landing page (Join / Create)
-        if((storage.getItem("id_team") == null) || (storage.getItem("id_team") == undefined)) {
+        // -- FUNCTIONALITY -- //
+        $("#teamlandingPage").on("click", "#joinTeam", (e) => {
+            e.preventDefault();
+            $("#joinTeam").css("background-color", "gray");
+            this.transitionObj.slideRight("jointeamPage", 500);
+            this.joinTeam.start();
             
-            // Start the Team Welcome / Landing page (this page's html)
-            // $("#teamlandingPage").html(this.landingPageHtml);
-            this.transitionObj.setCurrentPage("landingPage");
+            setTimeout(() => {
+                $("#joinTeam").css("background-color", "");
+            }, 500);
+        });
+        
+        $("#teamlandingPage").on("click", "#createTeam", (e) => {
+            e.preventDefault();
+            $("#createTeam").css("background-color", "gray");
+            this.transitionObj.slideLeft("createteamPage", 500);
+            this.createTeam.start();
+            
+            setTimeout(() => {
+                $("#createTeam").css("background-color", "");
+            }, 500);
+        });
+        
+        // If create team was already started, go back to that page
+        if(this.createTeam.transitionObj.getCurrentPage() != "namePage") {
+            this.transitionObj.setCurrentPage("createteamPage");
             this.transitionObj.showCurrentPage();
-            
-            // -- FUNCTIONALITY -- //
-            $("#teamlandingPage").on("click", "#joinTeam", (e) => {
-                e.preventDefault();
-                $("#joinTeam").css("background-color", "gray");
-                
-                // Add delay so you can see the dramatic color change....
-                setTimeout(() => {
-                    // this.transitionObj.setCurrentPage("jointeamPage");
-                    // this.transitionObj.showCurrentPage();
-                    this.transitionObj.slideRight("jointeamPage");
-                    this.joinTeam.start();
-                }, 200);
-            });
-            
-            $("#teamlandingPage").on("click", "#createTeam", (e) => {
-                e.preventDefault();
-                $("#createTeam").css("background-color", "gray");
-                
-                setTimeout(() => {
-                    // this.transitionObj.setCurrentPage("createteamPage");
-                    // this.transitionObj.showCurrentPage();
-                    console.log(this.createTeam.transitionObj);
-                    this.transitionObj.slideLeft("createteamPage");
-                    this.createTeam.start();
-                }, 200);
-            });
-            
+            this.createTeam.start();
         } else {
-            // Main Team page
-            this.transitionObj.setCurrentPage("teamPage");
-            this.transitionObj.showCurrentPage();
-            this.mainTeam.start();
-        }
+            
+            // If not teamId is stored, show the landing page (Join / Create)
+            if((storage.getItem("id_team") == null) || (storage.getItem("id_team") == undefined)) {
+                
+                // Start the Team Welcome / Landing page (this page's html)
+                this.transitionObj.setCurrentPage("landingPage");
+                this.transitionObj.showCurrentPage();
+                
+            } else {
+                // Main Team page
+                this.transitionObj.setCurrentPage("teamPage");
+                this.transitionObj.showCurrentPage();
+                this.mainTeam.start();
+            }
+        } // End of Create-in-Progress check
     }
     
     stop() {
         this.createTeam.stop();
         this.joinTeam.stop();
         this.mainTeam.stop();
-        // $("#teamlandingPage").unbind().off();
+        
         // $("#teamlandingPage *").unbind().off();
-        // Only unbind the landing page to avoid interefering with other team pages
+        // Unbind selectively to avoid interefering with other team pages
+        $("#teamlandingPage").unbind().off();
         $("#teamlandingPage > #landingPage").unbind().off();
         $("#teamlandingPage > #landingPage *").unbind().off();
     }

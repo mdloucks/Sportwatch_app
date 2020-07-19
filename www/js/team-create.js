@@ -4,11 +4,12 @@
  */
 class CreateTeam extends Page {
     
-    constructor(id, pageSetObject) {
+    constructor(id, pageSetObject, transitionCopy) {
         super(id, "CreateTeam");
         
         this.pageController = pageSetObject;
         this.transitionObj = new PageTransition("#createteamPage");
+        this.parentTransition = transitionCopy;  // Used to get back to landing page
         
         // Team properties
         this.teamName = "";
@@ -29,7 +30,7 @@ class CreateTeam extends Page {
                 <h1 id="h1_giveName">Name the Team</h1><br>
                 <input id="input_teamName" class="sw_text_input" type="text" placeholder="Track Team"></input>
                 <input id="button_submitName" type="submit" value=" " disabled></input>
-                <br><br>
+                <br>
                 <p id="p_tipHeading"><u>Naming Tips</u></p><br>
                 <ul class="ul_tips">
                     <li id="tip_length" class="tips bolded">Use 15-45 characters</li><br>
@@ -37,6 +38,10 @@ class CreateTeam extends Page {
                     <li id="tip_capitalize" class="tips bolded">Capitalize significant words</li><br>
                     <li id="tip_uniqueName" class="tips">Create a unique name</li>
                 </ul>
+                <br>
+                
+                <!-- Progression Buttons -->
+                <button id="nameBack" class="button_progression button_back"></button>
             </div>
         `);
         
@@ -181,7 +186,11 @@ class CreateTeam extends Page {
             let currentPage = this.transitionObj.getCurrentPage();
             document.activeElement.blur();
             
-            if(currentPage.includes("school")) {
+            if(currentPage.includes("name")) {
+                this.parentTransition.slideRight("landingPage", 500); // Go back to "main menu"
+                this.stop();
+                
+            } else if(currentPage.includes("school")) {
                 this.selectPage(1, false);
                 this.getPageElement("#schoolAthletesList").html(""); // Clear in case school is changed
                 
@@ -215,6 +224,7 @@ class CreateTeam extends Page {
         // Exit page / go to main page button
         this.getPageElement("#button_goToMain").click((e) => {
             this.pageController.switchPage("TeamLanding");
+            this.stop();
         });
         
         // ---- SUBMIT LOGIC ---- //
@@ -505,9 +515,6 @@ class CreateTeam extends Page {
      */
     generateAthleteButtons(responseObject) {
         
-        // Show the "Invite from School" portion
-        this.getPageElement("#schoolInviteWrapper").css("display", "");
-        
         let buttonArray = []; // Array of button attribute objects [{...}, {...}, etc.]
         let currentAthlete = { }; // Set to each object in the matches array
         
@@ -530,6 +537,11 @@ class CreateTeam extends Page {
             
             let buttonId = athleteName.toLowerCase().replace(" ", "");
             buttonArray.push(({"class": "button_schoolAthlete", "id": buttonId, "html": athleteName, "email": currentAthlete.email}));
+        }
+        
+        // Show the "Invite from School" portion
+        if(buttonArray.length != 0) {
+            this.getPageElement("#schoolInviteWrapper").css("display", "");
         }
         
         // Finally, generate them

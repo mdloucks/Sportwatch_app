@@ -13,6 +13,26 @@
     font-size: 2em;
 }
 
+#jointeamPage .button_progression {
+    margin: 5px;
+    padding: 5px;
+    width: 15vw;
+    height: 12vw; /* 50 + 2px border on input */
+    vertical-align: top;
+    background-color: crimson;
+    background-image: url("../img/arrow.png");
+    background-size: 15vw 12vw;
+    border-radius: 5px;
+    transition: background-color 0.5s;
+}
+
+#jointeamPage .button_back {
+    background-color: lightgray;
+    /* transform: rotate(180deg); /* So arrow points left */
+}
+
+/* ---- INVITE CODE ---- */
+
 #jointeamPage #input_inviteCode {
     width: 50%;
     margin-bottom: 0; /* Reset from generic_elements.css */
