@@ -22,9 +22,10 @@ class TeamBackend {
      *                           primaryCoach {String} [default is logged in user] email of the primary coach
      *                           secondaryCoach {String} email of the secondary coach
      *                           inviteCode {String} 7-characters, a-z, 0-9 code for joining the team
-     *                           schoolName {String} [default is user's school] school of the team (aka school of rock ^_*)
+     *                           schoolId {Integer} backend database id of the team's school
      *                           isLocked {Boolean} should the other users be unable to join the team? (toggable)
      *                           force {Boolean} should the team be created even if errors exist?
+     *                           schoolName {String} DEPRECATED school of the team (aka school of rock ^_*)
      */
     static createTeam(teamName, cb, details = { }) {
         
@@ -36,12 +37,12 @@ class TeamBackend {
         if(!("primaryCoach" in details)) {
             details.primaryCoach = localStorage.getItem("email");
         }
-        if(!("schoolName" in details)) {
-            // TODO: Actually use the school's name in localStorage
-            //       (likely change to school id instead of name)
-            // details.schoolName = localStorage.getItem("school");
-            details.schoolName = "Hemlock High School";
-        }
+        // if(!("schoolName" in details)) {
+        //     // TODO: Actually use the school's name in localStorage
+        //     //       (likely change to school id instead of name)
+        //     // details.schoolName = localStorage.getItem("school");
+        //     details.schoolName = "Hemlock High School";
+        // }
         
         // Convert booleans into integers since mySQL doesn't like them
         if("isLocked" in details) {
@@ -50,6 +51,8 @@ class TeamBackend {
         if("force" in details) {
             details.force = (details.force ? 1 : 0);
         }
+        
+        console.log(details);
         
         // Submit the request and call the callback
         $.ajax({

@@ -138,9 +138,31 @@
     font-size: 2.5em;
 }
 
-#createteamPage #schoolPage .sw_text_input {
-    margin-top: 0;
+#createteamPage #schoolPage #input_school {
+    margin: 0 5px -1px 5px; /* -1px to suck search results up */
     font-size: 20px;
+}
+
+#createteamPage #schoolPage #searchList {
+    height: 30vh;
+    overflow: auto;
+}
+
+#createteamPage #schoolPage .searchResult {
+    margin: 0 auto;
+    padding: 15px;
+    width: 65%;
+    display: block;
+    text-align: left;
+    -webkit-appearance: none;
+}
+#createteamPage #schoolPage .s_name {
+    font-size: 1.5em;
+}
+#createteamPage #schoolPage .s_logo {
+    margin-right: 0.5em;
+    width: 1.5em;
+    border: 1px solid black;
 }
 
 

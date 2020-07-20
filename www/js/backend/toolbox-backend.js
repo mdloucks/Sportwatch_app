@@ -92,6 +92,50 @@ class ToolboxBackend {
         });
     }
     
+    /**
+     * Searches for a school whose name contains or is similar to
+     * the given search string.
+     * 
+     * @example searchForSchool("Hem", 5, (response) => { console.log("Name: " + response.matches[0].name) })
+     *          --> "Hemlock High School"
+     * 
+     * @param {String} searchName the string (partial name) to search for matches with
+     * @param {Integer} resultLimit max number of results to return (max is 100)
+     * @param {Function} cb function to handle the callback info
+     */
+    static searchForSchool(searchName, resultLimit, cb) {
+        
+        let storage = window.localStorage;
+        
+        // Prepare the array
+        let postArray = {};
+        postArray.SID = storage.getItem("SID");
+        postArray.searchIn = "school";
+        postArray.limitTo = resultLimit;
+        postArray.criteria = {"name": searchName};
+        
+        // Submit the request and call the callback
+        $.ajax({
+            type: "POST",
+            url: Constant.URL.toolbox + "?intent=0",
+            timeout: Constant.AJAX_CFG.timeout,
+            data: postArray,
+            success: (response) => {
+                console.log("[toolbox-backend.js:searchForSchool()] " + response);
+                try {
+                    response = JSON.parse(response);
+                } catch (e) {
+                    // Couldn't parse, so just use string
+                }
+                cb(response);
+            },
+            error: (error) => {
+                console.log("[toolbox-backend.js:searchForSchool()] " + error);
+                cb(error);
+            }
+        });
+    }
+    
     // ---- UTIL FUNCTIONs ---- //
     
     /**

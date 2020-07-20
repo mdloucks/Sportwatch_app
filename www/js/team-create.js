@@ -13,6 +13,7 @@ class CreateTeam extends Page {
         
         // Team properties
         this.teamName = "";
+        this.schoolId = -1;
         this.schoolName = ""; // TODO: Change to ID or maybe an auto-complete
         this.secondaryCoach = "";
         
@@ -49,12 +50,15 @@ class CreateTeam extends Page {
         this.schoolPage = (`
             <div id="schoolPage" class="div_page">
                 <h1 id="h1_schoolName">Team's School</h1>
-                <input id="team_school" class="sw_text_input" type="text" placeholder="Springtime School"></input>
+                <input id="input_school" class="sw_text_input" type="text" placeholder="Springtime School"></input>
+                <div id="searchList">
+                    <!-- School matches go here -->
+                </div>
                 <br><br>
                 
                 <!-- Progression Buttons -->
                 <button id="schoolBack" class="button_progression button_back"></button>
-                <button id="schoolNext" class="button_progression button_next"></button>
+                <button id="schoolNext" class="button_progression button_next" disabled></button>
             </div>
         `);
         
@@ -69,7 +73,7 @@ class CreateTeam extends Page {
                 
                 <!-- Progression Buttons -->
                 <button id="button_createTeam">Create Team</button><br><br><br>
-                <button id="schoolNext" class="button_progression button_back"></button>
+                <button id="optionsBack" class="button_progression button_back"></button>
             </div>
         `);
         
@@ -104,8 +108,7 @@ class CreateTeam extends Page {
                 </div>
                 
                 <!-- Progression Buttons -->
-                <button id="button_createTeam">Create Team</button><br><br>
-                <button id="schoolNext" class="button_progression button_back"></button>
+                <button id="inviteBack" class="button_progression button_back"></button>
                 <br><br>
             </div>
         `);
@@ -157,7 +160,7 @@ class CreateTeam extends Page {
                 console.log("[team-create.js:start()]: Requesting account info failed");
                 console.log(response);
             } else {
-                this.getPageElement("#team_school").val(response.schoolName);
+                this.getPageElement("#input_school").val(response.schoolName);
             }
         });
         
@@ -171,7 +174,7 @@ class CreateTeam extends Page {
             
             if(currentPage.includes("school")) {
                 this.selectPage(3);
-                this.schoolName = this.getPageElement("#team_school").val().trim();
+                this.schoolName = this.getPageElement("#input_school").val().trim();
                 if(this.secondaryValid) {
                     this.secondaryCoach = this.getPageElement("#input_secondaryCoach").val().trim();
                 }
@@ -208,8 +211,7 @@ class CreateTeam extends Page {
         // Invite button
         this.getPageElement("#button_goToInvite").click((e) => {
             // Try getting a list of athletes from the school's team
-            // TODO: Change "2" to actual school ID
-            ToolboxBackend.getUsersInSchool(2, (response) => {
+            ToolboxBackend.getUsersInSchool(this.schoolId, (response) => {
                 if(response.status > 0) {
                     this.generateAthleteButtons(response);
                 } else {
@@ -223,8 +225,10 @@ class CreateTeam extends Page {
         
         // Exit page / go to main page button
         this.getPageElement("#button_goToMain").click((e) => {
-            this.pageController.switchPage("TeamLanding");
+            this.parentTransition.slideRight("teamPage", 500); // Go back to "main menu"
             this.stop();
+            this.transitionObj.setCurrentPage("namePage");
+            // TODO: Find a way to start team.js
         });
         
         // ---- SUBMIT LOGIC ---- //
@@ -247,7 +251,7 @@ class CreateTeam extends Page {
         // Create team (what you've all been waiting for!)
         this.getPageElement("#button_createTeam").on("submit click", (e) => {
             let teamDetails = { }; // Compose the details of the team
-            teamDetails.schoolName = this.schoolName;
+            teamDetails.id_school = this.schoolId;
             teamDetails.primaryCoach = localStorage.getItem("email");
             
             if(this.secondaryValid) {
@@ -259,18 +263,25 @@ class CreateTeam extends Page {
             
             TeamBackend.createTeam(this.teamName, (response) => {
                 if(response.status > 0) {
-                    // Set local storage variables
-                    let storage = window.localStorage;
-                    storage.setItem("id_team", response.id_team);
-                    storage.setItem("teamName", response.teamName);
-                    this.getPageElement(".step").not(".step_selected").addClass("step_selected");
-                    
-                    // And slide!
-                    this.getPageElement("#postCreatePage #inviteCode").html(response.inviteCode);
-                    this.transitionObj.slideLeft("postCreatePage"); // Not procreate!!! Dirty mind ^_*
+                    this.handleCreation(response.id_team, response.teamName, response.inviteCode);
                 } else {
-                    // TODO: Add descriptive error messages
-                    Popup.createConfirmationPopup("Team creation failed!", ["OK"], [() => { }]);
+                    
+                    if(response.substatus == 4) { // Too similar
+                        Popup.createConfirmationPopup("A team like this already exists. Would you like to create it anyway?",
+                            ["Cancel", "Create Anyway"], [() => { }, () => {
+                                // Force create the team
+                                teamDetails.force = true;
+                                TeamBackend.createTeam(this.teamName, (r) => {
+                                    if(r.status > 0) {
+                                        this.handleCreation(r.id_team, r.teamName, r.inviteCode);
+                                    } else {
+                                        Popup.createConfirmationPopup("Team creation failed!", ["OK"], [() => { }]);
+                                    }
+                                }, teamDetails);
+                            }]);
+                    } else {
+                        Popup.createConfirmationPopup("An unknown error occured, please try again", ["OK"], [() => { }]);
+                    }
                 }
             }, teamDetails);
         });
@@ -330,12 +341,25 @@ class CreateTeam extends Page {
         });
                 
         // School name checking
-        this.addInputCheck("#team_school", 5, 65, /[A-Za-z0-9. ]/gm, false, (schoolValid) => {
+        this.addInputCheck("#input_school", 5, 65, /[A-Za-z0-9. ]/gm, false, (schoolValid) => {
             // Use the NOT (!) operator since we want it disabled=false with valid=true
-            this.getPageElement("#schoolPage .button_next").prop("disabled", !schoolValid);
-        }, () => {
-            // TODO: Either select best match for school name search and continue
-        });
+            // this.getPageElement("#schoolPage .button_next").prop("disabled", !schoolValid);
+            
+            // Disable the input by default until a school is clicked
+            this.getPageElement("#schoolPage .button_next").prop("disabled", true);
+            
+            // Search for schools with the given input
+            ToolboxBackend.searchForSchool(this.getPageElement("#input_school").val(), 10, (response) => {
+                if(response.status > 0) {
+                    if(response.substatus == 2) { // No matches, clear list and generate nothing
+                        this.generateSearchResults([]);
+                    } else {
+                        this.generateSearchResults(response.matches);
+                    }
+                }
+            });
+            
+        }, () => { }); // Don't worry about Enter press for this input
         
         // Secondary coach email (Options page)
         this.addInputCheck("#input_secondaryCoach", 5, 65, /[A-Za-z0-9.@\-_]/gm, true, (secondaryValid) => {
@@ -412,6 +436,7 @@ class CreateTeam extends Page {
                 return;
             }
             this.inviteAthlete(invitedEmail);
+            this.getPageElement("#button_sendInvite").prop("disabled", true);
         })
         
     }
@@ -424,6 +449,26 @@ class CreateTeam extends Page {
     // OTHER FUNCTIONS
     
     /**
+     * Handles a successful creation by saving critical team properties
+     * and proceeding to the next page.
+     * 
+     * @param {Integer} teamId id of the newly created team for internal storage
+     * @param {String} teamName name of the new team, stored internally
+     * @param {String} inviteCode code to join the team, displayed to the user
+     */
+    handleCreation(teamId, teamName, inviteCode) {
+        // Set local storage variables
+        let storage = window.localStorage;
+        storage.setItem("id_team", teamId);
+        storage.setItem("teamName", teamName);
+        this.getPageElement(".step").not(".step_selected").addClass("step_selected");
+        
+        // And slide!
+        this.getPageElement("#postCreatePage #inviteCode").html(inviteCode);
+        this.transitionObj.slideLeft("postCreatePage"); // Not procreate!!! Dirty mind ^_*
+    }
+    
+    /**
      * Centralized method for inviting users to a team. It will display any
      * appropriate error (or success) messages
      * 
@@ -433,18 +478,15 @@ class CreateTeam extends Page {
         // Validate again just to be safe
         let emailMatch = email.match(/[A-Za-z0-9\-_.]*@[A-Za-z0-9\-_.]*\.(com|net|org|us|website|io)/gm);
         if(emailMatch == null) {
-            this.getPageElement("#button_sendInvite").prop("disabled", true);
             Popup.createConfirmationPopup("Invalid email, please try again", ["OK"], [() => { }]);
             return;
         } else if(emailMatch[0].length != email.length) {
-            this.getPageElement("#button_sendInvite").prop("disabled", true);
             Popup.createConfirmationPopup("Invalid email, please try again", ["OK"], [() => { }]);
             return;
         }
         
         TeamBackend.inviteToTeam(email, (response) => {
             if(response.status > 0) {
-                this.getPageElement("#button_sendInvite").prop("disabled", true);
                 if(response.substatus == 2) {
                     Popup.createConfirmationPopup("Athlete is already apart of this team", ["OK"], [() => { }]);
                 } else {
@@ -457,7 +499,6 @@ class CreateTeam extends Page {
                         // TODO: Unlock the team
                     }, () => { }]); // End of Popup callbacks
                 } else if(response.substatus == 4) {
-                    this.getPageElement("#button_sendInvite").prop("disabled", true);
                     Popup.createConfirmationPopup("Invalid email, please try again", ["OK"], [() => { }]);
                 } else {
                     Popup.createConfirmationPopup("We're sorry, an error occured. Please try again later", ["OK"], [() => { }]);
@@ -506,6 +547,71 @@ class CreateTeam extends Page {
     }
     
     /**
+     * Generates a list of schools that match the given search. It will position
+     * these slightly below the input to allow for each click access for the
+     * user.
+     * 
+     * @param {AssociativeArray} resultsList js object returned from the backend search request
+     */
+    generateSearchResults(resultsList) {
+        
+        let schoolArray = []; // Array of button attribute objects [{...}, {...}, etc.]
+        let currentSchool = { }; // Set to each object in the matches array
+        let loopCount = 5; // Max number of results to show
+        
+        // Clear list to remove old results
+        this.getPageElement("#schoolPage #searchList").empty();
+        
+        // Set max results to 5
+        if(resultsList.length < loopCount) {
+            loopCount = resultsList.length;
+        }
+        
+        for(let s = 0; s < loopCount; s++) {
+            currentSchool = resultsList[s];
+            
+            let innerHtml = `<span class="s_name">SCHOOL_NAME</span><br><span class="s_address">LOCATION</span>`;
+            
+            // Populate innerHtml
+            if(currentSchool.name.length > 18) {
+                innerHtml = innerHtml.replace("SCHOOL_NAME", currentSchool.name.substring(0, 17).trim() + "...");
+            } else {
+                innerHtml = innerHtml.replace("SCHOOL_NAME", currentSchool.name.trim());
+            }
+            if((currentSchool.city != null) && (currentSchool.city.length > 3) && (currentSchool.state != null)) {
+                innerHtml = innerHtml.replace("LOCATION", currentSchool.city.trim().toUpperCase() + ", " + currentSchool.state.trim());
+            } else {
+                innerHtml = innerHtml.replace("LOCATION", ""); // Hide it
+            }
+            
+            // TODO: Keep or remove logo image?
+            // Include the image if it's present
+            if((currentSchool.logoUrl != null) && (currentSchool.logoUrl.length > 5)) {
+                innerHtml = `<img class="s_logo" src="${currentSchool.logoUrl}">` + innerHtml;
+            }
+            
+            let buttonId = "school_" + currentSchool.name.replace(/ /gm, "-");
+            schoolArray.push(({"class": "searchResult", "id": buttonId, "html": innerHtml, "id_school": currentSchool.id_school}));
+        }
+        
+        // Finally, generate them
+        ButtonGenerator.generateButtons("#createteamPage #schoolPage #searchList", schoolArray, (school) => {
+            
+            // Unfocus input, select the school, and clear search results
+            document.activeElement.blur();
+            this.schoolId = school.id_school;
+            this.schoolName = school.id.replace("school_", "").replace(/\-/gm, " ");
+            // /\ Don't worry about capitalizing, only for serverside use
+            this.getPageElement("#searchList").empty();
+            this.getPageElement("#input_school").val(this.schoolName);
+            this.getPageElement("#schoolPage .button_next").prop("disabled", false);
+            
+            console.log("Selected " + this.schoolId + " with name " + this.schoolName);
+        });
+        
+    }
+    
+    /**
      * Creates the buttons and their callbacks for inviting athletes
      * from the same school. This is limited to the response from
      * ToolboxBackend.getUsersInSchool() since it requires an array contianing
@@ -517,6 +623,11 @@ class CreateTeam extends Page {
         
         let buttonArray = []; // Array of button attribute objects [{...}, {...}, etc.]
         let currentAthlete = { }; // Set to each object in the matches array
+        
+        // Check for no results
+        if(responseObject.substatus == 2) {
+            return;
+        }
         
         for(let s = 0; s < responseObject.matches.length; s++) {
             currentAthlete = responseObject.matches[s];
@@ -535,7 +646,7 @@ class CreateTeam extends Page {
                 athleteName = athleteName.substring(0, 23) + "...";
             }
             
-            let buttonId = athleteName.toLowerCase().replace(" ", "");
+            let buttonId = athleteName.toLowerCase().replace(/ /gm, "");
             buttonArray.push(({"class": "button_schoolAthlete", "id": buttonId, "html": athleteName, "email": currentAthlete.email}));
         }
         
