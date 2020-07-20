@@ -24,7 +24,7 @@ class Popup {
      * @param {Array} buttons Array containing text of buttons
      * @param {Array} callbacks Array containing callback functions for each respective button
      */
-    static createConfirmationPopup(tooltip, buttons, callbacks, options) {
+    static createConfirmationPopup(tooltip, buttons, callbacks = [() => {}], options) {
 
         if (buttons.length != callbacks.length) {
             throw new Error(`OutOfBounds exception, improper length. buttons: ${buttons.length} callbacks: ${callbacks.length}`);

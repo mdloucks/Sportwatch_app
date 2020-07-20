@@ -11,6 +11,7 @@ class Team extends Page {
         this.pageTransition = new PageTransition("#teamPage");
         this.isEditing = false;
         this.tableData = [];
+        this.rowsToDelete = [];
 
         // --- PAGES ---- //
 
@@ -48,27 +49,9 @@ class Team extends Page {
                     <div></div>
                 </div>
                 <canvas id="athlete_stat_chart"></canvas>
-                <table id="athlete_stats_container"></table>
-                </div>
-                `);
-                // <button class="edit_values_button" id="edit_values_button">Edit</button>
-
-        // TODO: figure out edit stats for athletes
-        // <h2 id="athlete_edit">Stats &#9999;</h2>
-        // <div id="athlete_stats"></div>
-
-        // this.editAthletePage = (`
-        //     <div id="editAthletePage" class="div_page">
-        //         <div class="generic_header">
-        //             <div id="back_button_edit" class="back_button">&#8592;</div>
-        //             <h1 id="athleteName"></h1>
-        //         </div>
-
-        //         <div id="athlete_edit_inputs">
-        //         </div>
-        //     </div>
-        // `);
-
+                <table class="alternating_table_shade" id="athlete_stats_container"></table>
+            </div>
+        `);
     }
 
     getHtml() {
@@ -173,12 +156,6 @@ class Team extends Page {
 
         $("#teamPage #athletePage #athlete_events").empty()
 
-        let query = `
-            SELECT * FROM event
-            INNER JOIN athlete ON event_result.id_athlete = athlete.rowid
-            WHERE event_result.id_event = ?
-        `;
-
         dbConnection.selectValues("SELECT *, rowid FROM event", []).then((events) => {
             ButtonGenerator.generateButtonsFromDatabase("#teamPage #athletePage #athlete_events", events, (event) => {
                 this.startAthleteStatPage(athlete, event);
@@ -191,13 +168,6 @@ class Team extends Page {
 
         // After populated, slide
         this.pageTransition.slideLeft("athletePage");
-
-        // $("#teamPage #athlete_edit").unbind("click");
-
-        // $("#teamPage #athlete_edit").bind("click", (e) => {
-        //     this.pageTransition.slideLeft("editAthletePage");
-        //     this.startEditAthletePage(athlete);
-        // });
 
         // Slide back; athlete page will be overwritten next select
         $("#back_button_athlete").bind("click", (e) => {
@@ -215,21 +185,6 @@ class Team extends Page {
 
         $("#teamPage #athleteStatPage #back_button_athlete_stats").bind("click", () => {
             this.pageTransition.slideRight("athletePage");
-        });
-
-        $("#teamPage #edit_values_button").click(() => {
-            console.log("click");
-            this.toggleTableEditable(event, athlete);
-
-            if (this.isEditing) {
-                $("#teamPage tr").each(function () {
-                    $(this).children().last().remove();
-                })
-            } else {
-                $("#teamPage tr").append("<td>X</td>");
-            }
-
-            this.isEditing = !this.isEditing;
         });
 
         let query = `
@@ -258,6 +213,7 @@ class Team extends Page {
             if (length == 0) {
                 $("#athlete_stat_chart").remove();
                 $("#athlete_stats_container").remove();
+                $("#edit_values_button").remove();
                 $("#teamPage #athleteStatPage .subheading_text").remove();
 
                 $("#teamPage #athleteStatPage").append(`<div class="subheading_text">No data available</div>`);
@@ -280,7 +236,25 @@ class Team extends Page {
      */
     createTable(results) {
         $("#athlete_stats_container").remove();
-        $("#teamPage #athleteStatPage").append(`<table id="athlete_stats_container"></table>`);
+        $("#edit_values_button").remove();
+        $("#teamPage #athleteStatPage").append(`<table class="alternating_table_shade" id="athlete_stats_container"></table>`);
+        $("#teamPage #athleteStatPage").append(`<button class="edit_values_button" id="edit_values_button">Edit</button>`);
+
+        $("#teamPage #edit_values_button").click(() => {
+
+            if (this.isEditing) {
+                $("#teamPage tr").each(function () {
+                    $(this).children().last().remove();
+                })
+            } else {
+                $("#teamPage tr:first-child").append("<th>Delete</th>");
+                $("#teamPage tr:not(:first-child)").append("<td>X</td>");
+            }
+
+            this.toggleTableEditable();
+
+            this.isEditing = !this.isEditing;
+        });
 
         // populate table
 
@@ -298,7 +272,7 @@ class Team extends Page {
                 <tr>
                     <td>${i + 1}</td>
                     <td>${new Date(results.item(i).timestamp).toLocaleDateString("en-US")}</td>
-                    <td>${results.item(i).value}</td>
+                    <td>${results.item(i).value.toFixed(2)}</td>
                 </tr>
             `);
 
@@ -365,7 +339,6 @@ class Team extends Page {
                 "timestamp": results.item(i).timestamp
             });
         }
-        console.log(JSON.stringify(this.tableData));
     }
 
     /**
@@ -374,9 +347,10 @@ class Team extends Page {
      * @param {Object} event database result for atheltevent
      * @param {Object} athlete result for athlete
      */
-    toggleTableEditable(event, athlete) {
+    toggleTableEditable() {
 
         let _this = this;
+        let flipFlipSkip = true; 
 
         $("#teamPage td").each(function () {
 
@@ -402,37 +376,75 @@ class Team extends Page {
             }
         });
 
-        let columns = ["number", "timestamp", "value", "X"];
-        let newTable = [];
-
         // save the results
         if (this.isEditing) {
 
-            // save edited results callback
-            let i = 1;  
-            $("#teamPage td").each(function () {
+            $("#teamPage #athlete_stats_container").addClass("alternating_table_shade");
+            $("#teamPage #athlete_stats_container").removeClass("delete_column_red");
 
-                if(i != 1) {
-                    console.log($(this).text());
-                    
+            $("#athlete_stats_container td").off("click");
 
-
-
-                }
-
-                i++;
-            });
-
-            for (let i = 0; i < this.tableData.length; i++) {
-                let data = [this.tableData[i].id_event, this.tableData[i].id_athlete, this.tableData[i].value, this.tableData[i].timestamp];
-
-                console.log("data " + data);
-
-                dbConnection.updateValues("event_result", ["value"], [123], `WHERE id_athlete = ? AND id_event = ?`, [this.tableData[i].id_athlete, this.tableData[i].id_event]);
+            // delete values
+            for (let i = 0; i < this.rowsToDelete.length; i++) {
+                dbConnection.deleteValues("event_result", "WHERE rowid = ?", [this.rowsToDelete[i]])
             }
 
+            // save changed values
+            let newData = this.tableToObject();
 
+            if (newData.length != this.tableData.length) {
+                console.log("MISMATCH LENGTHS!");
+                console.log("new data " + newData.length + " virtual data " + this.tableData.length);
+            } else {
+                for (let i = 0; i < newData.length; i++) {
+                    // check to see if it contains non-numbers
+                    if ((/^[0-9.]+$/).test(newData[i].value)) {
+                        dbConnection.updateValues("event_result", ["value"], [newData[i].value], `WHERE rowid = ?`, [this.tableData[i].rowid]);
+                    } else {
+                        console.log("BAD TYPE " + newData[i].value);
+                        Popup.createConfirmationPopup(`Cannot Save Result ${i + 1}. Only numbers can be saved, please try again.`, ["Ok"]);
+                    }
+                }
+            }
+        } else {
+
+            $("#teamPage #athlete_stats_container").removeClass("alternating_table_shade");
+            $("#teamPage #athlete_stats_container").addClass("delete_column_red");
+
+
+            // delete row callback
+            $("#athlete_stats_container td").click(function (e) {
+
+                let row = Number(e.target.parentNode.rowIndex);
+                let isDeleting = $(this).text() == "X" ? true : false;
+
+                if(isDeleting) {
+                    $(this).parent().remove();
+
+                    console.log("delete row " + _this.tableData[row - 1].rowid + " " + _this.tableData[row - 1].value);
+                    _this.tableData.splice(row - 1, 1);
+                    
+                    // mark rows to delete on save
+                    _this.rowsToDelete.push(_this.tableData[row - 1].rowid);
+                }
+            });
         }
+    }
+
+    /**
+     * This function will convert the athlete data container table into an object
+     * 
+     */
+    tableToObject() {
+        return $(`#athlete_stats_container tr:has(td)`).map(function (i, v) {
+            var $td = $('td', this);
+            return {
+                result: $td.eq(0).text(),
+                date: $td.eq(1).text(),
+                value: $td.eq(2).text(),
+                x: $td.eq(3).text()
+            }
+        }).get();
     }
 
     /**
