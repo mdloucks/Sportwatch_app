@@ -9,6 +9,8 @@ class Team extends Page {
 
         this.pageController = pageSetObject;
         this.pageTransition = new PageTransition("#teamPage");
+        this.isEditing = false;
+        this.tableData = [];
 
         // --- PAGES ---- //
 
@@ -39,16 +41,17 @@ class Team extends Page {
 
 
         this.athleteStatPage = (`
-        <div id="athleteStatPage" class="div_page">
-            <div class="generic_header">
-                <div id="back_button_athlete_stats" class="back_button">&#9668;</div>
-                <h1>Athlete Stats</h1>
-                <div></div>
-            </div>
-            <table id="athlete_stats_container"></table>
-            <canvas id="athlete_stat_chart"></canvas>
-        </div>
-        `);
+            <div id="athleteStatPage" class="div_page">
+                <div class="generic_header">
+                    <div id="back_button_athlete_stats" class="back_button">&#9668;</div>
+                    <h1>Athlete Stats</h1>
+                    <div></div>
+                </div>
+                <canvas id="athlete_stat_chart"></canvas>
+                <table id="athlete_stats_container"></table>
+                </div>
+                `);
+                // <button class="edit_values_button" id="edit_values_button">Edit</button>
 
         // TODO: figure out edit stats for athletes
         // <h2 id="athlete_edit">Stats &#9999;</h2>
@@ -206,14 +209,31 @@ class Team extends Page {
 
         this.pageTransition.slideLeft("athleteStatPage");
 
+        this.tableData = [];
+
         $("#teamPage #athleteStatPage #athlete_stats_container").empty();
 
         $("#teamPage #athleteStatPage #back_button_athlete_stats").bind("click", () => {
             this.pageTransition.slideRight("athletePage");
         });
 
+        $("#teamPage #edit_values_button").click(() => {
+            console.log("click");
+            this.toggleTableEditable(event, athlete);
+
+            if (this.isEditing) {
+                $("#teamPage tr").each(function () {
+                    $(this).children().last().remove();
+                })
+            } else {
+                $("#teamPage tr").append("<td>X</td>");
+            }
+
+            this.isEditing = !this.isEditing;
+        });
+
         let query = `
-            SELECT * FROM event_result
+            SELECT *, event_result.rowid FROM event_result
             INNER JOIN athlete ON event_result.id_athlete = athlete.rowid
             WHERE (event_result.id_event = ?) AND (athlete.rowid = ?)
         `;
@@ -222,6 +242,8 @@ class Team extends Page {
         let data = [];
 
         dbConnection.selectValues(query, [event.rowid, athlete.rowid]).then((results) => {
+
+            this.storeTempTableData(athlete, event, results);
 
             length = results.length | 0;
 
@@ -240,7 +262,7 @@ class Team extends Page {
 
                 $("#teamPage #athleteStatPage").append(`<div class="subheading_text">No data available</div>`);
                 // don't need to graph for a single point, only show table
-            } else if(length == 1) {
+            } else if (length == 1) {
                 $("#athlete_stat_chart").remove();
                 this.createTable(results);
                 // there is enough data, graph
@@ -256,7 +278,7 @@ class Team extends Page {
      * 
      * @param {Object} results database results
      */
-    createTable(results) {        
+    createTable(results) {
         $("#athlete_stats_container").remove();
         $("#teamPage #athleteStatPage").append(`<table id="athlete_stats_container"></table>`);
 
@@ -325,6 +347,92 @@ class Team extends Page {
                 },
             }
         });
+    }
+
+    /**
+     * This function will store the athlete's data in a table to use for editing purposes toggleTableEditable
+     * @param {Object} athlete the athlete result
+     * @param {Object} event the event result
+     * @param {Object} results the results for the athlete
+     */
+    storeTempTableData(athlete, event, results) {
+        for (let i = 0; i < results.length; i++) {
+            this.tableData.push({
+                "rowid": results.item(i).rowid,
+                "id_event": event.rowid,
+                "id_athlete": athlete.rowid,
+                "value": results.item(i).value,
+                "timestamp": results.item(i).timestamp
+            });
+        }
+        console.log(JSON.stringify(this.tableData));
+    }
+
+    /**
+     * Allow the necessary tables to be edited. This will save the results on every other call.
+     * 
+     * @param {Object} event database result for atheltevent
+     * @param {Object} athlete result for athlete
+     */
+    toggleTableEditable(event, athlete) {
+
+        let _this = this;
+
+        $("#teamPage td").each(function () {
+
+            // names
+            if (!isNaN(Number($(this).text()))) {
+
+                // change to not editing
+                if (_this.isEditing) {
+                    $($(this)).attr('contenteditable', false);
+                    $("#teamPage #edit_values_button").html("Edit");
+
+                    $("#teamPage #edit_values_button").addClass("edit_values_button").removeClass("save_values_button");
+                    // change to editing
+                } else {
+                    $($(this)).attr('contenteditable', true);
+                    $("#teamPage #edit_values_button").html("Save")
+
+                    $("#teamPage #edit_values_button").addClass("save_values_button").removeClass("edit_values_button");
+                }
+
+            } else if (isNaN(Number($(this).text()))) {
+                // prohibit editing name values
+            }
+        });
+
+        let columns = ["number", "timestamp", "value", "X"];
+        let newTable = [];
+
+        // save the results
+        if (this.isEditing) {
+
+            // save edited results callback
+            let i = 1;  
+            $("#teamPage td").each(function () {
+
+                if(i != 1) {
+                    console.log($(this).text());
+                    
+
+
+
+                }
+
+                i++;
+            });
+
+            for (let i = 0; i < this.tableData.length; i++) {
+                let data = [this.tableData[i].id_event, this.tableData[i].id_athlete, this.tableData[i].value, this.tableData[i].timestamp];
+
+                console.log("data " + data);
+
+                dbConnection.updateValues("event_result", ["value"], [123], `WHERE id_athlete = ? AND id_event = ?`, [this.tableData[i].id_athlete, this.tableData[i].id_event]);
+            }
+
+
+        }
     }
 
     /**

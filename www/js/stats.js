@@ -9,6 +9,7 @@ class Stats extends Page {
         this.pageController = pageSetObject;
         this.pageTransition = new PageTransition("#statsPage");
         this.hasStarted = false;
+        this.isEditing = false;
 
         this.landingPage = (`
             <div id="landingPage" class="div_page">
@@ -42,12 +43,8 @@ class Stats extends Page {
         </div>
         `);
 
-    //     <div class="table_container sportwatch_selector">
-    //     <div id="sort_alphabet">A-z</div>
-    //     <div id="sort_times">0-9</div>
-    //     <div id="sort_gender">M/F</div>
-    // </div><br><br>
 
+        // TODO: deprecated
         this.addEventPage = (`
             <div id="addEventPage" class="div_page">
                 <div id="add_event_header" class="generic_header">
@@ -85,10 +82,10 @@ class Stats extends Page {
         }
 
         if (!this.hasStarted) {
-            
+
             this.hasStarted = true;
         }
-        
+
         this.startLandingPage();
     }
 
@@ -102,7 +99,7 @@ class Stats extends Page {
         dbConnection.selectValues("SELECT *, rowid FROM event", []).then((events) => {
             ButtonGenerator.generateButtonsFromDatabase("#statsPage #landingPage .button_box", events, (event) => {
                 console.log(`EVENTS ${events}`);
-                
+
                 this.startEventPage(event);
             }, ["gender", "unit", "is_relay", "timestamp"]);
 
@@ -133,58 +130,28 @@ class Stats extends Page {
             this.pageTransition.slideRight("landingPage");
         });
 
+
         $("#event_results").click((e) => {
             // TODO: configure the sort for these
 
-            this.clearResultsTable();
+            // this.clearResultsTable();
 
-            if(e.target.id == "name_sort") {
-                this.generateAthleteTimes(event, "A-z");
+            // if(e.target.id == "name_sort") {
+            //     this.generateAthleteTimes(event, "A-z");
 
-            } else if(e.target.id == "best_sort") {
-                this.generateAthleteTimes(event, "0-9");
+            // } else if(e.target.id == "best_sort") {
+            //     this.generateAthleteTimes(event, "0-9");
 
-            } else if(e.target.id == "avg_sort") {
-                this.generateAthleteTimes(event, "0-9");
+            // } else if(e.target.id == "avg_sort") {
+            //     this.generateAthleteTimes(event, "0-9");
 
-            } else if(e.target.id == "worst_sort") {
-                this.generateAthleteTimes(event, "0-9");
-            } else {
-                this.generateAthleteTimes(event, "M/F");
-            }
+            // } else if(e.target.id == "worst_sort") {
+            //     this.generateAthleteTimes(event, "0-9");
+            // } else {
+            //     this.generateAthleteTimes(event, "M/F");
+            // }
 
         });
-
-        // $("#statsPage #eventPage #sort_alphabet").unbind("click");
-        // $("#statsPage #eventPage #sort_times").unbind("click");
-        // $("#statsPage #eventPage #sort_gender").unbind("click");
-
-        // // Sort alphabetically
-        // $("#statsPage #eventPage #sort_alphabet").bind("click", (e) => {
-        //     $("#statsPage #eventPage #sort_alphabet").addClass("button_selected");
-        //     $("#statsPage #eventPage #sort_times").removeClass("button_selected");
-        //     $("#statsPage #eventPage #sort_gender").removeClass("button_selected");
-
-        //     this.generateAthleteTimes(event, "A-z");
-        // });
-
-        // // sort based on fasted time
-        // $("#statsPage #eventPage #sort_times").bind("click", (e) => {
-        //     $("#statsPage #eventPage #sort_times").addClass("button_selected");
-        //     $("#statsPage #eventPage #sort_alphabet").removeClass("button_selected");
-        //     $("#statsPage #eventPage #sort_gender").removeClass("button_selected");
-
-        //     this.generateAthleteTimes(event, "0-9");
-        // });
-
-        // // sort based on gender
-        // $("#statsPage #eventPage #sort_gender").bind("click", (e) => {
-        //     $("#statsPage #eventPage #sort_gender").addClass("button_selected");
-        //     $("#statsPage #eventPage #sort_alphabet").removeClass("button_selected");
-        //     $("#statsPage #eventPage #sort_times").removeClass("button_selected");
-
-        //     this.generateAthleteTimes(event, "M/F");
-        // });
 
         this.generateAthleteTimes(event);
     }
@@ -223,21 +190,32 @@ class Stats extends Page {
                 let info_box;
 
                 if (athletes[i].gender == 'm') {
-                    info_box = $("<tr>", { class: "male_color" });
+                    info_box = $("<tr>", {
+                        class: "male_color"
+                    });
                 } else if (athletes[i].gender == 'f') {
-                    info_box = $("<tr>", { class: "female_color" });
+                    info_box = $("<tr>", {
+                        class: "female_color"
+                    });
                 } else {
                     info_box = $("<tr>");
                 }
 
-                info_box.append($("<td>", { text: name }));
-                info_box.append($("<td>", { text: min }));
-                info_box.append($("<td>", { text: average }));
-                info_box.append($("<td>", { text: max }));
+                info_box.append($("<td>", {
+                    text: name
+                }));
+                info_box.append($("<td>", {
+                    text: min
+                }));
+                info_box.append($("<td>", {
+                    text: average
+                }));
+                info_box.append($("<td>", {
+                    text: max
+                }));
 
                 $("#statsPage #eventPage #event_results").append(info_box);
             }
-
         });
     }
 
@@ -279,6 +257,7 @@ class Stats extends Page {
      * will remove all of the generated entries in the results
      */
     clearResultsTable() {
+
         $("#statsPage #eventPage #event_results").html(`
             <tr class="column_names">
                 <th id="name_sort">Name</th>
@@ -308,20 +287,18 @@ class Stats extends Page {
                 this.addEvent(record_definition)
             }, ["unit"]);
         });
-        
     }
 
     addEvent(event) {
 
         let is_relay = (event.record_identity.includes("relay") == true) ? true : false
         let data = [event.record_identity, "m", event.unit, is_relay, Date.now()];
-        
+
         dbConnection.insertValues("event", data);
         this.startLandingPage();
     }
 
 
 
-    stop() {
-    }
+    stop() {}
 }

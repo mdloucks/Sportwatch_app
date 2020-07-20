@@ -24,6 +24,15 @@ class App {
         this.swipeHandler = new SwipeHolder("#app");
         FastClick.attach(document.body);
 
+        dbConnection.updateValues("event_result", ["value"], [123], `WHERE rowid = 1`, [1]);
+
+        dbConnection.selectValues("Select * from event_result").then(function(results) {
+            for (let i = 0; i < results.length; i++) {
+                console.log(JSON.stringify(results.item(i)));
+            }
+        });
+        // dbConnection.updateValues("event_result", ["value"], [123], `WHERE athlete_id = ? AND event_id = ?`, [athlete.rowid, event.rowid]);
+
         $(".loader").remove();
         $("#app").html(""); // Clear so it's a clean slate to add to
 

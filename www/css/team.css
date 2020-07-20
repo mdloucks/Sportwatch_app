@@ -87,3 +87,19 @@
 #teamPage {
     height: 100%; /* Since it's embedded in another div page */
 }
+
+/* edit button */
+#teamPage #edit_values_button {
+    font-size: 2.5em;
+    border-radius: 15%;
+    border: 2px solid black;
+    margin-top: 1.5em;
+}
+
+#teamPage .edit_values_button {
+    background: lightpink;
+}
+
+#teamPage .save_values_button {
+    background: rgb(64, 202, 0);
+}

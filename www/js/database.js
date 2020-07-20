@@ -55,6 +55,16 @@ let json = {
         [2, 3, 112.3, Date.now()],
         [2, 4, 157.6, Date.now()],
         [2, 5, 197.6, Date.now()]
+        [2, 2, 59.2, Date.now() + 10000000],
+        [2, 3, 56.8, Date.now() + 20000000],
+        [2, 4, 84.2, Date.now() + 90000000],
+        [2, 5, 32.3, Date.now() + 600000000],
+        [2, 6, 49.2, Date.now() + 900000000],
+        [1, 7, 49.2, Date.now() + 10000000],
+        [1, 1, 86.8, Date.now() + 20000000],
+        [1, 2, 94.2, Date.now() + 90000000],
+        [1, 3, 42.3, Date.now() + 600000000],
+        [1, 4, 79.2, Date.now() + 900000000],
     ],
     "relay_team": [
         ["Hemlock"]
@@ -221,9 +231,9 @@ class DatabaseConnection {
      * @param {String} table the name of the table
      * @param {Array} rowNames Array filled with the names of all of the rows
      * @param {Array} newValues Array filled with the new values of the rows, must be equal in length to rowNames
-     * @param {Object} options an object of key/pairs for the corresponsing values ex. WHERE {"fname": "John"}
+     * @param {String} options an object of key/pairs for the corresponsing values ex. WHERE {"fname": "John"}
      */
-    updateValues(table, rowNames, newValues, options) {
+    updateValues(table, rowNames, newValues, options = "", option_values) {
 
         return new Promise((resolve, reject) => {
 
@@ -236,12 +246,16 @@ class DatabaseConnection {
                 let setString = "";
 
                 for (let i = 0; i < rowNames.length; i++) {
-                    setString += ` = ${rowNames[i]} = ${newValues[i]},`;
+                    setString += `${rowNames[i]} = ${newValues[i]},`;
                 }
 
-                let query = `UPDATE ${table} SET ${setString} `;
+                setString = setString.slice(0, -1);
 
-                tx.executeSql(query, values, function (tx, rs) {
+                let query = `UPDATE ${table} SET ${setString} ${options}`;
+
+                console.log("jquery " + query);
+
+                tx.executeSql(query, option_values, function (tx, rs) {
                     if (rs.rows.length === 0) {
                         console.log("empty set");
                         resolve(false);
