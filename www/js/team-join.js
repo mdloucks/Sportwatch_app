@@ -4,11 +4,12 @@
  */
 class JoinTeam extends Page {
     
-    constructor(id, pageSetObject) {
+    constructor(id, pageSetObject, transitionCopy) {
         super(id, "JoinTeam");
         
         this.pageController = pageSetObject;
         this.transitionObj = new PageTransition("#jointeamPage");
+        this.parentTransition = transitionCopy; // Used to get back to landing page
         
         // Misc variables
         this.codeIsValid = true;
@@ -30,6 +31,9 @@ class JoinTeam extends Page {
                 </div>
                 <br><br>
                 <!-- TODO: Suggested teams -->
+                
+                <!-- Progression Buttons -->
+                <button id="nameBack" class="button_progression button_back"></button>
             </div>
         `);
         
@@ -48,7 +52,14 @@ class JoinTeam extends Page {
         // When clicking on input, focus it
         this.getPageElement("input").click((e) => {
             $(e.target).focus();
-        })
+        });
+        
+        // Back button to return to "main" page
+        this.getPageElement(".button_back").click((e) => {
+            document.activeElement.blur();
+            this.parentTransition.slideLeft("landingPage", 500); // Go back to "main menu"
+            this.stop();
+        });
         
         // Enable / disable JOIN button based on input
         this.getPageElement("#input_inviteCode").on("input", (e) => {

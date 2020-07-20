@@ -49,6 +49,7 @@ class MainSet extends PageSet {
     }
     
     disable() {
+        this.pageArray[this.currentPageId].stop(); // Stop current page
         this.transitionObj.hidePages();
         this.transitionObj.setCurrentPage(this.pageArray[0].name.toLowerCase() + "Page");
         this.currentPageId = this.pageArray[0].id;
@@ -59,7 +60,7 @@ class MainSet extends PageSet {
     }
     
     switchPage(pageName) {
-        console.log("Switching to " + pageName);
+        console.log("[main-set.js:switchPage()]: Switching to " + pageName);
         this.pageArray[this.currentPageId].stop(); // Stop current page
         this.transitionPage(pageName); // Begin transition
         this.currentPageId = (this.getPage(pageName).id);

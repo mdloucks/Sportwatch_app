@@ -18,6 +18,7 @@
     <allow-intent href="sms:*" />
     <allow-intent href="mailto:*" />
     <allow-intent href="geo:*" />
+    <preference name="DisallowOverscroll" value="true" />
     <platform name="android">
 
         <resource-file src="res/values/colors.xml" target="/app/src/main/res/values/colors.xml" />

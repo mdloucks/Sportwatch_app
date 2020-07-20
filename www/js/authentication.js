@@ -101,9 +101,8 @@ class Authentication {
      * @param {String} lname The user's last name
      * @param {String} email The user's email
      * @param {String} password The user's password
-     * @param {String} account_type The user's account type ("coach or athlete")
      */
-    static signup(fname, email, password, account_type) {
+    static signup(fname, email, password) {
         console.log("[authentication.js:signup()] Signing up user...");
         return new Promise((resolve, reject) => {
             $.ajax({
@@ -113,8 +112,7 @@ class Authentication {
                 data: {
                     fname: fname,
                     email: email,
-                    password: password,
-                    account_type: account_type
+                    password: password
                 },
                 success: (response) => {
                     console.log(response);
