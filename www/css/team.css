@@ -71,8 +71,13 @@
     border: 1px solid black;
 }
 
-#teamPage tr:nth-child(odd) td {
+#teamPage .alternating_table_shade tr:nth-child(odd) td {
     background-color: gray;
+}
+
+#teamPage .delete_column_red tr td:nth-child(4) {
+    background: red;
+    font-size: 1.5em;
 }
 
 #teamPage canvas {
@@ -94,6 +99,7 @@
     border-radius: 15%;
     border: 2px solid black;
     margin-top: 1.5em;
+    margin-bottom: 3em;
 }
 
 #teamPage .edit_values_button {

@@ -253,14 +253,8 @@ class DatabaseConnection {
 
                 let query = `UPDATE ${table} SET ${setString} ${options}`;
 
-                console.log("jquery " + query);
-
                 tx.executeSql(query, option_values, function (tx, rs) {
-                    if (rs.rows.length === 0) {
-                        console.log("empty set");
-                        resolve(false);
-                    }
-
+                    resolve(true);
                 });
             }, function (error) {
                 console.log('Transaction ERROR: ' + error.message);
@@ -268,6 +262,25 @@ class DatabaseConnection {
                 reject(error);
             }, function () {
                 // success
+            });
+        });
+    }
+
+    /**
+     * Delete the given values from a given table
+     * 
+     * @param {String} table the table to delete from
+     * @param {String} whereString WHERE field = ?
+     * @param {Array} values array of values corresponding to wherestring
+     */
+    deleteValues(table, whereString, values) {
+        this.db.transaction(function (tx) {
+
+            let query = `DELETE FROM ${table} ${whereString}`;
+
+            console.log(query);
+
+            tx.executeSql(query, values, function (tx, rs) {
             });
         });
     }
