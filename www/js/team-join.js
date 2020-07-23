@@ -25,7 +25,7 @@ class JoinTeam extends Page {
                 
                 <div class="sectionWrapper">
                     <p class="sectionLabel">Enter Join Code</p>
-                    <input id="input_inviteCode" class="sw_text_input" type="text" placeholder="6e3bs36"></input>
+                    <input id="input_inviteCode" class="sw_text_input" type="text" placeholder="lclcm3y"></input>
                     <br>
                     <input id="button_join" type="submit" value="JOIN" disabled></input>
                 </div>
