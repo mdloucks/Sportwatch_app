@@ -20,6 +20,10 @@
     -webkit-appearance: none;
 }
 
+#signupPage p > a {
+    color: black;
+}
+
 /**********************
           FORM
 ***********************/

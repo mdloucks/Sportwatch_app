@@ -39,7 +39,12 @@ class Signup extends Page {
                     
                     <input id="button_signup" class="sw_big_button invalid" type="submit" value="Sign Up">
                 </form>
-                <br><br>
+                <br>
+                <p>
+                    By clicking Sign Up, you agree to our <a href="https://sportwatch.us/privacy-policy/">
+                    Privacy Policy</a>.
+                </p>
+                <br>
                 <button id="returnWelcome" class="backButton">Back</button>
                 
                 <!-- Invalid dialog here (hidden by default) -->
