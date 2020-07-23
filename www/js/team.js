@@ -93,7 +93,8 @@ class Team extends Page {
         if (!this.hasStarted && this.doesTeamExist()) {
             $("#landingPage").find("#teamName").text(storage.getItem("teamName"));
             this.startLandingPage();
-
+            // TODO: Add a way of updating when new users join the team
+            
             this.hasStarted = true;
             // TODO: have the user create a team.
         } else {
@@ -455,14 +456,10 @@ class Team extends Page {
         let storage = window.localStorage;
 
         // local check
-        // TODO: Seth recommends using id_team since all other info (including teamName)
-        //       can be retrieved. Plus, storing the id is better for backend integration
-        // if (storage.getItem("teamName") == null) {
-        //     return false;
-        // }
-
-        // TODO: query server database to see if user has a team
-
+        if (storage.getItem("id_team") == null) {
+            return false;
+        }
+        
         return true;
     }
 

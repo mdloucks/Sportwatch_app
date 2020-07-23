@@ -369,6 +369,7 @@ class Account extends Page {
 
     startSignOut() {
         localStorage.removeItem("SID");
+        localStorage.removeItem("email");
         localStorage.removeItem("id_team");
         localStorage.removeItem("teamName");
         /*

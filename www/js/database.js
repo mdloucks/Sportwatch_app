@@ -287,9 +287,13 @@ class DatabaseConnection {
 
     /**
      * @description insert some data into the given table
+     * must be an array that follows order of parameters
      * 
      * Array formats
      * [item, item...]
+     * 
+     * @example insertValues("athlete", ["Don", "Ron", 10, "M"])
+     *           --> Inserts athlete with name "Don" "Ron", in 10th grade, a male
      * 
      * @param {String} table name of the table
      * @param {Array} data data to be inserted

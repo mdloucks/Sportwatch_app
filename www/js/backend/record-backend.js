@@ -114,13 +114,13 @@ class RecordBackend {
      *      splitIndex {Integer} - selects the subset of a splitNumber (starts at 0)
      *      id_event {Integer} - selects records tied to the event ID
      * 
-     * @example getRecord((response) => { // Process record }, {"id_record": 12})
-     *          getRecord((response) => { // Process records }, {"accountIdentity": {"email": "example@email.com"}})
+     * @example getRecord({"id_record": 12}, (response) => { // Process record })
+     *          getRecord({"accountIdentity": {"email": "example@email.com"}}, (response) => { // Process records })
      * 
-     * @param {Function} callback callback to handle the response (JSON or String on failure)
      * @param {AssociativeArray} criteria values used to search for and return results
+     * @param {Function} callback callback to handle the response (JSON or String on failure)
      */
-    static getRecord(callback, criteria) {
+    static getRecord(criteria, callback) {
         // Add the SID to criteria
         criteria.SID = localStorage.getItem("SID");
         

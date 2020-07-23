@@ -174,6 +174,62 @@ class TeamBackend {
     }
     
     /**
+     * Pulls the requested information (name, gender, etc.) of the athletes
+     * that are a part of the team identified by the teamIdentity (or the id_team
+     * stored in local storage if teamIdentity is omitted)
+     * 
+     * @example getTeamRoster("fname lname gender", (r) => { // handle response });
+     * 
+     * @param {String} requestedFields list of space separated column names ("fname lname")
+     * @param {Function} cb callback to handle the response
+     * @param {AssociativeArray} teamIdentity [optional] array used to identify the team
+     */
+    static getTeamRoster(requestedFields, cb, teamIdentity = { }) {
+        
+        let storage = window.localStorage;
+        
+        // If teamIdentity is empty or omitted, try pulling the local storage value
+        if(Object.keys(teamIdentity).length == 0) {
+            if((storage.getItem("id_team") == null) || (storage.getItem("id_team") == undefined)) {
+                console.log("[team-backend.js:getTeamInfo()] No teamIdentity given, cannot proceed!");
+                // Simulate the response
+                cb({"status": -5, "substatus": 1});
+                
+            } else {
+                teamIdentity = { "id_team": storage.getItem("id_team") };
+            }
+        }
+        
+        // Prepare the array
+        let postArray = { };
+        postArray.SID = storage.getItem("SID");
+        postArray.accountEmail = storage.getItem("email");
+        postArray.teamIdentity = teamIdentity;
+        postArray.requestedInfo = requestedFields;
+        
+        // Submit the request and call the callback
+        $.ajax({
+            type: "POST",
+            url: Constant.URL.team_action + "?intent=1",
+            timeout: Constant.AJAX_CFG.timeout,
+            data: postArray,
+            success: (response) => {
+                console.log("[team-backend.js:getTeamRoster()] " + response);
+                try {
+                    response = JSON.parse(response);
+                } catch (e) {
+                    // Couldn't parse, so just use string
+                }
+                cb(response);
+            },
+            error: (error) => {
+                console.log("[team-backend.js:getTeamRoster()] " + error);
+                cb(error);
+            }
+        });
+    }
+    
+    /**
      * Attempts to send an email to the given parameter, including the team's
      * invite code and instructions on joining the team.
      * 

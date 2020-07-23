@@ -6,6 +6,79 @@
 class ToolboxBackend {
     // Docs: https://www.sportwatch.us/mobile/docs/
     
+    
+    static pullFromBackend() {
+        
+        let storage = window.localStorage;
+        let email = storage.getItem("email");
+        
+        // USER //
+        if((email == null) || (email == undefined)) {
+            // TOD: Either log them out or attempt to find the email
+            return false;
+        }
+        AccountBackend.getAccount((thisUser) => {
+            if(thisUser.status > 0) {
+                // Update team ID
+                if(thisUser.id_team > 0) {
+                    storage.setItem("id_team", thisUser.id_team);
+                }
+            }
+        });
+        
+        // RECORDS //
+        RecordBackend.getRecord({"accountIdentity": {"email": email}}, (recordResponse) => {
+            
+            // Check status
+            if(recordResponse.status < 0) {
+                console.log("[toolbox-backend.js:pullFromBackend()]: Unable to pull records!");
+            } else {
+                
+                // Make sure there is at least 1 record returned
+                if("result" in recordResponse) {
+                    let pulledResult = { };
+                    for(let r = 0; r < recordResponse.result.length; r++) {
+                        pulledResult = recordResponse.result[r];
+                        // TODO: Insert into appropriate table
+                    }
+                }
+                
+            } // End of status check
+        });
+        
+        // TEAM //
+        if((storage.getItem("id_team") != null) && (storage.getItem("id_team") != undefined)) {
+            // Update team info (like team name)
+            TeamBackend.getTeamInfo((teamInfo) => {
+                if(teamInfo.status > 0) {
+                    localStorage.setItem("teamName", teamInfo.teamName);
+                }
+            });
+            
+            // Update athletes database table
+            TeamBackend.getTeamRoster("fname lname gender", (teamResponse) => {
+                if(teamResponse.status > 0) {
+                    // As of right now, don't add in the coaches since they're the managers
+                    if("athletes" in teamResponse) {
+                        let currentAthlete = { };
+                        for(let a = 0; a < teamResponse.athletes.length; a++) {
+                            currentAthlete = teamResponse.athletes[a];
+                            dbConnection.insertValues("athlete", [
+                                currentAthlete.fname,
+                                currentAthlete.lname,
+                                10, // <-- Placeholder TODO: Remove
+                                (currentAthlete.gender).toLowerCase()
+                            ]);
+                            console.log("Added in " + currentAthlete.fname);
+                        }
+                    }
+                }
+            });
+        } // End of team sync
+        
+        
+    }
+    
     /**
      * Pulls all of the user information (id, name, cellNum, etc.) for each
      * athlete registered in the given school ID.
@@ -83,11 +156,11 @@ class ToolboxBackend {
                 } catch (e) {
                     // Couldn't parse, so just use string
                 }
-                callback(response);
+                cb(response);
             },
             error: (error) => {
                 console.log("[toolbox-backend.js:getUserBySID()] " + error);
-                callback(error);
+                cb(error);
             }
         });
     }

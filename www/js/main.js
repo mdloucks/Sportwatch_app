@@ -153,9 +153,17 @@ let dbConnection;
 setTimeout(() => {
     dbConnection = new DatabaseConnection();
     dbConnection.createNewTables();
-    dbConnection.insertDatabasePresetValues();
+    if(false) { // <-- Is Dev environment? (Change as needed)
+        dbConnection.insertDatabasePresetValues();
+    } else {
+        dbConnection.insertDatabasePresetValues();
+        ToolboxBackend.pullFromBackend();
+    }
     
     let app = new App();
-    app.initialize();
-}, 1000);
+    // Delay is needed in order for pull from backend to complete
+    setTimeout(() => {
+        app.initialize();
+    }, 500);
+}, 3000);
 // app.initialize();
