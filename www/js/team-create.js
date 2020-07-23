@@ -4,12 +4,12 @@
  */
 class CreateTeam extends Page {
     
-    constructor(id, pageSetObject, transitionCopy) {
+    constructor(id, pageSetObject, landingPageCopy) {
         super(id, "CreateTeam");
         
         this.pageController = pageSetObject;
         this.transitionObj = new PageTransition("#createteamPage");
-        this.parentTransition = transitionCopy;  // Used to get back to landing page
+        this.teamLandingCopy = landingPageCopy;  // Used to get back to landing page
         
         // Team properties
         this.teamName = "";
@@ -161,6 +161,7 @@ class CreateTeam extends Page {
                 console.log(response);
             } else {
                 this.getPageElement("#input_school").val(response.schoolName);
+                this.getPageElement("#schoolPage .button_next").prop("disabled", false);
             }
         });
         
@@ -190,7 +191,7 @@ class CreateTeam extends Page {
             document.activeElement.blur();
             
             if(currentPage.includes("name")) {
-                this.parentTransition.slideRight("landingPage", 500); // Go back to "main menu"
+                this.teamLandingCopy.transitionObj.slideRight("landingPage", 500); // Go back to "main menu"
                 this.stop();
                 
             } else if(currentPage.includes("school")) {
@@ -225,10 +226,11 @@ class CreateTeam extends Page {
         
         // Exit page / go to main page button
         this.getPageElement("#button_goToMain").click((e) => {
-            this.parentTransition.slideRight("teamPage", 500); // Go back to "main menu"
+            this.teamLandingCopy.transitionObj.slideRight("teamPage", 500); // Go back to "main menu"
+            this.teamLandingCopy.mainTeam.start();
+            
             this.stop();
             this.transitionObj.setCurrentPage("namePage");
-            // TODO: Find a way to start team.js
         });
         
         // ---- SUBMIT LOGIC ---- //

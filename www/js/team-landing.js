@@ -19,8 +19,8 @@ class TeamLanding extends Page {
         this.transitionObj = new PageTransition("#teamlandingPage");
         
         // ---- OBJECTS (not women!) ---- //
-        this.createTeam = new CreateTeam(0, pageSetObject, this.transitionObj);
-        this.joinTeam = new JoinTeam(1, pageSetObject, this.transitionObj);
+        this.createTeam = new CreateTeam(0, pageSetObject, this);
+        this.joinTeam = new JoinTeam(1, pageSetObject, this);
         this.mainTeam = new Team(2, pageSetObject);
         
         // ---- PAGES ---- //

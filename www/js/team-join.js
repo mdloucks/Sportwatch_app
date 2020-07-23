@@ -4,12 +4,12 @@
  */
 class JoinTeam extends Page {
     
-    constructor(id, pageSetObject, transitionCopy) {
+    constructor(id, pageSetObject, landingCopy) {
         super(id, "JoinTeam");
         
         this.pageController = pageSetObject;
         this.transitionObj = new PageTransition("#jointeamPage");
-        this.parentTransition = transitionCopy; // Used to get back to landing page
+        this.teamLandingCopy = landingCopy; // Used to get back to landing page
         
         // Misc variables
         this.codeIsValid = true;
@@ -57,7 +57,7 @@ class JoinTeam extends Page {
         // Back button to return to "main" page
         this.getPageElement(".button_back").click((e) => {
             document.activeElement.blur();
-            this.parentTransition.slideLeft("landingPage", 500); // Go back to "main menu"
+            this.teamLandingCopy.transitionObj.slideLeft("landingPage", 500); // Go back to "main menu"
             this.stop();
         });
         
