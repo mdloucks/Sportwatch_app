@@ -359,31 +359,38 @@ class Stopwatch extends Page {
         $("#stopwatchPage #selectEventPage #saved_events_box").empty();
         $("#stopwatchPage #selectEventPage #new_events_box").empty();
 
+        // get any unique entries in record identity with values
+        let query = (`
+            SELECT DISTINCT record_definition.record_identity, record_definition.rowid from record_definition
+            INNER JOIN record
+            ON record_definition.rowid = record.id_record_definition
+            WHERE record.id_athlete = ?
+        `)
+
         // user selects an existing event
-        dbConnection.selectValues("SELECT *, rowid FROM event", []).then((events) => {
+        dbConnection.selectValues(query, [athlete.rowid]).then((events) => {
             ButtonGenerator.generateButtonsFromDatabase("#stopwatchPage #selectEventPage #saved_events_box", events, (event) => {
-                console.log("SAVE FOR OLD EVENT!!!");
                 this.saveTime(event, athlete);
-            }, ["gender", "unit", "is_relay", "timestamp"]);
+            }, ["id_athlete", "id_record_definition", "value", "is_split", "id_relay", "id_relay_index", "last_updated", "unit"]);
         });
 
+        // get a list of every event definition and take away the ones with records already
+        query = (`
+            SELECT DISTINCT record_definition.record_identity, record_definition.rowid from record_definition
+            INNER JOIN record
+            ON (record_definition.rowid != record.id_record_definition) AND (record.id_athlete != ?)
+            EXCEPT 
+            SELECT DISTINCT record_definition.record_identity, record_definition.rowid from record_definition
+            INNER JOIN record
+            ON record_definition.rowid = record.id_record_definition
+            WHERE record.id_athlete = ?
+        `)
+
         // User selects a new event that the athlete is not already registered in
-        dbConnection.selectValues("SELECT *, rowid FROM record_definition", []).then((record_definitions) => {
-            ButtonGenerator.generateButtonsFromDatabase("#stopwatchPage #selectEventPage #new_events_box", record_definitions, (record_definition) => {
-                this.saveTime(event, athlete);
-
-                let is_relay = (record_definition.record_identity.includes("relay") == true) ? true : false
-                let data = [record_definition.record_identity, athlete.gender, record_definition.unit, is_relay, Date.now()];
-                
-                console.log("NEW EVENT " + JSON.stringify(data));
-                dbConnection.insertValues("event", data);
-
-                // last_insert_rowid() will return the id of the last value inserted, which in this case would be the event.
-                dbConnection.selectValues("SELECT last_insert_rowid()", []).then((row) => {
-                    this.saveTime({"rowid": row.item(0)["last_insert_rowid()"]}, athlete);
-                });
-
-            }, ["unit"]);
+        dbConnection.selectValues(query, [athlete.rowid, athlete.rowid]).then((record_definitions) => {
+            ButtonGenerator.generateButtonsFromDatabase("#stopwatchPage #selectEventPage #new_events_box", record_definitions, (record_definition) => {            
+                this.saveTime(record_definition, athlete);
+            }, ["id_athlete", "id_record_definition", "value", "is_split", "id_relay", "id_relay_index", "last_updated", "unit"]);
         });
     }
 
@@ -397,10 +404,8 @@ class Stopwatch extends Page {
         // TODO: send these values to the server
         this.pageTransition.slideRight("landingPage");
 
-        console.log(JSON.stringify(event));
-        dbConnection.insertValues("event_result", [event.rowid, athlete.rowid, this.clock.seconds, Date.now()]);
-
-        console.log("VALUES INSERTED for  " + athlete.fname + " " + event.rowid + " " + athlete.rowid + " " + this.clock.seconds);
+        // TODO: add id_relay, id_relay_index
+        dbConnection.insertValues("record", [athlete.rowid, event.rowid, this.clock.seconds, false, null, null, Date.now()]);
 
         this.resetStopwatch();
         // TODO: save lap times

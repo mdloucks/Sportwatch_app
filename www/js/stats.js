@@ -102,7 +102,7 @@ class Stats extends Page {
             INNER JOIN record_definition
             ON record_definition.rowid = record.id_record_definition
         `)
-
+        
         dbConnection.selectValues(query).then((events) => {
             ButtonGenerator.generateButtonsFromDatabase("#statsPage #landingPage .button_box", events, (event) => {
                 this.startEventPage(event);
