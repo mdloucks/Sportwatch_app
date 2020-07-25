@@ -87,7 +87,7 @@ class Authentication {
                     // $("#app").html(`<p>Invalid SID or Connection Error</p>`);
                     console.log(response);
                     // let data = JSON.parse(response);
-                    ErrorHandler.handleAjaxError(response);
+                    // ErrorHandler.handleAjaxError(response);
                     reject(response);
                 }
             });

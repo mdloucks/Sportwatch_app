@@ -96,24 +96,38 @@ class Stats extends Page {
         $("#statsPage #landingPage .button_box").empty();
         $("#statsPage #landingPage #add_event_box").empty();
 
-        dbConnection.selectValues("SELECT *, rowid FROM event", []).then((events) => {
+        // get any unique entries in record identity
+        let query = (`
+            SELECT DISTINCT record_definition.record_identity, record_definition.rowid FROM record
+            INNER JOIN record_definition
+            ON record_definition.rowid = record.id_record_definition
+        `)
+
+        dbConnection.selectValues(query).then((events) => {
             ButtonGenerator.generateButtonsFromDatabase("#statsPage #landingPage .button_box", events, (event) => {
-                console.log(`EVENTS ${events}`);
-
                 this.startEventPage(event);
-            }, ["gender", "unit", "is_relay", "timestamp"]);
-
-            // DEPRECATED: remove this sometime
-            // let addButton = ButtonGenerator.generateButton({ text: "Add Event", class: "add_button" }, () => {
-            //     this.startAddEventPage();
-            // });
-
-            // $("#statsPage #landingPage #add_event_box").append(addButton);
+            });
         });
+
+        // dbConnection.selectValues("SELECT *, rowid FROM event", []).then((events) => {
+        //     ButtonGenerator.generateButtonsFromDatabase("#statsPage #landingPage .button_box", events, (event) => {
+        //         console.log(`EVENTS ${events}`);
+
+        //         this.startEventPage(event);
+        //     }, ["gender", "unit", "is_relay", "timestamp"]);
+
+        //     // DEPRECATED: remove this sometime
+        //     // let addButton = ButtonGenerator.generateButton({ text: "Add Event", class: "add_button" }, () => {
+        //     //     this.startAddEventPage();
+        //     // });
+
+        //     // $("#statsPage #landingPage #add_event_box").append(addButton);
+        // });
     }
 
     /**
-     * @description This function will start the event page
+     * @description This function will start the event page which will show stats
+     * for an individual event
      * @param {row} event the event to display results for
      */
     startEventPage(event) {
@@ -122,7 +136,7 @@ class Stats extends Page {
 
         this.clearResultsTable();
 
-        $("#statsPage #eventPage #event_name").html(event.event_name);
+        $("#statsPage #eventPage #event_name").html(event.record_identity);
 
         $("#statsPage #eventPage #back_button_event").unbind("click");
 
@@ -166,11 +180,18 @@ class Stats extends Page {
 
         this.clearResultsTable();
 
+        // get all values from record that have an athlete value for a particular event
         let query = `
-            SELECT * FROM event_result
-            INNER JOIN athlete ON event_result.id_athlete = athlete.rowid
-            WHERE event_result.id_event = ?
+            SELECT * FROM record
+            INNER JOIN athlete ON record.id_athlete = athlete.rowid
+            WHERE record.id_record_definition = ?
         `;
+
+    //     let query = `
+    //     SELECT * FROM event_result
+    //     INNER JOIN athlete ON event_result.id_athlete = athlete.rowid
+    //     WHERE event_result.id_event = ?
+    // `;
 
         dbConnection.selectValues(query, [event.rowid]).then((results) => {
 

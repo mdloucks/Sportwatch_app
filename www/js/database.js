@@ -69,6 +69,20 @@ let json = {
     "relay_team": [
         ["Hemlock"]
     ],
+    "record": [
+        [1, 1, 12, false, null, null, Date.now()],
+        [1, 1, 13, false, null, null, Date.now()],
+        [1, 2, 13, false, null, null, Date.now()],
+        [1, 2, 16, false, null, null, Date.now()],
+        [1, 3, 14, false, null, null, Date.now()],
+        
+        [2, 1, 12, false, null, null, Date.now()],
+        [2, 1, 13, false, null, null, Date.now()],
+        [2, 2, 13, false, null, null, Date.now()],
+        [2, 2, 16, false, null, null, Date.now()],
+        [2, 3, 14, false, null, null, Date.now()],
+        
+    ],
     "relay_result": [
         [3, 0, 0, 67.4],
         [3, 0, 1, 66.4],
@@ -134,6 +148,7 @@ class DatabaseConnection {
             tx.executeSql("DROP TABLE IF EXISTS relay_team");
             tx.executeSql("DROP TABLE IF EXISTS relay_result");
             tx.executeSql("DROP TABLE IF EXISTS record_definition");
+            tx.executeSql("DROP TABLE IF EXISTS record");
 
             // tx.executeSql(`CREATE TABLE IF NOT EXISTS account (id_user, fname, lname, account_type, id_school, cellNum)`);
             tx.executeSql(`CREATE TABLE IF NOT EXISTS athlete (fname, lname, grade, gender)`);
@@ -145,6 +160,8 @@ class DatabaseConnection {
             tx.executeSql(`CREATE TABLE IF NOT EXISTS relay_result (id_event, id_relay_team, id_athlete, value)`);
 
             tx.executeSql(`CREATE TABLE IF NOT EXISTS record_definition (unit, record_identity)`);
+
+            tx.executeSql(`CREATE TABLE IF NOT EXISTS record (id_athlete, id_record_definition, value, is_split, id_relay, id_relay_index, last_updated)`);
 
         }, function (error) {
             console.log('Transaction ERROR: ' + error.message);
