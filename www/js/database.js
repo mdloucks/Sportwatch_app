@@ -22,16 +22,6 @@ let json = {
         ["second", "other"],
         ["minute", "other"]
     ],
-    "athlete": [
-        ["John", "Smith", "10", "m", 1],
-        ["Bill", "Washington", "12", "m", 2],
-        ["George", "Harris", "9", "m", 3],
-        ["Tyrone", "Shreider", "9", "m", 4],
-        ["Levi", "Hemmingway", "10", "m", 5],
-
-        ["Suzie", "Walton", "11", "f", 6],
-        ["Grace", "Dalton", "9", "f", 7]
-    ],
     "event": [
         ["400m", "m", "s", "false", 0],
         ["800m", "f", "s", "false", 0],
@@ -114,19 +104,14 @@ class DatabaseConnection {
         this.db.transaction(function (tx) {
 
             tx.executeSql("DROP TABLE IF EXISTS athlete");
-            tx.executeSql("DROP TABLE IF EXISTS event");
             tx.executeSql("DROP TABLE IF EXISTS relay_team");
-            tx.executeSql("DROP TABLE IF EXISTS relay_result");
             tx.executeSql("DROP TABLE IF EXISTS record_definition");
             tx.executeSql("DROP TABLE IF EXISTS record");
 
             // tx.executeSql(`CREATE TABLE IF NOT EXISTS account (id_user, fname, lname, account_type, id_school, cellNum)`);
             tx.executeSql(`CREATE TABLE IF NOT EXISTS athlete (fname, lname, grade, gender, id_backend)`);
 
-            tx.executeSql(`CREATE TABLE IF NOT EXISTS event (event_name, gender, unit, is_relay, timestamp)`);
-
             tx.executeSql(`CREATE TABLE IF NOT EXISTS relay_team (team_name)`);
-            tx.executeSql(`CREATE TABLE IF NOT EXISTS relay_result (id_event, id_relay_team, id_athlete, value)`);
 
             tx.executeSql(`CREATE TABLE IF NOT EXISTS record_definition (unit, record_identity)`);
 
