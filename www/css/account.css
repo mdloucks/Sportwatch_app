@@ -36,6 +36,11 @@
     overflow: auto;
 }
 
+#accountPage #catagoryPage #title {
+    margin-top: constant(safe-area-inset-top);
+    margin-top: env(safe-area-inset-top);
+}
+
 /* Setting -- Catagories */
 
 #accountPage #cat_options {

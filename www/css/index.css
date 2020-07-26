@@ -105,6 +105,10 @@ https://css-tricks.com/places-its-tempting-to-use-display-none-but-dont/ */
     background-color: #dd3333;
     text-align: center;
     width: 100%;
+    
+    /* pain-in-the-neck ihpone... has to have non-rectangular screens */
+    padding-top: constant(safe-area-inset-top);
+    padding-top: env(safe-area-inset-top);
 }
 
 .generic_header * {

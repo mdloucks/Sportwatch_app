@@ -15,6 +15,7 @@ class Account extends Page {
 
         this.catagoryPage = (`
             <div id="catagoryPage" class="div_page">
+                <br>
                 <p id="title"><u>Account Settings</u></p>
                 <div id="cat_options">
                     <!-- Buttons will be inserted here -->
