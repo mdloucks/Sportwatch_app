@@ -37,35 +37,6 @@ let json = {
         ["800m", "f", "s", "false", 0],
         ["400x400m Relay", "m", "s", "true", 0]
     ],
-    "event_result": [
-        [1, 1, 56.1, Date.now()],
-        [1, 1, 59.2, Date.now() + 10000000],
-        [1, 1, 56.8, Date.now() + 20000000],
-        [1, 1, 64.2, Date.now() + 90000000],
-        [1, 1, 52.3, Date.now() + 600000000],
-        [1, 1, 69.2, Date.now() + 900000000],
-        [1, 2, 57.6, Date.now()],
-        [1, 2, 58.6, Date.now()],
-        [1, 2, 52.6, Date.now()],
-        [1, 3, 59.6, Date.now()],
-        [1, 6, 49.6, Date.now()],
-        [1, 6, 59.3, Date.now()],
-        [1, 7, 120.6, Date.now()],
-        [1, 7, 103.6, Date.now()],
-        [2, 3, 112.3, Date.now()],
-        [2, 4, 157.6, Date.now()],
-        [2, 5, 197.6, Date.now()]
-        [2, 2, 59.2, Date.now() + 10000000],
-        [2, 3, 56.8, Date.now() + 20000000],
-        [2, 4, 84.2, Date.now() + 90000000],
-        [2, 5, 32.3, Date.now() + 600000000],
-        [2, 6, 49.2, Date.now() + 900000000],
-        [1, 7, 49.2, Date.now() + 10000000],
-        [1, 1, 86.8, Date.now() + 20000000],
-        [1, 2, 94.2, Date.now() + 90000000],
-        [1, 3, 42.3, Date.now() + 600000000],
-        [1, 4, 79.2, Date.now() + 900000000],
-    ],
     "relay_team": [
         ["Hemlock"]
     ],
@@ -144,7 +115,6 @@ class DatabaseConnection {
 
             tx.executeSql("DROP TABLE IF EXISTS athlete");
             tx.executeSql("DROP TABLE IF EXISTS event");
-            tx.executeSql("DROP TABLE IF EXISTS event_result");
             tx.executeSql("DROP TABLE IF EXISTS relay_team");
             tx.executeSql("DROP TABLE IF EXISTS relay_result");
             tx.executeSql("DROP TABLE IF EXISTS record_definition");
@@ -154,7 +124,6 @@ class DatabaseConnection {
             tx.executeSql(`CREATE TABLE IF NOT EXISTS athlete (fname, lname, grade, gender, id_backend)`);
 
             tx.executeSql(`CREATE TABLE IF NOT EXISTS event (event_name, gender, unit, is_relay, timestamp)`);
-            tx.executeSql(`CREATE TABLE IF NOT EXISTS event_result (id_event, id_athlete, value, timestamp)`);
 
             tx.executeSql(`CREATE TABLE IF NOT EXISTS relay_team (team_name)`);
             tx.executeSql(`CREATE TABLE IF NOT EXISTS relay_result (id_event, id_relay_team, id_athlete, value)`);
@@ -269,6 +238,8 @@ class DatabaseConnection {
                 setString = setString.slice(0, -1);
 
                 let query = `UPDATE ${table} SET ${setString} ${options}`;
+
+                console.log(query);
 
                 tx.executeSql(query, option_values, function (tx, rs) {
                     resolve(true);
