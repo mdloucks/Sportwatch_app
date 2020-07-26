@@ -162,7 +162,6 @@ setTimeout(() => {
         dbConnection.insertDatabasePresetValues();
         ToolboxBackend.pullFromBackend().then(() => {
             console.log("[main.js]: Backend sync finished!");
-            console.log(app);
             app.initialize();
         });
     }

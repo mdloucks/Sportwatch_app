@@ -40,7 +40,7 @@ class ToolboxBackend {
             ajaxCalls.push(ajaxRequest);
             
             // Update athletes database table
-            ajaxRequest = TeamBackend.getTeamRoster("fname lname gender", (teamResponse) => {
+            ajaxRequest = TeamBackend.getTeamRoster("fname lname gender id_user email", (teamResponse) => {
                 if(teamResponse.status > 0) {
                     // Add in coaches TODO: Add in preference to omit them
                     if("primaryCoach" in teamResponse) {
@@ -48,16 +48,22 @@ class ToolboxBackend {
                             teamResponse.primaryCoach.fname,
                             teamResponse.primaryCoach.lname,
                             10, // <-- Grade Placeholder TODO: Remove
-                            (teamResponse.primaryCoach.gender).toLowerCase()
+                            (teamResponse.primaryCoach.gender).toLowerCase(),
+                            teamResponse.primaryCoach.id_user
                         ]);
+                        // Pull the records for them and insert
+                        ajaxCalls.push(ToolboxBackend.pullAndInsertRecords(teamResponse.primaryCoach.email));
                     }
                     if("secondaryCoach" in teamResponse) {
                         dbConnection.insertValues("athlete", [
                             teamResponse.secondaryCoach.fname,
                             teamResponse.secondaryCoach.lname,
-                            10, // <-- Grade Placeholder TODO: Remove
-                            (teamResponse.secondaryCoach.gender).toLowerCase()
+                            10,
+                            (teamResponse.secondaryCoach.gender).toLowerCase(),
+                            teamResponse.secondaryCoach.id_user
                         ]);
+                        // Pull their records and insert
+                        ajaxCalls.push(ToolboxBackend.pullAndInsertRecords(teamResponse.secondaryCoach.email));
                     }
                     
                     // Add in athlete
@@ -68,9 +74,12 @@ class ToolboxBackend {
                             dbConnection.insertValues("athlete", [
                                 currentAthlete.fname,
                                 currentAthlete.lname,
-                                10, // <-- Grade Placeholder TODO: Remove
-                                (currentAthlete.gender).toLowerCase()
+                                10,
+                                (currentAthlete.gender).toLowerCase(),
+                                currentAthlete.id_user
                             ]);
+                            // Pull their records and insert into the database
+                            ajaxCalls.push(ToolboxBackend.pullAndInsertRecords(currentAthlete.email));
                             console.log("Added athlete: " + currentAthlete.fname);
                         }
                     }
@@ -80,8 +89,27 @@ class ToolboxBackend {
         } // End of team sync
         
         // RECORDS //
-        ajaxRequest = RecordBackend.getRecord({"accountIdentity": {"email": email}}, (recordResponse) => {
-            
+        // Moved to pullAndInsertRecords() method and used above when grabbing team /\
+        
+        // Call a function (likely app.init) when the pull finishes
+        return new Promise((resolve) => {
+            $.when(...ajaxCalls).then(resolve);
+        });
+    }
+    
+    /**
+     * Works in connection with pullFromBackend() to pull and insert
+     * all of the records of a given user identified by an email
+     * address. It returns the ajax request object, which can be
+     * used to determine when the operations have completed.
+     * 
+     * @param {String} email email of the user that owns the requested records
+     * 
+     * @returns
+     * Ajax object
+     */
+    static pullAndInsertRecords(email) {
+        return RecordBackend.getRecord({"accountIdentity": {"email": email}}, (recordResponse) => {
             // Check status
             if(recordResponse.status < 0) {
                 console.log("[toolbox-backend.js:pullFromBackend()]: Unable to pull records!");
@@ -91,18 +119,20 @@ class ToolboxBackend {
                 if("result" in recordResponse) {
                     let pulledResult = { };
                     for(let r = 0; r < recordResponse.result.length; r++) {
-                        pulledResult = recordResponse.result[r];
-                        // TODO: Insert into appropriate table
-                    }
+                        pulledResult = recordResponse.result[r]; // Hehe, pulled pork
+                        
+                        dbConnection.insertValues("record", [
+                            pulledResult.id_user,
+                            pulledResult.id_recordDefinition,
+                            pulledResult.value,
+                            pulledResult.isSplit,
+                            pulledResult.splitNumber,
+                            pulledResult.splitIndex,
+                            pulledResult.lastUpdated
+                        ]);
+                    } // End of for loop for results
                 }
-                
             } // End of status check
-        });
-        ajaxCalls.push(ajaxRequest);
-        
-        // Call a function (likely app.init) when the pull finishes
-        return new Promise((resolve) => {
-            $.when(...ajaxCalls).then(resolve);
         });
     }
     

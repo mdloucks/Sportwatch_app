@@ -121,7 +121,7 @@ class Team extends Page {
         dbConnection.selectValues("SELECT *, ROWID FROM athlete", []).then((athletes) => {
             ButtonGenerator.generateButtonsFromDatabase("#teamPage #landingPage > .button_box", athletes, (athlete) => {
                 this.startAthletePage(athlete);
-            }, ["grade", "gender", "id_athlete_event_register"], conditionalAttributes);
+            }, ["grade", "gender", "id_athlete_event_register", "id_backend"], conditionalAttributes);
         });
     }
 

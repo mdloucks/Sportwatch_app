@@ -183,7 +183,7 @@ class Stats extends Page {
         // get all values from record that have an athlete value for a particular event
         let query = `
             SELECT * FROM record
-            INNER JOIN athlete ON record.id_athlete = athlete.rowid
+            INNER JOIN athlete ON record.id_athlete = athlete.id_backend
             WHERE record.id_record_definition = ?
         `;
 

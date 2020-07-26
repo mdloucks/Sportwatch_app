@@ -23,14 +23,14 @@ let json = {
         ["minute", "other"]
     ],
     "athlete": [
-        ["John", "Smith", "10", "m"],
-        ["Bill", "Washington", "12", "m"],
-        ["George", "Harris", "9", "m"],
-        ["Tyrone", "Shreider", "9", "m"],
-        ["Levi", "Hemmingway", "10", "m"],
+        ["John", "Smith", "10", "m", 1],
+        ["Bill", "Washington", "12", "m", 2],
+        ["George", "Harris", "9", "m", 3],
+        ["Tyrone", "Shreider", "9", "m", 4],
+        ["Levi", "Hemmingway", "10", "m", 5],
 
-        ["Suzie", "Walton", "11", "f"],
-        ["Grace", "Dalton", "9", "f"]
+        ["Suzie", "Walton", "11", "f", 6],
+        ["Grace", "Dalton", "9", "f", 7]
     ],
     "event": [
         ["400m", "m", "s", "false", 0],
@@ -151,7 +151,7 @@ class DatabaseConnection {
             tx.executeSql("DROP TABLE IF EXISTS record");
 
             // tx.executeSql(`CREATE TABLE IF NOT EXISTS account (id_user, fname, lname, account_type, id_school, cellNum)`);
-            tx.executeSql(`CREATE TABLE IF NOT EXISTS athlete (fname, lname, grade, gender)`);
+            tx.executeSql(`CREATE TABLE IF NOT EXISTS athlete (fname, lname, grade, gender, id_backend)`);
 
             tx.executeSql(`CREATE TABLE IF NOT EXISTS event (event_name, gender, unit, is_relay, timestamp)`);
             tx.executeSql(`CREATE TABLE IF NOT EXISTS event_result (id_event, id_athlete, value, timestamp)`);
