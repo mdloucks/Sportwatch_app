@@ -342,10 +342,10 @@ class Stopwatch extends Page {
         };
 
         // generate a list of athletes for the user to select
-        dbConnection.selectValues("SELECT *, rowid FROM athlete", []).then((athletes) => {
+        dbConnection.selectValues("SELECT *, athlete.rowid FROM athlete", []).then((athletes) => {
             ButtonGenerator.generateButtonsFromDatabase("#stopwatchPage #selectAthletePage .button_box", athletes, (athlete) => {
                 this.startSelectEventPage(athlete)
-            }, ["gender", "unit", "is_relay", "timestamp"], conditionalAttributes);
+            }, ["gender", "unit", "grade", "is_relay", "timestamp", "id_backend"], conditionalAttributes);
         });
     }
 
