@@ -108,21 +108,6 @@ class Stats extends Page {
                 this.startEventPage(event);
             });
         });
-
-        // dbConnection.selectValues("SELECT *, rowid FROM event", []).then((events) => {
-        //     ButtonGenerator.generateButtonsFromDatabase("#statsPage #landingPage .button_box", events, (event) => {
-        //         console.log(`EVENTS ${events}`);
-
-        //         this.startEventPage(event);
-        //     }, ["gender", "unit", "is_relay", "timestamp"]);
-
-        //     // DEPRECATED: remove this sometime
-        //     // let addButton = ButtonGenerator.generateButton({ text: "Add Event", class: "add_button" }, () => {
-        //     //     this.startAddEventPage();
-        //     // });
-
-        //     // $("#statsPage #landingPage #add_event_box").append(addButton);
-        // });
     }
 
     /**
@@ -183,7 +168,7 @@ class Stats extends Page {
         // get all values from record that have an athlete value for a particular event
         let query = `
             SELECT * FROM record
-            INNER JOIN athlete ON record.id_athlete = athlete.id_backend
+            INNER JOIN athlete ON record.id_athlete = athlete.rowid
             WHERE record.id_record_definition = ?
         `;
 
