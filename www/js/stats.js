@@ -172,12 +172,6 @@ class Stats extends Page {
             WHERE record.id_record_definition = ?
         `;
 
-    //     let query = `
-    //     SELECT * FROM event_result
-    //     INNER JOIN athlete ON event_result.id_athlete = athlete.rowid
-    //     WHERE event_result.id_event = ?
-    // `;
-
         dbConnection.selectValues(query, [event.rowid]).then((results) => {
 
             let athletes = this.constructAthleteTimeArray(results, order);

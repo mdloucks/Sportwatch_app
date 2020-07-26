@@ -22,14 +22,6 @@ let json = {
         ["second", "other"],
         ["minute", "other"]
     ],
-    "event": [
-        ["400m", "m", "s", "false", 0],
-        ["800m", "f", "s", "false", 0],
-        ["400x400m Relay", "m", "s", "true", 0]
-    ],
-    "relay_team": [
-        ["Hemlock"]
-    ],
     "record": [
         [1, 1, 12, false, null, null, Date.now()],
         [1, 1, 13, false, null, null, Date.now()],
@@ -43,12 +35,6 @@ let json = {
         [2, 2, 16, false, null, null, Date.now()],
         [2, 3, 14, false, null, null, Date.now()],
         
-    ],
-    "relay_result": [
-        [3, 0, 0, 67.4],
-        [3, 0, 1, 66.4],
-        [3, 0, 2, 69.4],
-        [3, 0, 3, 64.4]
     ]
 }
 
@@ -74,25 +60,6 @@ class DatabaseConnection {
             // TODO: send this error to the server and try to handle it in some way
             throw err;
         }
-    }
-
-    /**
-     * Probably not the most efficient, but it bascially returns a promise
-     * to handle handle if tables are created or not. (Create them if not)
-     */
-    doTablesExist() {
-        return new Promise((resolve, reject) => {
-            this.db.transaction(function (tx) {
-                // Poll some tables to see if an error is thrown
-                tx.executeSql("SELECT * FROM athlete");
-                tx.executeSql("SELECT * FROM meet");
-                tx.executeSql("SELECT * from team");
-            }, function (error) {
-                reject(error);
-            }, function () {
-                resolve();
-            });
-        });
     }
 
     /**

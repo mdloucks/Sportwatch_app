@@ -151,6 +151,7 @@ let dbConnection;
 setTimeout(() => {
     let app = new App();
     dbConnection = new DatabaseConnection();
+    // TODO: remove this before launch. That would be embarassing
     dbConnection.createNewTables();
     
     if(false) { // <-- Is Dev environment? (Change as needed)
