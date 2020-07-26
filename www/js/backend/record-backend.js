@@ -77,7 +77,7 @@ class RecordBackend {
         details.definition = definitionId;
         
         // Submit the request and call the callback
-        $.ajax({
+        return $.ajax({
             type: "POST",
             url: Constant.URL.record_action + "?intent=0",
             timeout: Constant.AJAX_CFG.timeout,
@@ -125,7 +125,7 @@ class RecordBackend {
         criteria.SID = localStorage.getItem("SID");
         
         // Submit the request and call the callback
-        $.ajax({
+        return $.ajax({
             type: "POST",
             url: Constant.URL.record_action + "?intent=1",
             timeout: Constant.AJAX_CFG.timeout,

@@ -30,7 +30,7 @@ class AccountBackend {
         postArray.accountIdentity = { "email": userEmail };
         
         // Submit the request and call the callback
-        $.ajax({
+        return $.ajax({
             type: "POST",
             url: Constant.URL.account_action + "?intent=0",
             timeout: Constant.AJAX_CFG.timeout,
@@ -110,7 +110,7 @@ class AccountBackend {
             postArray[keys[n] + "New"] = newValues[keys[n]];
         }
         // Submit the request and call the callback
-        $.ajax({
+        return $.ajax({
             type: "POST",
             url: Constant.URL.account_action + "?intent=1",
             timeout: Constant.AJAX_CFG.timeout,

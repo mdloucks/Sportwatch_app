@@ -11,13 +11,15 @@ class ToolboxBackend {
         
         let storage = window.localStorage;
         let email = storage.getItem("email");
+        let ajaxRequest = -1; // Ajax object pushed into the array
+        let ajaxCalls = []; // Used to resolve the promise to signal completion
         
         // USER //
         if((email == null) || (email == undefined)) {
             // TOD: Either log them out or attempt to find the email
             return false;
         }
-        AccountBackend.getAccount((thisUser) => {
+        ajaxRequest = AccountBackend.getAccount((thisUser) => {
             if(thisUser.status > 0) {
                 // Update team ID
                 if(thisUser.id_team > 0) {
@@ -25,9 +27,60 @@ class ToolboxBackend {
                 }
             }
         });
+        ajaxCalls.push(ajaxRequest);
+        
+        // TEAM //
+        if((storage.getItem("id_team") != null) && (storage.getItem("id_team") != undefined)) {
+            // Update team info (like team name)
+            ajaxRequest = TeamBackend.getTeamInfo((teamInfo) => {
+                if(teamInfo.status > 0) {
+                    localStorage.setItem("teamName", teamInfo.teamName);
+                }
+            });
+            ajaxCalls.push(ajaxRequest);
+            
+            // Update athletes database table
+            ajaxRequest = TeamBackend.getTeamRoster("fname lname gender", (teamResponse) => {
+                if(teamResponse.status > 0) {
+                    // Add in coaches TODO: Add in preference to omit them
+                    if("primaryCoach" in teamResponse) {
+                        dbConnection.insertValues("athlete", [
+                            teamResponse.primaryCoach.fname,
+                            teamResponse.primaryCoach.lname,
+                            10, // <-- Grade Placeholder TODO: Remove
+                            (teamResponse.primaryCoach.gender).toLowerCase()
+                        ]);
+                    }
+                    if("secondaryCoach" in teamResponse) {
+                        dbConnection.insertValues("athlete", [
+                            teamResponse.secondaryCoach.fname,
+                            teamResponse.secondaryCoach.lname,
+                            10, // <-- Grade Placeholder TODO: Remove
+                            (teamResponse.secondaryCoach.gender).toLowerCase()
+                        ]);
+                    }
+                    
+                    // Add in athlete
+                    if("athletes" in teamResponse) {
+                        let currentAthlete = { };
+                        for(let a = 0; a < teamResponse.athletes.length; a++) {
+                            currentAthlete = teamResponse.athletes[a];
+                            dbConnection.insertValues("athlete", [
+                                currentAthlete.fname,
+                                currentAthlete.lname,
+                                10, // <-- Grade Placeholder TODO: Remove
+                                (currentAthlete.gender).toLowerCase()
+                            ]);
+                            console.log("Added athlete: " + currentAthlete.fname);
+                        }
+                    }
+                }
+            });
+            ajaxCalls.push(ajaxRequest);
+        } // End of team sync
         
         // RECORDS //
-        RecordBackend.getRecord({"accountIdentity": {"email": email}}, (recordResponse) => {
+        ajaxRequest = RecordBackend.getRecord({"accountIdentity": {"email": email}}, (recordResponse) => {
             
             // Check status
             if(recordResponse.status < 0) {
@@ -45,38 +98,12 @@ class ToolboxBackend {
                 
             } // End of status check
         });
+        ajaxCalls.push(ajaxRequest);
         
-        // TEAM //
-        if((storage.getItem("id_team") != null) && (storage.getItem("id_team") != undefined)) {
-            // Update team info (like team name)
-            TeamBackend.getTeamInfo((teamInfo) => {
-                if(teamInfo.status > 0) {
-                    localStorage.setItem("teamName", teamInfo.teamName);
-                }
-            });
-            
-            // Update athletes database table
-            TeamBackend.getTeamRoster("fname lname gender", (teamResponse) => {
-                if(teamResponse.status > 0) {
-                    // As of right now, don't add in the coaches since they're the managers
-                    if("athletes" in teamResponse) {
-                        let currentAthlete = { };
-                        for(let a = 0; a < teamResponse.athletes.length; a++) {
-                            currentAthlete = teamResponse.athletes[a];
-                            dbConnection.insertValues("athlete", [
-                                currentAthlete.fname,
-                                currentAthlete.lname,
-                                10, // <-- Placeholder TODO: Remove
-                                (currentAthlete.gender).toLowerCase()
-                            ]);
-                            console.log("Added in " + currentAthlete.fname);
-                        }
-                    }
-                }
-            });
-        } // End of team sync
-        
-        
+        // Call a function (likely app.init) when the pull finishes
+        return new Promise((resolve) => {
+            $.when(...ajaxCalls).then(resolve);
+        });
     }
     
     /**
@@ -99,7 +126,7 @@ class ToolboxBackend {
         postArray.criteria = {"id_school": schoolId};
         
         // Submit the request and call the callback
-        $.ajax({
+        return $.ajax({
             type: "POST",
             url: Constant.URL.toolbox + "?intent=0",
             timeout: Constant.AJAX_CFG.timeout,
@@ -144,7 +171,7 @@ class ToolboxBackend {
         postArray.criteria = {"SID": sessionId};
         
         // Submit the request and call the callback
-        $.ajax({
+        return $.ajax({
             type: "POST",
             url: Constant.URL.toolbox + "?intent=0",
             timeout: Constant.AJAX_CFG.timeout,
@@ -188,7 +215,7 @@ class ToolboxBackend {
         postArray.criteria = {"name": searchName};
         
         // Submit the request and call the callback
-        $.ajax({
+        return $.ajax({
             type: "POST",
             url: Constant.URL.toolbox + "?intent=0",
             timeout: Constant.AJAX_CFG.timeout,

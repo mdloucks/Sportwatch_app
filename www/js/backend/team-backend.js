@@ -55,7 +55,7 @@ class TeamBackend {
         console.log(details);
         
         // Submit the request and call the callback
-        $.ajax({
+        return $.ajax({
             type: "POST",
             url: Constant.URL.team_create,
             timeout: Constant.AJAX_CFG.timeout,
@@ -97,7 +97,7 @@ class TeamBackend {
         requestArray.teamIdentity = { "inviteCode" : inviteCode };
         
         // Submit the request and call the callback
-        $.ajax({
+        return $.ajax({
             type: "POST",
             url: Constant.URL.team_action + "?intent=3",
             timeout: Constant.AJAX_CFG.timeout,
@@ -152,7 +152,7 @@ class TeamBackend {
         postArray.teamIdentity = teamIdentity;
         
         // Submit the request and call the callback
-        $.ajax({
+        return $.ajax({
             type: "POST",
             url: Constant.URL.team_action + "?intent=0",
             timeout: Constant.AJAX_CFG.timeout,
@@ -208,7 +208,7 @@ class TeamBackend {
         postArray.requestedInfo = requestedFields;
         
         // Submit the request and call the callback
-        $.ajax({
+        return $.ajax({
             type: "POST",
             url: Constant.URL.team_action + "?intent=1",
             timeout: Constant.AJAX_CFG.timeout,
@@ -248,7 +248,7 @@ class TeamBackend {
         requestArray.invitedEmail = inviteEmail;
         
         // Submit the request and call the callback
-        $.ajax({
+        return $.ajax({
             type: "POST",
             url: Constant.URL.team_action + "?intent=5",
             timeout: Constant.AJAX_CFG.timeout,

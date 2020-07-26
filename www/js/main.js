@@ -151,19 +151,20 @@ let dbConnection;
 
 // this is the main entry point for the app
 setTimeout(() => {
+    let app = new App();
     dbConnection = new DatabaseConnection();
     dbConnection.createNewTables();
+    
     if(false) { // <-- Is Dev environment? (Change as needed)
         dbConnection.insertDatabasePresetValues();
+        app.initialize();
     } else {
         dbConnection.insertDatabasePresetValues();
-        ToolboxBackend.pullFromBackend();
+        ToolboxBackend.pullFromBackend().then(() => {
+            console.log("[main.js]: Backend sync finished!");
+            console.log(app);
+            app.initialize();
+        });
     }
-    
-    let app = new App();
-    // Delay is needed in order for pull from backend to complete
-    setTimeout(() => {
-        app.initialize();
-    }, 500);
 }, 3000);
 // app.initialize();
