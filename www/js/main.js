@@ -24,6 +24,8 @@ class App {
         this.swipeHandler = new SwipeHolder("#app");
         FastClick.attach(document.body);
 
+        // dbConnection.updateValues("event_result", ["value"], [123], `WHERE athlete_id = ? AND event_id = ?`, [athlete.rowid, event.rowid]);
+
         $(".loader").remove();
         $("#app").html(""); // Clear so it's a clean slate to add to
 
@@ -151,7 +153,6 @@ let dbConnection;
 setTimeout(() => {
     let app = new App();
     dbConnection = new DatabaseConnection();
-    // TODO: remove this before launch. That would be embarassing
     dbConnection.createNewTables();
     
     if(false) { // <-- Is Dev environment? (Change as needed)
@@ -162,6 +163,8 @@ setTimeout(() => {
         ToolboxBackend.pullFromBackend().then(() => {
             console.log("[main.js]: Backend sync finished!");
             app.initialize();
+        }).catch(function() {
+            console.log("[main.js]: Failed to pull from backend, localStorage email: " + localStorage.getItem("email"));
         });
     }
 }, 3000);
