@@ -17,7 +17,9 @@ class ToolboxBackend {
         // USER //
         if((email == null) || (email == undefined)) {
             // TOD: Either log them out or attempt to find the email
-            return false;
+            return new Promise((resolve, reject) => {
+                reject(false);
+            })
         }
         ajaxRequest = AccountBackend.getAccount((thisUser) => {
             if(thisUser.status > 0) {
