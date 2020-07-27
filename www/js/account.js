@@ -369,10 +369,7 @@ class Account extends Page {
     }
 
     startSignOut() {
-        localStorage.removeItem("SID");
-        localStorage.removeItem("email");
-        localStorage.removeItem("id_team");
-        localStorage.removeItem("teamName");
+        localStorage.clear();
         /*
          * forceHaltSlide() is important and needed because when the use taps
          * "Sign Out", SwipeHandler registers it as a TAP Gesture. In MainSet,
