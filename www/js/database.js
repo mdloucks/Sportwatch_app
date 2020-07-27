@@ -82,7 +82,7 @@ class DatabaseConnection {
 
             tx.executeSql(`CREATE TABLE IF NOT EXISTS record_definition (unit, record_identity)`);
 
-            tx.executeSql(`CREATE TABLE IF NOT EXISTS record (id_athlete, id_record_definition, value, is_split, id_relay, id_relay_index, last_updated)`);
+            tx.executeSql(`CREATE TABLE IF NOT EXISTS record (id_athlete, id_record_definition, value, is_split, id_split, id_split_index, last_updated)`);
 
         }, function (error) {
             console.log('Transaction ERROR: ' + error.message);

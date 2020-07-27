@@ -10,6 +10,7 @@ class Stopwatch extends Page {
 
         this.pageController = pageSetObject;
         this.pageTransition = new PageTransition("#stopwatchPage");
+        this.lap_times = [];
 
         this.clock = {
             radius: 100,
@@ -181,6 +182,7 @@ class Stopwatch extends Page {
                     $(".stopwatch_lap_times").prepend(`
                                 <div>#${n + 1}: ${this.generateClockText(this.clock)}</div>
                             `);
+                    this.lap_times.push(this.clock.seconds);
                 } else if ($("#stopwatch_lap").html() == "Save") {
                     this.startSelectAthletePage();
                 } else {
@@ -281,6 +283,8 @@ class Stopwatch extends Page {
         this.clock.hours = 0;
         this.clock.minutes = 0;
         this.clock.seconds = 0;
+
+        this.lap_times = [];
     }
 
     drawCircle() {
@@ -336,8 +340,12 @@ class Stopwatch extends Page {
 
         let conditionalAttributes = {
             "gender": {
-                "m": { style: "background-color: lightblue; color: black; border: 1px solid black;" },
-                "f": { style: "background-color: lightpink; color: black; border: 1px solid black;" }
+                "m": {
+                    style: "background-color: lightblue; color: black; border: 1px solid black;"
+                },
+                "f": {
+                    style: "background-color: lightpink; color: black; border: 1px solid black;"
+                }
             }
         };
 
@@ -388,7 +396,7 @@ class Stopwatch extends Page {
 
         // User selects a new event that the athlete is not already registered in
         dbConnection.selectValues(query, [athlete.rowid, athlete.rowid]).then((record_definitions) => {
-            ButtonGenerator.generateButtonsFromDatabase("#stopwatchPage #selectEventPage #new_events_box", record_definitions, (record_definition) => {            
+            ButtonGenerator.generateButtonsFromDatabase("#stopwatchPage #selectEventPage #new_events_box", record_definitions, (record_definition) => {
                 this.saveTime(record_definition, athlete);
             }, ["id_athlete", "id_record_definition", "value", "is_split", "id_relay", "id_relay_index", "last_updated", "unit"]);
         });
@@ -404,11 +412,44 @@ class Stopwatch extends Page {
         // TODO: send these values to the server
         this.pageTransition.slideRight("landingPage");
 
-        // TODO: add id_relay, id_relay_index
-        dbConnection.insertValues("record", [athlete.rowid, event.rowid, this.clock.seconds, false, null, null, Date.now()]);
 
-        this.resetStopwatch();
-        // TODO: save lap times
+        // save normal time
+        dbConnection.insertValues("record", [athlete.rowid, event.rowid, this.clock.seconds, false, null, null, Date.now()]);
+        
+        let query = (`
+            SELECT id_split
+            FROM record
+            ORDER BY id_split DESC
+        `)
+
+        if(this.lap_times.length > 0) {
+            // save lap times
+            dbConnection.selectValues(query).then((result) => {
+                let index_value = 1;
+
+                for (let i = 0; i < result.length; i++) {
+                    console.log("HEY " + JSON.stringify(result.item(i)));
+                }
+
+
+                if(result.item(0).id_split != null) {
+                    index_value = (result.item(0).id_split + 1);
+                }
+
+                console.log("USING INDEX " + index_value);
+
+                for (let i = 0; i < this.lap_times.length; i++) {
+                    dbConnection.insertValues("record", [athlete.rowid, event.rowid, this.lap_times[i], false, index_value, i + 1, Date.now()]);
+                }
+
+                this.resetStopwatch();
+            });
+        } else {
+            this.resetStopwatch();
+        }
+
+        
+
         // TODO: create confirmation popup
         // Popup.createFadeoutPopup("Times Saved!");
     }
