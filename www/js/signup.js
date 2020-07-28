@@ -160,9 +160,26 @@ class Signup extends Page {
 
             Authentication.signup(firstName, email, password).then(function (response) {
                 localStorage.setItem("email", email);
+                // Then pull data (probably not much, but just do it!)
+                ToolboxBackend.pullFromBackend().then(() => {
+                    console.log("[signup.js]: Backend sync finished!");
+                    
+                    this.pageController.transitionObj.forceHaltSlide(); // See account.js for explanation
+                    this.pageController.onChangePageSet(1); // 1 for Main logic
+                    
+                    // And finally, clear the inputs
+                    this.getPageElement("input").not("#button_signup").val("");
+                    this.getPageElement("#button_signup").addClass("invalid");
+                    
+                }).catch(function() {
+                    console.log("[signup.js]: Failed to pull from backend, localStorage email: " + localStorage.getItem("email"));
+                });
+                
                 ToolboxBackend.pullFromBackend();
+                
                 this.pageController.transitionObj.forceHaltSlide();
                 this.pageController.onChangePageSet(1); // 1 for Main logic
+                this.getPageElement("input[type='text'").val(""); // Clear inputs
             }.bind(this),
                 function (error) {
                     console.log("[signup.js:start()] Unable to complete signup request");

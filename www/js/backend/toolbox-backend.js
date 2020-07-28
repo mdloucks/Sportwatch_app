@@ -6,27 +6,132 @@
 class ToolboxBackend {
     // Docs: https://www.sportwatch.us/mobile/docs/
     
-    
+    /**
+     * Pulls any and all of the information stored on the backend
+     * that is vital for the logged in user (specified by the local storage
+     * variable "email"). If "email" isn't set, the promise will be rejected.
+     * However, if it is set, a promise will be returned that will complete
+     * after all of the ajax requests have completed.
+     * NOTE: This is the ONLY method that should be called. The other "pull"
+     * functions are for internal use by this function only!
+     * 
+     * @example ToolboxBackend.pullFromBackend().then(function() { // SUCCESS }).catch(function() { // FAIL });
+     * 
+     * @returns
+     * A promise that will indicate when an operation fails or when
+     * the data sync has been completed.
+     */
     static pullFromBackend() {
+        // Make sure the email is valid
+        let email = localStorage.getItem("email");
+        if((email == null) || (email == undefined)) {
+            // TODO: Either log them out or attempt to find the email
+            return new Promise((resolve, reject) => {
+                reject();
+            })
+        }
+        
+        let pullState = $.Deferred();
+        
+        ToolboxBackend.pullForStorage().then(() => {
+            ToolboxBackend.pullForDatabase().then(() => {
+                pullState.resolve();
+            }).catch(() => {
+                pullState.reject();
+            });
+        }).catch(() => {
+            pullState.reject();
+        });
+        
+        return pullState.promise(); // Return the promise to allow for .then() and .catch()
+    }
+    
+    /**
+     * Submits the necessary backend requests to populate all of the
+     * available local storage variables. This function NEEDS to be run
+     * before the more general pullFromBackend() function is called since
+     * many of the backend functions rely on local storage values (that
+     * are left undefined due to the nature of asynchronous functions)
+     * 
+     * @returns
+     * A promise and will resolve() when all requests have completed.
+     */
+    static pullForStorage() {
+        
+        // First, check to see if a valid email is defined (duplicate check, but better safe than sorry)
+        let storage = window.localStorage;
+        let email = storage.getItem("email");
+        if((email == null) || (email == undefined)) {
+            // TODO: Either log them out or attempt to find the email
+            return new Promise((resolve, reject) => {
+                reject();
+            })
+        }
+        
+        // Then, start submitting ajax requests
+        let ajaxRequest = -1; // Ajax object pushed into the array
+        let ajaxArray = []; // Used to resolve the promise to signal completion
+        
+        // USER //
+        ajaxRequest = AccountBackend.getAccount((userInfo) => {
+            if(userInfo.status > 0) {
+                // Update team ID
+                if(userInfo.id_team > 0) {
+                    storage.setItem("id_team", userInfo.id_team);
+                }
+            }
+        });
+        ajaxArray.push(ajaxRequest);
+        
+        // TEAM //
+        if((storage.getItem("id_team") != null) && (storage.getItem("id_team") != undefined)) {
+            // Update team info (like team name)
+            ajaxRequest = TeamBackend.getTeamInfo((teamInfo) => {
+                if(teamInfo.status > 0) {
+                    localStorage.setItem("teamName", teamInfo.teamName);
+                }
+            });
+            ajaxArray.push(ajaxRequest);
+        }
+        
+        // RECORDS //
+        // No local storage integration for records at this time
+        
+        // Call a function (likely pullForDatabase()) when the pull finishes
+        return new Promise((resolve, reject) => {
+            $.when(...ajaxArray).then(resolve);
+        });
+        
+    }
+    
+    /**
+     * Pulls of the information needed to populate the DATABASE (and ONLY
+     * the database, not local storage). It is necessary to split these up
+     * in order to ensure the required local storage values (like id_team)
+     * are set.
+     * 
+     * @returns
+     * A promise and will resolve() when all requests have completed.
+     */
+    static pullForDatabase() {
         
         let storage = window.localStorage;
         let email = storage.getItem("email");
         let ajaxRequest = -1; // Ajax object pushed into the array
         let ajaxCalls = []; // Used to resolve the promise to signal completion
         
-        // USER //
+        // For safety, check email
         if((email == null) || (email == undefined)) {
-            // TOD: Either log them out or attempt to find the email
+            // TODO: Either log them out or attempt to find the email
             return new Promise((resolve, reject) => {
-                reject(false);
+                reject();
             })
         }
-        ajaxRequest = AccountBackend.getAccount((thisUser) => {
-            if(thisUser.status > 0) {
-                // Update team ID
-                if(thisUser.id_team > 0) {
-                    storage.setItem("id_team", thisUser.id_team);
-                }
+        
+        // USER //
+        ajaxRequest = AccountBackend.getAccount((userInfo) => {
+            if(userInfo.status > 0) {
+                // Add in any database operations here
             }
         });
         ajaxCalls.push(ajaxRequest);
@@ -36,7 +141,7 @@ class ToolboxBackend {
             // Update team info (like team name)
             ajaxRequest = TeamBackend.getTeamInfo((teamInfo) => {
                 if(teamInfo.status > 0) {
-                    localStorage.setItem("teamName", teamInfo.teamName);
+                    // Put any database insertion here (BUT NOT local storage)
                 }
             });
             ajaxCalls.push(ajaxRequest);

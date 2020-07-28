@@ -23,7 +23,7 @@ class Login extends Page {
                 <h1>Sportwatch</h1>
                 <form>
                     <label id="label_email" for="email">Email</label><br>
-                    <input class="sw_text_input" type="email" name="email" placeholder="you@website.com">
+                    <input class="sw_text_input" type="email" name="email" placeholder="you@example.com">
                     <br>
                     <label id="label_password" for="password">Password</label><br>
                     <input class="sw_text_input" type="password" name="password" placeholder="●●●●●●●●">
@@ -77,12 +77,7 @@ class Login extends Page {
         this.getPageElement("#login_button").click((e) => {
             this.getPageElement("#login_button").removeClass("pressed");
         });
-
-        // this is just for testing TOOD: Remove
-        this.getPageElement("input[name=email]").val("bromansalaam@gmail.com");
-        this.getPageElement("input[name=password]").val("Testing123");
-        this.getPageElement("#login_button").removeClass("invalid");
-
+        
         this.getPageElement("form").on("submit", function (e) {
             e.preventDefault();
 
@@ -94,10 +89,21 @@ class Login extends Page {
             let password = this.getPageElement("input[name=password]").val();
 
             Authentication.login(email, password).then(function (response) {
-                localStorage.setItem("email", email);
-                ToolboxBackend.pullFromBackend();
-                this.pageController.transitionObj.forceHaltSlide(); // See account.js for explanation
-                this.pageController.onChangePageSet(1); // 1 for Main logic
+                localStorage.setItem("email", email); // Set the email
+                // Then pull data to update the frontend
+                ToolboxBackend.pullFromBackend().then(() => {
+                    console.log("[login.js]: Backend sync finished!");
+                    
+                    this.pageController.transitionObj.forceHaltSlide(); // See account.js for explanation
+                    this.pageController.onChangePageSet(1); // 1 for Main logic
+                    
+                    // And finally, clear the inputs
+                    this.getPageElement("input").not("#login_button").val("");
+                    this.getPageElement("#login_button").addClass("invalid");
+                    
+                }).catch(function() {
+                    console.log("[login.js]: Failed to pull from backend, localStorage email: " + localStorage.getItem("email"));
+                });
             }.bind(this),
                 function (error) {
                     console.log("[login.js:start()] Login fail");

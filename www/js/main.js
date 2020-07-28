@@ -159,12 +159,12 @@ setTimeout(() => {
         dbConnection.insertDatabasePresetValues();
         app.initialize();
     } else {
-        dbConnection.insertDatabasePresetValues();
         ToolboxBackend.pullFromBackend().then(() => {
             console.log("[main.js]: Backend sync finished!");
             app.initialize();
         }).catch(function() {
             console.log("[main.js]: Failed to pull from backend, localStorage email: " + localStorage.getItem("email"));
+            app.initialize();
         });
     }
 }, 3000);

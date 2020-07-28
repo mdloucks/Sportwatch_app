@@ -110,6 +110,8 @@ class TeamLanding extends Page {
                 this.transitionObj.showCurrentPage();
                 
             } else {
+                console.log("Team id is set:");
+                console.log(storage.getItem("id_team"));
                 // Main Team page
                 this.transitionObj.setCurrentPage("teamPage");
                 this.transitionObj.showCurrentPage();
