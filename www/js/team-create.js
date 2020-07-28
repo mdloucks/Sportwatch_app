@@ -306,7 +306,7 @@ class CreateTeam extends Page {
             this.nameIsValid = true;
             
             // Length
-            if((input.length < 15) || (input.length > 45)) {
+            if((input.length < 5) || (input.length > 45)) {
                 // Bold this tip since the criteria isn't met yet
                 if(!this.getPageElement("#tip_length").hasClass("bolded")) {
                     this.getPageElement("#tip_length").addClass("bolded");
