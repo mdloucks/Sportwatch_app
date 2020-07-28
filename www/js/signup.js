@@ -174,12 +174,6 @@ class Signup extends Page {
                 }).catch(function() {
                     console.log("[signup.js]: Failed to pull from backend, localStorage email: " + localStorage.getItem("email"));
                 });
-                
-                ToolboxBackend.pullFromBackend();
-                
-                this.pageController.transitionObj.forceHaltSlide();
-                this.pageController.onChangePageSet(1); // 1 for Main logic
-                this.getPageElement("input[type='text'").val(""); // Clear inputs
             }.bind(this),
                 function (error) {
                     console.log("[signup.js:start()] Unable to complete signup request");
