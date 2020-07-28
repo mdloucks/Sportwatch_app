@@ -234,7 +234,7 @@ class ToolboxBackend {
                         dbConnection.insertValues("record", [
                             pulledResult.id_user,
                             pulledResult.id_recordDefinition,
-                            pulledResult.value,
+                            Number(pulledResult.value),
                             pulledResult.isSplit,
                             pulledResult.splitNumber,
                             pulledResult.splitIndex,
