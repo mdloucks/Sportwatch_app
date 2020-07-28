@@ -22,20 +22,20 @@ let json = {
         ["second", "other"],
         ["minute", "other"]
     ],
-    "record": [
-        [1, 1, 12, false, null, null, Date.now()],
-        [1, 1, 13, false, null, null, Date.now()],
-        [1, 2, 13, false, null, null, Date.now()],
-        [1, 2, 16, false, null, null, Date.now()],
-        [1, 3, 14, false, null, null, Date.now()],
+    // "record": [
+    //     [1, 1, 12, false, null, null, Date.now()],
+    //     [1, 1, 13, false, null, null, Date.now()],
+    //     [1, 2, 13, false, null, null, Date.now()],
+    //     [1, 2, 16, false, null, null, Date.now()],
+    //     [1, 3, 14, false, null, null, Date.now()],
         
-        [2, 1, 12, false, null, null, Date.now()],
-        [2, 1, 13, false, null, null, Date.now()],
-        [2, 2, 13, false, null, null, Date.now()],
-        [2, 2, 16, false, null, null, Date.now()],
-        [2, 3, 14, false, null, null, Date.now()],
+    //     [2, 1, 12, false, null, null, Date.now()],
+    //     [2, 1, 13, false, null, null, Date.now()],
+    //     [2, 2, 13, false, null, null, Date.now()],
+    //     [2, 2, 16, false, null, null, Date.now()],
+    //     [2, 3, 14, false, null, null, Date.now()],
         
-    ]
+    // ]
 }
 
 
@@ -75,7 +75,6 @@ class DatabaseConnection {
             tx.executeSql("DROP TABLE IF EXISTS record_definition");
             tx.executeSql("DROP TABLE IF EXISTS record");
 
-            // tx.executeSql(`CREATE TABLE IF NOT EXISTS account (id_user, fname, lname, account_type, id_school, cellNum)`);
             tx.executeSql(`CREATE TABLE IF NOT EXISTS athlete (fname, lname, grade, gender, id_backend)`);
 
             tx.executeSql(`CREATE TABLE IF NOT EXISTS relay_team (team_name)`);
@@ -103,7 +102,7 @@ class DatabaseConnection {
             this.db.transaction(function (tx) {
                 tx.executeSql(query, values, function (tx, rs) {
                     if (rs.rows.length === 0) {
-                        console.log("empty set");
+                        console.log("empty set for " + query);
                         resolve(false);
                     }
                     resolve(rs.rows);
@@ -202,6 +201,27 @@ class DatabaseConnection {
                 reject(error);
             }, function () {
                 // success
+            });
+        });
+    }
+
+    /**
+     * This function will rexecute a sql statement
+     * 
+     * @param {String} table name of the table
+     * @param {Array} values array of values to pass in
+     */
+    executeTransaction(query, values) {
+        return new Promise((resolve, reject) => {
+            this.db.transaction(function (tx) {
+    
+                tx.executeSql(query, values, function (tx, rs) {
+                    if(rs.rows.length == 0) {
+                        resolve(true)
+                    } else {
+                        resolve(rs.rows)
+                    }
+                });
             });
         });
     }

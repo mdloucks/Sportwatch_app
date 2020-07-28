@@ -147,25 +147,30 @@ class App {
     }
 }
 
-let dbConnection;
+dbConnection = new DatabaseConnection();
+dbConnection.createNewTables();
+
+// check to see if record definitions exist
+dbConnection.executeTransaction("SELECT Count(*) FROM record_definition").then(function(result) {
+    let length = result.item(0)["Count(*)"];
+
+    if(length == 0) {
+        console.log("record definitions not present, inserting now...");
+        dbConnection.insertDatabasePresetValues();
+    } 
+});
 
 // this is the main entry point for the app
 setTimeout(() => {
     let app = new App();
-    dbConnection = new DatabaseConnection();
-    dbConnection.createNewTables();
     
-    if(false) { // <-- Is Dev environment? (Change as needed)
-        dbConnection.insertDatabasePresetValues();
+    ToolboxBackend.pullFromBackend().then(() => {
+        console.log("[main.js]: Backend sync finished!");
         app.initialize();
-    } else {
-        ToolboxBackend.pullFromBackend().then(() => {
-            console.log("[main.js]: Backend sync finished!");
-            app.initialize();
-        }).catch(function() {
-            console.log("[main.js]: Failed to pull from backend, localStorage email: " + localStorage.getItem("email"));
-            app.initialize();
-        });
-    }
+    }).catch(function() {
+        console.log("[main.js]: Failed to pull from backend, localStorage email: " + localStorage.getItem("email"));
+        app.initialize();
+    });
+
 }, 3000);
 // app.initialize();

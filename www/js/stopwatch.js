@@ -351,9 +351,17 @@ class Stopwatch extends Page {
 
         // generate a list of athletes for the user to select
         dbConnection.selectValues("SELECT *, athlete.rowid FROM athlete", []).then((athletes) => {
-            ButtonGenerator.generateButtonsFromDatabase("#stopwatchPage #selectAthletePage .button_box", athletes, (athlete) => {
-                this.startSelectEventPage(athlete)
-            }, ["gender", "unit", "grade", "is_relay", "timestamp", "id_backend"], conditionalAttributes);
+            if(athletes != false) {
+                $("#stopwatchPage #selectAthletePage .subheading_text").remove();
+                ButtonGenerator.generateButtonsFromDatabase("#stopwatchPage #selectAthletePage .button_box", athletes, (athlete) => {
+                    this.startSelectEventPage(athlete)
+                }, ["gender", "unit", "grade", "is_relay", "timestamp", "id_backend"], conditionalAttributes);
+            } else {
+                $("#stopwatchPage #selectAthletePage").append(`
+                <div class="subheading_text">
+                You have no athletes on your team yet. Go to the Team page and invite some athletes to join!
+                </div>`)
+            }
         });
     }
 
@@ -385,8 +393,6 @@ class Stopwatch extends Page {
         // get a list of every event definition and take away the ones with records already
         query = (`
             SELECT DISTINCT record_definition.record_identity, record_definition.rowid from record_definition
-            INNER JOIN record
-            ON (record_definition.rowid != record.id_record_definition) AND (record.id_athlete != ?)
             EXCEPT 
             SELECT DISTINCT record_definition.record_identity, record_definition.rowid from record_definition
             INNER JOIN record
@@ -395,10 +401,16 @@ class Stopwatch extends Page {
         `)
 
         // User selects a new event that the athlete is not already registered in
-        dbConnection.selectValues(query, [athlete.rowid, athlete.rowid]).then((record_definitions) => {
-            ButtonGenerator.generateButtonsFromDatabase("#stopwatchPage #selectEventPage #new_events_box", record_definitions, (record_definition) => {
-                this.saveTime(record_definition, athlete);
-            }, ["id_athlete", "id_record_definition", "value", "is_split", "id_relay", "id_relay_index", "last_updated", "unit"]);
+        dbConnection.selectValues(query, [athlete.rowid]).then((record_definitions) => {
+            if(record_definitions != false) {
+                ButtonGenerator.generateButtonsFromDatabase("#stopwatchPage #selectEventPage #new_events_box", record_definitions, (record_definition) => {
+                    this.saveTime(record_definition, athlete);
+                }, ["id_athlete", "id_record_definition", "value", "is_split", "id_relay", "id_relay_index", "last_updated", "unit"]);
+            } else {
+                console.log("record_definition table is empty");
+                Popup.createConfirmationPopup("Something went wrong, try saving your time again.", ["Ok"], () => {});
+                dbConnection.insertDatabasePresetValues();
+            }
         });
     }
 

@@ -20,6 +20,7 @@ class Stats extends Page {
                 </div>
 
                 <div class="subheading_text">Your Stats by Event</div>
+
                 <div class="button_box"></div><br><br>
             </div>
         `);
@@ -104,9 +105,18 @@ class Stats extends Page {
         `)
         
         dbConnection.selectValues(query).then((events) => {
-            ButtonGenerator.generateButtonsFromDatabase("#statsPage #landingPage .button_box", events, (event) => {
-                this.startEventPage(event);
-            });
+            if(events != false) {
+                $("#statsPage #landingPage .subheading_text").html(`Your Stats by Event`);
+                ButtonGenerator.generateButtonsFromDatabase("#statsPage #landingPage .button_box", events, (event) => {
+                    this.startEventPage(event);
+                });
+            } else {
+                $("#statsPage #landingPage .subheading_text").html(`
+                It looks like you don't have any times saved yet. 
+                Go to the Stopwatch page and save a time to an event
+                to have it show up here.
+                `);
+            }
         });
     }
 
@@ -173,6 +183,10 @@ class Stats extends Page {
         `;
 
         dbConnection.selectValues(query, [event.rowid]).then((results) => {
+
+            if(results == false) {
+                return;
+            }
 
             let athletes = this.constructAthleteTimeArray(results, order);
 
@@ -279,13 +293,14 @@ class Stats extends Page {
             this.pageTransition.slideRight("landingPage");
         });
 
-
         this.pageTransition.slideLeft("addEventPage");
 
         dbConnection.selectValues("SELECT *, rowid FROM record_definition", []).then((record_definitions) => {
-            ButtonGenerator.generateButtonsFromDatabase("#statsPage #addEventPage .button_box", record_definitions, (record_definition) => {
-                this.addEvent(record_definition)
-            }, ["unit"]);
+            if(record_definitions != false) {
+                ButtonGenerator.generateButtonsFromDatabase("#statsPage #addEventPage .button_box", record_definitions, (record_definition) => {
+                    this.addEvent(record_definition)
+                }, ["unit"]);
+            }
         });
     }
 
