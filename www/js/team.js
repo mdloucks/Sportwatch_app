@@ -87,22 +87,16 @@ class Team extends Page {
 
         let storage = window.localStorage;
 
-        if (!this.hasStarted && this.doesTeamExist()) {
-            $("#landingPage").find("#teamName").text(storage.getItem("teamName"));
-            this.startLandingPage();
-            // TODO: Add a way of updating when new users join the team
-            
-            this.hasStarted = true;
-            // TODO: have the user create a team.
-        } else {
-
-        }
+        $("#landingPage").find("#teamName").text(storage.getItem("teamName"));
+        this.startLandingPage();
     }
 
     /**
      * this function will generate a list of athletes to append to the button box on the landing page
      */
     startLandingPage() {
+
+        $("#teamPage #landingPage > .button_box").empty();
 
         let conditionalAttributes = {
             "gender": {

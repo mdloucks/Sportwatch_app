@@ -24,8 +24,6 @@ class App {
         this.swipeHandler = new SwipeHolder("#app");
         FastClick.attach(document.body);
 
-        // dbConnection.updateValues("event_result", ["value"], [123], `WHERE athlete_id = ? AND event_id = ?`, [athlete.rowid, event.rowid]);
-
         $(".loader").remove();
         $("#app").html(""); // Clear so it's a clean slate to add to
 
@@ -147,18 +145,10 @@ class App {
     }
 }
 
+let dbConnection;
+
 dbConnection = new DatabaseConnection();
 dbConnection.createNewTables();
-
-// check to see if record definitions exist
-dbConnection.executeTransaction("SELECT Count(*) FROM record_definition").then(function(result) {
-    let length = result.item(0)["Count(*)"];
-
-    if(length == 0) {
-        console.log("record definitions not present, inserting now...");
-        dbConnection.insertDatabasePresetValues();
-    } 
-});
 
 // this is the main entry point for the app
 setTimeout(() => {

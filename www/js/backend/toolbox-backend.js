@@ -22,6 +22,9 @@ class ToolboxBackend {
      * the data sync has been completed.
      */
     static pullFromBackend() {
+        dbConnection = new DatabaseConnection();
+        dbConnection.createNewTables();
+        
         // Make sure the email is valid
         let email = localStorage.getItem("email");
         if((email == null) || (email == undefined)) {
