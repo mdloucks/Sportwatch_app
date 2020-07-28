@@ -54,6 +54,7 @@ class DatabaseConnection {
      */
     constructor() {
         try {
+            console.log("Database Sportwatch.db open OK");
             this.db = window.sqlitePlugin.openDatabase({ name: 'Sportwatch.db', location: 'default' });
         } catch (err) {
             console.log("Sportwatch database failed to open.");
@@ -87,6 +88,15 @@ class DatabaseConnection {
             console.log('Transaction ERROR: ' + error.message);
         }, function () {
             console.log('TABLES CREATED');
+        });
+
+        this.executeTransaction("SELECT Count(*) FROM record_definition").then((result) => {
+            let length = result.item(0)["Count(*)"];
+        
+            if(length == 0) {
+                console.log("record definitions not present, inserting now...");
+                this.insertDatabasePresetValues();
+            } 
         });
     }
 
@@ -312,24 +322,16 @@ class DatabaseConnection {
     }
 
     /**
-     * 
-     * This function is used to quickly execute small pieces of sql commands for testing purposes
-     * 
-     * @param {String} command 
+     * this function will delete the sportwatch database
      */
-    executeCommand(command) {
-        this.db.transaction(function (tx, rs) {
-            tx.executeSql(command, [], function (tx, rs) {
-                console.log(JSON.stringify(rs));
-                for (let i = 0; i < rs.rows.length; i++) {
-                    console.log(JSON.stringify(rs.rows.item(i)));
-                }
-
-                console.log("---------------------------------");
-            });
-        }, function (error) {
-            console.log('Transaction ERROR: ' + error.message);
-        }, function () {
+    deleteDatabase() {
+        window.sqlitePlugin.deleteDatabase({
+            name: "Sportwatch.db",
+            location: "default"
+        }, function() {
+            console.log("database deleted successfully");
+        }, function(error) {
+            console.log("database could not be deleted");
         });
     }
 
