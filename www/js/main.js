@@ -20,13 +20,31 @@ class App {
 
     onReady() {
         console.log("DEVICE READY");
-
+        
+        // Have to initialize database here after device is ready
+        dbConnection = new DatabaseConnection();
+        dbConnection.createNewTables();
+        
         this.swipeHandler = new SwipeHolder("#app");
         FastClick.attach(document.body);
 
         $(".loader").remove();
         $("#app").html(""); // Clear so it's a clean slate to add to
-
+        
+        // Pull data from the backend, then start the app
+        ToolboxBackend.pullFromBackend().then(() => {
+            console.log("[main.js:onReady()]: Backend sync finished!");
+            app.startApp();
+        }).catch(function() {
+            // Likely a corrupted / lost local storage, so they'll be signed out anyway
+            console.log("[main.js:onReady]: Failed to pull from backend, localStorage email: " + localStorage.getItem("email"));
+            app.startApp();
+        });
+        
+    }
+    
+    startApp() {
+        
         // ---- PAGE SETS ---- //
         this.mainSet = new MainSet(this.swipeHandler, this.setActivePageSet, this);
         this.mainSet.constructPages();
@@ -145,22 +163,9 @@ class App {
     }
 }
 
-let dbConnection;
+// Main entry point for the app
+let app = new App();
+let dbConnection; // Can't initialize yet since device isn't ready
 
-dbConnection = new DatabaseConnection();
-dbConnection.createNewTables();
+app.initialize(); // Simply binds the onReady, onPause, etc. functions
 
-// this is the main entry point for the app
-setTimeout(() => {
-    let app = new App();
-    
-    ToolboxBackend.pullFromBackend().then(() => {
-        console.log("[main.js]: Backend sync finished!");
-        app.initialize();
-    }).catch(function() {
-        console.log("[main.js]: Failed to pull from backend, localStorage email: " + localStorage.getItem("email"));
-        app.initialize();
-    });
-
-}, 3000);
-// app.initialize();

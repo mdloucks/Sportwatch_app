@@ -232,7 +232,7 @@ class ToolboxBackend {
                         pulledResult = recordResponse.result[r]; // Hehe, pulled pork
                         
                         dbConnection.insertValues("record", [
-                            pulledResult.id_user,
+                            pulledResult.users[0], // TODO: Add in support for linked athletes
                             pulledResult.id_recordDefinition,
                             Number(pulledResult.value),
                             pulledResult.isSplit,
