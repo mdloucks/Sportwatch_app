@@ -365,9 +365,7 @@ class Account extends Page {
             Popup.createConfirmationPopup("Are you sure you want to delete this athlete?", ["Yes", "No"], [() => {
                 dbConnection.deleteValues("athlete", "WHERE rowid = ?", [rowid]);
 
-                // TODO: Seth remove the athlete with the given id_backend from the server
-                console.log("DELETE ATHLETE, id_backend = " + id_backend);
-                //.........................................................................
+                // TODO: seth please update account
                 
             }, () => {
                 // no action
@@ -383,7 +381,7 @@ class Account extends Page {
 
             ButtonGenerator.generateSelectForm(`${this.inputDivIdentifier}`, "Remove athlete from team", "Remove Selected Athlete", values, function (form) {
                 dbConnection.selectValues("SELECT id_backend FROM athlete WHERE rowid = ?", [$(form).val()]).then((athlete) => {
-                    deleteAthlete($(value).val(), athlete.item(0).id_backend);
+                    deleteAthlete($(form).val(), athlete.item(0).id_backend);
                 });
             });
         });
