@@ -54,7 +54,7 @@ class DatabaseConnection {
      */
     constructor() {
         try {
-            console.log("Database Sportwatch.db open OK");
+            console.log("Opening database...");
             this.db = window.sqlitePlugin.openDatabase({ name: 'Sportwatch.db', location: 'default' });
         } catch (err) {
             console.log("Sportwatch database failed to open.");

@@ -11,21 +11,6 @@
     font-size: 2em;
 }
 
-#accountPage .generic_button {
-    margin-right: 1%; /* centers button */
-    width: 85%;
-    height: 30px;
-    text-align: center;
-    font-size: 15px;
-    border-style: solid;
-    border-color: crimson;
-    border-width: 1px;
-    border-radius: 20px;
-    background-color: white;
-    outline: none;
-    transition: background-color 0.25s;
-}
-
 #accountPage .generic_selected {
     background-color: crimson;
 }

@@ -1,6 +1,3 @@
-
-
-
 /**
  * @classdesc generates buttons for pages
  * @class
@@ -99,6 +96,52 @@ class ButtonGenerator {
             let button = ButtonGenerator.generateButton(attributes[i], callback);
             $(element).append(button);
         }
+    }
+
+    /**
+     * This function will generate a select form with a given prompt and set of values
+     * @param {String} element identifier of the element to append to
+     * @param {String} prompt the prompt to give for selection
+     * @param {Object} values string:value object containing text to show and its corresponding select value
+     * @param {function} callback the function to call on submit
+     */
+    static generateSelectForm(element, prompt, submitText, values, callback) {
+
+        // create form elements
+        let form = $("<form>");
+        let select = $("<select>", {class: "generic_select"});
+        let lineBreak = $("<br>");
+
+        let label = $("<form>", {
+            html: prompt,
+            class: "subheading_text"
+        });
+        let submit = $("<button>", {
+            html: submitText,
+            type: "submit",
+            class: "generated_button"
+        });
+
+        $(form).submit(function(e) {
+            e.preventDefault();
+            callback(select);
+        });
+
+        let keys = Object.keys(values);
+
+        keys.forEach(key => {
+            let option = $("<option>", {text: key, html: key, value: values[key]});
+            select.append(option);
+        });
+
+        // append elements to form
+        form.append(label);
+        form.append(select);
+        form.append(lineBreak)
+        form.append(lineBreak)
+        form.append(submit);
+
+        $(element).append(form);
     }
 
     /**
