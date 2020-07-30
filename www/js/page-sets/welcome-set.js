@@ -72,7 +72,9 @@ class WelcomeSet extends PageSet {
         } else if (this.getPage(pageName).id < this.currentPageId) {
             this.transitionObj.slideRight(pageName.toLowerCase() + "Page", 200);
         } else {
-            console.log("[main-set.js:transitionPage()]: Tried to switch page! Page ID is already current!!");
+            if(DO_LOG) {
+                console.log("[main-set.js:transitionPage()]: Tried to switch page! Page ID is already current!!");
+            }
         }
         // In all reality, if we decide we want swipes, uncomment below
         // this.defineSwipes(this.getPage(pageName).id);

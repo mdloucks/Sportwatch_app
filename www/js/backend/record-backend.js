@@ -62,11 +62,15 @@ class RecordBackend {
             userEmail = storage.getItem("email");
         }
         if(value < 0) {
-            console.log("[record-backend.js:saveRecord()] value cannot be negative");
+            if(DO_LOG) {
+                console.log("[record-backend.js:saveRecord()] value cannot be negative");
+            }
             return false;
         }
         if(Object.values(DEFINITIONS).indexOf(definitionId) == -1) {
-            console.log("[record-backend.js:saveRecord()]: Invalid definitionId given");
+            if(DO_LOG) {
+                console.log("[record-backend.js:saveRecord()]: Invalid definitionId given");
+            }
             return false;
         }
         
@@ -83,7 +87,9 @@ class RecordBackend {
             timeout: Constant.AJAX_CFG.timeout,
             data: details,
             success: (response) => {
-                console.log("[record-backend.js:saveRecord()] " + response);
+                if(DO_LOG) {
+                    console.log("[record-backend.js:saveRecord()] " + response);
+                }
                 try {
                     response = JSON.parse(response);
                 } catch (e) {
@@ -92,7 +98,9 @@ class RecordBackend {
                 cb(response);
             },
             error: (error) => {
-                console.log("[record-backend.js:saveRecord()] " + error);
+                if(DO_LOG) {
+                    console.log("[record-backend.js:saveRecord()] " + error);
+                }
                 cb(error);
             }
         });
@@ -131,7 +139,9 @@ class RecordBackend {
             timeout: Constant.AJAX_CFG.timeout,
             data: criteria,
             success: (response) => {
-                console.log("[record-backend.js:getRecord()] " + response);
+                if(DO_LOG) {
+                    console.log("[record-backend.js:getRecord()] " + response);
+                }
                 try {
                     response = JSON.parse(response);
                 } catch (e) {
@@ -140,7 +150,9 @@ class RecordBackend {
                 callback(response);
             },
             error: (error) => {
-                console.log("[record-backend.js:getRecord()] " + error);
+                if(DO_LOG) {
+                    console.log("[record-backend.js:getRecord()] " + error);
+                }
                 callback(error);
             }
         });

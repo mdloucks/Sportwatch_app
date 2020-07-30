@@ -190,7 +190,6 @@ class ToolboxBackend {
                             ]);
                             // Pull their records and insert into the database
                             ajaxCalls.push(ToolboxBackend.pullAndInsertRecords(currentAthlete.email));
-                            console.log("Added athlete: " + currentAthlete.fname);
                         }
                     }
                 }
@@ -222,7 +221,9 @@ class ToolboxBackend {
         return RecordBackend.getRecord({"accountIdentity": {"email": email}}, (recordResponse) => {
             // Check status
             if(recordResponse.status < 0) {
-                console.log("[toolbox-backend.js:pullFromBackend()]: Unable to pull records!");
+                if(DO_LOG) {
+                    console.log("[toolbox-backend.js:pullFromBackend()]: Unable to pull records!");
+                }
             } else {
                 
                 // Make sure there is at least 1 record returned
@@ -272,7 +273,9 @@ class ToolboxBackend {
             timeout: Constant.AJAX_CFG.timeout,
             data: postArray,
             success: (response) => {
-                console.log("[toolbox-backend.js:getUsersInSchool()] " + response);
+                if(DO_LOG) {
+                    console.log("[toolbox-backend.js:getUSersInSchool()] " + response);
+                }
                 try {
                     response = JSON.parse(response);
                 } catch (e) {
@@ -281,7 +284,9 @@ class ToolboxBackend {
                 callback(response);
             },
             error: (error) => {
-                console.log("[toolbox-backend.js:getUSersInSchool()] " + error);
+                if(DO_LOG) {
+                    console.log("[toolbox-backend.js:getUSersInSchool()] " + error);
+                }
                 callback(error);
             }
         });
@@ -317,7 +322,9 @@ class ToolboxBackend {
             timeout: Constant.AJAX_CFG.timeout,
             data: postArray,
             success: (response) => {
-                console.log("[toolbox-backend.js:getUserBySID()] " + response);
+                if(DO_LOG) {
+                    console.log("[toolbox-backend.js:getUserBySID()] " + response);
+                }
                 try {
                     response = JSON.parse(response);
                 } catch (e) {
@@ -326,7 +333,9 @@ class ToolboxBackend {
                 cb(response);
             },
             error: (error) => {
-                console.log("[toolbox-backend.js:getUserBySID()] " + error);
+                if(DO_LOG) {
+                    console.log("[toolbox-backend.js:getUserBySID()] " + error);
+                }
                 cb(error);
             }
         });
@@ -361,7 +370,9 @@ class ToolboxBackend {
             timeout: Constant.AJAX_CFG.timeout,
             data: postArray,
             success: (response) => {
-                console.log("[toolbox-backend.js:searchForSchool()] " + response);
+                if(DO_LOG) {
+                    console.log("[toolbox-backend.js:searchForSchool()] " + response);
+                }
                 try {
                     response = JSON.parse(response);
                 } catch (e) {
@@ -370,7 +381,9 @@ class ToolboxBackend {
                 cb(response);
             },
             error: (error) => {
-                console.log("[toolbox-backend.js:searchForSchool()] " + error);
+                if(DO_LOG) {
+                    console.log("[toolbox-backend.js:searchForSchool()] " + error);
+                }
                 cb(error);
             }
         });

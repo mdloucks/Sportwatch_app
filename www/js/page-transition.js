@@ -93,7 +93,9 @@ class PageTransition {
             }
             // Else don't set since the pageHtml isn't given
         } else {
-            console.log("[PageTransition][addPage()]: Unable to add page due to missing parameters");
+            if(DO_LOG) {
+                console.log("[PageTransition][addPage()]: Unable to add page due to missing parameters");
+            }
         }
     }
 
@@ -141,7 +143,9 @@ class PageTransition {
             this.currentPage = pageId;
             
         } else {
-            console.log("[page-transition.js:setCurrentPage()]: Invalid page #" + pageId + " in element " + this.sourceElement);
+            if(DO_LOG) {
+                console.log("[page-transition.js:setCurrentPage()]: Invalid page #" + pageId + " in element " + this.sourceElement);
+            }
         }
     }
     
@@ -219,11 +223,15 @@ class PageTransition {
         // Prevent the double clicking of the button
         if (($(this.sourceElement + " > " + prevPageId).hasClass("page_left")) || 
                 ($(this.sourceElement + " > " + prevPageId).hasClass("page_right"))) {
-            console.log("[PageTransition][slidePage()]: Still being transitioned!");
+            if(DO_LOG) {
+                console.log("[PageTransition][slidePage()]: Still being transitioned!");
+            }
             return false;
         }
         if (prevPageId == targetPageId) {
-            console.log("[PageTransition][slidePage()]: Duplicate! New current page: " + this.currentPage);
+            if(DO_LOG) {
+                console.log("[PageTransition][slidePage()]: Duplicate! New current page: " + this.currentPage);
+            }
             return false;
         }
         
@@ -292,7 +300,9 @@ class PageTransition {
         // Prevent the double clicking of the button
         if (($(this.sourceElement + " > " + prevPageId).hasClass("page_left")) || 
                 ($(this.sourceElement + " > " + prevPageId).hasClass("page_right"))) {
-            console.log("[PageTransition][slidePage()]: Still being transitioned!");
+            if(DO_LOG) {
+                console.log("[PageTransition][slidePage()]: Still being transitioned!");
+            }
             return;
         }
 
@@ -391,7 +401,9 @@ class PageTransition {
             divId = divId.replace(/\"/g, "").replace("#", ""); // Remove all quotes and hashtags
             return divId;
         } else {
-            console.log("[PageTransition][verifyPageKey()]: Div or id index was invalid");
+            if(DO_LOG) {
+                console.log("[PageTransition][verifyPageKey()]: Div or id index was invalid");
+            }
             return "";
         }
         return "";

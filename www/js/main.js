@@ -19,7 +19,6 @@ class App {
     }
 
     onReady() {
-        console.log("DEVICE READY");
         
         // Have to initialize database here after device is ready
         dbConnection = new DatabaseConnection();
@@ -33,11 +32,15 @@ class App {
         
         // Pull data from the backend, then start the app
         ToolboxBackend.pullFromBackend().then(() => {
-            console.log("[main.js:onReady()]: Backend sync finished!");
+            if(DO_LOG) {
+                console.log("[main.js:onReady()]: Backend sync finished!");
+            }
             app.startApp();
         }).catch(function() {
             // Likely a corrupted / lost local storage, so they'll be signed out anyway
-            console.log("[main.js:onReady]: Failed to pull from backend, localStorage email: " + localStorage.getItem("email"));
+            if(DO_LOG) {
+                console.log("[main.js:onReady]: Failed to pull from backend, localStorage email: " + localStorage.getItem("email"));
+            }
             app.startApp();
         });
         
@@ -78,17 +81,23 @@ class App {
             let sid = Authentication.getSID();
             // Authenticate and handle response (then = success)
             Authentication.validateSID(sid).then((response) => {
-                console.log("[main.js:determinePageSet()] Valid log in data");
+                if(DO_LOG) {
+                    console.log("[main.js:determinePageSet()] Valid log in data");
+                }
                 this.setActivePageSet(1); // Bring to main screen
                 return;
 
             }).catch((error) => {
-                console.log("[main.js:determinePageSet()] Invalid SID, logging out");
+                if(DO_LOG) {
+                    console.log("[main.js:determinePageSet()] Invalid SID, logging out");
+                }
                 this.setActivePageSet(0); // Go back to welcome page
             });
 
         } else {
-            console.log("[main.js:determinePageSet()] No SID data");
+            if(DO_LOG) {
+                console.log("[main.js:determinePageSet()] No SID data");
+            }
             this.setActivePageSet(0); // Direct to welcome page
         }
         
@@ -119,7 +128,9 @@ class App {
             _this.mainSet.activate();
             _this.activePageSet = 1;
         } else {
-            console.log("[main.js:setActivePageSet()] Invalid page set Id: " + pageSetId);
+            if(DO_LOG) {
+                console.log("[main.js:setActivePageSet()] Invalid page set Id: " + pageSetId);
+            }
             _this.welcomeSet.activate();
             _this.activePageSet = 0;
         }
@@ -166,6 +177,7 @@ class App {
 // Main entry point for the app
 let app = new App();
 let dbConnection; // Can't initialize yet since device isn't ready
+let DO_LOG = true;
 
 app.initialize(); // Simply binds the onReady, onPause, etc. functions
 

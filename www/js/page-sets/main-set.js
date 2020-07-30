@@ -60,7 +60,9 @@ class MainSet extends PageSet {
     }
     
     switchPage(pageName) {
-        console.log("[main-set.js:switchPage()]: Switching to " + pageName);
+        if(DO_LOG) {
+            console.log("[main-set.js:switchPage()]: Switching to " + pageName);
+        }
         this.pageArray[this.currentPageId].stop(); // Stop current page
         this.transitionPage(pageName); // Begin transition
         this.currentPageId = (this.getPage(pageName).id);
@@ -82,7 +84,9 @@ class MainSet extends PageSet {
         } else if (this.getPage(pageName).id < this.currentPageId) {
             this.transitionObj.slideRight(pageName.toLowerCase() + "Page", 200);
         } else {
-            console.log("[main-set.js:transitionPage()]: Tried to switch page! Page ID is already current!!");
+            if(DO_LOG) {
+                console.log("[main-set.js:transitionPage()]: Tried to switch page! Page ID is already current!!");
+            }
         }
         this.defineSwipes(this.getPage(pageName).id);
 

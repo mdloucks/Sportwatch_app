@@ -61,7 +61,9 @@ class TeamBackend {
             timeout: Constant.AJAX_CFG.timeout,
             data: details,
             success: (response) => {
-                console.log("[team-backend.js:createTeam()1] " + response);
+                if(DO_LOG) {
+                    console.log("[team-backend.js:createTeam()] " + response);
+                }
                 try {
                     response = JSON.parse(response);
                 } catch (e) {
@@ -70,7 +72,9 @@ class TeamBackend {
                 cb(response);
             },
             error: (error) => {
-                console.log("[team-backend.js:createTeam()2] " + error);
+                if(DO_LOG) {
+                    console.log("[team-backend.js:createTeam()] " + error);
+                }
                 cb(error);
             }
         });
@@ -103,7 +107,9 @@ class TeamBackend {
             timeout: Constant.AJAX_CFG.timeout,
             data: requestArray,
             success: (response) => {
-                console.log("[team-backend.js:joinTeam()] " + response);
+                if(DO_LOG) {
+                    console.log("[team-backend.js:joinTeam()] " + response);
+                }
                 try {
                     response = JSON.parse(response);
                 } catch (e) {
@@ -112,7 +118,9 @@ class TeamBackend {
                 cb(response);
             },
             error: (error) => {
-                console.log("[team-backend.js:joinTeam()] " + error);
+                if(DO_LOG) {
+                    console.log("[team-backend.js:joinTeam()] " + error);
+                }
                 cb(error);
             }
         });
@@ -136,7 +144,9 @@ class TeamBackend {
         // If teamIdentity is empty or omitted, try pulling the local storage value
         if(Object.keys(teamIdentity).length == 0) {
             if((storage.getItem("id_team") == null) || (storage.getItem("id_team") == undefined)) {
-                console.log("[team-backend.js:getTeamInfo()] No teamIdentity given, cannot proceed!");
+                if(DO_LOG) {
+                    console.log("[team-backend.js:getTeamInfo()] No teamIdentity given, cannot proceed!");
+                }
                 // Simulate the response
                 cb("{\"status\": -5, \"substatus\": 6, \"msg\": \"accuracy = 0 of 8. duplicates: false\"}");
                 
@@ -158,7 +168,9 @@ class TeamBackend {
             timeout: Constant.AJAX_CFG.timeout,
             data: postArray,
             success: (response) => {
-                console.log("[team-backend.js:getTeamInfo()] " + response);
+                if(DO_LOG) {
+                    console.log("[team-backend.js:getTeamInfo()] " + response);
+                }
                 try {
                     response = JSON.parse(response);
                 } catch (e) {
@@ -167,7 +179,9 @@ class TeamBackend {
                 cb(response);
             },
             error: (error) => {
-                console.log("[team-backend.js:getTeamInfo()] " + error);
+                if(DO_LOG) {
+                    console.log("[team-backend.js:getTeamInfo()] " + error);
+                }
                 cb(error);
             }
         });
@@ -191,7 +205,9 @@ class TeamBackend {
         // If teamIdentity is empty or omitted, try pulling the local storage value
         if(Object.keys(teamIdentity).length == 0) {
             if((storage.getItem("id_team") == null) || (storage.getItem("id_team") == undefined)) {
-                console.log("[team-backend.js:getTeamInfo()] No teamIdentity given, cannot proceed!");
+                if(DO_LOG) {
+                    console.log("[team-backend.js:getTeamInfo()] No teamIdentity given, cannot proceed!");
+                }
                 // Simulate the response
                 cb({"status": -5, "substatus": 1});
                 
@@ -214,7 +230,9 @@ class TeamBackend {
             timeout: Constant.AJAX_CFG.timeout,
             data: postArray,
             success: (response) => {
-                console.log("[team-backend.js:getTeamRoster()] " + response);
+                if(DO_LOG) {
+                    console.log("[team-backend.js:getTeamRoster()] " + response);
+                }
                 try {
                     response = JSON.parse(response);
                 } catch (e) {
@@ -223,7 +241,9 @@ class TeamBackend {
                 cb(response);
             },
             error: (error) => {
-                console.log("[team-backend.js:getTeamRoster()] " + error);
+                if(DO_LOG) {
+                    console.log("[team-backend.js:getTeamRoster()] " + error);
+                }
                 cb(error);
             }
         });
@@ -260,7 +280,9 @@ class TeamBackend {
                     response = response.substring(1, response.length);
                 }
                 
-                console.log("[team-backend.js:inviteToTeam()] " + response);
+                if(DO_LOG) {
+                    console.log("[team-backend.js:inviteToTeam()] " + response);
+                }
                 try {
                     response = JSON.parse(response);
                 } catch (e) {
@@ -269,7 +291,9 @@ class TeamBackend {
                 cb(response);
             },
             error: (error) => {
-                console.log("[team-backend.js:inviteToTeam()] " + error);
+                if(DO_LOG) {
+                    console.log("[team-backend.js:inviteToTeam()] " + error);
+                }
                 cb(error);
             }
         });

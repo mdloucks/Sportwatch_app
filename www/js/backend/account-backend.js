@@ -36,7 +36,9 @@ class AccountBackend {
             timeout: Constant.AJAX_CFG.timeout,
             data: postArray,
             success: (response) => {
-                console.log("[account-backend.js:getAccount()] " + response);
+                if(DO_LOG) {
+                    console.log("[account-backend.js:getAccount()] " + response);
+                }
                 try {
                     response = JSON.parse(response);
                 } catch (e) {
@@ -45,7 +47,9 @@ class AccountBackend {
                 callback(response);
             },
             error: (error) => {
-                console.log("[account-backend.js:getAccount()] " + error);
+                if(DO_LOG) {
+                    console.log("[account-backend.js:getAccount()] " + error);
+                }
                 callback(error);
             }
         });
@@ -116,7 +120,9 @@ class AccountBackend {
             timeout: Constant.AJAX_CFG.timeout,
             data: postArray,
             success: (response) => {
-                console.log("[account-backend.js:updateAccount()] " + response);
+                if(DO_LOG) {
+                    console.log("[account-backend.js:updateAccount()] " + response);
+                }
                 try {
                     response = JSON.parse(response);
                 } catch(e) {
@@ -125,7 +131,9 @@ class AccountBackend {
                 callback(response);
             },
             error: (error) => {
-                console.log("[account-backend.js:updateAccount()] " + error);
+                if(DO_LOG) {
+                    console.log("[account-backend.js:updateAccount()] " + error);
+                }
                 callback(error);
             }
         });

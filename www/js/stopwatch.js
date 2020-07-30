@@ -407,7 +407,9 @@ class Stopwatch extends Page {
                     this.saveTime(record_definition, athlete);
                 }, ["id_athlete", "id_record_definition", "value", "is_split", "id_relay", "id_relay_index", "last_updated", "unit"]);
             } else {
-                console.log("record_definition table is empty");
+                if(DO_LOG) {
+                    console.log("record_definition table is empty");
+                }
                 Popup.createConfirmationPopup("Something went wrong, try saving your time again.", ["Ok"], () => {});
                 dbConnection.insertDatabasePresetValues();
             }
@@ -440,7 +442,9 @@ class Stopwatch extends Page {
                 let index_value = 1;
 
                 for (let i = 0; i < result.length; i++) {
-                    console.log("HEY " + JSON.stringify(result.item(i)));
+                    if(DO_LOG) {
+                        console.log("HEY " + JSON.stringify(result.item(i)));
+                    }
                 }
 
 
@@ -448,7 +452,9 @@ class Stopwatch extends Page {
                     index_value = (result.item(0).id_split + 1);
                 }
 
-                console.log("USING INDEX " + index_value);
+                if(DO_LOG) {
+                    console.log("USING INDEX " + index_value);
+                }
 
                 for (let i = 0; i < this.lap_times.length; i++) {
                     dbConnection.insertValues("record", [athlete.rowid, event.rowid, this.lap_times[i], false, index_value, i + 1, Date.now()]);
