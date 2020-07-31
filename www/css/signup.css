@@ -24,6 +24,11 @@
     color: black;
 }
 
+#signupPage #privacyPolicy {
+    margin-bottom: 0;
+    font-size: 1.5em;
+}
+
 /**********************
           FORM
 ***********************/
@@ -35,10 +40,25 @@
 
 #signupPage .sw_text_input {
     margin-bottom: 3vh;
+    -webkit-appearance: none;
 }
 
-#signupPage .i_name {
+#signupPage .dropdown_input {
+    padding: 5px 10px;
+    width: 50vw;
+    height: 40px;
+    font-size: 1.8em;
+    border: 2px solid crimson;
+    -webkit-appearance: none;
+}
+
+#signupPage .nameInput {
+    margin-left: 2vw;
     width: 25%;
+}
+
+#signupPage #i_gender {
+    margin-top: 0;
 }
 
 #signupPage #button_signup {

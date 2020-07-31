@@ -31,7 +31,9 @@ class Authentication {
                     try {
                         data = JSON.parse(response);
                     } catch(e) {
-                        console.log(`${response}`);
+                        if(DO_LOG) {
+                            console.log(`${response}`);
+                        }
                         reject(data);
                     }
 
@@ -45,7 +47,9 @@ class Authentication {
                     }
                 },
                 error: (response, status) => {
-                    console.log("login ajax error");
+                    if(DO_LOG) {
+                        console.log("login ajax error");
+                    }
                     //let data = JSON.parse(response);
                     // ErrorHandler.handleAjaxError(response);
                     reject(response);
@@ -58,6 +62,9 @@ class Authentication {
      * destroys the user's SID and sends them back to the welcome screen
      */
     static logout() {
+        if(DO_LOG) {
+            console.log("[authentication.js:logout()] DEPRECATED lougout method");
+        }
         localStorage.removeItem("SID");
         StateManager.setState("welcome");
     }
@@ -85,7 +92,9 @@ class Authentication {
                 error: (response) => {
                     // TODO: redo this to handle no internet connection
                     // $("#app").html(`<p>Invalid SID or Connection Error</p>`);
-                    console.log(response);
+                    if(DO_LOG) {
+                        console.log(response);
+                    }
                     // let data = JSON.parse(response);
                     // ErrorHandler.handleAjaxError(response);
                     reject(response);
@@ -99,11 +108,14 @@ class Authentication {
      * 
      * @param {String} fname The user's first name
      * @param {String} lname The user's last name
+     * @param {String} gender 
      * @param {String} email The user's email
      * @param {String} password The user's password
      */
-    static signup(fname, email, password) {
-        console.log("[authentication.js:signup()] Signing up user...");
+    static signup(fname, lname, gender, email, password) {
+        if(DO_LOG) {
+            console.log("[authentication.js:signup()] Signing up user...");
+        }
         return new Promise((resolve, reject) => {
             $.ajax({
                 type: "POST",
@@ -111,11 +123,20 @@ class Authentication {
                 timeout: Constant.AJAX_CFG.timeout,
                 data: {
                     fname: fname,
+                    lname: lname,
+                    gender: gender,
                     email: email,
                     password: password
                 },
                 success: (response) => {
-                    console.log(response);
+                    if(DO_LOG) {
+                        console.log(response);
+                    }
+                    // Remove the hyphen prepnded by the current email handler (not sure why)
+                    if(response.charAt(0) == "–") {
+                        response = response.substring(1, response.length);
+                    }
+                    
                     let data = JSON.parse(response);
                     
                     if(this.validateServerStatusCode(data)) {
@@ -170,7 +191,9 @@ class Authentication {
 
     static setSID(SID) {
         localStorage.setItem("SID", SID);
-        console.log("New SID has been set: " + SID);
+        if(DO_LOG) {
+            console.log("New SID has been set: " + SID);
+        }
     }
 
     static getSID() {

@@ -24,9 +24,10 @@ class Signup extends Page {
                 <br>
                 <h1>Sportwatch</h1>
                 <form>
-                    <label id="label_name" for="fname">First Name</label><br>
-                    <input class="sw_text_input i_name" type="text" name="fname" placeholder="Jim">
-                    <img id="i_fname" class="invalidSym" src="img/invalidSymbol.png">
+                    <label id="label_name" for="fname">Name</label><br>
+                    <input class="sw_text_input nameInput" type="text" name="fname" placeholder="First">
+                    <input class="sw_text_input nameInput" type="text" name="lname" placeholder="Last">
+                    <img id="i_name" class="invalidSym" src="img/invalidSymbol.png">
                     <br>
                     <label id="label_email" for="email">Email</label><br>
                     <input class="sw_text_input" type="email" name="email" placeholder="you@website.com">
@@ -35,12 +36,20 @@ class Signup extends Page {
                     <label id="label_password" for="password">Password</label><br>
                     <input class="sw_text_input" type="password" name="password" placeholder="●●●●●●●●">
                     <img id="i_password" class="invalidSym" src="img/invalidSymbol.png">
-                    <br><br><br>
+                    <br>
+                    <label id="label_gender" for="gender">Gender</label><br>
+                    <select class="dropdown_input" name="gender" style="padding-left: 6vw">
+                        <option value="NA">-- Tap to Select --</option>
+                        <option value="M">Male</option>
+                        <option value="F">Female</option>
+                        <option value="O">Other</option>
+                    </select>
+                    <img id="i_gender" class="invalidSym" src="img/invalidSymbol.png">
+                    <br><br>
                     
                     <input id="button_signup" class="sw_big_button invalid" type="submit" value="Sign Up">
                 </form>
-                <br>
-                <p>
+                <p id="privacyPolicy">
                     By clicking Sign Up, you agree to our <a href="https://sportwatch.us/privacy-policy/">
                     Privacy Policy</a>.
                 </p>
@@ -69,22 +78,26 @@ class Signup extends Page {
 
         // INPUT HANDLING
         // Name
-        this.getPageElement("input[name=fname").on("input", () => {
-            let input = this.getPageElement("input[name=fname]").val();
+        this.getPageElement("input[name=fname], input[name=lname]").on("input", () => {
+            let firstName = this.getPageElement("input[name=fname]").val();
+            let lastName = this.getPageElement("input[name=lname]").val();
+            let input = firstName + lastName;
 
             if (input.replace(/[A-Za-z.]/gm, "") != "") {
-                this.setupInvalidSymbol("#i_fname", false, "Please only use letters in your name.");
+                this.setupInvalidSymbol("#i_name", false, "Please only use letters in your name.");
             } else if (input.length > 127) {
-                this.setupInvalidSymbol("#i_fname", false, "Name is too long");
-            } else if (input.length < 3) {
-                this.setupInvalidSymbol("#i_fname", false, "Please enter your full first name");
+                this.setupInvalidSymbol("#i_name", false, "Name is too long");
+            } else if(firstName.length < 3) {
+                this.setupInvalidSymbol("#i_name", false, "Please enter your full first name");
+            } else if (lastName.length < 3) {
+                this.setupInvalidSymbol("#i_name", false, "Please enter your full last name");
             } else {
-                this.setupInvalidSymbol("#i_fname", true, "Nice to meet you!");
+                this.setupInvalidSymbol("#i_name", true, "Nice to meet you!");
             }
         });
         // Add starting dialog when clicked (if empty)
-        this.getPageElement("#i_fname.invalidSym").click((e) => {
-            this.openInvalidMessage("Please enter your name", "#i_fname");
+        this.getPageElement("#i_name.invalidSym").click((e) => {
+            this.openInvalidMessage("Please enter your name", "#i_name");
         });
 
         // Email
@@ -123,7 +136,35 @@ class Signup extends Page {
         this.getPageElement("#i_password.invalidSym").click((e) => {
             this.openInvalidMessage("Please create a <b>unique</b> password", "#i_password");
         });
-
+        
+        // Gender
+        this.getPageElement("select[name=gender]").on("change", () => {
+            let input = this.getPageElement("select[name=gender]").val();
+            
+            // Center the input text
+            if(input == "M") {
+                this.getPageElement("select[name=gender").css("padding-left", "20vw");
+            } else if(input == "F") {
+                this.getPageElement("select[name=gender").css("padding-left", "17vw");
+            } else if(input == "O") {
+                this.getPageElement("select[name=gender").css("padding-left", "19vw");
+            } else {
+                // Handles the "-- Tap to Select --" option
+                this.getPageElement("select[name=gender").css("padding-left", "6vw");
+            }
+            
+            // Check validity
+            if(input.length == 1) {
+                this.setupInvalidSymbol("#i_gender", true, "Saved!");
+            } else {
+                this.setupInvalidSymbol("#i_gender", false, "Plese select a gender!");
+            }
+        });
+        // Add starting dialog when clicked (if empty)
+        this.getPageElement("#i_gender.invalidSym").click((e) => {
+            this.openInvalidMessage("Please select a gender", "#i_gender");
+        });
+        
         // REST OF FORM
         // Animate the button to simulate a "press"
         this.getPageElement("#button_signup").click((e) => {
@@ -142,11 +183,21 @@ class Signup extends Page {
 
             // Validate inputs (one last safety check)
             let firstName = this.getPageElement("input[name=fname]").val();
+            let lastName = this.getPageElement("input[name=lname]").val();
+            let gender = this.getPageElement("select[name=gender]").val();
             let email = this.getPageElement("input[name=email]").val();
             let password = this.getPageElement("input[name=password]").val();
 
             if (firstName.length < 3) {
-                this.setupInvalidSymbol("#i_fname", false, "Please enter your full first name");
+                this.setupInvalidSymbol("#i_name", false, "Please enter your full first name");
+                return;
+            }
+            if (lastName.length < 3) {
+                this.setupInvalidSymbol("#i_name", false, "Please enter your full last name");
+                return;
+            }
+            if(gender.length > 1) { // length of 1 signifies "M", "F", "O"
+                this.setupInvalidSymbol("#i_gender", true, "Saved!");
                 return;
             }
             if (email.indexOf("@") == -1) {
@@ -158,11 +209,13 @@ class Signup extends Page {
                 return;
             }
 
-            Authentication.signup(firstName, email, password).then(function (response) {
+            Authentication.signup(firstName, lastName, gender, email, password).then(function (response) {
                 localStorage.setItem("email", email);
                 // Then pull data (probably not much, but just do it!)
                 ToolboxBackend.pullFromBackend().then(() => {
-                    console.log("[signup.js]: Backend sync finished!");
+                    if(DO_LOG) {
+                        console.log("[signup.js]: Backend sync finished!");
+                    }
                     
                     this.pageController.transitionObj.forceHaltSlide(); // See account.js for explanation
                     this.pageController.onChangePageSet(1); // 1 for Main logic
@@ -172,11 +225,15 @@ class Signup extends Page {
                     this.getPageElement("#button_signup").addClass("invalid");
                     
                 }).catch(function() {
-                    console.log("[signup.js]: Failed to pull from backend, localStorage email: " + localStorage.getItem("email"));
+                    if(DO_LOG) {
+                        console.log("[signup.js]: Failed to pull from backend, localStorage email: " + localStorage.getItem("email"));
+                    }
                 });
             }.bind(this),
                 function (error) {
-                    console.log("[signup.js:start()] Unable to complete signup request");
+                    if(DO_LOG) {
+                        console.log("[signup.js:start()] Unable to complete signup request");
+                    }
                     this.handleSignupError(error.substatus, error.msg);
                 }.bind(this));
 
