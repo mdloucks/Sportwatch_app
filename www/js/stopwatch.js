@@ -385,6 +385,11 @@ class Stopwatch extends Page {
 
         // user selects an existing event
         dbConnection.selectValues(query, [athlete.rowid]).then((events) => {
+
+            if(events.length == 0) {
+                return;
+            }
+            
             ButtonGenerator.generateButtonsFromDatabase("#stopwatchPage #selectEventPage #saved_events_box", events, (event) => {
                 this.saveTime(event, athlete);
             }, ["id_athlete", "id_record_definition", "value", "is_split", "id_relay", "id_relay_index", "last_updated", "unit"]);
@@ -411,7 +416,6 @@ class Stopwatch extends Page {
                     console.log("record_definition table is empty");
                 }
                 Popup.createConfirmationPopup("Something went wrong, try saving your time again.", ["Ok"], () => {});
-                dbConnection.insertDatabasePresetValues();
             }
         });
     }
@@ -429,6 +433,10 @@ class Stopwatch extends Page {
 
         // save normal time
         dbConnection.insertValues("record", [athlete.rowid, event.rowid, this.clock.seconds, false, null, null, Date.now()]);
+
+        RecordBackend.saveRecord((response) => {
+            console.log("RECORD SAVED " + JSON.stringify(response));
+        }, this.clock.seconds, event.rowid) 
         
         let query = (`
             SELECT id_split
@@ -436,8 +444,9 @@ class Stopwatch extends Page {
             ORDER BY id_split DESC
         `)
 
+        // save lap times if they exist
         if(this.lap_times.length > 0) {
-            // save lap times
+
             dbConnection.selectValues(query).then((result) => {
                 let index_value = 1;
 
