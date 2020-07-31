@@ -157,8 +157,10 @@ class CreateTeam extends Page {
         // Fetch account school to auto-fill
         AccountBackend.getAccount((response) => {
             if(response.status < 0) {
-                console.log("[team-create.js:start()]: Requesting account info failed");
-                console.log(response);
+                if(DO_LOG) {
+                    console.log("[team-create.js:start()]: Requesting account info failed");
+                    console.log(response);
+                }
             } else {
                 this.getPageElement("#input_school").val(response.schoolName);
                 this.getPageElement("#schoolPage .button_next").prop("disabled", false);
@@ -179,9 +181,10 @@ class CreateTeam extends Page {
                 if(this.secondaryValid) {
                     this.secondaryCoach = this.getPageElement("#input_secondaryCoach").val().trim();
                 }
-                console.log("Set School (" + this.schoolName + ")");
             } else {
-                console.log("[team-create.js:start()]: Next button not configured for page " + currentPage);
+                if(DO_LOG) {
+                    console.log("[team-create.js:start()]: Next button not configured for page " + currentPage);
+                }
             }
         });
         
@@ -205,7 +208,9 @@ class CreateTeam extends Page {
                 this.transitionObj.slideRight("postCreatePage");
                 
             } else {
-                console.log("[team-create.js:start()]: Back button not configured for page " + currentPage);
+                if(DO_LOG) {
+                    console.log("[team-create.js:start()]: Back button not configured for page " + currentPage);
+                }
             }
         });
         
@@ -216,7 +221,9 @@ class CreateTeam extends Page {
                 if(response.status > 0) {
                     this.generateAthleteButtons(response);
                 } else {
-                    console.log("[team-create.js:start()]: Unable to get school users, hiding that portion");
+                    if(DO_LOG) {
+                        console.log("[team-create.js:start()]: Unable to get school users, hiding that portion");
+                    }
                     this.getPageElement("#schoolInviteWrapper").css("display", "none");
                 }
             });
@@ -242,7 +249,6 @@ class CreateTeam extends Page {
             
             if(this.nameIsValid) {
                 this.teamName = this.getPageElement("#input_teamName").val().trim();
-                console.log("Saved team name: " + this.teamName);
                 this.selectPage(2);
             } else {
                 // Not valid, so blur (aka hide the keyboard) to show the tips
@@ -540,7 +546,9 @@ class CreateTeam extends Page {
                 this.transitionObj.slideRight("optionsPage");
             }
         } else {
-            console.log("[team-create.js:selectPage()]: Unknown page number " + stepNum);
+            if(DO_LOG) {
+                console.log("[team-create.js:selectPage()]: Unknown page number " + stepNum);
+            }
             return;
         }
         
@@ -607,8 +615,6 @@ class CreateTeam extends Page {
             this.getPageElement("#searchList").empty();
             this.getPageElement("#input_school").val(this.schoolName);
             this.getPageElement("#schoolPage .button_next").prop("disabled", false);
-            
-            console.log("Selected " + this.schoolId + " with name " + this.schoolName);
         });
         
     }

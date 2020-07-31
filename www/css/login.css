@@ -32,6 +32,7 @@
 
 #loginPage .sw_text_input {
     margin-bottom: 3vh;
+    -webkit-appearance: none;;
 }
 
 #loginPage #login_button {
