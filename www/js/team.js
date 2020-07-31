@@ -170,6 +170,8 @@ class Team extends Page {
         $("#teamPage #athleteStatPage #athlete_stats_container").empty();
 
         $("#teamPage #athleteStatPage #back_button_athlete_stats").bind("click", () => {
+            // stop editing so columns don't delete
+            this.isEditing = false;
             this.pageTransition.slideRight("athletePage");
         });
 
@@ -316,9 +318,10 @@ class Team extends Page {
 
         let _this = this;
 
+        // change all of the styling for the table
         $("#teamPage td").each(function () {
 
-            // names
+            // strings
             if (!isNaN(Number($(this).text()))) {
 
                 // change to not editing
@@ -364,7 +367,7 @@ class Team extends Page {
 
             // check if there was a bad type and trigger a popup menu only once
             if(newData.some((e) => !(/^[0-9.]+$/).test(e.value))) {
-                Popup.createConfirmationPopup(`Cannot Save Result ${i + 1}. Only numbers can be saved, please try again.`, ["Ok"]);
+                Popup.createConfirmationPopup(`Cannot Save Result. Only numbers can be saved, please try again.`, ["Ok"]);
             }
         // when user clicks edit
         } else {
@@ -423,6 +426,5 @@ class Team extends Page {
     }
 
     stop() {
-
     }
 }
