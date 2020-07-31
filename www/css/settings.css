@@ -1,40 +1,40 @@
-#accountPage #title {
+#settingsPage #title {
     font-size: 30px;
 }
 
 /* General Page Styling */
 
-#accountPage .back_arrow {
+#settingsPage .back_arrow {
     position: relative;
     right: 20%;
     top: 5vh; /* vh = 1% of viewport */
     font-size: 2em;
 }
 
-#accountPage .generic_selected {
+#settingsPage .generic_selected {
     background-color: crimson;
 }
 
-#accountPage #settingsPage p {
+#settingsPage #editPage p {
     font-weight: bold;
     font-size: 2em;
     overflow: auto;
 }
 
-#accountPage #catagoryPage #title {
+#settingsPage #catagoryPage #title {
     margin-top: constant(safe-area-inset-top);
     margin-top: env(safe-area-inset-top);
 }
 
 /* Setting -- Catagories */
 
-#accountPage #cat_options {
+#settingsPage #cat_options {
     padding: 10px;
     width: 95%;
     border-radius: 5px;
 }
 
-#accountPage .cat_button {
+#settingsPage .cat_button {
     padding: 15px;
     margin: 15px;
     width: 90%;
@@ -48,16 +48,16 @@
     transition: background-color 0.25s;
 }
 
-#accountPage .cat_button_selected {
+#settingsPage .cat_button_selected {
     background-color: crimson;
 }
 
-#accountPage .cat_desc {
+#settingsPage .cat_desc {
     display: inline;
     font-family: Verdana, Helvetica, sans-serif;
 }
 
-#accountPage .cat_arrow {
+#settingsPage .cat_arrow {
     margin: 0px;
     float: right;
     position: top;
@@ -65,11 +65,11 @@
 
 /* Setting -- Account */
 
-#settingsPage > #account_edit_inputs > p {
+#editPage > #account_edit_inputs > p {
     margin-bottom: 5px;
 }
 
-#settingsPage > #account_edit_inputs > input {
+#editPage > #account_edit_inputs > input {
     padding: 10px;
     border-width: 2px;
     border-color: crimson;
@@ -79,7 +79,7 @@
     outline: none;
 }
 
-#settingsPage > #account_edit_inputs > .generated_button {
+#editPage > #account_edit_inputs > .generated_button {
     margin-bottom: 8vh;
 }
 

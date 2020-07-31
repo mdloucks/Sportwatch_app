@@ -59,7 +59,7 @@ let CSSManager = {
      * Should be called when a new page in the app changes or loads.
      */
     resetStyling() {
-        $("link[rel=stylesheet][href='css/account.css']").remove();
+        $("link[rel=stylesheet][href='css/settings.css']").remove();
         $("link[rel=stylesheet][href='css/athlete.css']").remove();
         $("link[rel=stylesheet][href='css/events.css']").remove();
         $("link[rel=stylesheet][href='css/home.css']").remove();

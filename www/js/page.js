@@ -11,7 +11,7 @@ class Page {
     /**
      * Returns the HTML content for the page which will be added into the page
      * transition object for swiping. NOTE: Html should be surrounded in a div
-     * with the page id. Ex:  <div id="accountPage"> ... </div>
+     * with the page id. Ex:  <div id="settingsPage"> ... </div>
      */
     getHtml() {
         console.log("//////////////////////////////////////////////////////");

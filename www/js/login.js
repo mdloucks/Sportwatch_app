@@ -94,7 +94,7 @@ class Login extends Page {
                 ToolboxBackend.pullFromBackend().then(() => {
                     console.log("[login.js]: Backend sync finished!");
                     
-                    this.pageController.transitionObj.forceHaltSlide(); // See account.js for explanation
+                    this.pageController.transitionObj.forceHaltSlide(); // See settings.js for explanation
                     this.pageController.onChangePageSet(1); // 1 for Main logic
                     
                     // And finally, clear the inputs

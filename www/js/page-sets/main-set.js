@@ -22,7 +22,7 @@ class MainSet extends PageSet {
     
     constructPages() {
         // TODO: sorry seth, I'm testing the team page, just change TeamLanding back
-        this.pageArray = [Stopwatch, Stats, TeamLanding, Account].map((page, i) => new page(i, this));
+        this.pageArray = [Stopwatch, Stats, TeamLanding, Settings].map((page, i) => new page(i, this));
         this.pageArray.forEach((pageObj, pageIndex) => {
             let shouldShow = false; // Should be page be visible at start? (only for first page)
             if (pageIndex == 0) {
@@ -35,7 +35,7 @@ class MainSet extends PageSet {
         });
         
         // Include this here so it's easier to enable / disable later
-        this.navbar.initNavbar(this.switchPage.bind(this), ["Stopwatch", "Stats", "TeamLanding", "Account"]);
+        this.navbar.initNavbar(this.switchPage.bind(this), ["Stopwatch", "Stats", "TeamLanding", "Settings"]);
         this.disable(); // Disable until enabled
     }
     

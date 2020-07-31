@@ -2,10 +2,10 @@
  * @classdesc this is the settings page for out app
  * @class
  */
-class Account extends Page {
+class Settings extends Page {
     // TODO: !! Convert to PageTransition compliant class !!
     constructor(id, pageSetObj) {
-        super(id, "Account");
+        super(id, "Settings");
 
         this.pageController = pageSetObj;
 
@@ -15,8 +15,12 @@ class Account extends Page {
 
         this.catagoryPage = (`
             <div id="catagoryPage" class="div_page">
-                <br>
-                <p id="title"><u>Account Settings</u></p>
+                <div class="generic_header">
+                    <div></div>
+                    <h1>Settings</h1>
+                    <div></div>
+                </div>
+                
                 <div id="cat_options">
                     <!-- Buttons will be inserted here -->
                 </div>
@@ -25,11 +29,11 @@ class Account extends Page {
 
 
         // https://jsbin.com/lodusuyipo/edit?html,css,js,output
-        this.settingsPage = (`
-            <div id="settingsPage" class="div_page">
+        this.editPage = (`
+            <div id="editPage" class="div_page">
                 <div class="generic_header">
                     <div class="back_button">&#9668;</div>
-                    <h1 id="settingsName"></h1>
+                    <h1 id="editName"></h1>
                     <div></div>
                 </div>
 
@@ -37,10 +41,10 @@ class Account extends Page {
             </div>
         `);
 
-        this.pageTransition = new PageTransition("#accountPage");
-        // this.pageController.swipeHandler.addScrollPage("#accountPage > #settingsPage");
+        this.pageTransition = new PageTransition("#settingsPage");
+        // this.pageController.swipeHandler.addScrollPage("#settingsPage > #settingsPage");
 
-        this.inputDivIdentifier = "#accountPage #settingsPage #account_edit_inputs";
+        this.inputDivIdentifier = "#settingsPage #editPage #account_edit_inputs";
 
         // each setting category will have its own function to call to specify what happens
         this.accountButtons = {
@@ -55,9 +59,9 @@ class Account extends Page {
 
     getHtml() {
         return (`
-            <div id="accountPage" class="div_page">
+            <div id="settingsPage" class="div_page">
                 ${this.catagoryPage}
-                ${this.settingsPage}
+                ${this.editPage}
             </div>
         `);
         //${this.devPage}
@@ -69,13 +73,13 @@ class Account extends Page {
     start() {
 
         // Only add content if it isn't there yet (check if any catagories are there yet)
-        if ($("#accountPage .cat_button").length) {
+        if ($("#settingsPage .cat_button").length) {
             return;
         }
 
         if (this.pageTransition.getPageCount() == 0) {
             this.pageTransition.addPage("catagoryPage", this.catagoryPage, true);
-            this.pageTransition.addPage("settingsPage", this.settingsPage);
+            this.pageTransition.addPage("editPage", this.editPage);
         }
 
         // add the account pages
@@ -89,45 +93,45 @@ class Account extends Page {
         })
 
 
-        // // ---- DEVELOPER PAGE LOGIC ---- //
-        this.addSettingCatagory("Developer Tools", () => {
-            this.pageTransition.slideLeft("catagoryPage");
+        // ---- DEVELOPER PAGE LOGIC ---- //
+        // this.addSettingCatagory("Developer Tools", () => {
+        //     this.pageTransition.slideLeft("catagoryPage");
 
-            $(this.inputDivIdentifier).html(`            
-                <div id="devPage" class="div_page">
-                <span class="back_button">&#9668;</span>
-                <br>
-                <h2>Developer tools</h2>
-                <br>
+        //     $(this.inputDivIdentifier).html(`            
+        //         <div id="devPage" class="div_page">
+        //         <span class="back_button">&#9668;</span>
+        //         <br>
+        //         <h2>Developer tools</h2>
+        //         <br>
                 
-                <p>Reinstantiate tables(wipes database)</p>
-                <button id="create_tables">Create tables</button><br> 
+        //         <p>Reinstantiate tables(wipes database)</p>
+        //         <button id="create_tables">Create tables</button><br> 
 
-                <p>Enter Database Command</p>
-                <form id="database_command">
-                <input id="db_command" type="text"></input>
-                <input type="submit"></submit>
-                </form>
-                </div>`);
-        });
+        //         <p>Enter Database Command</p>
+        //         <form id="database_command">
+        //         <input id="db_command" type="text"></input>
+        //         <input type="submit"></submit>
+        //         </form>
+        //         </div>`);
+        // });
 
-        $("#create_tables").click((e) => {
-            e.preventDefault();
-            dbConnection.createNewTables();
-            console.log("Created new tables!");
-        });
+        // $("#create_tables").click((e) => {
+        //     e.preventDefault();
+        //     dbConnection.createNewTables();
+        //     console.log("Created new tables!");
+        // });
 
-        $("#database_command").on("submit", function (e) {
-            e.preventDefault();
-            console.log($('#db_command').val());
-            dbConnection.executeCommand($('#db_command').val());
-        });
+        // $("#database_command").on("submit", function (e) {
+        //     e.preventDefault();
+        //     console.log($('#db_command').val());
+        //     dbConnection.executeCommand($('#db_command').val());
+        // });
 
         // ---- MISC PAGE LOGIC ---- //
 
-        $("#accountPage .back_button").click((e) => {
+        $("#settingsPage .back_button").click((e) => {
             e.preventDefault();
-            $("#accountPage .cat_button").removeClass("cat_button_selected");
+            $("#settingsPage .cat_button").removeClass("cat_button_selected");
             this.pageTransition.slideRight("catagoryPage");
         });
     }
@@ -135,9 +139,9 @@ class Account extends Page {
     stop() {
         // For now, don't unbind because adding the click events back is difficult
         // TODO: Change structure so it can properly unbind
-        $("#accountPage .cat_button").removeClass("cat_button_selected");
-        // $("#accountPage").unbind().off();
-        // $("#accountPage *").unbind().off();
+        $("#settingsPage .cat_button").removeClass("cat_button_selected");
+        // $("#settingsPage").unbind().off();
+        // $("#settingsPage *").unbind().off();
     }
 
     /**
@@ -146,8 +150,8 @@ class Account extends Page {
      * @param {String} name name of the page
      */
     setupSettingsPage(name) {
-        $("#accountPage #settingsName").html(name);
-        $("#accountPage #settingsPage #account_edit_inputs").empty();
+        $("#settingsPage #editName").html(name);
+        $("#settingsPage #editPage #account_edit_inputs").empty();
     }
 
     // ---- CATAGORY PAGE FUNCTIONS ---- //
@@ -249,12 +253,12 @@ class Account extends Page {
                         }
                         response = AccountBackend.beautifyResponse(response);
                         // Populate fields with the updated values
-                        $('#settingsPage input[name="First Name"]').val(response.fname);
-                        $('#settingsPage input[name="Last Name"]').val(response.lname);
-                        $('#settingsPage input[name="Gender"]').val(response.gender);
-                        $('#settingsPage input[name="Phone Number"]').val(response.cellNum);
-                        $('#settingsPage input[name="State"]').val(response.state);
-                        $('#settingsPage input[name="Date of Birth"]').val(response.dob);
+                        $('#editPage input[name="First Name"]').val(response.fname);
+                        $('#editPage input[name="Last Name"]').val(response.lname);
+                        $('#editPage input[name="Gender"]').val(response.gender);
+                        $('#editPage input[name="Phone Number"]').val(response.cellNum);
+                        $('#editPage input[name="State"]').val(response.state);
+                        $('#editPage input[name="Date of Birth"]').val(response.dob);
 
                     } else { // EDIT FAILED
                         if (response.substatus == 5) {
@@ -322,7 +326,7 @@ class Account extends Page {
             }, [], displayNames);
         }); // End of population function
 
-        this.pageTransition.slideLeft("settingsPage");
+        this.pageTransition.slideLeft("editPage");
     }
 
     startTeamPreferences() {
@@ -392,7 +396,7 @@ class Account extends Page {
         //     this.pageTransition.slideRight("catagoryPage");
         // }]);
 
-        this.pageTransition.slideLeft("settingsPage");
+        this.pageTransition.slideLeft("editPage");
     }
 
     startNotifications() {
@@ -405,9 +409,10 @@ class Account extends Page {
         // TODO: Remove later
         Popup.createConfirmationPopup("This feature is still in development. Please come back later", ["OK"], [() => {
             this.pageTransition.slideRight("catagoryPage");
+            $("#settingsPage .cat_button").removeClass("cat_button_selected");
         }]);
 
-        this.pageTransition.slideLeft("settingsPage");
+        this.pageTransition.slideLeft("editPage");
     }
 
     startSignOut() {
@@ -450,9 +455,10 @@ class Account extends Page {
         // TODO: Remove later
         Popup.createConfirmationPopup("This feature is still in development. Please come back later", ["OK"], [() => {
             this.pageTransition.slideRight("catagoryPage");
+            $("#settingsPage .cat_button").removeClass("cat_button_selected");
         }]);
 
-        this.pageTransition.slideLeft("settingsPage");
+        this.pageTransition.slideLeft("editPage");
     }
 
 }

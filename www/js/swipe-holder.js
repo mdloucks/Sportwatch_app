@@ -196,9 +196,9 @@ class SwipeHolder {
     
     /**
      * Adds a page that may be eligible for vertical scrolling. It will be handled if active
-     * on touchmove events. The page selector should be very specific, i.e. "#accountPage > #settingsPage"
+     * on touchmove events. The page selector should be very specific, i.e. "#settingsPage > #editPage"
      * 
-     * @example addScrollPage("#accountPage > #settingsPage");
+     * @example addScrollPage("#settingsPage > #editPage");
      * 
      * @param {String} pageSelector specific selector for an individual div_page
      */
