@@ -6,24 +6,19 @@ const DEFINITIONS = {
     "400m": 4,
     "800m": 5,
     "1500m": 6,
-    "100m_hurdle": 7,
-    "110m_hurdle": 8,
-    "400m_hurdle": 9,
-    "4x100m_relay": 10,
-    "4x400m_relay": 11,
+    "100m hurdle": 7,
+    "110m hurdle": 8,
+    "400m hurdle": 9,
+    "4x100m relay": 10,
+    "4x400m relay": 11,
     "long_jump": 12,
-    "triple_jump": 13,
-    "high_jump": 14,
-    "pole_vault": 15,
+    "triple jump": 13,
+    "high jump": 14,
+    "pole vault": 15,
     "discus": 16,
     "javelin": 17,
     "hammer": 18,
-    "shot_put": 19,
-    "other_second": 20, // Next 5 are for miscellaneous "events"
-    "other_minute": 21,
-    "other_meter": 22,
-    "other_foot": 23,
-    "other_yard": 24
+    "shot put": 19,
 }
 
 /**
