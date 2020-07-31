@@ -22,7 +22,6 @@ class App {
         
         // Have to initialize database here after device is ready
         dbConnection = new DatabaseConnection();
-        dbConnection.createNewTables();
         
         this.swipeHandler = new SwipeHolder("#app");
         FastClick.attach(document.body);
