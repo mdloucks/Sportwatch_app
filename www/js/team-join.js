@@ -85,6 +85,13 @@ class JoinTeam extends Page {
                 this.getPageElement("#button_join").prop("disabled", true);
             }
         });
+        // Create keyup handler for enter button
+        this.getPageElement("#input_inviteCode").on("keyup", (e) => {
+            let keyCode = e.keyCode || e.charCode;
+            if(keyCode == 13) { // Enter
+                this.getPageElement("#button_join").trigger("click");
+            }
+        });
         
         // Join button logic
         this.getPageElement("#button_join").on("submit click", (e) => {
@@ -94,6 +101,10 @@ class JoinTeam extends Page {
             // Make sure the code is valid
             if(!this.codeIsValid) {
                 return;
+            }
+            // If it's disabled, ignore the click
+            if (this.getPageElement("#button_join").prop("disabled")) {
+                return; // Exit the handler, not valid
             }
             
             let inviteCode = this.getPageElement("#input_inviteCode").val();
@@ -110,6 +121,17 @@ class JoinTeam extends Page {
                             let storage = window.localStorage;
                             storage.setItem("id_team", teamInfo.id_team);
                             storage.setItem("teamName", teamInfo.teamName);
+                            
+                            // Update the team info
+                            ToolboxBackend.pullFromBackend().then(() => {
+                                if(DO_LOG) {
+                                    console.log("[team-join.js]: Backend sync finished!");
+                                }
+                            }).catch(function() {
+                                if(DO_LOG) {
+                                    console.log("[signup.js]: Failed to pull from backend, localStorage email: " + localStorage.getItem("email"));
+                                }
+                            });
                             
                             // Show confirmation to user and show team.js page
                             Popup.createConfirmationPopup("You have successfully joined the team!", ["OK"], [() => {

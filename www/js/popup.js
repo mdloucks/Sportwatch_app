@@ -12,7 +12,9 @@ class Popup {
      */
     static callbackCleanupWrapper(element, callback) {
         callback();
-        $(".popup").fadeOut(300, function () { $(this).remove(); });
+        $(".popup").fadeOut(300, function () {
+            $(this).remove();
+        });
     }
 
     /**
