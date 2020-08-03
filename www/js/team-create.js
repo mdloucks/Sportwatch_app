@@ -34,7 +34,7 @@ class CreateTeam extends Page {
                 <br>
                 <p id="p_tipHeading"><u>Naming Tips</u></p><br>
                 <ul class="ul_tips">
-                    <li id="tip_length" class="tips bolded">Use 15-45 characters</li><br>
+                    <li id="tip_length" class="tips bolded">Use 5-45 characters</li><br>
                     <li id="tip_specials" class="tips">Avoid special characters</li><br>
                     <li id="tip_capitalize" class="tips bolded">Capitalize significant words</li><br>
                     <li id="tip_uniqueName" class="tips">Create a unique name</li>
@@ -261,6 +261,11 @@ class CreateTeam extends Page {
             let teamDetails = { }; // Compose the details of the team
             teamDetails.id_school = this.schoolId;
             teamDetails.primaryCoach = localStorage.getItem("email");
+            
+            // If it's disabled, ignore the submit request
+            if (this.getPageElement("#button_createTeam").prop("disabled")) {
+                return; // Exit the handler, not valid
+            }
             
             if(this.secondaryValid) {
                 teamDetails.secondaryCoach = this.getPageElement("#input_secondaryCoach").val();

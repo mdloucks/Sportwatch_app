@@ -1,9 +1,13 @@
 
 /* ---- TITLE BASE STYLING ---- */
 
+#createteamPage {
+    padding-top: env(safe-area-inset-top);
+}
+
 #createteamPage #banner {
     padding: 5px;
-    margin: 2vh auto;
+    margin: auto;
     width: 80%;
     border: 1vw solid black;
     border-radius: 3vw;
