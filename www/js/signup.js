@@ -176,10 +176,11 @@ class Signup extends Page {
 
         this.getPageElement("form").on("submit", function (e) {
             e.preventDefault();
-
+            
             if (this.getPageElement("#button_signup").hasClass("invalid")) {
                 return; // Exit the handler, not valid
             }
+            this.getPageElement("#button_signup").addClass("invalid"); // Prevent double clicks
 
             // Validate inputs (one last safety check)
             let firstName = this.getPageElement("input[name=fname]").val();
@@ -259,7 +260,8 @@ class Signup extends Page {
      * @param {String} errMessage - message to display if invalid
      */
     setupInvalidSymbol(symbolId, isValid, errMessage) {
-
+        console.log("Configured invalid for " + symbolId);
+        
         // Prevents double binding
         this.getPageElement(symbolId + ".invalidSym").unbind().off();
         if (isValid) {
@@ -303,6 +305,8 @@ class Signup extends Page {
         let dialog = this.getPageElement(".invalidDialog");
         // This prevents showing the dialog if it's not ready / transitioning
         if ((dialog.css("opacity") != "0") && (dialog.css("opacity") != "1")) {
+            console.log("Returning:");
+            console.log(dialog.css("opacity"));
             return;
         }
 
@@ -327,13 +331,24 @@ class Signup extends Page {
         }
         dialog.css("left", x + "px");
         dialog.css("top", y + "px");
-        dialog.fadeIn(1000);
+        dialog.fadeIn({
+            duration: 1000,
+            complete: () => {
+                console.log("COMPLETE")
+            },
+            fail: () => {
+                console.log("FAILE")
+            },
+            done: () => {
+                console.log("DONEOE");
+            }
+        });
 
         // Prevents previous timeouts from closing the new dialog
         if (this.dialogInterval != 0) {
             clearInterval(this.dialogInterval);
         }
-
+        console.log("Finished setting it up!");
         // And disappear in a few seconds
         this.dialogInterval = setTimeout(() => {
             dialog.fadeOut(1000, () => {
