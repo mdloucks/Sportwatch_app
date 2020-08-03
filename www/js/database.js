@@ -18,9 +18,7 @@ let json = {
         ["meter", "discus"],
         ["meter", "javelin"],
         ["meter", " hammer"],
-        ["meter", "shot put"],
-        ["second", "other"],
-        ["minute", "other"]
+        ["meter", "shot put"]
     ],
     // "record": [
     //     [1, 1, 12, false, null, null, Date.now()],
@@ -37,8 +35,6 @@ let json = {
         
     // ]
 }
-
-
 
 
 /**
@@ -98,16 +94,7 @@ class DatabaseConnection {
             }
         });
 
-        this.executeTransaction("SELECT Count(*) FROM record_definition").then((result) => {
-            let length = result.item(0)["Count(*)"];
-        
-            if(length == 0) {
-                if(DO_LOG) {
-                    console.log("record definitions not present, inserting now...");
-                }
-                this.insertDatabasePresetValues();
-            } 
-        });
+        this.insertDatabasePresetValues();
     }
 
 
