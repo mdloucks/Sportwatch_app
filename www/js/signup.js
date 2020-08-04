@@ -260,14 +260,13 @@ class Signup extends Page {
      * @param {String} errMessage - message to display if invalid
      */
     setupInvalidSymbol(symbolId, isValid, errMessage) {
-        console.log("Configured invalid for " + symbolId);
         
         // Prevents double binding
         this.getPageElement(symbolId + ".invalidSym").unbind().off();
         if (isValid) {
             this.getPageElement(symbolId + ".invalidSym").prop("src", "img/validSymbol.png");
             clearInterval(this.dialogInterval);
-            this.getPageElement(".invalidDialog").fadeOut(1000, () => {
+            this.getPageElement(".invalidDialog").fadeTo(1000, 0, () => {
                 this.getPageElement(".invalidDialog").css("width", "0"); // Will block clicks otherwise
             })
 
@@ -301,15 +300,20 @@ class Signup extends Page {
      *                                  if left null, it will center the dialog
      */
     openInvalidMessage(message, anchorElement = null) {
-
+        
         let dialog = this.getPageElement(".invalidDialog");
         // This prevents showing the dialog if it's not ready / transitioning
         if ((dialog.css("opacity") != "0") && (dialog.css("opacity") != "1")) {
-            console.log("Returning:");
-            console.log(dialog.css("opacity"));
-            return;
+            // There is an iOS bug that halts the fadeIn operation very early
+            // This if statement fixes it by ignoring a near-zero opacity (return if greater)
+            if(parseFloat(dialog.css("opacity")) > 0.001) {
+                dialog.stop();
+                return;
+            } else {
+                dialog.css("opacity", "1");
+            }
         }
-
+        
         // Set dialog properties
         this.getPageElement(".invalidDialog > #d_message").html(message);
         dialog.css("width", "60%"); // Make sure it's before grabbing width
@@ -331,27 +335,16 @@ class Signup extends Page {
         }
         dialog.css("left", x + "px");
         dialog.css("top", y + "px");
-        dialog.fadeIn({
-            duration: 1000,
-            complete: () => {
-                console.log("COMPLETE")
-            },
-            fail: () => {
-                console.log("FAILE")
-            },
-            done: () => {
-                console.log("DONEOE");
-            }
-        });
+        dialog.fadeTo(1000, 1);
 
         // Prevents previous timeouts from closing the new dialog
         if (this.dialogInterval != 0) {
             clearInterval(this.dialogInterval);
         }
-        console.log("Finished setting it up!");
+        
         // And disappear in a few seconds
         this.dialogInterval = setTimeout(() => {
-            dialog.fadeOut(1000, () => {
+            dialog.fadeTo(1000, 0, () => {
                 dialog.css("width", "0");
             });
         }, 5000);
