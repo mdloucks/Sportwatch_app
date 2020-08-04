@@ -435,7 +435,9 @@ class Stopwatch extends Page {
         dbConnection.insertValues("record", [athlete.rowid, event.rowid, this.clock.seconds, false, null, null, Date.now()]);
 
         RecordBackend.saveRecord((response) => {
-            console.log("RECORD SAVED " + JSON.stringify(response));
+            if(DO_LOG) {
+                console.log("RECORD SAVED " + JSON.stringify(response));
+            }
         }, this.clock.seconds, event.rowid) 
         
         let query = (`
