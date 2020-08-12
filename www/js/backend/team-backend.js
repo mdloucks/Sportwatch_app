@@ -127,6 +127,59 @@ class TeamBackend {
     }
     
     /**
+     * Tells the backend that the logged in user is leaving the team
+     * (I hope they leave without a fight...). It will use the local storage
+     * email and team id (if they aren't set, a rejected promise is being returned)
+     * The database should probably be cleared / re-pulled after such a
+     * major change in position.
+     * 
+     * @example leaveTeam((response) => { // Confirm leave });
+     * 
+     * @param {Function} cb callback function that takes in response JSON (or string on error)
+     * @param {Integer} teamId [defaults to local storage] the ID of the team to leave
+     */
+    static leaveTeam(cb, teamId = -1) {
+        
+        let requestArray = { };
+        let storage = window.localStorage;
+        
+        // Check / set team ID
+        if(teamId < 1) { // mySQL ID's start at 1
+            teamId = storage.getItem("id_team");
+        }
+        
+        // Prepare the request array
+        requestArray.SID = storage.getItem("SID");
+        requestArray.accountEmail = storage.getItem("email");
+        requestArray.teamIdentity = { "id_team" : teamId };
+        
+        // Submit the request and call the callback
+        return $.ajax({
+            type: "POST",
+            url: Constant.URL.team_action + "?intent=4",
+            timeout: Constant.AJAX_CFG.timeout,
+            data: requestArray,
+            success: (response) => {
+                if(DO_LOG) {
+                    console.log("[team-backend.js:leaveTeam()] " + response);
+                }
+                try {
+                    response = JSON.parse(response);
+                } catch (e) {
+                    // Couldn't parse, so just use string
+                }
+                cb(response);
+            },
+            error: (error) => {
+                if(DO_LOG) {
+                    console.log("[team-backend.js:leaveTeam()] " + error);
+                }
+                cb(error);
+            }
+        });
+    }
+    
+    /**
      * Submits a request to pull the team information from the backend for
      * use in the app. Likely includes name, school, etc. since the only NEEDED
      * thing to store in local storage is the id_team

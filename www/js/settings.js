@@ -50,7 +50,7 @@ class Settings extends Page {
         this.accountButtons = {
             "My Account": this.startMyAccount,
             "Team Preferences": this.startTeamPreferences,
-            "Notifications": this.startNotifications,
+            // "Notifications": this.startNotifications,
             "Sign Out": this.startSignOut,
             "Delete Account": this.startDeleteAccount
         };
@@ -355,7 +355,40 @@ class Settings extends Page {
 
         $(`${this.inputDivIdentifier} #leave_team_button`).click(() => {
             Popup.createConfirmationPopup("Are you sure you want to leave your team?", ["Yes", "No"], [() => {
-                // TODO: Seth leave the user's team
+                TeamBackend.leaveTeam((result) => {
+                    
+                    // If succeeded, re-pull data and notify user
+                    if(result.status > 0) {
+                        // Store email and SID, then clear everything else
+                        let email = localStorage.getItem("email");
+                        let sessionId = localStorage.getItem("SID");
+                        localStorage.clear();
+                        localStorage.setItem("email", email);
+                        localStorage.setItem("SID", sessionId);
+                        
+                        ToolboxBackend.pullFromBackend().then(() => {
+                            if(DO_LOG) {
+                                console.log("[settings.js]: Backend sync finished!");
+                            }
+                        }).catch(function() {
+                            if(DO_LOG) {
+                                console.log("[settings.js]: Failed to pull from backend, localStorage email: " + localStorage.getItem("email"));
+                            }
+                        });
+                        Popup.createConfirmationPopup("You have successfully left the team", ["OK"], [() => { }]);
+                        
+                    // Failure, let them know why
+                    } else {
+                        if(result.msg.indexOf("coach") != -1) {
+                            // TODO: Add options to delete team or nominate other coaches
+                            Popup.createConfirmationPopup("You're the only coach! You can't leave the team", ["OK"], [() => { }]);
+                        } else {
+                            Popup.createConfirmationPopup("We're sorry, an error occured on our end. Please try later", ["OK"], [() => { }]);
+                        }
+                    }
+                });
+                // End of leave action
+                
             }, () => {
                 // no action
             }])
@@ -373,7 +406,7 @@ class Settings extends Page {
                 
             }, () => {
                 // no action
-            }])
+            }]);
         }
 
         // generate select form to select an athlete, and pass its rowid to deleteAthlete
