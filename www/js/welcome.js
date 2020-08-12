@@ -22,7 +22,7 @@ class Welcome extends Page {
                 <br><br>
                 <img src="img/logo.png" alt="Sportwatch Logo" style="width: 40%;">
                 <br>
-                <h1 style="font-size: 4em">Sportwatch</h1>
+                <h1 style='font-size: 4em; font-family: "Poppins", sans-serif;'>Sportwatch</h1>
                 <br><br>
                 <div class="selection">
                     <button id='signup' class='sw_big_button' type='button'>Sign Up</button>

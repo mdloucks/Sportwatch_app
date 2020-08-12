@@ -29,7 +29,7 @@
             * Disables use of inline scripts in order to mitigate risk of XSS vulnerabilities. To change this:
                 * Enable inline JS: add 'unsafe-inline' to default-src
         -->
-  <meta http-equiv="Content-Security-Policy" content="default-src 'self' data: gap: https://ssl.gstatic.com 'unsafe-eval'; style-src 'self' 'unsafe-inline'; media-src *; img-src *; connect-src 'self' https://*.sportwatch.us">
+  <meta http-equiv="Content-Security-Policy" content="default-src 'self' data: gap: https://ssl.gstatic.com 'unsafe-eval'; style-src 'self' 'unsafe-inline' https://*.googleapis.com; media-src *; img-src *; font-src https://*.gstatic.com; connect-src 'self' https://*.sportwatch.us">
   <!-- <meta http-equiv="Content-Security-Policy" content="default-src *; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline'; media-src *; img-src 'self' data:"> -->
   <!-- <meta http-equiv="Content-Security-Policy"
     content="default-src 'self' data: gap: https://ssl.gstatic.com 'unsafe-eval'; style-src 'self' 'unsafe-inline'; img-src *; media-src *; connect-src 'self' https://*.sportwatch.us" /> -->
@@ -61,6 +61,9 @@
   <script type="text/javascript" src="lib/Chart.min.js"></script>
   <!-- <link rel="stylesheet" href="lib/bootstrap.min.css"> -->
 
+  <!-- fonts -->
+  <link rel='stylesheet' href='https://fonts.googleapis.com/css2?family=Poppins%3Awght%40400%3B700%3B800%3B900&#038;display=swap&#038;ver=5.4.2' type='text/css' media='all' />
+  
   <!-- src -->
   <script type="text/javascript" src="cordova.js"></script>
   <script type="text/javascript" src="js/database.js"></script>

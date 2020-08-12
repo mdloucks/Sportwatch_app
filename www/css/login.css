@@ -6,6 +6,7 @@
 #loginPage h1 {
     font-size: 3em;
     margin-bottom: 3vh;
+    font-family: "Poppins", sans-serif;
 }
 
 #loginPage p {
@@ -32,7 +33,6 @@
 
 #loginPage .sw_text_input {
     margin-bottom: 3vh;
-    -webkit-appearance: none;;
 }
 
 #loginPage #login_button {

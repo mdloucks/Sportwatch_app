@@ -31,6 +31,7 @@ This is to limit the file size for our page specific styles
     font-size: 1.5em;
     width: 60%;
     outline: none;
+    -webkit-appearance: none;;
 }
 
 .back_arrow {

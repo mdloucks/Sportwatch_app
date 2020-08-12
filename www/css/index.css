@@ -39,6 +39,10 @@ span {
     cursor: pointer;
 }
 
+input {
+    -webkit-appearance: none;
+}
+
 .loader {
     position: absolute;
     top: 0;

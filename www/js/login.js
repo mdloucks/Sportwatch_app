@@ -20,7 +20,7 @@ class Login extends Page {
         return (`
             <div id="loginPage" class="div_page">
                 <br>
-                <h1>Sportwatch</h1>
+                <h1>Login</h1>
                 <form>
                     <label id="label_email" for="email">Email</label><br>
                     <input class="sw_text_input" type="email" name="email" placeholder="you@example.com">

@@ -1,7 +1,14 @@
 
+/* DEPRECATED: Simple page, so only use in-line styling */
+
+
 /**********************
         GENERAL
 ***********************/
+
+#welcomePage h1 {
+    font-family: "Poppins", sans-serif;
+}
 
 #welcomePage header { 
     text-align: center;

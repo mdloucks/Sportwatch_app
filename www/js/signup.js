@@ -22,7 +22,7 @@ class Signup extends Page {
         return (`
             <div id="signupPage" class="div_page">
                 <br>
-                <h1>Sportwatch</h1>
+                <h1>Signup</h1>
                 <form>
                     <label id="label_name" for="fname">Name</label><br>
                     <input class="sw_text_input nameInput" type="text" name="fname" placeholder="First">
