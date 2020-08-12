@@ -149,10 +149,18 @@ class Team extends Page {
 
         // After populated, slide
         this.pageTransition.slideLeft("athletePage");
+        // While transitioning, scroll to the top
+        $("#teamPage").animate({
+            scrollTop: 0
+        }, 1000);
 
         // Slide back; athlete page will be overwritten next select
         $("#back_button_athlete").bind("click", (e) => {
             this.pageTransition.slideRight("landingPage");
+            // Reset scroll
+            $("#teamPage").animate({
+                scrollTop: 0
+            }, 1000);
         });
     }
 
@@ -164,7 +172,11 @@ class Team extends Page {
     startAthleteStatPage(athlete, event) {
 
         this.pageTransition.slideLeft("athleteStatPage");
-
+        // While transitioning, scroll to the top
+        $("#teamPage").animate({
+            scrollTop: 0
+        }, 1000);
+        
         this.tableData = [];
 
         $("#teamPage #athleteStatPage #athlete_stats_container").empty();
@@ -173,6 +185,10 @@ class Team extends Page {
             // stop editing so columns don't delete
             this.isEditing = false;
             this.pageTransition.slideRight("athletePage");
+            // Scroll to the top
+            $("#teamPage").animate({
+                scrollTop: 0
+            }, 1000);
         });
 
         let query = `

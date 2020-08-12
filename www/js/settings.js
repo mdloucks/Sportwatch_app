@@ -133,6 +133,10 @@ class Settings extends Page {
             e.preventDefault();
             $("#settingsPage .cat_button").removeClass("cat_button_selected");
             this.pageTransition.slideRight("catagoryPage");
+            // Scroll to the top
+            $("#settingsPage").animate({
+                scrollTop: 0
+            }, 1000);
         });
     }
 

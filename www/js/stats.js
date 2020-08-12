@@ -128,7 +128,11 @@ class Stats extends Page {
     startEventPage(event) {
 
         this.pageTransition.slideLeft("eventPage");
-
+        // While transitioning, scroll to the top
+        $("#statsPage").animate({
+            scrollTop: 0
+        }, 1000);
+        
         this.clearResultsTable();
 
         $("#statsPage #eventPage #event_name").html(event.record_identity);
@@ -137,6 +141,10 @@ class Stats extends Page {
 
         $("#statsPage #eventPage #back_button_event").bind("click", (e) => {
             this.pageTransition.slideRight("landingPage");
+            // Reset the scroll
+            $("#stopwatchPage").animate({
+                scrollTop: 0
+            }, 1000);
         });
 
 
