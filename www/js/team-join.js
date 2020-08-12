@@ -18,7 +18,6 @@ class JoinTeam extends Page {
         
         this.codePage = (`
             <div id="codePage" class="div_page">
-                <br>
                 <div class="generic_header">
                     <h1>Join Team</h1>
                 </div><br><br>
@@ -137,6 +136,10 @@ class JoinTeam extends Page {
                             Popup.createConfirmationPopup("You have successfully joined the team!", ["OK"], [() => {
                                 this.pageController.switchPage("TeamLanding");
                                 // Which should now switch to the team.js view
+                                
+                                // And finally, clear the inputs
+                                this.getPageElement("input").not("#button_join").val("");
+                                this.getPageElement("#button_join").prop("disabled", true);
                             }]);
                             
                         } else {
