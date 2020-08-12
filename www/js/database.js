@@ -17,7 +17,7 @@ let json = {
         ["meter", "pole vault"],
         ["meter", "discus"],
         ["meter", "javelin"],
-        ["meter", " hammer"],
+        ["meter", "hammer"],
         ["meter", "shot put"]
     ],
     // "record": [

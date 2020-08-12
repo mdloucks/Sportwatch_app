@@ -369,8 +369,12 @@ class Stopwatch extends Page {
      * this function will start the select event page
      */
     startSelectEventPage(athlete) {
-
+        
         this.pageTransition.slideLeft("selectEventPage");
+        // While transitioning, scroll to the top
+        $("#stopwatchPage").animate({
+            scrollTop: 0
+        }, 1000);
 
         $("#stopwatchPage #selectEventPage #saved_events_box").empty();
         $("#stopwatchPage #selectEventPage #new_events_box").empty();
@@ -386,7 +390,7 @@ class Stopwatch extends Page {
         // user selects an existing event
         dbConnection.selectValues(query, [athlete.rowid]).then((events) => {
 
-            if(events.length == 0) {
+            if((events.length == 0) || (events == false)) {
                 return;
             }
             
@@ -398,6 +402,7 @@ class Stopwatch extends Page {
         // get a list of every event definition and take away the ones with records already
         query = (`
             SELECT DISTINCT record_definition.record_identity, record_definition.rowid from record_definition
+            WHERE record_definition.unit = ?
             EXCEPT 
             SELECT DISTINCT record_definition.record_identity, record_definition.rowid from record_definition
             INNER JOIN record
@@ -406,7 +411,7 @@ class Stopwatch extends Page {
         `)
 
         // User selects a new event that the athlete is not already registered in
-        dbConnection.selectValues(query, [athlete.rowid]).then((record_definitions) => {
+        dbConnection.selectValues(query, ["second", athlete.rowid]).then((record_definitions) => {
             if(record_definitions != false) {
                 ButtonGenerator.generateButtonsFromDatabase("#stopwatchPage #selectEventPage #new_events_box", record_definitions, (record_definition) => {
                     this.saveTime(record_definition, athlete);
@@ -427,7 +432,7 @@ class Stopwatch extends Page {
      * @param {Object} athlete the event to for
      */
     saveTime(event, athlete) {
-        // TODO: send these values to the server
+        
         this.pageTransition.slideRight("landingPage");
 
 
