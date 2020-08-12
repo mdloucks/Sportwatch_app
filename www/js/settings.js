@@ -449,20 +449,28 @@ class Settings extends Page {
     }
 
     startSignOut() {
-        localStorage.clear();
-        dbConnection.deleteDatabase();
-        /*
-         * forceHaltSlide() is important and needed because when the use taps
-         * "Sign Out", SwipeHandler registers it as a TAP Gesture. In MainSet,
-         * PageTransition is bound to the TAP event and calls the slidePageX()
-         * function (this is to "snap back" pages that aren't slid far enough).
-         * However, the delay built into the slidePageX() function will re-hide
-         * and re-show parts of the MainSet. forceHaltSlide() stop this
-         * 
-         * TL;DR: forceHaltSlide() facilitates smooth PageSet transitions
-         */
-        this.pageController.transitionObj.forceHaltSlide();
-        this.pageController.onChangePageSet(0); // 0 for Welcome
+        
+        Popup.createConfirmationPopup("Are you sure you want to sign out?", ["Yes", "No"], [() => {
+            localStorage.clear();
+            dbConnection.deleteDatabase();
+            /*
+            * forceHaltSlide() is important and needed because when the use taps
+            * "Sign Out", SwipeHandler registers it as a TAP Gesture. In MainSet,
+            * PageTransition is bound to the TAP event and calls the slidePageX()
+            * function (this is to "snap back" pages that aren't slid far enough).
+            * However, the delay built into the slidePageX() function will re-hide
+            * and re-show parts of the MainSet. forceHaltSlide() stop this
+            * 
+            * TL;DR: forceHaltSlide() facilitates smooth PageSet transitions
+            */
+            this.pageController.transitionObj.forceHaltSlide();
+            this.pageController.onChangePageSet(0); // 0 for Welcome
+            
+        }, () => {
+            // Do nothing since they didn't want to sign out
+            $("#settingsPage .cat_button").removeClass("cat_button_selected");
+        }]);
+        
     }
 
     startDeleteAccount() {
