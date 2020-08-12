@@ -12,7 +12,7 @@ class Popup {
      */
     static callbackCleanupWrapper(element, callback) {
         callback();
-        $(".popup").fadeOut(300, function () {
+        $(element).fadeOut(300, function () {
             $(this).remove();
         });
     }
@@ -31,9 +31,12 @@ class Popup {
         if (buttons.length != callbacks.length) {
             throw new Error(`OutOfBounds exception, improper length. buttons: ${buttons.length} callbacks: ${callbacks.length}`);
         }
-
+        
+        // Assign an ID so it doesn't intefere with other popups
+        let popupId = $(".popup").length + 1;
+        
         $("#app").append(`
-            <div class="popup">
+            <div class="popup" id="popup_${popupId}">
     
                 <div class="popup_content">
                     <span class="close">&times;</span>
@@ -41,22 +44,22 @@ class Popup {
                 </div>
             </div>
         `);
-
+        
         for (let i = 0; i < buttons.length; i++) {
 
             let button = ButtonGenerator.generateButton({ id: `popup_button_${i}`, class: "popup_button", html: buttons[i] }, function () {
-                Popup.callbackCleanupWrapper(`#popup_button_${i}`, callbacks[i]);
+                Popup.callbackCleanupWrapper("#popup_" + popupId, callbacks[i]);
             });
 
-            $(".popup_content").append(button);
+            $("#popup_" + popupId + " .popup_content").append(button);
         }
 
-        $(".popup:first").css("display", "block");
+        $("#popup_" + popupId).css("display", "block");
 
-        $(".close:first").on("click", function (e) {
+        $("#popup_" + popupId + " .close:first").on("click", function (e) {
             e.preventDefault();
-            $(".close").unbind();
-            $(".popup").fadeOut(300, function () { $(this).remove(); });
+            $("#popup_" + popupId + " .close").unbind();            
+            $("#popup_" + popupId).fadeOut(300, function () { $(this).remove(); });
         });
     }
 
