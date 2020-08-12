@@ -67,6 +67,18 @@
         <resource-file src="res/icon/android/mipmap-xxxhdpi/ic_launcher_foreground.png" target="app/src/main/res/mipmap-xxxhdpi/ic_launcher_foreground.png" />
         <resource-file src="res/icon/android/mipmap-xxxhdpi/ic_launcher_background.png" target="app/src/main/res/mipmap-xxxhdpi/ic_launcher_background.png" />
         <resource-file src="res/icon/android/mipmap-xxxhdpi/ic_launcher_round.png" target="app/src/main/res/mipmap-xxxhdpi/ic_launcher_round.png" />
+	
+	<!-- Splash screens -->
+	<splash src="res/screen/android/screen-hdpi-landscape.png" density="land-hdpi"/>
+	<splash src="res/screen/android/screen-ldpi-landscape.png" density="land-ldpi"/>
+	<splash src="res/screen/android/screen-mdpi-landscape.png" density="land-mdpi"/>
+	<splash src="res/screen/android/screen-xhdpi-landscape.png" density="land-xhdpi"/>
+	
+	<splash src="res/screen/android/screen-hdpi-portrait.png" density="port-hdpi"/>
+	<splash src="res/screen/android/screen-ldpi-portrait.png" density="port-ldpi"/>
+	<splash src="res/screen/android/screen-mdpi-portrait.png" density="port-mdpi"/>
+	<splash src="res/screen/android/screen-xhdpi-portrait.png" density="port-xhdpi"/>
+	
     </platform>
 
     <platform name="ios">
@@ -109,7 +121,20 @@
         <icon src="res/icon/ios/icon-50@2x.png" width="100" height="100" />
         <!-- iPad Pro -->
         <icon src="res/icon/ios/icon-167.png" width="167" height="167" />
-
+	
+        <!-- Splash screens -->
+        <!-- Prepare manually when changing icons, otherwise Xcode build fails -->
+        <!-- <splash src="res/screen/ios/screen-iphone-portrait.png" width="320" height="480"/>
+        <splash src="res/screen/ios/screen-iphone-portrait-2x.png" width="640" height="960"/>
+        <splash src="res/screen/ios/screen-ipad-portrait.png" width="768" height="1024"/>
+        <splash src="res/screen/ios/screen-ipad-portrait-2x.png" width="1536" height="2048"/>
+        <splash src="res/screen/ios/screen-ipad-landscape.png" width="1024" height="768"/>
+        <splash src="res/screen/ios/screen-ipad-landscape-2x.png" width="2048" height="1536"/>
+        <splash src="res/screen/ios/screen-iphone-portrait-568h-2x.png" width="640" height="1136"/>
+        <splash src="res/screen/ios/screen-iphone-portrait-667h.png" width="750" height="1334"/>
+        <splash src="res/screen/ios/screen-iphone-portrait-736h.png" width="1242" height="2208"/>
+        <splash src="res/screen/ios/screen-iphone-landscape-736h.png" width="2208" height="1242"/> -->
+	
         <allow-intent href="itms:*" />
         <allow-intent href="itms-apps:*" />
     </platform>
