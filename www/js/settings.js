@@ -229,7 +229,7 @@ class Settings extends Page {
             // TODO: Make state change a dropdown instead of typing, sanitize to abbreviation
 
             let ignoredValues = ["status", "substatus", "msg", "id_user", "accountType", "isAdmin",
-                "id_school", "id_team", "schoolName", "teamName", "email", "lastUpdated"
+                "id_school", "id_team", "schoolName", "teamName", "email", "lastUpdated", "lastLogin"
             ];
 
             let sensitiveValues = {
