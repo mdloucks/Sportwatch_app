@@ -61,6 +61,7 @@ class Stopwatch extends Page {
                 <div class="button_box">
 
                 </div><br><br>
+                <div class="subheading_text"></div>
             </div>
         `);
 
@@ -335,6 +336,7 @@ class Stopwatch extends Page {
         this.pageTransition.slideLeft("selectAthletePage");
 
         $("#stopwatchPage #selectAthletePage .button_box").empty();
+        $("#stopwatchPage #selectAthletePage .subheading_text").empty();
 
         let conditionalAttributes = {
             "gender": {
@@ -355,10 +357,9 @@ class Stopwatch extends Page {
                     this.startSelectEventPage(athlete)
                 }, ["gender", "unit", "grade", "is_relay", "timestamp", "id_backend"], conditionalAttributes);
             } else {
-                $("#stopwatchPage #selectAthletePage").append(`
-                <div class="subheading_text">
+                $("#stopwatchPage #selectAthletePage .subheading_text").html(`
                 You have no athletes on your team yet. Go to the Team page and invite some athletes to join!
-                </div>`)
+                `)
             }
         });
     }
