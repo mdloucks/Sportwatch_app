@@ -286,10 +286,6 @@ class DatabaseConnection {
 
             let queryWildcards = "(" + "?, ".repeat(data.length).slice(0, -2) + ")";
 
-            if (DO_LOG) {
-                console.log(`INSERT INTO ${table} VALUES ${queryWildcards} ${JSON.stringify(data)}`);
-            }
-
             this.db.transaction(function (tx) {
 
                 tx.executeSql(`INSERT INTO ${table} VALUES ${queryWildcards}`, data);
@@ -320,13 +316,11 @@ class DatabaseConnection {
             console.log("[database.js]: table was not specified");
         }
 
-
         this.db.transaction((tx) => {
             console.log("VALS " + typeof (values));
 
             if (typeof (values) == "object") {
                 let query = `INSERT INTO ${table} (${Object.keys(values).join(", ")}) VALUES ${this.getQueryInsertString(Object.keys(values).length)}`;
-                console.log("QUERY " + query);
                 tx.executeSql(query, Object.values(values));
 
             } else if (typeof (values) == "array") {
@@ -334,7 +328,6 @@ class DatabaseConnection {
                 for (let i = 0; i < values.length; i++) {
                     let valuesObject = values[i];
                     let query = (`INSERT INTO ${table} (${Object.keys(valuesObject).join(", ")}) VALUES ${this.getQueryInsertString(Object.keys(valuesObject[0]).length)}`);
-                    console.log("MULTIPLE " + query);
                     tx.executeSql(query, Object.values(valuesObject));
                 }
 
