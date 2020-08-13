@@ -290,37 +290,6 @@ class Stats extends Page {
         `); // <span>&#9660;</span>
     }
 
-    /**
-     * this function is called when the add event button is pressed
-     */
-    startAddEventPage() {
-        console.log("START ADD EVENT");
-
-        $("#statsPage #eventPage #back_button_add_event").bind("click", (e) => {
-            console.log("BACK");
-            this.pageTransition.slideRight("landingPage");
-        });
-
-        this.pageTransition.slideLeft("addEventPage");
-
-        dbConnection.selectValues("SELECT *, rowid FROM record_definition", []).then((record_definitions) => {
-            if(record_definitions != false) {
-                ButtonGenerator.generateButtonsFromDatabase("#statsPage #addEventPage .button_box", record_definitions, (record_definition) => {
-                    this.addEvent(record_definition)
-                }, ["unit"]);
-            }
-        });
-    }
-
-    addEvent(event) {
-
-        let is_relay = (event.record_identity.includes("relay") == true) ? true : false
-        let data = [event.record_identity, "m", event.unit, is_relay, Date.now()];
-
-        dbConnection.insertValues("event", data);
-        this.startLandingPage();
-    }
-
 
 
     stop() {}
