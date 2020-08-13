@@ -26,13 +26,13 @@ let json = {
     //     [1, 2, 13, false, null, null, Date.now()],
     //     [1, 2, 16, false, null, null, Date.now()],
     //     [1, 3, 14, false, null, null, Date.now()],
-        
+
     //     [2, 1, 12, false, null, null, Date.now()],
     //     [2, 1, 13, false, null, null, Date.now()],
     //     [2, 2, 13, false, null, null, Date.now()],
     //     [2, 2, 16, false, null, null, Date.now()],
     //     [2, 3, 14, false, null, null, Date.now()],
-        
+
     // ]
 }
 
@@ -50,12 +50,15 @@ class DatabaseConnection {
      */
     constructor() {
         try {
-            if(DO_LOG) {
+            if (DO_LOG) {
                 console.log("Opening database...");
             }
-            this.db = window.sqlitePlugin.openDatabase({ name: 'Sportwatch.db', location: 'default' });
+            this.db = window.sqlitePlugin.openDatabase({
+                name: 'Sportwatch.db',
+                location: 'default'
+            });
         } catch (err) {
-            if(DO_LOG) {
+            if (DO_LOG) {
                 console.log("Sportwatch database failed to open.");
             }
             // TODO: send this error to the server and try to handle it in some way
@@ -85,11 +88,11 @@ class DatabaseConnection {
             tx.executeSql(`CREATE TABLE IF NOT EXISTS record (id_athlete, id_record_definition, value, is_split, id_split, id_split_index, last_updated)`);
 
         }, function (error) {
-            if(DO_LOG) {
+            if (DO_LOG) {
                 console.log('Transaction ERROR: ' + error.message);
             }
         }, function () {
-            if(DO_LOG) {
+            if (DO_LOG) {
                 console.log('TABLES CREATED');
             }
         });
@@ -109,7 +112,7 @@ class DatabaseConnection {
             this.db.transaction(function (tx) {
                 tx.executeSql(query, values, function (tx, rs) {
                     if (rs.rows.length === 0) {
-                        if(DO_LOG) {
+                        if (DO_LOG) {
                             console.log("empty set for " + query);
                         }
                         resolve(false);
@@ -117,7 +120,7 @@ class DatabaseConnection {
                     resolve(rs.rows);
                 });
             }, function (error) {
-                if(DO_LOG) {
+                if (DO_LOG) {
                     console.log('Transaction ERROR: ' + error.message);
                     console.log(JSON.stringify(error));
                 }
@@ -146,7 +149,7 @@ class DatabaseConnection {
                     let rows = [];
 
                     if (rs.rows.length === 0) {
-                        if(DO_LOG) {
+                        if (DO_LOG) {
                             console.log("empty set!");
                         }
                         reject(false);
@@ -165,7 +168,7 @@ class DatabaseConnection {
                     resolve(rows);
                 });
             }, function (error) {
-                if(DO_LOG) {
+                if (DO_LOG) {
                     console.log('Transaction ERROR: ' + error.message);
                     console.log(JSON.stringify(error));
                 }
@@ -205,7 +208,7 @@ class DatabaseConnection {
 
                 let query = `UPDATE ${table} SET ${setString} ${options}`;
 
-                if(DO_LOG) {
+                if (DO_LOG) {
                     console.log(query);
                 }
 
@@ -213,7 +216,7 @@ class DatabaseConnection {
                     resolve(true);
                 });
             }, function (error) {
-                if(DO_LOG) {
+                if (DO_LOG) {
                     console.log('Transaction ERROR: ' + error.message);
                     console.log(JSON.stringify(error));
                 }
@@ -233,9 +236,9 @@ class DatabaseConnection {
     executeTransaction(query, values) {
         return new Promise((resolve, reject) => {
             this.db.transaction(function (tx) {
-    
+
                 tx.executeSql(query, values, function (tx, rs) {
-                    if(rs.rows.length == 0) {
+                    if (rs.rows.length == 0) {
                         resolve(true)
                     } else {
                         resolve(rs.rows)
@@ -257,12 +260,11 @@ class DatabaseConnection {
 
             let query = `DELETE FROM ${table} ${whereString}`;
 
-            if(DO_LOG) {
+            if (DO_LOG) {
                 console.log(query);
             }
 
-            tx.executeSql(query, values, function (tx, rs) {
-            });
+            tx.executeSql(query, values, function (tx, rs) {});
         });
     }
 
@@ -284,7 +286,7 @@ class DatabaseConnection {
 
             let queryWildcards = "(" + "?, ".repeat(data.length).slice(0, -2) + ")";
 
-            if(DO_LOG) {
+            if (DO_LOG) {
                 console.log(`INSERT INTO ${table} VALUES ${queryWildcards} ${JSON.stringify(data)}`);
             }
 
@@ -294,13 +296,51 @@ class DatabaseConnection {
 
                 resolve();
             }, function (error) {
-                if(DO_LOG) {
+                if (DO_LOG) {
                     console.log('Transaction ERROR: ' + error.message);
                     console.log(JSON.stringify(error));
                 }
                 reject(error);
-            }, function () {
-            });
+            }, function () {});
+        });
+    }
+
+    /**
+     * @description insert a given object or array of objects into the table
+     * @param {String} table the table to be inserted into
+     * @param {Array or Object} values the key:pair object to be inserted into the table
+     */
+    insertValuesFromObject(table = "", values = []) {
+        if (values.length == 0) {
+            console.log("[database.js]: values array length is 0");
+            return;
+        }
+
+        if (table == "") {
+            console.log("[database.js]: table was not specified");
+        }
+
+
+        this.db.transaction((tx) => {
+            console.log("VALS " + typeof (values));
+
+            if (typeof (values) == "object") {
+                let query = `INSERT INTO ${table} (${Object.keys(values).join(", ")}) VALUES ${this.getQueryInsertString(Object.keys(values).length)}`;
+                console.log("QUERY " + query);
+                tx.executeSql(query, Object.values(values));
+
+            } else if (typeof (values) == "array") {
+
+                for (let i = 0; i < values.length; i++) {
+                    let valuesObject = values[i];
+                    let query = (`INSERT INTO ${table} (${Object.keys(valuesObject).join(", ")}) VALUES ${this.getQueryInsertString(Object.keys(valuesObject[0]).length)}`);
+                    console.log("MULTIPLE " + query);
+                    tx.executeSql(query, Object.values(valuesObject));
+                }
+
+            } else {
+                console.log("[database.js]: incorrect type for query, type given is " + typeof (values));
+            }
         });
     }
 
@@ -308,18 +348,18 @@ class DatabaseConnection {
      * read from a json file and populate the database with the entries within
      */
     insertDatabasePresetValues() {
-        
+
         this.db.transaction(function (tx) {
-            
+
             // $.getJSON("json/database-presets.json", function(json) {
             // });
-                
-            if(Object.keys(json).length == 0) {
-                if(DO_LOG) {
+
+            if (Object.keys(json).length == 0) {
+                if (DO_LOG) {
                     console.log("TABLE JSON IS MISSING");
                 }
             } else {
-                if(DO_LOG) {
+                if (DO_LOG) {
                     console.log("inserting JSON values");
                 }
             }
@@ -329,16 +369,16 @@ class DatabaseConnection {
                 for (let i = 0; i < json[element].length; i++) {
 
                     let row_length = json[element][0].length;
-                    
+
                     tx.executeSql(`INSERT INTO ${element} VALUES (${"?, ".repeat(row_length).slice(0, -2)})`, json[element][i]);
                 }
             });
         }, function (error) {
-            if(DO_LOG) {
+            if (DO_LOG) {
                 console.log('Transaction ERROR: ' + error.message);
             }
         }, function () {
-            if(DO_LOG) {
+            if (DO_LOG) {
                 console.log("Dummy values inserted");
             }
         });
@@ -351,14 +391,14 @@ class DatabaseConnection {
         window.sqlitePlugin.deleteDatabase({
             name: "Sportwatch.db",
             location: "default"
-        }, function() {
-            if(DO_LOG) {
+        }, function () {
+            if (DO_LOG) {
                 console.log("database deleted successfully");
             }
-        }, function(error) {
-           if(DO_LOG) {
+        }, function (error) {
+            if (DO_LOG) {
                 console.log("database could not be deleted");
-           }
+            }
         });
     }
 
@@ -369,7 +409,7 @@ class DatabaseConnection {
      */
     close() {
         this.db.close(function () {
-            if(DO_LOG) {
+            if (DO_LOG) {
                 console.log("Database is closed: OK");
             }
         });
