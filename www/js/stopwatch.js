@@ -435,9 +435,17 @@ class Stopwatch extends Page {
         
         this.pageTransition.slideRight("landingPage");
 
+        let record_data = {
+            "id_athlete": athlete.rowid,
+            "id_record_definition": event.rowid,
+            "value": this.clock.seconds,
+            "is_split": false,
+            "id_split": null, 
+            "id_split_index": null, 
+            "last_updated": Date.now()
+        };
 
-        // save normal time
-        dbConnection.insertValues("record", [athlete.rowid, event.rowid, this.clock.seconds, false, null, null, Date.now()]);
+        dbConnection.insertValuesFromObject("record", record_data);
 
         RecordBackend.saveRecord((response) => {
             if(DO_LOG) {
@@ -473,7 +481,17 @@ class Stopwatch extends Page {
                 }
 
                 for (let i = 0; i < this.lap_times.length; i++) {
-                    dbConnection.insertValues("record", [athlete.rowid, event.rowid, this.lap_times[i], false, index_value, i + 1, Date.now()]);
+                    let record_data = {
+                        "id_athlete": athlete.rowid,
+                        "id_record_definition": event.rowid,
+                        "value": this.lap_times[i],
+                        "is_split": true,
+                        "id_split": index_value, 
+                        "id_split_index": i + 1, 
+                        "last_updated": Date.now()
+                    };
+
+                    dbConnection.insertValuesFromObject("record", record_data);
                 }
 
                 this.resetStopwatch();
