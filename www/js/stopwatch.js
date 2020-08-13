@@ -193,28 +193,26 @@ class Stopwatch extends Page {
             let dt;
 
             let clockLoop = setInterval(() => {
+                
                 if (this.clock.isRunning) {
                     dt = Date.now() - (this.clock.start == 0 ? Date.now() : this.clock.start);
                     this.clock.start = Date.now();
-
-                    this.ctx.clearRect(0, 0, 500, 500);
-                    this.drawCircle();
-                    this.drawPoint(this.clock.angle, 1);
-                    this.clock.angle = -(((this.clock.seconds * 1000) % 1000) / 1000 * 360) + 90;
-
+                    
                     this.clock.seconds += Math.abs(dt / 1000);
                     this.clock.minutes = Math.floor(this.clock.seconds / 60);
                     this.clock.hours = Math.floor(this.clock.seconds / 3600);
-
-                    // console.log(`hours ${this.clock.hours} minutes ${this.clock.minutes} seconds ${this.clock.seconds}`);
-
-                    let clockText = this.generateClockText(this.clock);
-
-                    let textX = this.clock.centerX - (this.ctx.measureText(clockText).width / 2);
-                    let textY = this.clock.centerY + (this.clock.textHeight / 2);
-                    this.ctx.fillText(clockText, textX, textY);
                 }
-            }, 10);
+
+                let clockText = this.generateClockText(this.clock);
+                this.ctx.clearRect(0, 0, 500, 500);
+                this.drawCircle();
+                this.clock.angle = (-((this.clock.seconds % 1) * 360)) + 90;
+                this.drawPoint(this.clock.angle, 1);
+                
+                let textX = this.clock.centerX - (this.ctx.measureText(clockText).width / 2);
+                let textY = this.clock.centerY + (this.clock.textHeight / 2);
+                this.ctx.fillText(clockText, textX, textY);
+            });
         }
         this.clock.hasInitialized = true; // Prevent re-binding of touchend
     }
