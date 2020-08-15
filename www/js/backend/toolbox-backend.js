@@ -37,11 +37,11 @@ class ToolboxBackend {
         let pullState = $.Deferred();
         
         ToolboxBackend.pullForStorage().then(() => {
-            ToolboxBackend.pullForDatabase().then(() => {
-                pullState.resolve();
-            }).catch(() => {
-                pullState.reject();
-            });
+        }).catch(() => {
+            pullState.reject();
+        });
+        ToolboxBackend.pullForDatabase().then(() => {
+            pullState.resolve();
         }).catch(() => {
             pullState.reject();
         });
