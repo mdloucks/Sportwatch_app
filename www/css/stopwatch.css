@@ -38,11 +38,14 @@
 
 /* TODO: find fix to moving button thing. It happens when you change font-size on table, causing everything to shift down */
 #stopwatchPage #landingPage #stopwatch_start_stop {
-    font-size: 2.0em;
+    display: inline-block;
+    width: 6em;
+    height: auto;
 }
 
-#stopwatchPage #landingPage #stopwatch_start_stop.paused {
-    font-size: 3em;
+#stopwatchPage #selectEventPage .new_event * {
+    margin-top: 3em;
+    font-weight: bolder;
 }
 
 

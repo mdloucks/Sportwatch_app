@@ -12,8 +12,8 @@ class Stopwatch extends Page {
         this.pageTransition = new PageTransition("#stopwatchPage");
         this.lap_times = [];
 
-        this.pauseHtmlCode = "&#9612;&#9612;";
-        this.playHtmlCode = "&#x25B6;";
+        this.stopButtonPath = "img/stop_button.png";
+        this.playButtonPath = "img/play_button.png";
 
         this.clock = {
             radius: 100,
@@ -48,11 +48,13 @@ class Stopwatch extends Page {
 
                 <div class="table_container">
                     <a id="stopwatch_reset" class="stopwatch_button">Reset</a>
-                    <div id="stopwatch_start_stop" class="play_button noSelect">${this.playHtmlCode}</div>
+                    <img src="${this.playButtonPath}" id="stopwatch_start_stop" class="play_button noSelect"></img>
                     <a id="stopwatch_lap" class="stopwatch_button">Lap</a>
                 </div>
             </div>
         `);
+
+        // <div id="stopwatch_start_stop" class="play_button noSelect">${this.playHtmlCode}</div>
 
 
 
@@ -79,11 +81,11 @@ class Stopwatch extends Page {
                 <div></div>
             </div>
 
-            <div id="saved_events_box" class="button_box">
+            <div id="saved_events_box" class="button_box new_event">
 
             </div>
 
-            <div class="subheading_text">Save to new event</div>
+            <div class="subheading_text">Save To New Event</div>
 
             <div id="new_events_box" class="button_box">
             
@@ -199,12 +201,12 @@ class Stopwatch extends Page {
             let dt;
 
             let clockLoop = setInterval(() => {
-                
+
                 dt = Date.now() - (this.clock.start == 0 ? Date.now() : this.clock.start);
                 this.clock.start = Date.now();
 
                 if (this.clock.isRunning) {
-                    
+
                     this.clock.seconds += Math.abs(dt / 1000);
                     this.clock.minutes = Math.floor(this.clock.seconds / 60);
                     this.clock.hours = Math.floor(this.clock.seconds / 3600);
@@ -216,7 +218,7 @@ class Stopwatch extends Page {
                 this.drawCircle();
                 this.clock.angle = (-((this.clock.seconds % 1) * 360)) + 90;
                 this.drawPoint(this.clock.angle, 1);
-                
+
                 let textX = this.clock.centerX - (this.ctx.measureText(clockText).width / 2);
                 let textY = this.clock.centerY + (this.clock.textHeight / 2);
                 this.ctx.fillText(clockText, textX, textY);
@@ -231,13 +233,13 @@ class Stopwatch extends Page {
 
         $("#stopwatchPage #landingPage #stopwatch_start_stop").removeClass("paused");
 
-        $("#stopwatchPage #landingPage #stopwatch_start_stop").html(this.pauseHtmlCode.repeat(1));
+        $("#stopwatchPage #landingPage #stopwatch_start_stop").attr("src", this.stopButtonPath);
         $("#stopwatchPage #landingPage #stopwatch_lap").html("Lap");
         this.clock.start = 0;
     }
 
     stopStopwatch() {
-        $("#stopwatchPage #landingPage #stopwatch_start_stop").html(this.playHtmlCode);
+        $("#stopwatchPage #landingPage #stopwatch_start_stop").attr("src", this.playButtonPath);
 
         this.clock.isRunning = false;
         $("#stopwatchPage #landingPage #stopwatch_lap").html("Save");
@@ -357,7 +359,7 @@ class Stopwatch extends Page {
 
         // generate a list of athletes for the user to select
         dbConnection.selectValues("SELECT *, athlete.rowid FROM athlete", []).then((athletes) => {
-            if(athletes != false) {
+            if (athletes != false) {
                 $("#stopwatchPage #selectAthletePage .subheading_text").remove();
                 ButtonGenerator.generateButtonsFromDatabase("#stopwatchPage #selectAthletePage .button_box", athletes, (athlete) => {
                     this.startSelectEventPage(athlete)
@@ -374,7 +376,7 @@ class Stopwatch extends Page {
      * this function will start the select event page
      */
     startSelectEventPage(athlete) {
-        
+
         this.pageTransition.slideLeft("selectEventPage");
         // While transitioning, scroll to the top
         $("#stopwatchPage").animate({
@@ -395,13 +397,15 @@ class Stopwatch extends Page {
         // user selects an existing event
         dbConnection.selectValues(query, [athlete.rowid]).then((events) => {
 
-            if((events.length == 0) || (events == false)) {
+            if ((events.length == 0) || (events == false)) {
                 return;
             }
-            
+
             ButtonGenerator.generateButtonsFromDatabase("#stopwatchPage #selectEventPage #saved_events_box", events, (event) => {
                 this.saveTime(event, athlete);
-            }, ["id_athlete", "id_record_definition", "value", "is_split", "id_relay", "id_relay_index", "last_updated", "unit"]);
+            }, ["id_athlete", "id_record_definition", "value",
+                "is_split", "id_relay", "id_relay_index", "last_updated", "unit"
+            ], Constant.eventColorConditionalAttributes);
         });
 
         // get a list of every event definition and take away the ones with records already
@@ -417,12 +421,14 @@ class Stopwatch extends Page {
 
         // User selects a new event that the athlete is not already registered in
         dbConnection.selectValues(query, ["second", athlete.rowid]).then((record_definitions) => {
-            if(record_definitions != false) {
+            if (record_definitions != false) {
                 ButtonGenerator.generateButtonsFromDatabase("#stopwatchPage #selectEventPage #new_events_box", record_definitions, (record_definition) => {
                     this.saveTime(record_definition, athlete);
-                }, ["id_athlete", "id_record_definition", "value", "is_split", "id_relay", "id_relay_index", "last_updated", "unit"]);
+                }, ["id_athlete", "id_record_definition", "value", "is_split",
+                    "id_relay", "id_relay_index", "last_updated", "unit"
+                ], Constant.eventColorConditionalAttributes);
             } else {
-                if(DO_LOG) {
+                if (DO_LOG) {
                     console.log("record_definition table is empty");
                 }
                 Popup.createConfirmationPopup("Something went wrong, try saving your time again.", ["Ok"], () => {});
@@ -437,7 +443,7 @@ class Stopwatch extends Page {
      * @param {Object} athlete the event to for
      */
     saveTime(event, athlete) {
-        
+
         this.pageTransition.slideRight("landingPage");
 
         let record_data = {
@@ -445,19 +451,19 @@ class Stopwatch extends Page {
             "id_record_definition": event.rowid,
             "value": this.clock.seconds,
             "is_split": false,
-            "id_split": null, 
-            "id_split_index": null, 
+            "id_split": null,
+            "id_split_index": null,
             "last_updated": Date.now()
         };
 
         dbConnection.insertValuesFromObject("record", record_data);
 
         RecordBackend.saveRecord((response) => {
-            if(DO_LOG) {
+            if (DO_LOG) {
                 console.log("RECORD SAVED " + JSON.stringify(response));
             }
-        }, this.clock.seconds, event.rowid) 
-        
+        }, this.clock.seconds, event.rowid)
+
         let query = (`
             SELECT id_split
             FROM record
@@ -465,23 +471,23 @@ class Stopwatch extends Page {
         `)
 
         // save lap times if they exist
-        if(this.lap_times.length > 0) {
+        if (this.lap_times.length > 0) {
 
             dbConnection.selectValues(query).then((result) => {
                 let index_value = 1;
 
                 for (let i = 0; i < result.length; i++) {
-                    if(DO_LOG) {
+                    if (DO_LOG) {
                         console.log("HEY " + JSON.stringify(result.item(i)));
                     }
                 }
 
 
-                if(result.item(0).id_split != null) {
+                if (result.item(0).id_split != null) {
                     index_value = (result.item(0).id_split + 1);
                 }
 
-                if(DO_LOG) {
+                if (DO_LOG) {
                     console.log("USING INDEX " + index_value);
                 }
 
@@ -491,8 +497,8 @@ class Stopwatch extends Page {
                         "id_record_definition": event.rowid,
                         "value": this.lap_times[i],
                         "is_split": true,
-                        "id_split": index_value, 
-                        "id_split_index": i + 1, 
+                        "id_split": index_value,
+                        "id_split_index": i + 1,
                         "last_updated": Date.now()
                     };
 
@@ -505,7 +511,7 @@ class Stopwatch extends Page {
             this.resetStopwatch();
         }
 
-        
+
 
         // TODO: create confirmation popup
         // Popup.createFadeoutPopup("Times Saved!");
