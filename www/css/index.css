@@ -154,30 +154,27 @@ https://css-tricks.com/places-its-tempting-to-use-display-none-but-dont/ */
     border: 1px solid #dd3333;
 }
 
-/* CSS FOR GENERATED BUTTON BOX */
 .button_box {
     width: 100%;
     text-align: center;
     display: block;
-    margin: auto;
 }
-
 
 /* CSS FOR GENERATED BUTTONS */
 .generated_button {
+
     font-family: Impact, Haettenschweiler, 'Arial Narrow Bold', sans-serif;
     font-size: 2em;
     font-weight: bold;
-    background-color: lightgray;
-    border-radius: 52%;
     text-align: center;
-    border: 2px solid black;
+    margin: 0.5em;
+    padding: 18px;
+
+    background-color: lightgray;
     color: black;
-    padding: 10px 24px;
-    width: 75%;
-    margin-left: 12.5%;
-    margin-top: 1em;
-    display: block;
+
+    border-radius: 52%;
+    border: 2px solid black;
 }
 
 /* generic table layout */
@@ -193,14 +190,40 @@ https://css-tricks.com/places-its-tempting-to-use-display-none-but-dont/ */
 }
 
 .subheading_text {
-    display: inline-block;
-    width: 80%;
     word-wrap: break-word;
     text-align: center;
     font-size: 2.5em;
     padding-top: 1em;
     padding-bottom: 1em;
     font-weight: bold;
+}
+
+.sprint_event {
+    background-color: lightcoral;
+}
+
+.mid_event {
+    background-color: orange;
+}
+
+.hurdle_event {
+    background-color: lightyellow;
+}
+
+.long_event {
+    background-color: lightgreen;
+}
+
+.power_field_event {
+    background-color: lightblue;
+}
+
+.non_power_field_event {
+    background-color: violet;
+}
+
+.relay_event {
+    border: 2px dashed black;
 }
 
 /* ---- MISC ---- */
