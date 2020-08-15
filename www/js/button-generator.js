@@ -78,6 +78,13 @@ class ButtonGenerator {
 
             let button = ButtonGenerator.generateButton(attributes, callback);
             $(element).append(button);
+
+            // add padding to the bottom so it doesn't undercut navbar
+            if(i == databaseResults.length - 1) {
+                $(element).append($("<br>"));
+                $(element).append($("<br>"));
+                $(element).append($("<br>"));
+            }
         }
     }
 
