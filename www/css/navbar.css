@@ -1,33 +1,38 @@
 .navbar {
-  overflow: hidden;
-  text-align: center;
-  vertical-align: auto;
-  position: fixed;
-  display: table;
-  table-layout: fixed;
-  background-color: #dd3333;
-  width: 100%;
-  height: 7%;
-  bottom: 0;
-  z-index: 1;
+    overflow: hidden;
+    text-align: center;
+    vertical-align: middle;
+    position: fixed;
+    display: table;
+    table-layout: fixed;
+    background-color: rgb(44, 44, 46);
+    width: 100%;
+    height: 7%;
+    bottom: 0;
+    z-index: 1;
 }
 
 .navbar div {
-  color: lightgrey;
-  display: table-cell;
-  text-align: center;
-  padding-top: 10px;
-  font-weight: bold;
-  text-decoration: none;
-  font-size: 2em;
-  transition: background-color 0.5s;
-  
-  /* iphone screen issues handleded here */
-  padding-bottom: constant(safe-area-inset-bottom);
-  padding-bottom: env(safe-area-inset-bottom);
+    font-family: 'Helvetica', 'Arial', sans-serif;
+    color: white;
+    display: table-cell;
+    text-align: center;
+    padding-top: 10px;
+    font-weight: bold;
+    text-decoration: none;
+    font-size: 2em;
+    transition: background-color 0.5s;
+
+    /* iphone screen issues handleded here */
+    padding-bottom: constant(safe-area-inset-bottom);
+    padding-bottom: env(safe-area-inset-bottom);
 }
 
-.navbar > .active {
-  background-color: black;
-  color: white;
+.navbar>.active {
+    /* background-color: rgb(99, 99, 102); */
+    text-decoration: underline;
+    -webkit-text-decoration-color: #dd3333;
+    /* safari still uses vendor prefix */
+    text-decoration-color: #dd3333;
+    background-color: black;
 }
