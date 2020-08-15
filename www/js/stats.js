@@ -13,13 +13,7 @@ class Stats extends Page {
 
         this.landingPage = (`
             <div id="landingPage" class="div_page">
-                <div class="generic_header">
-                    <div></div>
-                    <h1>Stats</h1>
-                    <div></div>
-                </div>
-
-                <div class="subheading_text">Your Stats by Event</div>
+                <div class="subheading_text">Your Stats By Event</div>
 
                 <div class="button_box"></div><br><br>
             </div>
@@ -106,7 +100,7 @@ class Stats extends Page {
         
         dbConnection.selectValues(query).then((events) => {
             if(events != false) {
-                $("#statsPage #landingPage .subheading_text").html(`Your Stats by Event`);
+                $("#statsPage #landingPage .subheading_text").html(`Your Stats By Event`);
                 ButtonGenerator.generateButtonsFromDatabase("#statsPage #landingPage .button_box", events, (event) => {
                     this.startEventPage(event);
                 });
@@ -145,29 +139,6 @@ class Stats extends Page {
             $("#stopwatchPage").animate({
                 scrollTop: 0
             }, 1000);
-        });
-
-
-        $("#event_results").click((e) => {
-            // TODO: configure the sort for these
-
-            // this.clearResultsTable();
-
-            // if(e.target.id == "name_sort") {
-            //     this.generateAthleteTimes(event, "A-z");
-
-            // } else if(e.target.id == "best_sort") {
-            //     this.generateAthleteTimes(event, "0-9");
-
-            // } else if(e.target.id == "avg_sort") {
-            //     this.generateAthleteTimes(event, "0-9");
-
-            // } else if(e.target.id == "worst_sort") {
-            //     this.generateAthleteTimes(event, "0-9");
-            // } else {
-            //     this.generateAthleteTimes(event, "M/F");
-            // }
-
         });
 
         this.generateAthleteTimes(event);
