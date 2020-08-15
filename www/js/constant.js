@@ -27,3 +27,68 @@ Constant.AJAX_CFG = {
     timeout: 3000
 };
 
+Constant.fadeDuration = 600;
+Constant.fadeIncrement = 150;
+
+Constant.eventColorConditionalAttributes = {
+    "record_identity": {
+        "75m": {
+            class: "generated_button sprint_event"
+        },
+        "100m": {
+            class: "generated_button sprint_event"
+        },
+        "200m": {
+            class: "generated_button sprint_event"
+        },
+        "400m": {
+            class: "generated_button mid_event"
+        },
+        "800m": {
+            class: "generated_button mid_event"
+        },
+        "1500m": {
+            class: "generated_button long_event"
+        },
+        "100m hurdle": {
+            class: "generated_button hurdle_event"
+        },
+        "110m hurdle": {
+            class: "generated_button hurdle_event"
+        },
+        "400m hurdle": {
+            class: "generated_button hurdle_event"
+        },
+        "4x100m relay": {
+            class: "generated_button sprint_event"
+        },
+        "4x400m relay": {
+            class: "generated_button sprint_event"
+        },
+        "long jump": {
+            class: "generated_button non_power_field_event"
+        },
+        "triple jump": {
+            class: "generated_button non_power_field_event"
+        },
+        "high jump": {
+            class: "generated_button non_power_field_event"
+        },
+        "pole vault": {
+            class: "generated_button non_power_field_event"
+        },
+        "discus": {
+            class: "generated_button power_field_event"
+        },
+        "javelin": {
+            class: "generated_button power_field_event"
+        },
+        "hammer": {
+            class: "generated_button power_field_event"
+        },
+        "shot put": {
+            class: "generated_button power_field_event"
+        }
+    }
+};
+
