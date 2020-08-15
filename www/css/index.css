@@ -73,6 +73,7 @@ input {
     text-align: center;
     background-color: #fff;
     overflow-x: hidden;
+    margin-bottom: 2em;
 }
 
 .div_page.current_page {
@@ -187,6 +188,7 @@ https://css-tricks.com/places-its-tempting-to-use-display-none-but-dont/ */
 .table_container * {
     display: table-cell;
     text-align: center;
+    vertical-align: middle;
 }
 
 .subheading_text {
@@ -203,7 +205,7 @@ https://css-tricks.com/places-its-tempting-to-use-display-none-but-dont/ */
 }
 
 .mid_event {
-    background-color: orange;
+    background-color: coral;
 }
 
 .hurdle_event {
