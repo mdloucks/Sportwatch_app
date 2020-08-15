@@ -12,6 +12,8 @@ class Team extends Page {
         this.isEditing = false;
         this.rowsToDelete = [];
 
+        this.athleteButtonsBoxSelector = "#teamPage #landingPage .button_box";
+
         // --- PAGES ---- //
 
         this.landingPage = (`
@@ -85,13 +87,22 @@ class Team extends Page {
         let storage = window.localStorage;
 
         $("#landingPage").find("#teamName").text(storage.getItem("teamName"));
-        this.startLandingPage();
+
+        if(!this.hasStarted) {
+            this.hasStarted = true;
+        } else {
+            this.startLandingPage(() => {
+                Animations.fadeInChildren(this.athleteButtonsBoxSelector, Constant.fadeDuration, Constant.fadeIncrement);
+            });
+        }
     }
 
+
     /**
-     * this function will generate a list of athletes to append to the button box on the landing page
+     * @description start the landing page
+     * @param {function} callback the function to be called when elements are done being generated
      */
-    startLandingPage() {
+    startLandingPage(callback) {
 
         $("#teamPage #landingPage > .button_box").empty();
 
@@ -106,10 +117,14 @@ class Team extends Page {
             }
         };
 
+        // generate list of athletes then hide them
         dbConnection.selectValues("SELECT *, ROWID FROM athlete", []).then((athletes) => {
             ButtonGenerator.generateButtonsFromDatabase("#teamPage #landingPage > .button_box", athletes, (athlete) => {
                 this.startAthletePage(athlete);
             }, ["grade", "gender", "id_athlete_event_register", "id_backend", "rowid"], conditionalAttributes);
+
+            Animations.hideChildElements(this.athleteButtonsBoxSelector);
+            callback();
         });
     }
 
@@ -130,13 +145,14 @@ class Team extends Page {
             WHERE record.id_athlete = ?
         `)
 
+        // generate events
         dbConnection.selectValues(query, [athlete.rowid]).then((events) => {
             if(events == false) {
                 $("#teamPage #athletePage #athlete_events").html("<div class='subheading_text'>There are no events for this athlete. Save a time in the stopwatch for an event to create one.</div>")
             } else {
                 ButtonGenerator.generateButtonsFromDatabase("#teamPage #athletePage #athlete_events", events, (event) => {
                     this.startAthleteStatPage(athlete, event);
-                }, ["gender", "unit", "is_relay", "last_updated"]);
+                }, ["gender", "unit", "is_relay", "last_updated"], Constant.eventColorConditionalAttributes);
             }
         });
 
@@ -439,5 +455,6 @@ class Team extends Page {
     }
 
     stop() {
+        Animations.hideChildElements(this.athleteButtonsBoxSelector);
     }
 }

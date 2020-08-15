@@ -12,76 +12,13 @@ class Stats extends Page {
         this.isEditing = false;
 
         this.eventButtonsBoxSelector = "#statsPage #landingPage .button_box";
-        this.fadeDuration = 600;
-        this.fadeIncrement = 200;
 
-        this.conditionalAttributes = {
-            "record_identity": {
-                "75m": {
-                    class: "generated_button sprint_event"
-                },
-                "100m": {
-                    class: "generated_button sprint_event"
-                },
-                "200m": {
-                    class: "generated_button sprint_event"
-                },
-                "400m": {
-                    class: "generated_button mid_event"
-                },
-                "800m": {
-                    class: "generated_button mid_event"
-                },
-                "1500m": {
-                    class: "generated_button long_event"
-                },
-                "100m hurdle": {
-                    class: "generated_button hurdle_event"
-                },
-                "110m hurdle": {
-                    class: "generated_button hurdle_event"
-                },
-                "400m hurdle": {
-                    class: "generated_button hurdle_event"
-                },
-                "4x100m relay": {
-                    class: "generated_button sprint_event"
-                },
-                "4x400m relay": {
-                    class: "generated_button sprint_event"
-                },
-                "long jump": {
-                    class: "generated_button non_power_field_event"
-                },
-                "triple jump": {
-                    class: "generated_button non_power_field_event"
-                },
-                "high jump": {
-                    class: "generated_button non_power_field_event"
-                },
-                "pole vault": {
-                    class: "generated_button non_power_field_event"
-                },
-                "discus": {
-                    class: "generated_button power_field_event"
-                },
-                "javelin": {
-                    class: "generated_button power_field_event"
-                },
-                "hammer": {
-                    class: "generated_button power_field_event"
-                },
-                "shot put": {
-                    class: "generated_button power_field_event"
-                }
-            }
-        };
 
         this.landingPage = (`
             <div id="landingPage" class="div_page">
                 <div class="subheading_text">Your Stats By Event</div><br><br>
 
-                <div class="button_box"></div><br><br>
+                <div class="button_box"></div>
             </div>
         `);
 
@@ -143,36 +80,23 @@ class Stats extends Page {
 
         if (!this.hasStarted) {
             this.hasStarted = true;
-            this.startLandingPage();
         } else {
-            console.log("fade in!");
-
-            Animations.fadeInChildren(this.eventButtonsBoxSelector, this.fadeDuration, this.fadeIncrement);
+            this.startLandingPage(() => {
+                Animations.fadeInChildren(this.eventButtonsBoxSelector, Constant.fadeDuration, Constant.fadeIncrement);
+            });
         }
     }
 
-    startLandingPage() {
+    /**
+     * @description this function will launch the landing page for the statsPage
+     * @param {function} callback the callback to be called when all of the buttons are done generating
+     */
+    startLandingPage(callback = () => {}) {
 
         this.pageTransition.slideRight("landingPage");
 
         $("#statsPage #landingPage .button_box").empty();
         $("#statsPage #landingPage #add_event_box").empty();
-
-        ["second", "800m"],
-        ["second", "1500m"],
-        ["second", "100m hurdle"],
-        ["second", "110m hurdle"],
-        ["second", "400m hurdle"],
-        ["second", "4x100m relay"],
-        ["second", "4x400m relay"],
-        ["meter", "long jump"],
-        ["meter", "triple jump"],
-        ["meter", "high jump"],
-        ["meter", "pole vault"],
-        ["meter", "discus"],
-        ["meter", "javelin"],
-        ["meter", "hammer"],
-        ["meter", "shot put"]
 
         // get any unique entries in record identity
         let query = (`
@@ -186,9 +110,10 @@ class Stats extends Page {
                 $("#statsPage #landingPage .subheading_text").html(`Your Stats By Event`);
                 ButtonGenerator.generateButtonsFromDatabase("#statsPage #landingPage .button_box", events, (event) => {
                     this.startEventPage(event);
-                }, [], this.conditionalAttributes);
+                }, [], Constant.eventColorConditionalAttributes);
                 
                 Animations.hideChildElements(this.eventButtonsBoxSelector);
+                callback();
             } else {
                 $("#statsPage #landingPage .subheading_text").html(`
                 It looks like you don't have any times saved yet. 
