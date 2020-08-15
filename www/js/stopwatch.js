@@ -12,6 +12,9 @@ class Stopwatch extends Page {
         this.pageTransition = new PageTransition("#stopwatchPage");
         this.lap_times = [];
 
+        this.pauseHtmlCode = "&#9612;&#9612;";
+        this.playHtmlCode = "&#x25B6;";
+
         this.clock = {
             radius: 100,
             pointSize: 7,
@@ -19,7 +22,7 @@ class Stopwatch extends Page {
             centerY: 0,
             font: "30px Arial",
             textHeight: 0,
-            fillStyle: "rgb(245, 77, 77)",
+            fillStyle: "dd3333",
             lineWidth: 5,
 
             angle: 90,
@@ -40,10 +43,12 @@ class Stopwatch extends Page {
         this.landingPage = (`
             <div id="landingPage" class="div_page">
                 <canvas id="stopwatch_canvas" class="stopwatch_canvas" width="400px" height="300px"></canvas>
+                
                 <div class="stopwatch_lap_times"></div>
-                <div class="stopwatch_button_container">
+
+                <div class="table_container">
                     <a id="stopwatch_reset" class="stopwatch_button">Reset</a>
-                    <button id="stopwatch_start_stop" class="play_button noSelect"></button>
+                    <div id="stopwatch_start_stop" class="play_button noSelect">${this.playHtmlCode}</div>
                     <a id="stopwatch_lap" class="stopwatch_button">Lap</a>
                 </div>
             </div>
@@ -195,9 +200,10 @@ class Stopwatch extends Page {
 
             let clockLoop = setInterval(() => {
                 
+                dt = Date.now() - (this.clock.start == 0 ? Date.now() : this.clock.start);
+                this.clock.start = Date.now();
+
                 if (this.clock.isRunning) {
-                    dt = Date.now() - (this.clock.start == 0 ? Date.now() : this.clock.start);
-                    this.clock.start = Date.now();
                     
                     this.clock.seconds += Math.abs(dt / 1000);
                     this.clock.minutes = Math.floor(this.clock.seconds / 60);
@@ -205,7 +211,8 @@ class Stopwatch extends Page {
                 }
 
                 let clockText = this.generateClockText(this.clock);
-                this.ctx.clearRect(0, 0, 500, 500);
+                this.ctx.clearRect(0, 0, this.c.width, this.c.height);
+                this.ctx.strokeStyle = "#dd3333";
                 this.drawCircle();
                 this.clock.angle = (-((this.clock.seconds % 1) * 360)) + 90;
                 this.drawPoint(this.clock.angle, 1);
@@ -221,20 +228,20 @@ class Stopwatch extends Page {
     startStopwatch() {
 
         this.clock.isRunning = true;
-        // Check to see if already the play button (i.e. from reset)
-        if (!$("#stopwatch_start_stop").hasClass("paused")) {
-            // FYI, paused is the pause button, not indicative of stopwatch state
-            $("#stopwatch_start_stop").addClass("paused");
-        }
 
-        $("#stopwatch_lap").html("Lap");
+        $("#stopwatchPage #landingPage #stopwatch_start_stop").removeClass("paused");
+
+        $("#stopwatchPage #landingPage #stopwatch_start_stop").html(this.pauseHtmlCode.repeat(1));
+        $("#stopwatchPage #landingPage #stopwatch_lap").html("Lap");
         this.clock.start = 0;
     }
 
     stopStopwatch() {
+        $("#stopwatchPage #landingPage #stopwatch_start_stop").html(this.playHtmlCode);
+
         this.clock.isRunning = false;
-        $("#stopwatch_lap").html("Save");
-        $("#stopwatch_start_stop").removeClass("paused");
+        $("#stopwatchPage #landingPage #stopwatch_lap").html("Save");
+        $("#stopwatchPage #landingPage #stopwatch_start_stop").addClass("paused");
     }
 
     toggleStopwatch() {
@@ -249,10 +256,9 @@ class Stopwatch extends Page {
         // start first time
         if (!this.clock.hasStarted) {
             this.startStopwatch();
-            $("#stopwatch_start_stop").addClass("paused");
             this.clock.hasStarted = true;
-            $(".stopwatch_button_container a").css("animation", "fadein 2s");
-            $(".stopwatch_button_container a").css("visibility", "visible");
+            $("#stopwatchPage #landingPage .table_container a").css("animation", "fadein 2s");
+            $("#stopwatchPage #landingPage .table_container a").css("visibility", "visible");
         }
     }
 
