@@ -1,36 +1,19 @@
+#stopwatchPage {
+    overflow: hidden;
+}
+
 #stopwatchPage #landingPage .stopwatch_canvas {
     margin-top: 1em;
     height: 75vw;
     width: 100vw;
 }
 
-#stopwatchPage #landingPage .stopwatch_button_container {
-    width: 100%;
-    position: absolute;
-    bottom: 5vh;
-    display: table;
-    width: 100%;
-    table-layout: fixed;
-}
-
-#stopwatchPage #landingPage .stopwatch_button_container>* {
-    font-size: 3em;
-    display: table-cell;
-    text-align: center;
-}
-
-#stopwatchPage #landingPage .stopwatch_button_container a {
+#stopwatchPage #landingPage .table_container a {
+    font-size: 2.5em;
     visibility: hidden;
     margin-top: 16px;
     color: black;
-}
-
-#stopwatchPage #landingPage .stopwatch_button_container #stopwatch_reset {
-    padding-left: 1em;
-}
-
-#stopwatchPage #landingPage .stopwatch_button_container #stopwatch_lap {
-    padding-right: 1em;
+    font-weight: bold;
 }
 
 @keyframes fadein {
@@ -45,7 +28,7 @@
 
 #stopwatchPage #landingPage .stopwatch_lap_times {
     font-size: 2em;
-    height: 6em;
+    height: 4.5em;
     display: inline-block;
     width: 100%;
     height: 20vh;
@@ -53,28 +36,15 @@
     position: relative;
 }
 
-#stopwatchPage .play_button {
-    position: fixed;
-    margin-top: -36px;
-    margin-left: -36px;
-    left: 50%;
-    display: inline-block;
-    text-align: center;
-    background: transparent;
-    box-sizing: border-box;
-    width: 0;
-    height: 74px;
-    border-color: transparent transparent transparent #202020;
-    transition: 150ms all ease;
-    cursor: pointer;
-    border-style: solid;
-    border-width: 37px 0 37px 60px;
+/* TODO: find fix to moving button thing. It happens when you change font-size on table, causing everything to shift down */
+#stopwatchPage #landingPage #stopwatch_start_stop {
+    font-size: 2.0em;
 }
 
-#stopwatchPage .play_button.paused {
-    border-style: double;
-    border-width: 0px 0 0px 60px;
+#stopwatchPage #landingPage #stopwatch_start_stop.paused {
+    font-size: 3em;
 }
+
 
 /* #stopwatchPage #landingPage .stopwatch_lap_times:after {
   content: "";
