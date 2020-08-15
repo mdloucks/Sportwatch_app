@@ -13,9 +13,6 @@
 } */
 
 /* event box */
-#statsPage #landingPage .button_box *:nth-child(2n){
-    background-color: lightcoral;
-}
 
 #statsPage #eventPage #event_results {
     font-family: 'Courier New', Courier, monospace;
