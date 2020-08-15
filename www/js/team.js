@@ -16,11 +16,8 @@ class Team extends Page {
 
         this.landingPage = (`
             <div id="landingPage" class="div_page">
-                <div class="generic_header">
-                    <div></div>
-                    <h1>Team</h1>
-                    <div></div>
-                </div>
+            <div class="subheading_text">My Team</div>
+
                 <div class="button_box"></div>
             </div>
         `);
