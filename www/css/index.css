@@ -68,6 +68,7 @@ input {
     top: 0;
     left: 0;
     width: 100%;
+    height: inherit;
     min-height: 90%;
     text-align: center;
     background-color: #fff;
@@ -106,7 +107,7 @@ https://css-tricks.com/places-its-tempting-to-use-display-none-but-dont/ */
     table-layout: fixed;
     padding: 0.5em;
     border-bottom: solid #000 3px;
-    background-color: #dd3333;
+    background-color: rgb(44, 44, 46);
     text-align: center;
     width: 100%;
     
@@ -125,6 +126,7 @@ https://css-tricks.com/places-its-tempting-to-use-display-none-but-dont/ */
 }
 
 .generic_header * {
+    font-family: 'Helvetica', 'Arial', sans-serif;
     color: white;
     display: table-cell;
 }
@@ -135,6 +137,8 @@ https://css-tricks.com/places-its-tempting-to-use-display-none-but-dont/ */
 
 .back_button {
     font-size: 3em;
+    font-weight: bold;
+    color: #dd3333;
 }
 
 .add_button {
@@ -164,11 +168,11 @@ https://css-tricks.com/places-its-tempting-to-use-display-none-but-dont/ */
     font-family: Impact, Haettenschweiler, 'Arial Narrow Bold', sans-serif;
     font-size: 2em;
     font-weight: bold;
-    background-color: #dd3333;
-    border-radius: 45%;
+    background-color: lightgray;
+    border-radius: 52%;
     text-align: center;
     border: 2px solid black;
-    color: white;
+    color: black;
     padding: 10px 24px;
     width: 75%;
     margin-left: 12.5%;
@@ -180,7 +184,6 @@ https://css-tricks.com/places-its-tempting-to-use-display-none-but-dont/ */
 .table_container {
     width: 100%;
     display: table;
-    width: 100%;
     table-layout: fixed;
 }
 
