@@ -30,20 +30,20 @@ class App {
         $("#app").html(""); // Clear so it's a clean slate to add to
         
         // Pull data from the backend, then start the app
-        setTimeout(() => {
-            ToolboxBackend.pullFromBackend().then(() => {
-                if(DO_LOG) {
-                    console.log("[main.js:onReady()]: Backend sync finished!");
-                }
+        ToolboxBackend.pullFromBackend().then(() => {
+            if(DO_LOG) {
+                console.log("[main.js:onReady()]: Backend sync finished!");
+            }
+            setTimeout(() => {
                 app.startApp();
-            }).catch(function() {
-                // Likely a corrupted / lost local storage, so they'll be signed out anyway
-                if(DO_LOG) {
-                    console.log("[main.js:onReady]: Failed to pull from backend, localStorage email: " + localStorage.getItem("email"));
-                }
-                app.startApp();
-            });
-        }, 3000);
+            }, 500);
+        }).catch(function() {
+            // Likely a corrupted / lost local storage, so they'll be signed out anyway
+            if(DO_LOG) {
+                console.log("[main.js:onReady]: Failed to pull from backend, localStorage email: " + localStorage.getItem("email"));
+            }
+            app.startApp();
+        });
         
     }
     
