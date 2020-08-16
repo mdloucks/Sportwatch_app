@@ -35,9 +35,7 @@ class Team extends Page {
                     <h1 id="athleteName"></h1>
                     <div></div>
                 </div>
-        
-                <h2 id="athlete_info" class="subheading_text"></h2>
-                
+
                 <div id="athlete_events"></div>
             </div>
         `);
@@ -192,7 +190,6 @@ class Team extends Page {
 
         // Set athlete data before sliding
         $("#athletePage").find("#athleteName").html(`${athlete.fname} ${athlete.lname}`);
-        $("#athletePage > #athlete_info").html(`${athlete.gender == 'm' ? "male" : "female"}`);
 
         // After populated, slide
         this.pageTransition.slideLeft("athletePage");
@@ -231,7 +228,7 @@ class Team extends Page {
         $("#teamPage #athleteStatPage #back_button_athlete_stats").bind("click", () => {
             // stop editing so columns don't delete
             this.isEditing = false;
-            this.pageTransition.slideRight("athletePage");
+            this.pageTransition.slideRight("landingPage");
             // Scroll to the top
             $("#teamPage").animate({
                 scrollTop: 0
