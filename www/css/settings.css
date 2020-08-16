@@ -83,6 +83,15 @@
     margin-bottom: 8vh;
 }
 
+#settingsPage #button_sendInvite {
+    padding: 10px;
+    font-size: 1.5em;
+    color: white;
+    border: 1px solid black;
+    border-radius: 5px;
+    transition: background-color 0.5s;
+}
+
 /* .act_drop_wrapper {
     margin: 20px;
     margin-left: 7%;
