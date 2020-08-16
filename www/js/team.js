@@ -12,13 +12,17 @@ class Team extends Page {
         this.isEditing = false;
         this.rowsToDelete = [];
 
+        this.landingPageSelector = "#teamPage #landingPage";
+
         this.athleteButtonsBoxSelector = "#teamPage #landingPage .button_box";
 
         // --- PAGES ---- //
 
         this.landingPage = (`
             <div id="landingPage" class="div_page">
-            <div class="subheading_text">My Team</div>
+                <div class="container">
+                    <div id="team_name">My Team</div>
+                </div>
 
                 <div class="button_box"></div>
             </div>
@@ -86,7 +90,14 @@ class Team extends Page {
 
         let storage = window.localStorage;
 
-        $("#landingPage").find("#teamName").text(storage.getItem("teamName"));
+        let items = {...storage};
+        console.log(JSON.stringify(items));
+
+        $(`${this.landingPageSelector} #team_name`).html(storage.getItem("teamName"));
+        // $(`${this.landingPageSelector} #team_name`).slideUp(1000);
+        $(`${this.landingPageSelector} #team_name`).fadeIn(1000);
+        
+
 
         if(!this.hasStarted) {
             this.hasStarted = true;
@@ -456,5 +467,6 @@ class Team extends Page {
 
     stop() {
         Animations.hideChildElements(this.athleteButtonsBoxSelector);
+        $(`${this.landingPageSelector} #team_name`).hide();
     }
 }

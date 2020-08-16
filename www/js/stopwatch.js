@@ -48,15 +48,13 @@ class Stopwatch extends Page {
 
                 <div class="table_container">
                     <a id="stopwatch_reset" class="stopwatch_button">Reset</a>
-                    <img src="${this.playButtonPath}" id="stopwatch_start_stop" class="play_button noSelect"></img>
+                    <img src="${this.playButtonPath}" alt="" id="stopwatch_start_stop" class="play_button noSelect"></img>
                     <a id="stopwatch_lap" class="stopwatch_button">Lap</a>
                 </div>
             </div>
         `);
 
         // <div id="stopwatch_start_stop" class="play_button noSelect">${this.playHtmlCode}</div>
-
-
 
         this.selectAthletePage = (`
             <div id="selectAthletePage" class="div_page">
@@ -140,6 +138,8 @@ class Stopwatch extends Page {
             this.c = $("#stopwatch_canvas")[0];
             this.ctx = this.c.getContext("2d");
         }
+
+        this.resetStopwatch();
 
         // Switched the variable because if the user changes pages
         // before starting the stopwatch, the events are bound twice
@@ -446,7 +446,7 @@ class Stopwatch extends Page {
 
         this.pageTransition.slideRight("landingPage");
 
-        let record_data = {
+        let recordData = {
             "id_athlete": athlete.rowid,
             "id_record_definition": event.rowid,
             "value": this.clock.seconds,
@@ -456,7 +456,7 @@ class Stopwatch extends Page {
             "last_updated": Date.now()
         };
 
-        dbConnection.insertValuesFromObject("record", record_data);
+        dbConnection.insertValuesFromObject("record", recordData);
 
         RecordBackend.saveRecord((response) => {
             if (DO_LOG) {
@@ -471,45 +471,44 @@ class Stopwatch extends Page {
         `)
 
         // save lap times if they exist
-        if (this.lap_times.length > 0) {
+        // if (this.lap_times.length > 0) {
 
-            dbConnection.selectValues(query).then((result) => {
-                let index_value = 1;
+        //     dbConnection.selectValues(query).then((result) => {
+        //         let index_value = 1;
 
-                for (let i = 0; i < result.length; i++) {
-                    if (DO_LOG) {
-                        console.log("HEY " + JSON.stringify(result.item(i)));
-                    }
-                }
+        //         for (let i = 0; i < result.length; i++) {
+        //             if (DO_LOG) {
+        //                 console.log("HEY " + JSON.stringify(result.item(i)));
+        //             }
+        //         }
 
+        //         if (result.item(0).id_split != null) {
+        //             index_value = (result.item(0).id_split + 1);
+        //         }
 
-                if (result.item(0).id_split != null) {
-                    index_value = (result.item(0).id_split + 1);
-                }
+        //         if (DO_LOG) {
+        //             console.log("USING INDEX " + index_value);
+        //         }
 
-                if (DO_LOG) {
-                    console.log("USING INDEX " + index_value);
-                }
+        //         for (let i = 0; i < this.lap_times.length; i++) {
+        //             let recordData = {
+        //                 "id_athlete": athlete.rowid,
+        //                 "id_record_definition": event.rowid,
+        //                 "value": this.lap_times[i],
+        //                 "is_split": true,
+        //                 "id_split": index_value,
+        //                 "id_split_index": i + 1,
+        //                 "last_updated": Date.now()
+        //             };
 
-                for (let i = 0; i < this.lap_times.length; i++) {
-                    let record_data = {
-                        "id_athlete": athlete.rowid,
-                        "id_record_definition": event.rowid,
-                        "value": this.lap_times[i],
-                        "is_split": true,
-                        "id_split": index_value,
-                        "id_split_index": i + 1,
-                        "last_updated": Date.now()
-                    };
+        //             dbConnection.insertValuesFromObject("record", recordData);
+        //         }
 
-                    dbConnection.insertValuesFromObject("record", record_data);
-                }
-
-                this.resetStopwatch();
-            });
-        } else {
-            this.resetStopwatch();
-        }
+        //         this.resetStopwatch();
+        //     });
+        // } else {
+        //     this.resetStopwatch();
+        // }
 
 
 
