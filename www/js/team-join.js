@@ -120,6 +120,7 @@ class JoinTeam extends Page {
                             let storage = window.localStorage;
                             storage.setItem("id_team", teamInfo.id_team);
                             storage.setItem("teamName", teamInfo.teamName);
+                            storage.setItem("inviteCode", inviteCode);
                             
                             // Update the team info
                             ToolboxBackend.pullFromBackend().then(() => {
