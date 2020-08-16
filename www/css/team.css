@@ -11,23 +11,6 @@
   border-bottom: none; /* Prevent double borders */
 }
 
-#teamPage #landingPage #team_name {
-    display: inline-block;
-    font-size: 2.5em;
-    font-weight: bold;
-    text-decoration: underline;
-    -webkit-text-decoration-color: #dd3333;
-    /* safari still uses vendor prefix */
-    text-decoration-color: #dd3333;
-}
-
-#teamPage #landingPage .container {
-    text-align: left;
-    width: 100%;
-    margin: 2em 0em 2em 2em;
-}
-
-
 
 /*^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ 
 // athletePage elements
