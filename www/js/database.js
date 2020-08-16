@@ -287,7 +287,6 @@ class DatabaseConnection {
             let queryWildcards = "(" + "?, ".repeat(data.length).slice(0, -2) + ")";
 
             this.db.transaction(function (tx) {
-
                 tx.executeSql(`INSERT INTO ${table} VALUES ${queryWildcards}`, data);
 
                 resolve();
@@ -307,6 +306,7 @@ class DatabaseConnection {
      * @param {Array or Object} values the key:pair object to be inserted into the table
      */
     insertValuesFromObject(table = "", values = []) {
+
         if (values.length == 0) {
             console.log("[database.js]: values array length is 0");
             return;
@@ -316,25 +316,34 @@ class DatabaseConnection {
             console.log("[database.js]: table was not specified");
         }
 
-        this.db.transaction((tx) => {
-            console.log("VALS " + typeof (values));
+        let _this = this;
 
+        this.db.transaction(function (tx) {
             if (typeof (values) == "object") {
-                let query = `INSERT INTO ${table} (${Object.keys(values).join(", ")}) VALUES ${this.getQueryInsertString(Object.keys(values).length)}`;
-                tx.executeSql(query, Object.values(values));
+                let nColumns = Object.keys(values).length;
+                let query = `INSERT INTO ${table} (${Object.keys(values).join(", ")}) VALUES ${_this.getQueryInsertString(nColumns)}`;
+                let dataArray = _this.getDataValuesAsArray(values);
+
+                console.log(query);
+                console.log(dataArray + " " + typeof (dataArray));
+                tx.executeSql(query, dataArray);
 
             } else if (typeof (values) == "array") {
 
                 for (let i = 0; i < values.length; i++) {
                     let valuesObject = values[i];
-                    let query = (`INSERT INTO ${table} (${Object.keys(valuesObject).join(", ")}) VALUES ${this.getQueryInsertString(Object.keys(valuesObject[0]).length)}`);
-                    tx.executeSql(query, Object.values(valuesObject));
+                    let nColumns = Object.keys(valuesObject[0]).length;
+                    let dataArray = _this.getDataValuesAsArray(valuesObject);
+                    let query = (`INSERT INTO ${table} (${Object.keys(valuesObject).join(", ")}) VALUES ${_this.getQueryInsertString(nColumns)}`);
+                    tx.executeSql(query, dataArray);
                 }
 
             } else {
                 console.log("[database.js]: incorrect type for query, type given is " + typeof (values));
             }
-        });
+        }, function (error) {
+            console.log("[database.js]: " + error);
+        }, function () {});
     }
 
     /**
@@ -393,6 +402,38 @@ class DatabaseConnection {
                 console.log("database could not be deleted");
             }
         });
+    }
+
+    getQueryInsertString(length) {
+        return "(" + "?, ".repeat(length).slice(0, -2) + ")"
+    }
+
+    /**
+     * @description this method will return the values of an object into an array
+     * @param {Object} data the object to convert into array
+     */
+    getDataValuesAsArray(data) {
+
+        let array = [];
+
+        for (const key in data) {
+            if (data.hasOwnProperty(key)) {
+                array.push(data[key]);
+            }
+        }
+        return array;
+    }
+
+    /**
+     * @description print a json.stringify of every row in a table
+     * @param {String} tableName name of table
+     */
+    printTable(tableName) {
+        this.selectValues(`SELECT *, rowid FROM ${tableName}`).then(function(data) {
+            for (let i = 0; i < data.length; i++) {
+                console.log(JSON.stringify(data.item(i)));
+            }
+        })
     }
 
     /**
