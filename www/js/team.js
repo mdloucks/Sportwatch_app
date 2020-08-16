@@ -146,7 +146,7 @@ class Team extends Page {
         `)
 
         // generate events
-        dbConnection.selectValues(query, [athlete.rowid]).then((events) => {
+        dbConnection.selectValues(query, [athlete.id_backend]).then((events) => {
             if(events == false) {
                 $("#teamPage #athletePage #athlete_events").html("<div class='subheading_text'>There are no events for this athlete. Save a time in the stopwatch for an event to create one.</div>")
             } else {
@@ -212,7 +212,7 @@ class Team extends Page {
         let length;
         let data = [];
 
-        dbConnection.selectValues(query, [event.rowid, athlete.rowid]).then((results) => {
+        dbConnection.selectValues(query, [event.rowid, athlete.id_backend]).then((results) => {
 
             length = results.length | 0;
 
