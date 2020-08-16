@@ -363,7 +363,7 @@ class Stopwatch extends Page {
                 $("#stopwatchPage #selectAthletePage .subheading_text").remove();
                 ButtonGenerator.generateButtonsFromDatabase("#stopwatchPage #selectAthletePage .button_box", athletes, (athlete) => {
                     this.startSelectEventPage(athlete)
-                }, ["gender", "unit", "grade", "is_relay", "timestamp", "id_backend"], conditionalAttributes);
+                }, ["gender", "unit", "is_relay", "timestamp", "id_backend"], conditionalAttributes);
             } else {
                 $("#stopwatchPage #selectAthletePage .subheading_text").html(`
                 You have no athletes on your team yet. Go to the Team page and invite some athletes to join!
