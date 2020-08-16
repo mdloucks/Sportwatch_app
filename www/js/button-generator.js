@@ -106,6 +106,39 @@ class ButtonGenerator {
     }
 
     /**
+     * @description generate a toggle on/off switch and append it to the given element
+     * the check callback will be called when the button is turned on, and the uncheck
+     * callback will be called when it is turned off.
+     * @param {String} element element identifier to append to 
+     * @param {String} prompt the prompt to display
+     * @param {function} checkCallback function to be called on check
+     * @param {function} uncheckCallback function to be called on uncheck
+     */
+    static generateToggle(element, prompt, checkCallback, uncheckCallback) {
+        
+        let container = $("<div>", {class: "switch_container"});
+        let text = $("<div>", {html: prompt, class: "switch_text"});
+        let label = $("<label>", {class: "switch noSelect", style: "float: right;"});
+        let input = $("<input>", {type: "checkbox", checked: true});
+        let span = $("<span>", {class: "slider round noSelect"});
+
+        input.click(function() {
+            if($(this).is(":checked")) {
+                checkCallback.call(this);
+            } else {
+                uncheckCallback.call(this);
+            }
+        });
+
+        label.append(input);
+        label.append(span);
+        container.append(text);
+        container.append(label);
+
+        $(element).append(container);
+    }
+
+    /**
      * This function will generate a select form with a given prompt and set of values
      * @param {String} element identifier of the element to append to
      * @param {String} prompt the prompt to give for selection
