@@ -79,7 +79,7 @@ class DatabaseConnection {
             tx.executeSql("DROP TABLE IF EXISTS record_definition");
             tx.executeSql("DROP TABLE IF EXISTS record");
 
-            tx.executeSql(`CREATE TABLE IF NOT EXISTS athlete (fname, lname, grade, gender, id_backend)`);
+            tx.executeSql(`CREATE TABLE IF NOT EXISTS athlete (fname, lname, gender, id_backend)`);
 
             tx.executeSql(`CREATE TABLE IF NOT EXISTS relay_team (team_name)`);
 
