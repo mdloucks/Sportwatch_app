@@ -45,16 +45,7 @@ class Settings extends Page {
         // this.pageController.swipeHandler.addScrollPage("#settingsPage > #settingsPage");
 
         this.inputDivIdentifier = "#settingsPage #editPage #account_edit_inputs";
-
-        // each setting category will have its own function to call to specify what happens
-        this.accountButtons = {
-            "My Account": this.startMyAccount,
-            "Team Preferences": this.startTeamPreferences,
-            // "Notifications": this.startNotifications,
-            "Sign Out": this.startSignOut,
-            "Delete Account": this.startDeleteAccount
-        };
-
+        
     } // End of constructor
 
     getHtml() {
@@ -82,6 +73,20 @@ class Settings extends Page {
             this.pageTransition.addPage("editPage", this.editPage);
         }
 
+        // each setting category will have its own function to call to specify what happens
+        this.accountButtons = {
+            "My Account": this.startMyAccount,
+            "Team Preferences": this.startTeamPreferences,
+            // "Notifications": this.startNotifications,
+            "Sign Out": this.startSignOut,
+            "Delete Account": this.startDeleteAccount
+        };
+
+        // remove team preferences if there is no team.
+        if(!this.doesTeamExist()) {
+            delete this.accountButtons["Team Preferences"];
+        }
+
         // add the account pages
         Object.keys(this.accountButtons).forEach((key, index) => {
             this.addSettingCatagory(key, this.accountButtons[key].bind(this));
@@ -91,41 +96,6 @@ class Settings extends Page {
         $("#account_edit_inputs input").click((e) => {
             $(e.target).focus();
         })
-
-
-        // ---- DEVELOPER PAGE LOGIC ---- //
-        // this.addSettingCatagory("Developer Tools", () => {
-        //     this.pageTransition.slideLeft("catagoryPage");
-
-        //     $(this.inputDivIdentifier).html(`            
-        //         <div id="devPage" class="div_page">
-        //         <span class="back_button">&#9668;</span>
-        //         <br>
-        //         <h2>Developer tools</h2>
-        //         <br>
-                
-        //         <p>Reinstantiate tables(wipes database)</p>
-        //         <button id="create_tables">Create tables</button><br> 
-
-        //         <p>Enter Database Command</p>
-        //         <form id="database_command">
-        //         <input id="db_command" type="text"></input>
-        //         <input type="submit"></submit>
-        //         </form>
-        //         </div>`);
-        // });
-
-        // $("#create_tables").click((e) => {
-        //     e.preventDefault();
-        //     dbConnection.createNewTables();
-        //     console.log("Created new tables!");
-        // });
-
-        // $("#database_command").on("submit", function (e) {
-        //     e.preventDefault();
-        //     console.log($('#db_command').val());
-        //     dbConnection.executeCommand($('#db_command').val());
-        // });
 
         // ---- MISC PAGE LOGIC ---- //
 
@@ -346,53 +316,81 @@ class Settings extends Page {
 
         ValueEditor.editValues(this.inputDivIdentifier, valuesToEdit, (newValues) => {
 
-            storage.teamName = newVales["Team Name"];
-            storage.schoolName = newVales["School"];
+            storage.setItem("teamName", newValues["Team Name"]);
+            storage.setItem("school", newValues["School"]);
 
             // TODO: change user's password
             console.log("set values " + JSON.stringify(newValues));
         });
 
         $(this.inputDivIdentifier).append(`
-            <button class="generated_button" id="leave_team_button">Leave Team</button>
+            <br><button class="generated_button" style="background-color: #dd3333" id="leave_team_button">Leave Team</button>
         `);
+
+        let teamCode = "Unkown";
+
+        if(storage.getItem("inviteCode") != null) {
+            teamCode = storage.getItem("inviteCode");
+        }
+
+        // TODO: pull from server the user's invite code if it's not in localstorage
+        $(`${this.inputDivIdentifier}`).append(`
+            <div class="subheading_text">Invite Code: <span class="underline">${teamCode}<span></div>
+        `)
+
+        $(`${this.inputDivIdentifier}`).append(`
+            <div class="sectionWrapper">
+                <h1 id="h1_emailInvite">Invite via Email</h1>
+                <input id="input_athleteEmail" class="sw_text_input" type="text" placeholder="randy@sportwatch.us"></input>
+                <br>
+                <button id="button_sendInvite" class="sw_button">Invite</button>
+            </div><br><br><br><br>
+        `);
+
+        // invite athlete to team
+        $(`${this.inputDivIdentifier} #button_sendInvite`).click((e) => {
+
+            let invitedEmail = $(`${this.inputDivIdentifier} #input_athleteEmail`).val();
+            ToolboxBackend.inviteAthlete(invitedEmail);
+            console.log("sent invite to " + invitedEmail);
+        });
 
         $(`${this.inputDivIdentifier} #leave_team_button`).click(() => {
             Popup.createConfirmationPopup("Are you sure you want to leave your team?", ["Yes", "No"], [() => {
                 TeamBackend.leaveTeam((result) => {
-                    
+
                     // If succeeded, re-pull data and notify user
-                    if(result.status > 0) {
+                    if (result.status > 0) {
                         // Store email and SID, then clear everything else
                         let email = localStorage.getItem("email");
                         let sessionId = localStorage.getItem("SID");
                         localStorage.clear();
                         localStorage.setItem("email", email);
                         localStorage.setItem("SID", sessionId);
-                        
+
                         ToolboxBackend.pullFromBackend().then(() => {
-                            if(DO_LOG) {
+                            if (DO_LOG) {
                                 console.log("[settings.js]: Backend sync finished!");
                             }
-                        }).catch(function() {
-                            if(DO_LOG) {
+                        }).catch(function () {
+                            if (DO_LOG) {
                                 console.log("[settings.js]: Failed to pull from backend, localStorage email: " + localStorage.getItem("email"));
                             }
                         });
-                        Popup.createConfirmationPopup("You have successfully left the team", ["OK"], [() => { }]);
-                        
-                    // Failure, let them know why
+                        Popup.createConfirmationPopup("You have successfully left the team", ["OK"], [() => {}]);
+
+                        // Failure, let them know why
                     } else {
-                        if(result.msg.indexOf("coach") != -1) {
+                        if (result.msg.indexOf("coach") != -1) {
                             // TODO: Add options to delete team or nominate other coaches
-                            Popup.createConfirmationPopup("You're the only coach! You can't leave the team", ["OK"], [() => { }]);
+                            Popup.createConfirmationPopup("You're the only coach! You can't leave the team", ["OK"], [() => {}]);
                         } else {
-                            Popup.createConfirmationPopup("We're sorry, an error occured on our end. Please try later", ["OK"], [() => { }]);
+                            Popup.createConfirmationPopup("We're sorry, an error occured on our end. Please try later", ["OK"], [() => {}]);
                         }
                     }
                 });
                 // End of leave action
-                
+
             }, () => {
                 // no action
             }])
@@ -406,8 +404,9 @@ class Settings extends Page {
             Popup.createConfirmationPopup("Are you sure you want to delete this athlete?", ["Yes", "No"], [() => {
                 dbConnection.deleteValues("athlete", "WHERE rowid = ?", [rowid]);
 
-                // TODO: seth please update account
-                
+                // TODO: seth please delete athlete
+                console.log("delete " + id_backend);
+
             }, () => {
                 // no action
             }]);
@@ -425,6 +424,14 @@ class Settings extends Page {
                     deleteAthlete($(form).val(), athlete.item(0).id_backend);
                 });
             });
+        });
+
+        ButtonGenerator.generateToggle(`${this.inputDivIdentifier}`, "Lock Team", function () {
+            // TODO: the button is checked here, lock the user's team
+            console.log("check");
+        }, function() {
+            console.log("uncheck");
+            // TODO: the button is unchecked here, unlock the user's team
         });
 
 
@@ -453,28 +460,44 @@ class Settings extends Page {
     }
 
     startSignOut() {
-        
+
         Popup.createConfirmationPopup("Are you sure you want to sign out?", ["Yes", "No"], [() => {
             localStorage.clear();
             dbConnection.deleteDatabase();
             /*
-            * forceHaltSlide() is important and needed because when the use taps
-            * "Sign Out", SwipeHandler registers it as a TAP Gesture. In MainSet,
-            * PageTransition is bound to the TAP event and calls the slidePageX()
-            * function (this is to "snap back" pages that aren't slid far enough).
-            * However, the delay built into the slidePageX() function will re-hide
-            * and re-show parts of the MainSet. forceHaltSlide() stop this
-            * 
-            * TL;DR: forceHaltSlide() facilitates smooth PageSet transitions
-            */
+             * forceHaltSlide() is important and needed because when the use taps
+             * "Sign Out", SwipeHandler registers it as a TAP Gesture. In MainSet,
+             * PageTransition is bound to the TAP event and calls the slidePageX()
+             * function (this is to "snap back" pages that aren't slid far enough).
+             * However, the delay built into the slidePageX() function will re-hide
+             * and re-show parts of the MainSet. forceHaltSlide() stop this
+             * 
+             * TL;DR: forceHaltSlide() facilitates smooth PageSet transitions
+             */
             this.pageController.transitionObj.forceHaltSlide();
             this.pageController.onChangePageSet(0); // 0 for Welcome
-            
+
         }, () => {
             // Do nothing since they didn't want to sign out
             $("#settingsPage .cat_button").removeClass("cat_button_selected");
         }]);
-        
+
+    }
+
+    /**
+     * check for a series of localstorage variables to determine if the user has a team.
+     */
+    doesTeamExist() {
+        let storage = window.localStorage;
+        let doesExist = false;
+        let indicators = ["teamName", "inviteCode", "id_team"];
+
+        indicators.map(function(value) {
+            if(storage.getItem(value) != null) {
+                doesExist = true;
+            }
+        })
+        return doesExist;
     }
 
     startDeleteAccount() {
