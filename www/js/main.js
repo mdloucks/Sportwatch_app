@@ -19,10 +19,13 @@ class App {
     }
 
     onReady() {
-        
+        this.startApp();
+    }
+    
+    startApp() {
         // Have to initialize database here after device is ready
         dbConnection = new DatabaseConnection();
-        
+
         this.swipeHandler = new SwipeHolder("#app");
         FastClick.attach(document.body);
 
@@ -35,20 +38,18 @@ class App {
                 console.log("[main.js:onReady()]: Backend sync finished!");
             }
             setTimeout(() => {
-                app.startApp();
+                this.initializeUI();
             }, 500);
-        }).catch(function() {
+        }).catch(() => {
             // Likely a corrupted / lost local storage, so they'll be signed out anyway
             if(DO_LOG) {
                 console.log("[main.js:onReady]: Failed to pull from backend, localStorage email: " + localStorage.getItem("email"));
             }
-            app.startApp();
+            this.initializeUI();
         });
-        
     }
-    
-    startApp() {
-        
+
+    initializeUI() {
         // ---- PAGE SETS ---- //
         this.mainSet = new MainSet(this.swipeHandler, this.setActivePageSet, this);
         this.mainSet.constructPages();
@@ -58,17 +59,7 @@ class App {
 
         // And set the PageSet by checking Authentication
         this.determinePageSet();
-        
-        // TODO: Remove, just for demo purpose
-        // Save a record for the 100m Hurdle as a practice and use the logged in user's email by leaving \/ that blank
-        // RecordBackend.saveRecord((response) => { /* Callback */ }, 17.9228, DEFINITIONS["100m_hurdle"], "", {"isPractice": true});
-        // Save a relay record tied to Dan Wright (example435@email.com). Will automatically index and sort times
-        // RecordBackend.saveRecord((r) => { }, [18.2, 25.601, 10.9009, 32.000], DEFINITIONS["4x100m_relay"], "example435@email.com", {"isSplit": true});
-        // Grab the record with an internal (backend) ID of 12
-        // RecordBackend.getRecord((r) => { /* Process record */ }, {"id_record": 12})
-        // Grab all of the records for the user with the email example@email.com
-        // RecordBackend.getRecord((r) => { console.log(r) }, {"accountIdentity": {"email": "example@email.com"}})
-        
+
     }
 
     /**
