@@ -28,7 +28,7 @@ Constant.AJAX_CFG = {
 };
 
 Constant.fadeDuration = 600;
-Constant.fadeIncrement = 150;
+Constant.fadeIncrement = 100;
 
 Constant.eventColorConditionalAttributes = {
     "record_identity": {
