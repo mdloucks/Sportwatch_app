@@ -324,8 +324,6 @@ class DatabaseConnection {
                 let query = `INSERT INTO ${table} (${Object.keys(values).join(", ")}) VALUES ${_this.getQueryInsertString(nColumns)}`;
                 let dataArray = _this.getDataValuesAsArray(values);
 
-                console.log(query);
-                console.log(dataArray + " " + typeof (dataArray));
                 tx.executeSql(query, dataArray);
 
             } else if (typeof (values) == "array") {
