@@ -42,6 +42,14 @@
     <resource-file src="res/icon/android/mipmap-xxxhdpi/ic_launcher_foreground.png" target="app/src/main/res/mipmap-xxxhdpi/ic_launcher_foreground.png" />
     <resource-file src="res/icon/android/mipmap-xxxhdpi/ic_launcher_background.png" target="app/src/main/res/mipmap-xxxhdpi/ic_launcher_background.png" />
     <resource-file src="res/icon/android/mipmap-xxxhdpi/ic_launcher_round.png" target="app/src/main/res/mipmap-xxxhdpi/ic_launcher_round.png" />
+    <splash density="land-hdpi" src="res/screen/android/screen-hdpi-landscape.png" />
+    <splash density="land-ldpi" src="res/screen/android/screen-ldpi-landscape.png" />
+    <splash density="land-mdpi" src="res/screen/android/screen-mdpi-landscape.png" />
+    <splash density="land-xhdpi" src="res/screen/android/screen-xhdpi-landscape.png" />
+    <splash density="port-hdpi" src="res/screen/android/screen-hdpi-portrait.png" />
+    <splash density="port-ldpi" src="res/screen/android/screen-ldpi-portrait.png" />
+    <splash density="port-mdpi" src="res/screen/android/screen-mdpi-portrait.png" />
+    <splash density="port-xhdpi" src="res/screen/android/screen-xhdpi-portrait.png" />
     <preference name="loglevel" value="DEBUG" />
     <preference name="DisallowOverscroll" value="true" />
     <preference name="android-minSdkVersion" value="26" />
