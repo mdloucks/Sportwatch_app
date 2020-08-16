@@ -20,8 +20,8 @@ class Team extends Page {
 
         this.landingPage = (`
             <div id="landingPage" class="div_page">
-                <div class="container">
-                    <div id="team_name">My Team</div>
+                <div class="left_container">
+                    <div id="team_name" class="left_text underline">My Team</div>
                 </div>
 
                 <div class="button_box"></div>
@@ -130,12 +130,35 @@ class Team extends Page {
 
         // generate list of athletes then hide them
         dbConnection.selectValues("SELECT *, ROWID FROM athlete", []).then((athletes) => {
-            ButtonGenerator.generateButtonsFromDatabase("#teamPage #landingPage > .button_box", athletes, (athlete) => {
-                this.startAthletePage(athlete);
-            }, ["grade", "gender", "id_athlete_event_register", "id_backend", "rowid"], conditionalAttributes);
 
-            Animations.hideChildElements(this.athleteButtonsBoxSelector);
-            callback();
+            if(athletes != false) {
+                let storage = window.localStorage;
+                let teamName = "My Team";
+
+                if(storage.getItem("teamName") != null) {
+                    teamName = storage.getItem("teamName");
+                }
+
+                $("#teamPage #landingPage .left_text").html(teamName);
+                $("#teamPage #landingPage .subheading_text").remove();
+
+                ButtonGenerator.generateButtonsFromDatabase("#teamPage #landingPage > .button_box", athletes, (athlete) => {
+                    this.startAthletePage(athlete);
+                }, ["gender", "id_athlete_event_register", "id_backend", "rowid"], conditionalAttributes);
+    
+                Animations.hideChildElements(this.athleteButtonsBoxSelector);
+                callback();
+            } else {
+                $("#teamPage #landingPage .left_text").empty();
+                if($("#teamPage #landingPage .missing_info_text").length == 0) {
+                    $("#teamPage #landingPage").append(`
+                        <div class="missing_info_text">
+                            There aren't any athletes on your team yet. Go to Settings -> Team Preferences to
+                            invite athletes with a code, or by email.
+                        </div>
+                    `);
+                }
+            }
         });
     }
 
@@ -159,7 +182,7 @@ class Team extends Page {
         // generate events
         dbConnection.selectValues(query, [athlete.id_backend]).then((events) => {
             if(events == false) {
-                $("#teamPage #athletePage #athlete_events").html("<div class='subheading_text'>There are no events for this athlete. Save a time in the stopwatch for an event to create one.</div>")
+                $("#teamPage #athletePage #athlete_events").html("<div class='missing_info_text'>There are no events for this athlete. Save a time in the stopwatch for an event to create one.</div>")
             } else {
                 ButtonGenerator.generateButtonsFromDatabase("#teamPage #athletePage #athlete_events", events, (event) => {
                     this.startAthleteStatPage(athlete, event);
@@ -169,7 +192,7 @@ class Team extends Page {
 
         // Set athlete data before sliding
         $("#athletePage").find("#athleteName").html(`${athlete.fname} ${athlete.lname}`);
-        $("#athletePage > #athlete_info").html(`${athlete.grade}th grade ${athlete.gender == 'm' ? "male" : "female"}`);
+        $("#athletePage > #athlete_info").html(`${athlete.gender == 'm' ? "male" : "female"}`);
 
         // After populated, slide
         this.pageTransition.slideLeft("athletePage");

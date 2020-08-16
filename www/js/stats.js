@@ -12,11 +12,13 @@ class Stats extends Page {
         this.isEditing = false;
 
         this.eventButtonsBoxSelector = "#statsPage #landingPage .button_box";
-
+        this.headerText = `Events`;
 
         this.landingPage = (`
             <div id="landingPage" class="div_page">
-                <div class="subheading_text">Your Stats By Event</div><br><br>
+                <div class="left_container">
+                    <div class="left_text underline">Events</div><br><br>
+                </div>
 
                 <div class="button_box"></div>
             </div>
@@ -107,7 +109,9 @@ class Stats extends Page {
         
         dbConnection.selectValues(query).then((events) => {
             if(events != false) {
-                $("#statsPage #landingPage .subheading_text").html(`Your Stats By Event`);
+                $("#statsPage #landingPage .left_text").html(this.headerText);
+                $("#statsPage #landingPage .missing_info_text").remove();
+
                 ButtonGenerator.generateButtonsFromDatabase("#statsPage #landingPage .button_box", events, (event) => {
                     this.startEventPage(event);
                 }, [], Constant.eventColorConditionalAttributes);
@@ -115,11 +119,17 @@ class Stats extends Page {
                 Animations.hideChildElements(this.eventButtonsBoxSelector);
                 callback();
             } else {
-                $("#statsPage #landingPage .subheading_text").html(`
-                It looks like you don't have any times saved yet. 
-                Go to the Stopwatch page and save a time to an event
-                to have it show up here.
-                `);
+                $("#statsPage #landingPage .left_text").empty();
+
+                if($("#statsPage #landingPage .missing_info_text").length == 0) {
+                    $("#statsPage #landingPage").append(`
+                    <div class="missing_info_text">
+                        It looks like you don't have any times saved yet. 
+                        Go to the Stopwatch page and save a time.
+                    </div>
+                    `);
+                }
+                
             }
         });
     }
