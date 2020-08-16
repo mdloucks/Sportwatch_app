@@ -81,6 +81,7 @@ class ToolboxBackend {
                 // Update team ID
                 if(userInfo.id_team > 0) {
                     storage.setItem("id_team", userInfo.id_team);
+                    storage.setItem("user", userInfo);
                 }
             }
         });
@@ -157,7 +158,6 @@ class ToolboxBackend {
                         dbConnection.insertValues("athlete", [
                             teamResponse.primaryCoach.fname,
                             teamResponse.primaryCoach.lname,
-                            10, // <-- Grade Placeholder TODO: Remove
                             (teamResponse.primaryCoach.gender).toLowerCase(),
                             teamResponse.primaryCoach.id_user
                         ]);
@@ -168,7 +168,6 @@ class ToolboxBackend {
                         dbConnection.insertValues("athlete", [
                             teamResponse.secondaryCoach.fname,
                             teamResponse.secondaryCoach.lname,
-                            10,
                             (teamResponse.secondaryCoach.gender).toLowerCase(),
                             teamResponse.secondaryCoach.id_user
                         ]);
@@ -184,7 +183,6 @@ class ToolboxBackend {
                             dbConnection.insertValues("athlete", [
                                 currentAthlete.fname,
                                 currentAthlete.lname,
-                                10,
                                 (currentAthlete.gender).toLowerCase(),
                                 currentAthlete.id_user
                             ]);
@@ -690,6 +688,45 @@ class ToolboxBackend {
             }
         }
         return false;
+    }
+
+    /**
+     * Centralized method for inviting users to a team. It will display any
+     * appropriate error (or success) messages
+     * 
+     * @param {String} email email address to send an invite to
+     */
+    static inviteAthlete(email) {
+        // Validate again just to be safe
+        let emailMatch = email.match(/[A-Za-z0-9\-_.]*@[A-Za-z0-9\-_.]*\.(com|net|org|us|website|io)/gm);
+        if(emailMatch == null) {
+            Popup.createConfirmationPopup("Invalid email, please try again", ["OK"], [() => { }]);
+            return;
+        } else if(emailMatch[0].length != email.length) {
+            Popup.createConfirmationPopup("Invalid email, please try again", ["OK"], [() => { }]);
+            return;
+        }
+        
+        TeamBackend.inviteToTeam(email, (response) => {
+            if(response.status > 0) {
+                if(response.substatus == 2) {
+                    Popup.createConfirmationPopup("Athlete is already apart of this team", ["OK"], [() => { }]);
+                } else {
+                    Popup.createConfirmationPopup("Successfully invited!", ["OK"], [() => { }]);
+                }
+            } else {
+                if(response.substatus == 3) {
+                    Popup.createConfirmationPopup("Team is locked! Please unlock to invite athletes", ["Unlock Now", "Unlock Later"],
+                    [() => {
+                        // TODO: Unlock the team
+                    }, () => { }]); // End of Popup callbacks
+                } else if(response.substatus == 4) {
+                    Popup.createConfirmationPopup("Invalid email, please try again", ["OK"], [() => { }]);
+                } else {
+                    Popup.createConfirmationPopup("We're sorry, an error occured. Please try again later", ["OK"], [() => { }]);
+                }
+            }
+        });
     }
     
 }
