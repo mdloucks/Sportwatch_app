@@ -14,7 +14,8 @@ class Team extends Page {
 
         this.landingPageSelector = "#teamPage #landingPage";
 
-        this.athleteButtonsBoxSelector = "#teamPage #landingPage .button_box";
+        this.athleteButtonsBoxSelectorMales = "#teamPage #landingPage #male_container";
+        this.athleteButtonsBoxSelectorFemales = "#teamPage #landingPage #female_container";
 
         // --- PAGES ---- //
 
@@ -24,7 +25,10 @@ class Team extends Page {
                     <div id="team_name" class="left_text underline">My Team</div>
                 </div>
 
-                <div class="button_box"></div>
+                <div class="row">
+                    <div id="male_container" class="athlete_container"></div>
+                    <div id="female_container" class="athlete_container"></div>
+                </div>
             </div>
         `);
 
@@ -101,7 +105,8 @@ class Team extends Page {
             this.hasStarted = true;
         } else {
             this.startLandingPage(() => {
-                Animations.fadeInChildren(this.athleteButtonsBoxSelector, Constant.fadeDuration, Constant.fadeIncrement);
+                Animations.fadeInChildren(this.athleteButtonsBoxSelectorMales, Constant.fadeDuration, Constant.fadeIncrement);
+                Animations.fadeInChildren(this.athleteButtonsBoxSelectorFemales, Constant.fadeDuration, Constant.fadeIncrement);
             });
         }
     }
@@ -113,22 +118,22 @@ class Team extends Page {
      */
     startLandingPage(callback) {
 
-        $("#teamPage #landingPage > .button_box").empty();
+        $("#teamPage #landingPage #male_container").empty();
+        $("#teamPage #landingPage #female_container").empty();
 
         let conditionalAttributes = {
             "gender": {
                 "m": {
-                    style: "background-color: lightblue; color: black; border: 1px solid black;"
+                    style: "background-color: #6a81e1; color: black; border: 1px solid white;"
                 },
                 "f": {
-                    style: "background-color: lightpink; color: black; border: 1px solid black;"
+                    style: "background-color: #fc99b6; color: black; border: 1px solid white;"
                 }
             }
         };
 
         // generate list of athletes then hide them
         dbConnection.selectValues("SELECT *, ROWID FROM athlete", []).then((athletes) => {
-
             if(athletes != false) {
                 let storage = window.localStorage;
                 let teamName = "My Team";
@@ -136,15 +141,32 @@ class Team extends Page {
                 if(storage.getItem("teamName") != null) {
                     teamName = storage.getItem("teamName");
                 }
+                // separate boys and girls
+
+                let males = [];
+                let females = [];
+
+                for (let i = 0; i < athletes.length; i++) {
+                    if(athletes.item(i).gender == "m") {
+                        males.push(athletes.item(i));
+                    } else if(athletes.item(i).gender == "f") {
+                        females.push(athletes.item(i));
+                    }
+                }
 
                 $("#teamPage #landingPage .left_text").html(teamName);
                 $("#teamPage #landingPage .subheading_text").remove();
 
-                ButtonGenerator.generateButtonsFromDatabase("#teamPage #landingPage > .button_box", athletes, (athlete) => {
+                ButtonGenerator.generateButtonsFromDatabase("#teamPage #landingPage #male_container", males, (athlete) => {
+                    this.startAthletePage(athlete);
+                }, ["gender", "id_athlete_event_register", "id_backend", "rowid"], conditionalAttributes);
+
+                ButtonGenerator.generateButtonsFromDatabase("#teamPage #landingPage #female_container", females, (athlete) => {
                     this.startAthletePage(athlete);
                 }, ["gender", "id_athlete_event_register", "id_backend", "rowid"], conditionalAttributes);
     
-                Animations.hideChildElements(this.athleteButtonsBoxSelector);
+                Animations.hideChildElements(this.athleteButtonsBoxSelectorMales);
+                Animations.hideChildElements(this.athleteButtonsBoxSelectorFemales);
                 callback();
             } else {
                 $("#teamPage #landingPage .left_text").empty();
@@ -486,7 +508,8 @@ class Team extends Page {
     }
 
     stop() {
-        Animations.hideChildElements(this.athleteButtonsBoxSelector);
+        Animations.hideChildElements(this.athleteButtonsBoxSelectorMales);
+        Animations.hideChildElements(this.athleteButtonsBoxSelectorFemales);
         $(`${this.landingPageSelector} #team_name`).hide();
     }
 }
