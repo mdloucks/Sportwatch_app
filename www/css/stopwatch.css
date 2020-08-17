@@ -2,6 +2,10 @@
     overflow: hidden;
 }
 
+#stopwatchPage > * {
+    overflow: hidden;
+}
+
 #stopwatchPage #landingPage .stopwatch_canvas {
     margin-top: 1em;
     height: 75vw;
