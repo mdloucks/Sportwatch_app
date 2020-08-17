@@ -31,6 +31,7 @@ class Stats extends Page {
                 <h1 id="event_name"></h1>
                 <div></div>
             </div>
+            
 
             <table id="event_results">
                 <tr class="column_names">
@@ -112,9 +113,17 @@ class Stats extends Page {
                 $("#statsPage #landingPage .left_text").html(this.headerText);
                 $("#statsPage #landingPage .missing_info_text").remove();
 
-                ButtonGenerator.generateButtonsFromDatabase("#statsPage #landingPage .button_box", events, (event) => {
+                // convert the database construct into an array
+                let array = [];
+
+                for (let i = 0; i < events.length; i++) {
+                    array.push(events.item(i));
+                }
+
+
+                ButtonGenerator.generateButtonsFromDatabase("#statsPage #landingPage .button_box", array, (event) => {
                     this.startEventPage(event);
-                }, [], Constant.eventColorConditionalAttributes);
+                }, [], Constant.eventColorConditionalAttributes, "class");
                 
                 Animations.hideChildElements(this.eventButtonsBoxSelector);
                 callback();
