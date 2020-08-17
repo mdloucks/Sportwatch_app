@@ -26,9 +26,10 @@ class ButtonGenerator {
      * @param {Object} databaseResults The results returned from the database from tx.flex-lg-row-reverse
      * @param {function} callback the function to be called when clicked
      * @param {Object} conditionalAttributes an object to set the button attributes based on condition
+     * @param {string} sortBy the property in the object to sort by, note: MUST USE WHEN PASSING IN ARRAY
      */
     static generateButtonsFromDatabase(element, databaseResults = [], callback = ButtonGenerator.defaultCallbackFunction,
-        blackList = [], conditionalAttributes = undefined) {
+        blackList = [], conditionalAttributes = undefined, sortBy = "") {
 
         if (databaseResults === undefined || databaseResults === null) {
             throw new Error("Database results are undefined or null");
@@ -37,12 +38,23 @@ class ButtonGenerator {
             return;
         }
 
-        let keys = Object.keys(databaseResults.item(0));
-
+        let keys;
         let attributes;
         let innerHTML;
+        let elements = [];
 
         for (let i = 0; i < databaseResults.length; i++) {
+
+            let result;
+
+            if(Array.isArray(databaseResults)) {
+                result = databaseResults[i];
+                keys = Object.keys(databaseResults[0]);
+            } else {
+                result = databaseResults.item(i);
+                keys = Object.keys(databaseResults.item(0));
+            }
+
 
             attributes = {};
             innerHTML = "";
@@ -52,19 +64,19 @@ class ButtonGenerator {
             keys.forEach(key => {
                 // set attributes
                 if (key === "rowid") {
-                    attributes.id = `generated_button_${databaseResults.item(i)[key]}`;
-                    attributes.rowid = databaseResults.item(i)[key];
+                    attributes.id = `generated_button_${result[key]}`;
+                    attributes.rowid = result[key];
                     // exclude adding to innerHTML if it's on the blacklist
                 } else if (blackList.includes(key)) {
-                    attributes[key] = databaseResults.item(i)[key];
+                    attributes[key] = result[key];
                 } else {
-                    attributes[key] = databaseResults.item(i)[key];
+                    attributes[key] = result[key];
                     innerHTML += ` ${attributes[key]}`;
                 }
 
                 // update the existing attributes of the button based on the conditionalAttributes
                 if (conditionalAttributes != undefined && conditionalAttributes[key] !== undefined) {
-                    let value = databaseResults.item(i)[key];
+                    let value = result[key];
 
                     Object.keys(conditionalAttributes[key]).forEach(conditionalAttributeKey => {
                         if (value == conditionalAttributeKey) {
@@ -76,8 +88,8 @@ class ButtonGenerator {
 
             attributes.html = innerHTML;
 
-            let button = ButtonGenerator.generateButton(attributes, callback);
-            $(element).append(button);
+            
+            elements.push(attributes);
 
             // add padding to the bottom so it doesn't undercut navbar
             if(i == databaseResults.length - 1) {
@@ -85,6 +97,14 @@ class ButtonGenerator {
                 $(element).append($("<br>"));
                 $(element).append($("<br>"));
             }
+        }
+
+        console.log(JSON.stringify(elements));
+        elements.sort((a, b) => (a[sortBy] > b[sortBy]) ? 1 : ((b[sortBy] > a[sortBy]) ? -1 : 0));
+
+        for (let i = 0; i < elements.length; i++) {
+            let button = ButtonGenerator.generateButton(elements[i], callback);
+            $(element).append(button);
         }
     }
 
