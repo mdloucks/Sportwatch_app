@@ -352,7 +352,438 @@ class TeamBackend {
         });
     }
     
-    // ---- UTIL FUNCTIONs ---- //
+    /**
+     * So long as a coach is the one issuing this action, it will kick
+     * the specified user from the team. Currently, there is no notification
+     * of this and the user will simply "notice" when starting the app again
+     * 
+     * @example kickAthlete("trouble@mail.com", (data) => { // Handle response } )
+     *          --> Kicks "trouble@mail.com" from the team in local storage
+     * 
+     * @param {String} kickedEmail the email address of the user being kicked
+     * @param {Function} cb callback function that takes in response JSON (or string on error)
+     */
+    static kickAthlete(kickedEmail, cb) {
+        
+        let requestArray = { };
+        let storage = window.localStorage;
+        
+        // Prepare the request array
+        requestArray.SID = storage.getItem("SID");
+        requestArray.accountEmail = storage.getItem("email");
+        requestArray.teamIdentity = { "id_team" : storage.getItem("id_team") };
+        requestArray.kickedEmail = kickedEmail;
+        
+        // Submit the request and call the callback
+        return $.ajax({
+            type: "POST",
+            url: Constant.URL.team_action + "?intent=6",
+            timeout: Constant.AJAX_CFG.timeout,
+            data: requestArray,
+            success: (response) => {
+                if(DO_LOG) {
+                    console.log("[team-backend.js:kickAthlete()] " + response);
+                }
+                try {
+                    response = JSON.parse(response);
+                } catch (e) {
+                    // Couldn't parse, so just use string
+                }
+                cb(response);
+            },
+            error: (error) => {
+                if(DO_LOG) {
+                    console.log("[team-backend.js:kickAthlete()] " + error);
+                }
+                cb(error);
+            }
+        });
+    }
+    
+    /**
+     * Appoints the given user (identified by an email address) as the primary
+     * coach of the team in local storage. Things to consider:
+     *  - New coach must already have a Sportwatch account
+     *  - Current coach will become secondary coach
+     *  - Primary coach only action since it changes leadership
+     * 
+     * @example appointPrimaryCoach("clark@hemlock.com", (data) => { // Handle response } )
+     *          --> Makes Coach Clark the primary coach of the team
+     * 
+     * @param {String} newCoachEmail the email of the new primary coach to promote
+     * @param {Function} cb callback function that takes in response JSON (or string on error)
+     */
+    static appointPrimaryCoach(newCoachEmail, cb) {
+        
+        let requestArray = { };
+        let storage = window.localStorage;
+        
+        // Prepare the request array
+        requestArray.SID = storage.getItem("SID");
+        requestArray.accountEmail = storage.getItem("email");
+        requestArray.teamIdentity = { "id_team" : storage.getItem("id_team") };
+        requestArray.promotedEmail = newCoachEmail;
+        
+        // Submit the request and call the callback
+        return $.ajax({
+            type: "POST",
+            url: Constant.URL.team_action + "?intent=7",
+            timeout: Constant.AJAX_CFG.timeout,
+            data: requestArray,
+            success: (response) => {
+                if(DO_LOG) {
+                    console.log("[team-backend.js:appointPrimaryCoach()] " + response);
+                }
+                try {
+                    response = JSON.parse(response);
+                } catch (e) {
+                    // Couldn't parse, so just use string
+                }
+                cb(response);
+            },
+            error: (error) => {
+                if(DO_LOG) {
+                    console.log("[team-backend.js:appointPrimaryCoach()] " + error);
+                }
+                cb(error);
+            }
+        });
+    }
+    
+    /**
+     * Appoints the given user (identified by an email address) as the secondary
+     * coach of the team in local storage. Things to consider:
+     *  - New coach must already have a Sportwatch account
+     *  - Current secondary coach will be demoted to athlete
+     * 
+     * @example appointSecondaryCoach("assist@hemlock.com", (data) => { // Handle response } )
+     *          --> Makes Coach Assist the secondary coach of the team
+     * 
+     * @param {String} newCoachEmail the email of the new secondary coach to promote
+     * @param {Function} cb callback function that takes in response JSON (or string on error)
+     */
+    static appointSecondaryCoach(newCoachEmail, cb) {
+        
+        let requestArray = { };
+        let storage = window.localStorage;
+        
+        // Prepare the request array
+        requestArray.SID = storage.getItem("SID");
+        requestArray.accountEmail = storage.getItem("email");
+        requestArray.teamIdentity = { "id_team" : storage.getItem("id_team") };
+        requestArray.promotedEmail = newCoachEmail;
+        
+        // Submit the request and call the callback
+        return $.ajax({
+            type: "POST",
+            url: Constant.URL.team_action + "?intent=8",
+            timeout: Constant.AJAX_CFG.timeout,
+            data: requestArray,
+            success: (response) => {
+                if(DO_LOG) {
+                    console.log("[team-backend.js:appointSecondaryCoach()] " + response);
+                }
+                try {
+                    response = JSON.parse(response);
+                } catch (e) {
+                    // Couldn't parse, so just use string
+                }
+                cb(response);
+            },
+            error: (error) => {
+                if(DO_LOG) {
+                    console.log("[team-backend.js:appointSecondaryCoach()] " + error);
+                }
+                cb(error);
+            }
+        });
+    }
+    
+    /**
+     * Asks the backend to remote the coach identified by email in the
+     * first parameter. Obvious power restrictions are in play, i.e. the secondary
+     * coach cannot demote the primary coach, and an athlete can't demote
+     * a coach.
+     * 
+     * @example demoteCoach("badGuy@mail.com", (data) => { // Handle response } )
+     *          --> Removes Bad Guy from his position as a coach
+     * 
+     * @param {String} removedCoach the email of the coach being demoted
+     * @param {Function} cb callback function that takes in response JSON (or string on error)
+     */
+    static demoteCoach(removedCoach, cb) {
+        
+        let requestArray = { };
+        let storage = window.localStorage;
+        
+        // Prepare the request array
+        requestArray.SID = storage.getItem("SID");
+        requestArray.accountEmail = storage.getItem("email");
+        requestArray.teamIdentity = { "id_team" : storage.getItem("id_team") };
+        requestArray.demotedEmail = removedCoach;
+        
+        // Submit the request and call the callback
+        return $.ajax({
+            type: "POST",
+            url: Constant.URL.team_action + "?intent=9",
+            timeout: Constant.AJAX_CFG.timeout,
+            data: requestArray,
+            success: (response) => {
+                if(DO_LOG) {
+                    console.log("[team-backend.js:demoteCoach()] " + response);
+                }
+                try {
+                    response = JSON.parse(response);
+                } catch (e) {
+                    // Couldn't parse, so just use string
+                }
+                cb(response);
+            },
+            error: (error) => {
+                if(DO_LOG) {
+                    console.log("[team-backend.js:demoteCoach()] " + error);
+                }
+                cb(error);
+            }
+        });
+    }
+    
+    /**
+     * This function TOGGLES the locked state of a team. Furthermore, it should
+     * NOT be used to see if a team is locked - that should be TeamBackend.getTeamInfo()
+     * Locking a team prevents athletes form joining the team, but not from leaving it
+     * 
+     * @example lockTeam((response) => { if(response.isLocked == 1) { alert("LOCKED") } })
+     *          --> Will toggle the lock and alert LOCKED if the team becomes locked
+     * 
+     * @param {Function} cb callback function that takes in response JSON (or string on error)
+     */
+    static lockTeam(cb) {
+        
+        let requestArray = { };
+        let storage = window.localStorage;
+        
+        // Prepare the request array
+        requestArray.SID = storage.getItem("SID");
+        requestArray.accountEmail = storage.getItem("email");
+        requestArray.teamIdentity = { "id_team" : storage.getItem("id_team") };
+        
+        // Submit the request and call the callback
+        return $.ajax({
+            type: "POST",
+            url: Constant.URL.team_action + "?intent=10",
+            timeout: Constant.AJAX_CFG.timeout,
+            data: requestArray,
+            success: (response) => {
+                if(DO_LOG) {
+                    console.log("[team-backend.js:lockTeam()] " + response);
+                }
+                try {
+                    response = JSON.parse(response);
+                } catch (e) {
+                    // Couldn't parse, so just use string
+                }
+                cb(response);
+            },
+            error: (error) => {
+                if(DO_LOG) {
+                    console.log("[team-backend.js:lockTeam()] " + error);
+                }
+                cb(error);
+            }
+        });
+    }
+    
+    /**
+     * Changes the team (identified by local storage / teamIdentity parameter)
+     * name to the given string. Sanitation and validation will occur
+     * on the backend, but it should also be checked on the frontend
+     * 
+     * @example changeTeamName("New Team Name", (response) => { localstorage.setItem("teamName", response.teamName) });
+     *          --> Changes the name and sends it back with the response
+     * 
+     * @param {String} newName the new name to assign for the team
+     * @param {Function} cb function to handle the callback info
+     * @param {AssociativeArray} teamIdentity [defaults to localStorage id_team] data (like inviteCode) to identify a team
+     */
+    static changeTeamName(newName, cb, teamIdentity = { }) {
+        
+        let storage = window.localStorage;
+        
+        // If teamIdentity is empty or omitted, try pulling the local storage value
+        if(Object.keys(teamIdentity).length == 0) {
+            if((storage.getItem("id_team") == null) || (storage.getItem("id_team") == undefined)) {
+                if(DO_LOG) {
+                    console.log("[team-backend.js:changeTeamName()] No teamIdentity given, cannot proceed!");
+                }
+                // Simulate the response
+                cb("{\"status\": -5, \"substatus\": 6, \"msg\": \"accuracy = 0 of 8. duplicates: false\"}");
+                
+            } else {
+                teamIdentity = { "id_team": storage.getItem("id_team") };
+            }
+        }
+        
+        // Prepare the array
+        let postArray = { };
+        postArray.SID = storage.getItem("SID");
+        postArray.accountEmail = storage.getItem("email");
+        postArray.teamIdentity = teamIdentity;
+        postArray.newName = newName;
+        
+        // Submit the request and call the callback
+        return $.ajax({
+            type: "POST",
+            url: Constant.URL.team_action + "?intent=11",
+            timeout: Constant.AJAX_CFG.timeout,
+            data: postArray,
+            success: (response) => {
+                if(DO_LOG) {
+                    console.log("[team-backend.js:changeTeamName()] " + response);
+                }
+                try {
+                    response = JSON.parse(response);
+                } catch (e) {
+                    // Couldn't parse, so just use string
+                }
+                cb(response);
+            },
+            error: (error) => {
+                if(DO_LOG) {
+                    console.log("[team-backend.js:changeTeamName()] " + error);
+                }
+                cb(error);
+            }
+        });
+    }
+    
+    /**
+     * Changes the team (identified by local storage / teamIdentity parameter)
+     * invite code to the given string should be 7 digits long (should be checked
+     * before calling this function).
+     * 
+     * @example changeInviteCode("lclcm3y", (response) => { console.log("New Code: " + response.inviteCode) });
+     *          --> Changes the invite code (or errors) and returns it back
+     * 
+     * @param {String} newInviteCode the new invite code to use for the team
+     * @param {Function} cb function to handle the callback info
+     * @param {AssociativeArray} teamIdentity [defaults to localStorage id_team] data (like inviteCode) to identify a team
+     */
+    static changeInviteCode(newInviteCode, cb, teamIdentity = { }) {
+        
+        let storage = window.localStorage;
+        
+        // If teamIdentity is empty or omitted, try pulling the local storage value
+        if(Object.keys(teamIdentity).length == 0) {
+            if((storage.getItem("id_team") == null) || (storage.getItem("id_team") == undefined)) {
+                if(DO_LOG) {
+                    console.log("[team-backend.js:changeInviteCode()] No teamIdentity given, cannot proceed!");
+                }
+                // Simulate the response
+                cb("{\"status\": -5, \"substatus\": 6, \"msg\": \"accuracy = 0 of 8. duplicates: false\"}");
+                
+            } else {
+                teamIdentity = { "id_team": storage.getItem("id_team") };
+            }
+        }
+        
+        // Prepare the array
+        let postArray = { };
+        postArray.SID = storage.getItem("SID");
+        postArray.accountEmail = storage.getItem("email");
+        postArray.teamIdentity = teamIdentity;
+        postArray.newCode = newInviteCode;
+        
+        // Submit the request and call the callback
+        return $.ajax({
+            type: "POST",
+            url: Constant.URL.team_action + "?intent=12",
+            timeout: Constant.AJAX_CFG.timeout,
+            data: postArray,
+            success: (response) => {
+                if(DO_LOG) {
+                    console.log("[team-backend.js:changeInviteCode()] " + response);
+                }
+                try {
+                    response = JSON.parse(response);
+                } catch (e) {
+                    // Couldn't parse, so just use string
+                }
+                cb(response);
+            },
+            error: (error) => {
+                if(DO_LOG) {
+                    console.log("[team-backend.js:changeInviteCode()] " + error);
+                }
+                cb(error);
+            }
+        });
+    }
+    
+    /**
+     * Removes all of the users from the team and deletes the team from the
+     * backend database. This may be changed once we start storing
+     * data for teams (i.e. keep the team, but disable it or something?).
+     * This action is reserved soley for the primary coach and will error
+     * if anyone else tries to call it.
+     * 
+     * @example deleteTeam((result) => if(result.status > 0) { alert("TEAM DELETED"); })
+     *          --> Tries deleting the team, displaying an alert on success
+     * 
+     * @param {Function} cb function to handle the callback info
+     * @param {AssociativeArray} teamIdentity [defaults to localStorage id_team] data to identify a team
+     */
+    static deleteTeam(cb, teamIdentity = { }) {
+        
+        let storage = window.localStorage;
+        
+        // If teamIdentity is empty or omitted, try pulling the local storage value
+        if(Object.keys(teamIdentity).length == 0) {
+            if((storage.getItem("id_team") == null) || (storage.getItem("id_team") == undefined)) {
+                if(DO_LOG) {
+                    console.log("[team-backend.js:deleteTeam()] No teamIdentity given, cannot proceed!");
+                }
+                // Simulate the response
+                cb("{\"status\": -5, \"substatus\": 6, \"msg\": \"accuracy = 0 of 8. duplicates: false\"}");
+                
+            } else {
+                teamIdentity = { "id_team": storage.getItem("id_team") };
+            }
+        }
+        
+        // Prepare the array
+        let postArray = { };
+        postArray.SID = storage.getItem("SID");
+        postArray.accountEmail = storage.getItem("email");
+        postArray.teamIdentity = teamIdentity;
+        
+        // Submit the request and call the callback
+        return $.ajax({
+            type: "POST",
+            url: Constant.URL.team_action + "?intent=13",
+            timeout: Constant.AJAX_CFG.timeout,
+            data: postArray,
+            success: (response) => {
+                if(DO_LOG) {
+                    console.log("[team-backend.js:deleteTeam()] " + response);
+                }
+                try {
+                    response = JSON.parse(response);
+                } catch (e) {
+                    // Couldn't parse, so just use string
+                }
+                cb(response);
+            },
+            error: (error) => {
+                if(DO_LOG) {
+                    console.log("[team-backend.js:deleteTeam()] " + error);
+                }
+                cb(error);
+            }
+        });
+    }
+    
+    // ---- UTIL FUNCTIONS ---- //
     
     /**
      * Used to recall values from local storage and will check to make sure
