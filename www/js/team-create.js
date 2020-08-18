@@ -616,7 +616,6 @@ class CreateTeam extends Page {
                 innerHtml = innerHtml.replace("LOCATION", ""); // Hide it
             }
 
-            // TODO: Keep or remove logo image?
             // Include the image if it's present
             if ((currentSchool.logoUrl != null) && (currentSchool.logoUrl.length > 5)) {
                 innerHtml = `<img class="s_logo" src="${currentSchool.logoUrl}">` + innerHtml;

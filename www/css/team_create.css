@@ -46,7 +46,7 @@
 
 /* ---- GENERAL ---- */
 
-.div_page {
+#createteamPage > .div_page {
     height: 60%;
 }
 

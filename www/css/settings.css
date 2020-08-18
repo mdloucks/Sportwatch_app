@@ -69,11 +69,11 @@
 
 /* Setting -- Account */
 
-#editPage > #account_edit_inputs > p {
+#settingsPage #editPage > #account_edit_inputs > p {
     margin-bottom: 5px;
 }
 
-#editPage > #account_edit_inputs > input {
+#settingsPage #editPage > #account_edit_inputs > input {
     padding: 10px;
     border-width: 2px;
     border-color: crimson;
@@ -83,8 +83,36 @@
     outline: none;
 }
 
-#editPage > #account_edit_inputs > .generated_button {
+#settingsPage #editPage > #account_edit_inputs > .generated_button {
     margin-bottom: 8vh;
+}
+
+/* Setting -- Team Preference */
+
+#settingsPage #editPage #searchList {
+    height: 30vh;
+    overflow: auto;
+    transition: height 0.5s;
+}
+#settingsPage #editPage #searchList.noResults {
+    height: 0;
+}
+
+#settingsPage #editPage .searchResult {
+    margin: 0 auto;
+    padding: 15px;
+    width: 65%;
+    display: block;
+    text-align: left;
+    -webkit-appearance: none;
+}
+#settingsPage .s_name {
+    font-size: 1.5em;
+}
+#settingsPage .s_logo {
+    margin-right: 0.5em;
+    width: 1.5em;
+    border: 1px solid black;
 }
 
 #editPage input:checked + .slider {
