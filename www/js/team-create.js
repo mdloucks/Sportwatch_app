@@ -82,7 +82,7 @@ class CreateTeam extends Page {
                 <h1 id="h1_created">Team Created!</h1>
                 <p>
                     Congratulations! You have successfully created a team!
-                    Your invite code is <b><span id="inviteCode">Not Avaiable</span></b>.
+                    Your invite code is <b><u><span id="inviteCode">Not Avaiable</span></u></b>.
                     Share this with your athletes, or invite them below!
                 </p>
                 
@@ -448,7 +448,7 @@ class CreateTeam extends Page {
             if (this.getPageElement("#button_sendInvite").prop("disabled") == true) {
                 return;
             }
-            ToolboxBackend.inviteAthlete(invitedEmail);
+            ToolboxBackend.inviteAthleteWithFeedback(invitedEmail);
             // this.inviteAthlete(invitedEmail);
             this.getPageElement("#button_sendInvite").prop("disabled", true);
         })
