@@ -203,7 +203,8 @@ class Settings extends Page {
             // TODO: Make state change a dropdown instead of typing, sanitize to abbreviation
 
             let ignoredValues = ["status", "substatus", "msg", "id_user", "accountType", "isAdmin",
-                "id_school", "id_team", "schoolName", "teamName", "email", "lastUpdated", "lastLogin"
+                "id_school", "id_team", "schoolName", "teamName", "email", "emailVerified",
+                "lastUpdated", "lastLogin"
             ];
 
             let sensitiveValues = {
@@ -307,13 +308,23 @@ class Settings extends Page {
         let storage = window.localStorage;
 
         this.setupSettingsPage("Team Preferences");
-
+        
+        // This function will try to use local storage values to speed up interface
+        // A backend call will be made asynchronously to update these values
+        // as well to ensure that they're up-to-date (see bottom of function)
+        
         // TODO: add more fields here
         let valuesToEdit = {
-            "Team Name": storage.getItem("teamName") | "",
-            "School": storage.getItem("schoolName") | "",
+            "Team Name": storage.getItem("teamName"),
+            "School": storage.getItem("school"),
         };
-
+        if(valuesToEdit["Team Name"] == null) {
+            valuesToEdit["Team Name"] = "";
+        }
+        if(valuesToEdit["School"] == null) {
+            valuesToEdit["School"] = "";
+        }
+        
         ValueEditor.editValues(this.inputDivIdentifier, valuesToEdit, (newValues) => {
 
             storage.setItem("teamName", newValues["Team Name"]);
@@ -328,14 +339,13 @@ class Settings extends Page {
         `);
 
         let teamCode = "Unkown";
-
         if(storage.getItem("inviteCode") != null) {
             teamCode = storage.getItem("inviteCode");
         }
-
+        
         // TODO: pull from server the user's invite code if it's not in localstorage
         $(`${this.inputDivIdentifier}`).append(`
-            <div class="subheading_text">Invite Code: <span class="underline">${teamCode}<span></div>
+            <div id="inviteCode" class="subheading_text">Invite Code: <span class="underline">${teamCode}<span></div>
         `)
 
         $(`${this.inputDivIdentifier}`).append(`
@@ -433,14 +443,36 @@ class Settings extends Page {
             console.log("uncheck");
             // TODO: the button is unchecked here, unlock the user's team
         });
-
-
-        // // TODO: Remove later
-        // Popup.createConfirmationPopup("This feature is still in development. Please come back later", ["OK"], [() => {
-        //     this.pageTransition.slideRight("catagoryPage");
-        // }]);
-
+        
         this.pageTransition.slideLeft("editPage");
+        
+        // Now that the user has something to see, update the values via backend
+        TeamBackend.getTeamInfo((teamData) => {
+            if(teamData.status > 0) {
+                // Values to set:
+                //    teamName, school, inviteCode, isTeamLocked
+                //    input[name="Team Name"], input[name="School"], #inviteCode, 
+                
+                // First, create some variables with the updated values
+                let teamName = teamData.teamName;
+                let schoolName = teamData.schoolName;
+                let inviteCode = teamData.inviteCode;
+                let isLocked = (teamData.isLocked === 1 ? true : false);
+                
+                // Then, populate local storage
+                storage.setItem("teamName", teamName);
+                storage.setItem("school", schoolName);
+                storage.setItem("inviteCode", inviteCode);
+                storage.setItem("isTeamLocked", isLocked);
+                
+                // And finally, the actual page elements (may result in a flash change, but oh well)
+                $('#editPage input[name="Team Name"]').val(teamName);
+                $('#editPage input[name="School"]').val(schoolName);
+                $('#editPage #inviteCode > span').text(inviteCode);
+                // TODO: Find out how to update the locked toggle
+                
+            }
+        });
     }
 
     startNotifications() {
