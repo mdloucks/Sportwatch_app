@@ -98,8 +98,7 @@ class ButtonGenerator {
                 $(element).append($("<br>"));
             }
         }
-
-        console.log(JSON.stringify(elements));
+        
         elements.sort((a, b) => (a[sortBy] > b[sortBy]) ? 1 : ((b[sortBy] > a[sortBy]) ? -1 : 0));
 
         for (let i = 0; i < elements.length; i++) {
