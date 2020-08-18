@@ -692,11 +692,14 @@ class ToolboxBackend {
 
     /**
      * Centralized method for inviting users to a team. It will display any
-     * appropriate error (or success) messages
+     * appropriate error (or success) messages. This differs from
+     * TeamBackend's inviteAthlete in that it sanitizes the email
+     * and displays error popups. Handy for usage throughout the
+     * app, not just in the team page.
      * 
      * @param {String} email email address to send an invite to
      */
-    static inviteAthlete(email) {
+    static inviteAthleteWithFeedback(email) {
         // Validate again just to be safe
         let emailMatch = email.match(/[A-Za-z0-9\-_.]*@[A-Za-z0-9\-_.]*\.(com|net|org|us|website|io)/gm);
         if(emailMatch == null) {

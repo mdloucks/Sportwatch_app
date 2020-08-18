@@ -448,7 +448,8 @@ class CreateTeam extends Page {
             if (this.getPageElement("#button_sendInvite").prop("disabled") == true) {
                 return;
             }
-            this.inviteAthlete(invitedEmail);
+            ToolboxBackend.inviteAthlete(invitedEmail);
+            // this.inviteAthlete(invitedEmail);
             this.getPageElement("#button_sendInvite").prop("disabled", true);
         })
 
@@ -499,6 +500,9 @@ class CreateTeam extends Page {
      * appropriate error (or success) messages
      * 
      * @param {String} email email address to send an invite to
+     * 
+     * @deprecated
+     * Use ToolboxBackend method to incorperate the dialogues
      */
     inviteAthlete(email) {
         // Validate again just to be safe
