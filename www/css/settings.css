@@ -87,6 +87,10 @@
     margin-bottom: 8vh;
 }
 
+#editPage input:checked + .slider {
+    background-color: crimson;
+}
+
 #settingsPage #button_sendInvite {
     padding: 10px;
     font-size: 1.5em;
