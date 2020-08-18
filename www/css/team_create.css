@@ -26,7 +26,7 @@
   padding: 1em 1.5em;
   display: inline-block;
   background-color: white;
-  font-size: 2.5vmax;
+  font-size: 1.5em;
   border: 0.7vw solid black;
   border-radius: 100%;
   transition: background-color 1.5s;
@@ -45,6 +45,10 @@
 }
 
 /* ---- GENERAL ---- */
+
+#createteamPage > .div_page {
+    height: 60%;
+}
 
 #createteamPage .button_progression {
     margin: 5px;

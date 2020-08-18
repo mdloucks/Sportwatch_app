@@ -184,7 +184,11 @@ https://css-tricks.com/places-its-tempting-to-use-display-none-but-dont/ */
 .left_container {
     text-align: left;
     width: 100%;
-    margin: 2em 0em 2em 2em;
+    margin: 3em 0em 2em 2em;
+    
+    /* pain-in-the-neck ihpone... has to have non-rectangular screens */
+    padding-top: constant(safe-area-inset-top);
+    padding-top: env(safe-area-inset-top);
 }
 
 .left_text {

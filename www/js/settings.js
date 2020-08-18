@@ -309,10 +309,12 @@ class Settings extends Page {
 
         this.setupSettingsPage("Team Preferences");
         
-        // This function will try to use local storage values to speed up interface
-        // A backend call will be made asynchronously to update these values
-        // as well to ensure that they're up-to-date (see bottom of function)
+        // Use local storage variables at first, but pull team data later
+        // (see end of function for the backend pull)
         
+        // ---- BUTTONS / INTERFACE SETUP ---- //
+        
+        // BASIC INFO
         // TODO: add more fields here
         let valuesToEdit = {
             "Team Name": storage.getItem("teamName"),
@@ -326,28 +328,58 @@ class Settings extends Page {
         }
         
         ValueEditor.editValues(this.inputDivIdentifier, valuesToEdit, (newValues) => {
-
-            storage.setItem("teamName", newValues["Team Name"]);
-            storage.setItem("school", newValues["School"]);
-
-            // TODO: change user's password
-            console.log("set values " + JSON.stringify(newValues));
+            
+            // Pre-backend filtering
+            newValues["Team Name"] = newValues["Team Name"].replace(/[^A-Za-z0-9\- ]/gm, "");
+            if(newValues["Team Name"].length < 5) {
+                Popup.createConfirmationPopup("The team name is too short, please try adding to it.", ["OK"]);
+            } else if(newValues["Team Name"].length > 75) {
+                Popup.createConfirmationPopup("The team name is too long, please shorten it.", ["OK"]);
+            }
+            
+            // Only perform oeprations if they changed
+            if(newValues["Team Name"] != valuesToEdit["Team Name"]) {
+                let newTeamName = newValues["Team Name"];
+                TeamBackend.changeTeamName(newTeamName, (response) => {
+                    if(response.status > 0) { // Success
+                        storage.setItem("teamName", newTeamName);
+                        Popup.createConfirmationPopup("Team name changed successfully!", ["OK"]);
+                        
+                    } else { // Error
+                        if(response.substatus == 3) { // Invalid action
+                            Popup.createConfirmationPopup("This action can only be performed by a coach.", ["OK"]);
+                        } else if(response.substatus == 4) { // Invalid length
+                            Popup.createConfirmationPopup("Please try re-typing or changing the team name.", ["OK"]);
+                        } else {
+                            Popup.createConfirmationPopup("Sorry, an error occured. Please try again later.", ["OK"]);
+                        }
+                    }
+                });
+            }
+            
+            // storage.setItem("teamName", newValues["Team Name"]);
+            // storage.setItem("school", newValues["School"]);
         });
-
+        // Add the school search results in this div \/
+        $('#settingsPage #editPage input[name="School"]').after(`<div id="searchList" class="noResults"></div>`);
+        $("#settingsPage #editPage .generated_button:first").prop("disabled", true); // Disable until edited
+        
+        // LEAVE TEAM BUTTON
         $(this.inputDivIdentifier).append(`
             <br><button class="generated_button" style="background-color: #dd3333" id="leave_team_button">Leave Team</button>
         `);
-
+        
+        // INVITE CODE
         let teamCode = "Unkown";
         if(storage.getItem("inviteCode") != null) {
             teamCode = storage.getItem("inviteCode");
         }
         
-        // TODO: pull from server the user's invite code if it's not in localstorage
         $(`${this.inputDivIdentifier}`).append(`
             <div id="inviteCode" class="subheading_text">Invite Code: <span class="underline">${teamCode}<span></div>
         `)
-
+        
+        // INVITE VIA EMAIL
         $(`${this.inputDivIdentifier}`).append(`
             <div class="sectionWrapper">
                 <h1 id="h1_emailInvite">Invite via Email</h1>
@@ -356,16 +388,74 @@ class Settings extends Page {
                 <button id="button_sendInvite" class="sw_button">Invite</button>
             </div><br><br><br><br>
         `);
-
+        
+        // ---- LOGIC ---- //
+        
+        // GENERAL INFO EDITING
+        let isNameValid = true;
+        let schoolId = storage.getItem("id_school");
+        
+        // Name input
+        $('#settingsPage #editPage input[name="Team Name"]').on("input", (e) => {
+            let input = $('#settingsPage #editPage input[name="Team Name"]').val();
+            
+            isNameValid = true;
+            
+            input = input.replace(/[^A-Za-z0-9& ]/gm, "");
+            if((input.length < 5) || (input.length > 45)) {
+                isNameValid = false;
+            }
+            
+            if((isNameValid) && (schoolId > 0)) {
+                $("#settingsPage #editPage .generated_button:first").prop("disabled", false);
+            }
+        });
+        
+        // School input
+        $('#settingsPage #editPage input[name="School"]').on("input", (e) => {
+            let input = $('#settingsPage #editPage input[name="School"]').val();
+            
+            // User must select a dropdown option, do disable Change button until then
+            schoolId = -1;
+            
+            input = input.replace(/[^A-Za-z0-9. ]/gm, "");
+            // Search for schools with the given input
+            ToolboxBackend.searchForSchool(input, 10, (response) => {
+                if (response.status > 0) {
+                    if (response.substatus == 2) { // No matches, clear list and generate nothing
+                        this.generateSearchResults([]); // No options, so no need to resolve promise
+                        // Hide the search list since there are no results
+                        let searchList = $("#settingsPage #editPage #searchList");
+                        if(!searchList.hasClass("noResults")) { // Only show if not already hidden
+                            searchList.addClass("noResults");
+                        }
+                    } else {
+                        // Show and generate the list
+                        $("#settingsPage #editPage #searchList").removeClass("noResults");
+                        this.generateSearchResults(response.matches).then((selectedId) => {
+                            schoolId = selectedId;
+                            if(isNameValid) {
+                                $("#settingsPage #editPage .generated_button:first").prop("disabled", false);
+                            }
+                        });
+                        // And hide the results after being clicked on
+                        $("#settingsPage #editPage #searchList").addClass("noResults");
+                    }
+                } // End of status check. Nothing we can do really if this fails
+                
+            });
+        });
+        
         // invite athlete to team
-        $(`${this.inputDivIdentifier} #button_sendInvite`).click((e) => {
+        $(`#settingsPage ${this.inputDivIdentifier} #button_sendInvite`).click((e) => {
 
             let invitedEmail = $(`${this.inputDivIdentifier} #input_athleteEmail`).val();
-            ToolboxBackend.inviteAthlete(invitedEmail);
+            ToolboxBackend.inviteAthleteWithFeedback(invitedEmail);
             console.log("sent invite to " + invitedEmail);
         });
-
-        $(`${this.inputDivIdentifier} #leave_team_button`).click(() => {
+        
+        // LEAVE TEAM
+        $(`#settingsPage ${this.inputDivIdentifier} #leave_team_button`).click(() => {
             Popup.createConfirmationPopup("Are you sure you want to leave your team?", ["Yes", "No"], [() => {
                 TeamBackend.leaveTeam((result) => {
 
@@ -406,8 +496,9 @@ class Settings extends Page {
             }])
         });
 
-        let values = {};
-
+        let values = {}; // Used for the various database functions below
+        
+        // KICK ATHLETE
         // this function will be called when a athlete is selected for deletion
         let deleteAthlete = (rowid, id_backend) => {
 
@@ -435,16 +526,21 @@ class Settings extends Page {
                 });
             });
         });
-
-        ButtonGenerator.generateToggle(`${this.inputDivIdentifier}`, "Lock Team", function () {
-            // TODO: the button is checked here, lock the user's team
-            console.log("check");
-        }, function() {
-            console.log("uncheck");
-            // TODO: the button is unchecked here, unlock the user's team
-        });
         
+        // LOCK TEAM
+        ButtonGenerator.generateToggle(`${this.inputDivIdentifier}`, "Lock Team", function () {
+            this.toggleLockWithFeedback();
+        }.bind(this), function() {
+            this.toggleLockWithFeedback();
+        }.bind(this));
+        $("#settingsPage #editPage .switch_container:last").prop("id", "lockTeamToggle"); // Add ID
+        $("#settingsPage #editPage #lockTeamToggle").find(".switch").css("float", ""); // Clear float
+        
+        // Slide the page, we're ready to show the user
         this.pageTransition.slideLeft("editPage");
+        
+        
+        // ---- BACKEND PULL ---- //
         
         // Now that the user has something to see, update the values via backend
         TeamBackend.getTeamInfo((teamData) => {
@@ -456,21 +552,22 @@ class Settings extends Page {
                 // First, create some variables with the updated values
                 let teamName = teamData.teamName;
                 let schoolName = teamData.schoolName;
+                schoolId = teamData.id_school; // Defined above in logic section
                 let inviteCode = teamData.inviteCode;
                 let isLocked = (teamData.isLocked === 1 ? true : false);
                 
                 // Then, populate local storage
                 storage.setItem("teamName", teamName);
                 storage.setItem("school", schoolName);
+                storage.setItem("id_school", schoolId);
                 storage.setItem("inviteCode", inviteCode);
                 storage.setItem("isTeamLocked", isLocked);
                 
                 // And finally, the actual page elements (may result in a flash change, but oh well)
-                $('#editPage input[name="Team Name"]').val(teamName);
-                $('#editPage input[name="School"]').val(schoolName);
-                $('#editPage #inviteCode > span').text(inviteCode);
-                // TODO: Find out how to update the locked toggle
-                
+                $('#settingsPage #editPage input[name="Team Name"]').val(teamName);
+                $('#settingsPage #editPage input[name="School"]').val(schoolName);
+                $('#settingsPage #editPage #inviteCode > span').text(inviteCode);
+                $('#settingsPage #editPage #lockTeamToggle').find('input').prop("checked", isLocked);
             }
         });
     }
@@ -560,5 +657,92 @@ class Settings extends Page {
 
         this.pageTransition.slideLeft("editPage");
     }
+    
+    // MISC FUNCTIONS
+    
+    /**
+     * Toggles the team lock both on the backend and will update
+     * the frontend with the current status of the team.
+     */
+    toggleLockWithFeedback() {
+        TeamBackend.lockTeam((result) => {
+            if(result.status > 0) {
+                $('#settingsPage #editPage #lockTeamToggle').find('input').prop("checked", result.isLocked);
+            } else {
+                Popup.createConfirmationPopup("Only a coach can lock the team.", ["OK"]);
+            }
+        });
+    }
+    
+    /**
+     * Generates a list of schools that match the given search. It will position
+     * these slightly below the input to allow for each click access for the
+     * user.
+     * 
+     * @param {AssociativeArray} resultsList js object returned from the backend search request
+     */
+    generateSearchResults(resultsList) {
 
+        let schoolArray = []; // Array of button attribute objects [{...}, {...}, etc.]
+        let currentSchool = {}; // Set to each object in the matches array
+        let loopCount = 5; // Max number of results to show
+
+        // Clear list to remove old results
+        $("#settingsPage #editPage #searchList").empty();
+
+        // Set max results to 5
+        if (resultsList.length < loopCount) {
+            loopCount = resultsList.length;
+        }
+
+        for (let s = 0; s < loopCount; s++) {
+            currentSchool = resultsList[s];
+
+            let innerHtml = `<span class="s_name">SCHOOL_NAME</span><br><span class="s_address">LOCATION</span>`;
+
+            // Populate innerHtml
+            if (currentSchool.name.length > 18) {
+                innerHtml = innerHtml.replace("SCHOOL_NAME", currentSchool.name.substring(0, 17).trim() + "...");
+            } else {
+                innerHtml = innerHtml.replace("SCHOOL_NAME", currentSchool.name.trim());
+            }
+            if ((currentSchool.city != null) && (currentSchool.city.length > 3) && (currentSchool.state != null)) {
+                innerHtml = innerHtml.replace("LOCATION", currentSchool.city.trim().toUpperCase() + ", " + currentSchool.state.trim());
+            } else {
+                innerHtml = innerHtml.replace("LOCATION", ""); // Hide it
+            }
+
+            // Include the image if it's present
+            if ((currentSchool.logoUrl != null) && (currentSchool.logoUrl.length > 5)) {
+                innerHtml = `<img class="s_logo" src="${currentSchool.logoUrl}">` + innerHtml;
+            }
+
+            let buttonId = "school_" + currentSchool.name.replace(/ /gm, "-");
+            schoolArray.push(({
+                "class": "searchResult",
+                "id": buttonId,
+                "html": innerHtml,
+                "id_school": currentSchool.id_school
+            }));
+        }
+        
+        // Create a promise object so the school ID can be set
+        let afterSchoolSelect = $.Deferred();
+        
+        // Finally, generate them
+        ButtonGenerator.generateButtons("#settingsPage #editPage #searchList", schoolArray, (school) => {
+
+            // Unfocus input, select the school, and clear search results
+            document.activeElement.blur();
+            afterSchoolSelect.resolve(school.id_school);
+            
+            let schoolName = school.id.replace("school_", "").replace(/\-/gm, " ");
+            $("#settingsPage #editPage #searchList").empty();
+            $('#settingsPage #editPage input[name="School"]').val(schoolName);
+        });
+        
+        return afterSchoolSelect.promise();
+    }
+    
+    
 }
