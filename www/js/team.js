@@ -17,6 +17,8 @@ class Team extends Page {
         this.athleteButtonsBoxSelectorMales = "#teamPage #landingPage #male_container";
         this.athleteButtonsBoxSelectorFemales = "#teamPage #landingPage #female_container";
 
+        this.athleteBoxSelector = "#teamPage #landingPage .button_box";
+
         // --- PAGES ---- //
 
         this.landingPage = (`
@@ -25,12 +27,14 @@ class Team extends Page {
                     <div id="team_name" class="left_text underline">My Team</div>
                 </div>
 
-                <div class="row">
-                    <div id="male_container" class="athlete_container"></div>
-                    <div id="female_container" class="athlete_container"></div>
-                </div>
+                <div class="button_box"></div>
             </div>
         `);
+
+    //     <div class="row">
+    //     <div id="male_container" class="athlete_container"></div>
+    //     <div id="female_container" class="athlete_container"></div>
+    // </div>
 
         this.athletePage = (`
             <div id="athletePage" class="div_page">
@@ -102,8 +106,9 @@ class Team extends Page {
             this.hasStarted = true;
         } else {
             this.startLandingPage(() => {
-                Animations.fadeInChildren(this.athleteButtonsBoxSelectorMales, Constant.fadeDuration, Constant.fadeIncrement);
-                Animations.fadeInChildren(this.athleteButtonsBoxSelectorFemales, Constant.fadeDuration, Constant.fadeIncrement);
+                // Animations.fadeInChildren(this.athleteButtonsBoxSelectorMales, Constant.fadeDuration, Constant.fadeIncrement);
+                // Animations.fadeInChildren(this.athleteButtonsBoxSelectorFemales, Constant.fadeDuration, Constant.fadeIncrement);
+                Animations.fadeInChildren(this.athleteBoxSelector, Constant.fadeDuration, Constant.fadeIncrement);
             });
         }
     }
@@ -117,6 +122,7 @@ class Team extends Page {
 
         $("#teamPage #landingPage #male_container").empty();
         $("#teamPage #landingPage #female_container").empty();
+        $(this.athleteBoxSelector).empty();
 
         let conditionalAttributes = {
             "gender": {
@@ -142,28 +148,37 @@ class Team extends Page {
 
                 let males = [];
                 let females = [];
+                let array = []
 
                 for (let i = 0; i < athletes.length; i++) {
-                    if (athletes.item(i).gender == "m") {
-                        males.push(athletes.item(i));
-                    } else if (athletes.item(i).gender == "f") {
-                        females.push(athletes.item(i));
-                    }
+                    array.push(athletes.item(i));
+                    // if (athletes.item(i).gender == "m") {
+                    //     males.push(athletes.item(i));
+                    // } else if (athletes.item(i).gender == "f") {
+                    //     females.push(athletes.item(i));
+                    // }
                 }
 
                 $("#teamPage #landingPage .left_text").html(teamName);
                 $("#teamPage #landingPage .subheading_text").remove();
 
-                ButtonGenerator.generateButtonsFromDatabase("#teamPage #landingPage #male_container", males, (athlete) => {
-                    this.startAthletePage(athlete);
-                }, ["gender", "id_athlete_event_register", "id_backend", "rowid"], conditionalAttributes);
+                // ButtonGenerator.generateButtonsFromDatabase("#teamPage #landingPage #male_container", males, (athlete) => {
+                //     this.startAthletePage(athlete);
+                // }, ["gender", "id_athlete_event_register", "id_backend", "rowid"], conditionalAttributes);
 
-                ButtonGenerator.generateButtonsFromDatabase("#teamPage #landingPage #female_container", females, (athlete) => {
-                    this.startAthletePage(athlete);
-                }, ["gender", "id_athlete_event_register", "id_backend", "rowid"], conditionalAttributes);
+                // ButtonGenerator.generateButtonsFromDatabase("#teamPage #landingPage #female_container", females, (athlete) => {
+                //     this.startAthletePage(athlete);
+                // }, ["gender", "id_athlete_event_register", "id_backend", "rowid"], conditionalAttributes);
 
-                Animations.hideChildElements(this.athleteButtonsBoxSelectorMales);
-                Animations.hideChildElements(this.athleteButtonsBoxSelectorFemales);
+
+                ButtonGenerator.generateButtonsFromDatabase(this.athleteBoxSelector, array, (athlete) => {
+                    this.startAthletePage(athlete);
+                }, ["gender", "id_athlete_event_register", "id_backend", "rowid"], conditionalAttributes, "lname");
+
+                // Animations.hideChildElements(this.athleteButtonsBoxSelectorMales);
+                // Animations.hideChildElements(this.athleteButtonsBoxSelectorFemales);
+                Animations.hideChildElements(this.athleteBoxSelector);
+
                 callback();
             } else {
                 $("#teamPage #landingPage .left_text").empty();
@@ -562,8 +577,10 @@ class Team extends Page {
     }
 
     stop() {
-        Animations.hideChildElements(this.athleteButtonsBoxSelectorMales);
-        Animations.hideChildElements(this.athleteButtonsBoxSelectorFemales);
+        // Animations.hideChildElements(this.athleteButtonsBoxSelectorMales);
+        // Animations.hideChildElements(this.athleteButtonsBoxSelectorFemales);
+        Animations.hideChildElements(this.athleteBoxSelector);
+
         $(`${this.landingPageSelector} #team_name`).hide();
     }
 }

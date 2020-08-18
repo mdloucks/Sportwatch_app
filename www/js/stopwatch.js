@@ -349,10 +349,10 @@ class Stopwatch extends Page {
         let conditionalAttributes = {
             "gender": {
                 "m": {
-                    style: "background-color: lightblue; color: black; border: 1px solid black;"
+                    style: "background-color: #6a81e1; color: black; border: 1px solid white;"
                 },
                 "f": {
-                    style: "background-color: lightpink; color: black; border: 1px solid black;"
+                    style: "background-color: #fc99b6; color: black; border: 1px solid white;"
                 }
             }
         };
@@ -363,7 +363,7 @@ class Stopwatch extends Page {
                 $("#stopwatchPage #selectAthletePage .subheading_text").remove();
                 ButtonGenerator.generateButtonsFromDatabase("#stopwatchPage #selectAthletePage .button_box", athletes, (athlete) => {
                     this.startSelectEventPage(athlete)
-                }, ["gender", "unit", "is_relay", "timestamp", "id_backend"], conditionalAttributes);
+                }, ["gender", "unit", "is_relay", "timestamp", "id_backend"], conditionalAttributes, "lname");
             } else {
                 $("#stopwatchPage #selectAthletePage .subheading_text").html(`
                 You have no athletes on your team yet. Go to the Team page and invite some athletes to join!
@@ -405,7 +405,7 @@ class Stopwatch extends Page {
                 this.saveTime(event, athlete);
             }, ["id_athlete", "id_record_definition", "value",
                 "is_split", "id_relay", "id_relay_index", "last_updated", "unit"
-            ], Constant.eventColorConditionalAttributes);
+            ], Constant.eventColorConditionalAttributes, "class");
         });
 
         // get a list of every event definition and take away the ones with records already
