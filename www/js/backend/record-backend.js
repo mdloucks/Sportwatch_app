@@ -48,17 +48,22 @@ class RecordBackend {
      *                                      isSplit {Boolean} - are the values a relay?
      *                                      id_event {Integer} - links record to an official meet
      */
-    static saveRecord(cb, value, definitionId, email = "", details = { }) {
+    static saveRecord(value, definitionId, emailOrId, cb, details = { }) {
         
         // Do some basic checks
         let storage = window.localStorage;
-        let userEmail = email;
-        if(userEmail.length == 0) {
-            userEmail = storage.getItem("email");
+        let identityKey = "email"; // "email" if emailOrId is a string, "id_user" if it's a number
+        
+        if(typeof emailOrId == "number") {
+            identityKey = "id_user";
+        } else { // Assume it was an email
+            if(emailOrId.length == 0) {
+                emailOrId = storage.getItem("email");
+            }
         }
         if(value < 0) {
             if(DO_LOG) {
-                console.log("[record-backend.js:saveRecord()] value cannot be negative");
+                console.log("[record-backend.js:saveRecord()] Value cannot be negative");
             }
             return false;
         }
@@ -71,7 +76,8 @@ class RecordBackend {
         
         // Add them to the details array
         details.SID = storage.getItem("SID");
-        details.accountIdentity = {"email": userEmail};
+        details.accountIdentity = { };
+        details.accountIdentity[identityKey] = emailOrId;
         details.value = value;
         details.definition = definitionId;
         

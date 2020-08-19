@@ -93,6 +93,16 @@ class ToolboxBackend {
             ajaxRequest = TeamBackend.getTeamInfo((teamInfo) => {
                 if(teamInfo.status > 0) {
                     localStorage.setItem("teamName", teamInfo.teamName);
+                } else {
+                    if(teamInfo.substatus == 7) {
+                        // This is the code for an invalid team ID
+                        // If this occurs, the team was likely deleted, so update the frontend as well
+                        storage.removeItem("id_team");
+                        storage.removeItem("teamName");
+                        storage.removeItem("school");
+                        storage.removeItem("id_school");
+                        storage.removeItem("inviteCode");
+                    }
                 }
             });
             ajaxArray.push(ajaxRequest);
@@ -240,8 +250,17 @@ class ToolboxBackend {
                             "id_split_index": pulledResult.splitIndex,
                             "last_updated": pulledResult.lastUpdated
                         };
-                        
                         dbConnection.insertValuesFromObject("record", recordData);
+                        
+                        // Link any and all athletes to this record
+                        let linkData = {
+                            "id_record": pulledResult.id_record
+                        };
+                        for(let u = 0; u < pulledResult.users.length; u++) {
+                            linkData.id_backend = pulledResult.users[u];
+                            dbConnection.insertValuesFromObject("record_user_link", linkData);
+                        }
+                        
                     } // End of for loop for results
                 }
             } // End of status check
