@@ -147,7 +147,7 @@ class Settings extends Page {
     addSettingCatagory(text, callback, container = "#cat_options") {
 
         var buttonHtml = "<button class=\"cat_button\"><p class=\"cat_desc\">" + text +
-            "</p><p class=\"cat_arrow\">&#9658</p></button><br>";
+            "</p><p class=\"cat_arrow\">&#9658</p></button>";
         $(container).append(buttonHtml);
         $(container + " button").last().click((e) => {
             e.preventDefault();
@@ -624,13 +624,12 @@ class Settings extends Page {
      */
     doesTeamExist() {
         let storage = window.localStorage;
-        let doesExist = false;
+        let doesExist = true;
         let indicators = ["teamName", "inviteCode", "id_team"];
 
         indicators.map(function(value) {
-            console.log(value + " = " + storage.getItem(value));
-            if(storage.getItem(value) != null) {
-                doesExist = true;
+            if((storage.getItem(value) == null) || ((storage.getItem(value) == undefined))) {
+                doesExist = false;
             }
         })
         return doesExist;

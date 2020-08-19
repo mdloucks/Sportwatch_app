@@ -4,8 +4,8 @@
 #teamlandingPage .imageButton {
     margin: 5vh 5px 5px 5px;
     padding: 15px;
-    width: 250px;
-    height: 200px;
+    width: 60%; /* 250px */
+    height: 30%; /* 200px */
     border: solid 2px gray;
     border-radius: 15px;
     transition: background-color 0.25s;

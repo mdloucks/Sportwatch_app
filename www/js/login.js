@@ -145,6 +145,7 @@ class Login extends Page {
         
         // Reset password start
         this.getPageElement("#label_forgotPassword").click((e) => {
+            this.getPageElement("#passResetWrapper").css("width", "");
             this.getPageElement("#passResetWrapper").animate({
                 height: 200
             }, 500, "swing", () => {
@@ -176,7 +177,7 @@ class Login extends Page {
     };
 
     stop() {
-        this.getPageElement("#passResetWrapper").css("height", "0").css("opacity", "0");
+        this.getPageElement("#passResetWrapper").css("width", "0").css("height", "0").css("opacity", "0");
         $("#loginPage").unbind().off();
         $("#loginPage *").unbind().off();
     }
