@@ -14,7 +14,7 @@ body {
     text-align: center;
     display: flex;
     flex-flow: column;
-    height: 100%;
+    height: 93%;
     transition: filter 0.5s;
 }
 
@@ -48,19 +48,14 @@ input {
 .div_page {
     position: absolute;
     /* top: 15%; */
-    top: 0;
-    left: 0;
+    padding-bottom: -7%;
     width: 100%;
-    height: inherit;
-    min-height: 90%;
+    height: 100%;
     text-align: center;
-    background-color: #fff;
     overflow-x: hidden;
-    margin-bottom: 2em;
 }
+
 .div_page > .div_page {
-    padding-bottom: 2em;
-    height: intrinsic;
     overflow: auto;
 }
 
@@ -101,6 +96,7 @@ https://css-tricks.com/places-its-tempting-to-use-display-none-but-dont/ */
     background-color: rgb(44, 44, 46);
     text-align: center;
     width: 100%;
+    overflow-x: hidden;
     
     /* pain-in-the-neck ihpone... has to have non-rectangular screens */
     padding-top: constant(safe-area-inset-top);

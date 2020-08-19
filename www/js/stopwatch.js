@@ -51,6 +51,8 @@ class Stopwatch extends Page {
                     <img src="${this.playButtonPath}" alt="" id="stopwatch_start_stop" class="play_button noSelect"></img>
                     <a id="stopwatch_lap" class="stopwatch_button">Lap</a>
                 </div>
+
+                <div id="choose_event">Choose An Event</div>
             </div>
         `);
 

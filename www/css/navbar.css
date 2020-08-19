@@ -1,7 +1,6 @@
 .navbar {
     overflow: hidden;
     text-align: center;
-    vertical-align: middle;
     position: fixed;
     display: table;
     table-layout: fixed;
@@ -13,12 +12,12 @@
 }
 
 .navbar div {
+    display: table-cell;
     overflow: hidden;
     font-family: 'Helvetica', 'Arial', sans-serif;
     color: white;
-    display: table-cell;
     text-align: center;
-    padding-top: 10px;
+    vertical-align: middle;
     font-weight: bold;
     text-decoration: none;
     font-size: 2em;
