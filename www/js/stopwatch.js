@@ -214,7 +214,7 @@ class Stopwatch extends Page {
 
                 let clockText = this.generateClockText(this.clock);
                 this.ctx.clearRect(0, 0, this.c.width, this.c.height);
-                this.ctx.strokeStyle = "#dd3333";
+                this.ctx.strokeStyle = this.clock.fillStyle;
                 this.drawCircle();
                 this.clock.angle = (-((this.clock.seconds % 1) * 360)) + 90;
                 this.drawPoint(this.clock.angle, 1);
@@ -306,6 +306,7 @@ class Stopwatch extends Page {
 
         this.ctx.beginPath();
         this.ctx.arc(x, y, this.clock.pointSize, 0, 2 * Math.PI);
+        this.ctx.fillStyle = "#000000"; // Set dot to be black
         this.ctx.fill();
     }
 
@@ -470,7 +471,7 @@ class Stopwatch extends Page {
                 };
                 
                 // Loop through each added record ID and save to local database
-                // TODO: Change backend to link users with the record... this will get messy
+                // TODO: Change backend to link users with the record for relays... this will get messy
                 for(let r = 0; r < response.addedRecordIds.length; r++) {
                     recordData["id_record"] = response.addedRecordIds[r];
                     dbConnection.insertValuesFromObject("record", recordData);
