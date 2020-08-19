@@ -26,6 +26,10 @@
           FORM
 ***********************/
 
+#loginPage form {
+    margin-bottom: 10%;
+}
+
 #loginPage label {
     margin-top: 2%;
     font-size: 2em;
@@ -67,3 +71,31 @@
     border-radius: 5px;
 }
 
+
+/**********************
+    PASSWORD RESET
+***********************/
+
+#loginPage #label_forgotPassword {
+    font-size: 1.5em;
+    font-weight: bold;
+    color: crimson;
+}
+
+#loginPage #passResetWrapper {
+    padding: 15px;
+}
+
+#loginPage #passResetWrapper label {
+    font-size: 1.5em;
+}
+
+#loginPage #resetPass_button {
+    width: 12em;
+    text-align: center;
+    transition: all 1s;
+}
+#loginPage #resetPass_button.invalid {
+    background-color: lightgray;
+    color: black;
+}
