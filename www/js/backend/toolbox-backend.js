@@ -36,15 +36,23 @@ class ToolboxBackend {
         
         let pullState = $.Deferred();
         
+        // As of right now, these calls must happen sequentially in a synchronous
+        // fashion. If not, it causes the stats and team page to initialize
+        // before the database is fully populated
         ToolboxBackend.pullForStorage().then(() => {
+            ToolboxBackend.pullForDatabase().then(() => {
+                pullState.resolve();
+            }).catch(() => {
+                pullState.reject();
+            });
         }).catch(() => {
             pullState.reject();
         });
-        ToolboxBackend.pullForDatabase().then(() => {
-            pullState.resolve();
-        }).catch(() => {
-            pullState.reject();
-        });
+        // ToolboxBackend.pullForDatabase().then(() => {
+        //     pullState.resolve();
+        // }).catch(() => {
+        //     pullState.reject();
+        // });
         
         return pullState.promise(); // Return the promise to allow for .then() and .catch()
     }
