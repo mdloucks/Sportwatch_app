@@ -12,8 +12,35 @@ class Stopwatch extends Page {
         this.pageTransition = new PageTransition("#stopwatchPage");
         this.lap_times = [];
 
+        this.chooseEventSlideAmount = 40;
+        this.chooseEventTransitionDuration = 650;
+        this.isChooseEventsActive = false;
+
         this.stopButtonPath = "img/stop_button.png";
         this.playButtonPath = "img/play_button.png";
+        this.upArrowPath = "img/up_arrow.png";
+        this.downArrowPath = "img/down_arrow.png";
+
+        this.unsavedEventsQuery = (`
+            SELECT DISTINCT record_definition.record_identity, record_definition.rowid from record_definition
+            WHERE record_definition.unit = ?
+            EXCEPT 
+            SELECT DISTINCT record_definition.record_identity, record_definition.rowid from record_definition
+            INNER JOIN record
+            ON record_definition.rowid = record.id_record_definition
+            INNER JOIN record_user_link
+            ON record_user_link.id_record = record.id_record
+            WHERE record_user_link.id_backend = ?
+        `);
+
+        this.savedEventsQuery = (`
+            SELECT DISTINCT record_definition.record_identity, record_definition.rowid from record_definition
+            INNER JOIN record
+            ON record_definition.rowid = record.id_record_definition
+            INNER JOIN record_user_link
+            ON record_user_link.id_record = record.id_record
+            WHERE record_user_link.id_backend = ?
+        `);
 
         this.clock = {
             radius: 100,
@@ -52,7 +79,9 @@ class Stopwatch extends Page {
                     <a id="stopwatch_lap" class="stopwatch_button">Lap</a>
                 </div>
 
-                <div id="choose_event">Choose An Event</div>
+                <img src="${this.upArrowPath}" alt="" id="choose_event_arrow"></img>
+                <div id="choose_event" class="choose_event_contracted">Choose An Event</div>
+                <div id="choose_event_selection_div"></div>
             </div>
         `);
 
@@ -122,6 +151,7 @@ class Stopwatch extends Page {
         }
 
         this.setupStopwatch();
+        this.setupSelectEvent();
     }
 
     stop() {
@@ -229,6 +259,88 @@ class Stopwatch extends Page {
         this.clock.hasInitialized = true; // Prevent re-binding of touchend
     }
 
+    setupSelectEvent() {
+
+        $("#choose_event_arrow").unbind("click");
+        $("#choose_event").unbind("click");
+
+        $("#choose_event_arrow").click((e) => { 
+            this.slideUpSelectEvent();
+        });
+
+        $("#choose_event").click((e) => { 
+            this.slideUpSelectEvent();
+        });
+    }
+
+    slideUpSelectEvent() {
+        // slide down
+        if(this.isChooseEventsActive) {
+
+            $("#choose_event_arrow").attr("src", this.upArrowPath);
+            $("#choose_event").removeClass('choose_event_expanded');
+            $("#choose_event").addClass('choose_event_contracted');
+
+            $("#choose_event, #choose_event_arrow").animate({ 
+                bottom: `-=${this.chooseEventSlideAmount}%`,
+            }, {duration: this.chooseEventTransitionDuration, queue: false});
+
+            $("#stopwatchPage #landingPage #choose_event_selection_div").animate({ 
+                height: "0%"
+            }, {duration: this.chooseEventTransitionDuration, queue: false, complete: function() {
+                // get selected event
+            }});
+            // slide up
+        } else {
+
+            $("#choose_event_arrow").attr("src", this.downArrowPath);
+            $("#choose_event").removeClass('choose_event_contracted');
+            $("#choose_event").addClass('choose_event_expanded');
+
+            $("#choose_event, #choose_event_arrow").animate({ 
+                bottom: `+=${this.chooseEventSlideAmount}%`,
+            }, {duration: this.chooseEventTransitionDuration, queue: false});
+
+            $("#stopwatchPage #landingPage #choose_event_selection_div").animate({ 
+                height: `${this.chooseEventSlideAmount + 7}%`
+            }, {duration: this.chooseEventTransitionDuration, queue: false, complete: () => {
+                this.loadAvaliableEventsToSlideup();
+            }});
+        }
+
+        this.isChooseEventsActive = !this.isChooseEventsActive;
+    }
+
+    loadAvaliableEventsToSlideup() {
+
+        let unsavedEventsQuery = (`
+            SELECT DISTINCT record_definition.record_identity, record_definition.rowid from record_definition
+            WHERE record_definition.unit = ?
+            EXCEPT 
+            SELECT DISTINCT record_definition.record_identity, record_definition.rowid from record_definition
+            INNER JOIN record
+            ON record_definition.rowid = record.id_record_definition
+            INNER JOIN record_user_link
+            ON record_user_link.id_record = record.id_record
+        `);
+
+        let savedEventsQuery = (`
+            SELECT DISTINCT record_definition.record_identity, record_definition.rowid from record_definition
+            INNER JOIN record
+            ON record_definition.rowid = record.id_record_definition
+            INNER JOIN record_user_link
+            ON record_user_link.id_record = record.id_record
+        `);
+
+        dbConnection.selectValues(savedEventsQuery).then((record_identities) => {
+            console.log(record_identities.length);
+        });
+
+        dbConnection.selectValues(unsavedEventsQuery).then((record_identities) => {
+            console.log(record_identities.length);
+        });
+    }
+
     startStopwatch() {
 
         this.clock.isRunning = true;
@@ -325,10 +437,10 @@ class Stopwatch extends Page {
 
         // hours:minutes:seconds
         if (this.clock.hours >= 1) {
-            clockText = (this.clock.hours + ":" + (this.clock.minutes % 60) + ":" + (this.clock.seconds % 60).toFixed(2));
+            clockText = (this.clock.hours + ":" + this.pad(Math.floor(this.clock.minutes % 60), 2) + "." + this.pad(Math.floor(this.clock.seconds % 60), 2));
             // minutes:seconds
         } else if (this.clock.minutes >= 1) {
-            clockText = (this.clock.minutes + ":" + (this.clock.seconds % 60).toFixed(2));
+            clockText = (this.clock.minutes + ":" + this.pad(Math.floor(this.clock.seconds % 60), 2));
             // seconds
         } else if (this.clock.minutes < 1) {
             clockText = Math.abs(this.clock.seconds).toFixed(2).toString();
@@ -390,17 +502,8 @@ class Stopwatch extends Page {
         $("#stopwatchPage #selectEventPage #new_events_box").empty();
 
         // get any unique entries in record identity with values
-        let query = (`
-            SELECT DISTINCT record_definition.record_identity, record_definition.rowid from record_definition
-            INNER JOIN record
-            ON record_definition.rowid = record.id_record_definition
-            INNER JOIN record_user_link
-            ON record_user_link.id_record = record.id_record
-            WHERE record_user_link.id_backend = ?
-        `);
-
         // user selects an existing event
-        dbConnection.selectValues(query, [athlete.rowid]).then((events) => {
+        dbConnection.selectValues(this.savedEventsQuery, [athlete.rowid]).then((events) => {
 
             if ((events.length == 0) || (events == false)) {
                 return;
@@ -414,20 +517,8 @@ class Stopwatch extends Page {
         });
 
         // get a list of every event definition and take away the ones with records already
-        query = (`
-            SELECT DISTINCT record_definition.record_identity, record_definition.rowid from record_definition
-            WHERE record_definition.unit = ?
-            EXCEPT 
-            SELECT DISTINCT record_definition.record_identity, record_definition.rowid from record_definition
-            INNER JOIN record
-            ON record_definition.rowid = record.id_record_definition
-            INNER JOIN record_user_link
-            ON record_user_link.id_record = record.id_record
-            WHERE record_user_link.id_backend = ?
-        `)
-
         // User selects a new event that the athlete is not already registered in
-        dbConnection.selectValues(query, ["second", athlete.rowid]).then((record_definitions) => {
+        dbConnection.selectValues(this.unsavedEventsQuery, ["second", athlete.rowid]).then((record_definitions) => {
             if (record_definitions != false) {
                 ButtonGenerator.generateButtonsFromDatabase("#stopwatchPage #selectEventPage #new_events_box", record_definitions, (record_definition) => {
                     this.saveTime(record_definition, athlete);
@@ -591,4 +682,10 @@ class Stopwatch extends Page {
         // We screwed something up...  What do you expect from free code?
         return 0;
     }
+
+    pad(n, width, z) {
+        z = z || '0';
+        n = n + '';
+        return n.length >= width ? n : new Array(width - n.length + 1).join(z) + n;
+      }
 }
