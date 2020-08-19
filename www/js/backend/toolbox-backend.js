@@ -100,7 +100,11 @@ class ToolboxBackend {
             // Update team info (like team name)
             ajaxRequest = TeamBackend.getTeamInfo((teamInfo) => {
                 if(teamInfo.status > 0) {
+                    localStorage.setItem("id_team", teamInfo.id_team);
                     localStorage.setItem("teamName", teamInfo.teamName);
+                    localStorage.setItem("school", teamInfo.schoolName);
+                    localStorage.setItem("id_school", teamInfo.id_school);
+                    localStorage.setItem("inviteCode", teamInfo.inviteCode);
                 } else {
                     if(teamInfo.substatus == 7) {
                         // This is the code for an invalid team ID
