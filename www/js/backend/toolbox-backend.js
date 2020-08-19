@@ -223,7 +223,6 @@ class ToolboxBackend {
                     console.log("[toolbox-backend.js:pullFromBackend()]: Unable to pull records!");
                 }
             } else {
-                
                 // Make sure there is at least 1 record returned
                 if("result" in recordResponse) {
                     let pulledResult = { };
@@ -232,9 +231,10 @@ class ToolboxBackend {
 
                         // the next time you need to add a column, add it as an object key:pair
                         let recordData = {
-                            "id_athlete": pulledResult.users[0],
+                            "id_record": pulledResult.id_record,
                             "id_record_definition": pulledResult.id_recordDefinition,
                             "value": Number(pulledResult.value),
+                            "is_practice": pulledResult.isPractice,
                             "is_split": pulledResult.isSplit,
                             "id_split": pulledResult.splitNumber,
                             "id_split_index": pulledResult.splitIndex,

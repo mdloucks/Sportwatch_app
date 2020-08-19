@@ -185,9 +185,12 @@ class Stats extends Page {
 
         // get all values from record that have an athlete value for a particular event
         let query = `
-            SELECT * FROM record
-            INNER JOIN athlete ON record.id_athlete = athlete.id_backend
-            WHERE record.id_record_definition = ?
+            select * from record
+            INNER JOIN record_user_link
+            ON record_user_link.id_record = record.id_record
+            INNER JOIN athlete
+            ON athlete.id_backend = record_user_link.id_backend
+            WHERE record.id_record_definition = ?;
         `;
 
         dbConnection.selectValues(query, [event.rowid]).then((results) => {
@@ -254,13 +257,13 @@ class Stats extends Page {
         let athlete_ids = [];
 
         for (let i = 0; i < rows.length; i++) {
-            if (athlete_ids.includes(rows.item(i).id_athlete)) {
-                array[rows.item(i).id_athlete].values.push(rows.item(i).value);
+            if (athlete_ids.includes(rows.item(i).id_backend)) {
+                array[rows.item(i).id_backend].values.push(rows.item(i).value);
 
-            } else if (!athlete_ids.includes(rows.item(i).id_athlete)) {
-                athlete_ids.push(rows.item(i).id_athlete);
-                array[rows.item(i).id_athlete] = rows.item(i);
-                array[rows.item(i).id_athlete].values = [rows.item(i).value];
+            } else if (!athlete_ids.includes(rows.item(i).id_backend)) {
+                athlete_ids.push(rows.item(i).id_backend);
+                array[rows.item(i).id_backend] = rows.item(i);
+                array[rows.item(i).id_backend].values = [rows.item(i).value];
             }
         }
 

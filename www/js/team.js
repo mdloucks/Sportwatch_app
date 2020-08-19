@@ -208,8 +208,10 @@ class Team extends Page {
             SELECT DISTINCT record_definition.record_identity, record_definition.rowid from record_definition
             INNER JOIN record
             ON record_definition.rowid = record.id_record_definition
-            WHERE record.id_athlete = ?
-        `)
+            INNER JOIN record_user_link
+            ON record_user_link.id_record = record.id_record
+            WHERE record_user_link.id_backend = ?
+        `);
 
         // generate events
         dbConnection.selectValues(query, [athlete.id_backend]).then((events) => {
@@ -271,8 +273,10 @@ class Team extends Page {
         });
 
         let query = `
-            SELECT *, record.rowid from record
-            WHERE id_record_definition = ? AND id_athlete = ?
+            SELECT *, record.id_record from record
+            INNER JOIN record_user_link
+            ON record.id_record = record_user_link.id_record
+            WHERE record.id_record_definition = ? AND record_user_link.id_backend = ?
         `;
 
         let length;

@@ -391,8 +391,10 @@ class Stopwatch extends Page {
             SELECT DISTINCT record_definition.record_identity, record_definition.rowid from record_definition
             INNER JOIN record
             ON record_definition.rowid = record.id_record_definition
-            WHERE record.id_athlete = ?
-        `)
+            INNER JOIN record_user_link
+            ON record_user_link.id_record = record.id_record
+            WHERE record_user_link.id_backend = ?
+        `);
 
         // user selects an existing event
         dbConnection.selectValues(query, [athlete.rowid]).then((events) => {
@@ -403,7 +405,7 @@ class Stopwatch extends Page {
 
             ButtonGenerator.generateButtonsFromDatabase("#stopwatchPage #selectEventPage #saved_events_box", events, (event) => {
                 this.saveTime(event, athlete);
-            }, ["id_athlete", "id_record_definition", "value",
+            }, ["id_record_definition", "value",
                 "is_split", "id_relay", "id_relay_index", "last_updated", "unit"
             ], Constant.eventColorConditionalAttributes, "class");
         });
@@ -416,7 +418,9 @@ class Stopwatch extends Page {
             SELECT DISTINCT record_definition.record_identity, record_definition.rowid from record_definition
             INNER JOIN record
             ON record_definition.rowid = record.id_record_definition
-            WHERE record.id_athlete = ?
+            INNER JOIN record_user_link
+            ON record_user_link.id_record = record.id_record
+            WHERE record_user_link.id_backend = ?
         `)
 
         // User selects a new event that the athlete is not already registered in
@@ -424,7 +428,7 @@ class Stopwatch extends Page {
             if (record_definitions != false) {
                 ButtonGenerator.generateButtonsFromDatabase("#stopwatchPage #selectEventPage #new_events_box", record_definitions, (record_definition) => {
                     this.saveTime(record_definition, athlete);
-                }, ["id_athlete", "id_record_definition", "value", "is_split",
+                }, ["id_record_definition", "value", "is_split",
                     "id_relay", "id_relay_index", "last_updated", "unit"
                 ], Constant.eventColorConditionalAttributes);
             } else {
@@ -446,10 +450,12 @@ class Stopwatch extends Page {
 
         this.pageTransition.slideRight("landingPage");
 
+        // TODO: id_record needs to match the backend
         let recordData = {
-            "id_athlete": athlete.rowid,
-            "id_record_definition": event.rowid,
+            "id_record": 0,
             "value": this.clock.seconds,
+            "id_record_definition": event.rowid,
+            "is_practice": true,
             "is_split": false,
             "id_split": null,
             "id_split_index": null,

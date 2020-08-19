@@ -20,20 +20,40 @@ let json = {
         ["meter", "hammer"],
         ["meter", "shot put"]
     ],
-    // "record": [
-    //     [1, 1, 12, false, null, null, Date.now()],
-    //     [1, 1, 13, false, null, null, Date.now()],
-    //     [1, 2, 13, false, null, null, Date.now()],
-    //     [1, 2, 16, false, null, null, Date.now()],
-    //     [1, 3, 14, false, null, null, Date.now()],
-
-    //     [2, 1, 12, false, null, null, Date.now()],
-    //     [2, 1, 13, false, null, null, Date.now()],
-    //     [2, 2, 13, false, null, null, Date.now()],
-    //     [2, 2, 16, false, null, null, Date.now()],
-    //     [2, 3, 14, false, null, null, Date.now()],
-
-    // ]
+    "record_user_link": [
+        [1, 1],
+        [2, 2],
+        [3, 1],
+        [4, 1],
+        [5, 2],
+        [6, 1],
+        [7, 9],
+        [8, 7],
+        [9, 5],
+        [1, 3],
+        [2, 2],
+        [3, 3],
+        [4, 5],
+        [5, 7],
+        [6, 4],
+        [7, 2],
+        [1, 1],
+        [2, 2],
+        [3, 14],
+        [4, 13],
+        [5, 12],
+        [6, 11],
+        [7, 10],
+        [8, 9],
+        [9, 8],
+        [1, 7],
+        [2, 6],
+        [3, 5],
+        [4, 4],
+        [5, 3],
+        [6, 2],
+        [7, 1],
+    ]
 }
 
 
@@ -75,17 +95,17 @@ class DatabaseConnection {
         this.db.transaction(function (tx) {
 
             tx.executeSql("DROP TABLE IF EXISTS athlete");
-            tx.executeSql("DROP TABLE IF EXISTS relay_team");
             tx.executeSql("DROP TABLE IF EXISTS record_definition");
             tx.executeSql("DROP TABLE IF EXISTS record");
+            tx.executeSql("DROP TABLE IF EXISTS record_user_link");
 
             tx.executeSql(`CREATE TABLE IF NOT EXISTS athlete (fname, lname, gender, id_backend)`);
 
-            tx.executeSql(`CREATE TABLE IF NOT EXISTS relay_team (team_name)`);
-
             tx.executeSql(`CREATE TABLE IF NOT EXISTS record_definition (unit, record_identity)`);
 
-            tx.executeSql(`CREATE TABLE IF NOT EXISTS record (id_athlete, id_record_definition, value, is_split, id_split, id_split_index, last_updated)`);
+            tx.executeSql(`CREATE TABLE IF NOT EXISTS record (id_record, value, id_record_definition, is_practice, is_split, id_split, id_split_index, last_updated)`);
+
+            tx.executeSql(`CREATE TABLE IF NOT EXISTS record_user_link (id_backend, id_record)`);
 
         }, function (error) {
             if (DO_LOG) {
