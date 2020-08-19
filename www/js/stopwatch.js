@@ -449,26 +449,37 @@ class Stopwatch extends Page {
     saveTime(event, athlete) {
 
         this.pageTransition.slideRight("landingPage");
-
-        // TODO: id_record needs to match the backend
-        let recordData = {
-            "id_record": 0,
-            "value": this.clock.seconds,
-            "id_record_definition": event.rowid,
-            "is_practice": true,
-            "is_split": false,
-            "id_split": null,
-            "id_split_index": null,
-            "last_updated": Date.now()
-        };
-
-        dbConnection.insertValuesFromObject("record", recordData);
-
-        RecordBackend.saveRecord((response) => {
+        
+        // Save the record first so the frontend will have a matching id to the backend
+        RecordBackend.saveRecord(this.clock.seconds, event.rowid, athlete.id_backend, (response) => {
             if (DO_LOG) {
                 console.log("RECORD SAVED " + JSON.stringify(response));
             }
-        }, this.clock.seconds, event.rowid)
+            if(response.status > 0) { // If success, insert into local database
+                let recordData = {
+                    "value": this.clock.seconds,
+                    "id_record_definition": event.rowid,
+                    "is_practice": true,
+                    "is_split": false,
+                    "id_split": null,
+                    "id_split_index": null,
+                    "last_updated": Date.now()
+                };
+                let linkData = {
+                    "id_backend": athlete.id_backend
+                };
+                
+                // Loop through each added record ID and save to local database
+                // TODO: Change backend to link users with the record... this will get messy
+                for(let r = 0; r < response.addedRecordIds.length; r++) {
+                    recordData["id_record"] = response.addedRecordIds[r];
+                    dbConnection.insertValuesFromObject("record", recordData);
+                    
+                    linkData.id_record = response.addedRecordIds[r];
+                    dbConnection.insertValuesFromObject("record_user_link", linkData);
+                }
+            }
+        });
 
         let query = (`
             SELECT id_split
