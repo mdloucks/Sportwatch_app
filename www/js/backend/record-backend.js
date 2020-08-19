@@ -42,7 +42,7 @@ class RecordBackend {
      * @param {Function} cb callback to handle response, success or fail
      * @param {Float | Array} value float value, up to 3 decimals precision. Use array of floats for relays
      * @param {Integer} definitionId value from DEFINITIONS enum linking value with record type
-     * @param {String} email [default = ""] if blank, will use logged in user. Ties user to the record
+     * @param {String | Integer} emailOrId [default = ""] if blank, will use logged in user. Ties user to the record
      * @param {AssociativeArray} details defines properties of record:
      *                                      isPractice {Boolean} - is the record a practice?
      *                                      isSplit {Boolean} - are the values a relay?
@@ -153,6 +153,222 @@ class RecordBackend {
             error: (error) => {
                 if(DO_LOG) {
                     console.log("[record-backend.js:getRecord()] " + error);
+                }
+                callback(error);
+            }
+        });
+    }
+    
+    /**
+     * Modifies the event with the given backend ID to the updated values
+     * passed in the newData object. For internal reasons, splitNumber and splitIndex
+     * cannot be externally modified. Mutable values include:
+     *      value {Float} - value to search for based on valueOperator param
+     *      definition {Integer} - definition to search for (i.e. 3 for all 200m records)
+     *      isPractice {Boolean} - selects records that are practices
+     *      isSplit {Boolean} - select relay / split records
+     *      id_event {Integer} - selects records tied to the event ID
+     * 
+     * @example modifyRecord(4, {"value": 62.034}, (response) => { // Tell user success or fail })
+     *          --> Modifies record 4 by setting the value to 62.034
+     * 
+     * @param {Integer} recordId the ID of the record on the backend to modify
+     * @param {AssociativeArray} newData values that will be used for this record
+     * @param {Function} callback callback to handle the response (JSON or String on failure)
+     */
+    static modifyRecord(recordId, newData, callback) {
+        
+        // Set the record's ID that will be modified
+        newData.id_record = recordId;
+        // Add the SID to newData
+        newData.SID = localStorage.getItem("SID");
+        
+        // Submit the request and call the callback
+        return $.ajax({
+            type: "POST",
+            url: Constant.URL.record_action + "?intent=2",
+            timeout: Constant.AJAX_CFG.timeout,
+            data: newData,
+            success: (response) => {
+                if(DO_LOG) {
+                    console.log("[record-backend.js:modifyRecord()] " + response);
+                }
+                try {
+                    response = JSON.parse(response);
+                } catch (e) {
+                    // Couldn't parse, so just use string
+                }
+                callback(response);
+            },
+            error: (error) => {
+                if(DO_LOG) {
+                    console.log("[record-backend.js:modifyRecord()] " + error);
+                }
+                callback(error);
+            }
+        });
+    }
+    
+    /**
+     * Ties the user identified by emailOrId (either their email or backend ID)
+     * to the given record ID (backend as well). The function will determine
+     * if an email or ID is given based on the type. Function is useful
+     * for creating relays, etc.
+     * 
+     * @example attachAthlete("lafrazerl@gmail.com", 7, (result) => { // Added to relay! })
+     *          --> Adds Seth's account as an owner of record 7
+     * 
+     * @param {String | Integer} emailOrId the user's email or ID, the user being attached
+     * @param {AssociativeArray} recordId the ID of the record on the backend to modify
+     * @param {Function} callback callback to handle the response (JSON or String on failure)
+     */
+    static attachAthlete(emailOrId, recordId, callback) {
+        
+        // Process emailOrId parameter
+        let storage = window.localStorage;
+        let identityKey = "email"; // "email" if emailOrId is a string, "id_user" if it's a number
+        
+        if(typeof emailOrId == "number") {
+            identityKey = "id_user";
+        } else { // Assume it was an email
+            if(emailOrId.length == 0) {
+                emailOrId = storage.getItem("email");
+            }
+        }
+        
+        // Add them to an array for post data
+        let postData = { };
+        postData.SID = storage.getItem("SID");
+        postData.accountIdentity = { };
+        postData.accountIdentity[identityKey] = emailOrId;
+        postData.id_record = recordId;
+        
+        // Submit the request and call the callback
+        return $.ajax({
+            type: "POST",
+            url: Constant.URL.record_action + "?intent=4",
+            timeout: Constant.AJAX_CFG.timeout,
+            data: postData,
+            success: (response) => {
+                if(DO_LOG) {
+                    console.log("[record-backend.js:attachAthlete()] " + response);
+                }
+                try {
+                    response = JSON.parse(response);
+                } catch (e) {
+                    // Couldn't parse, so just use string
+                }
+                callback(response);
+            },
+            error: (error) => {
+                if(DO_LOG) {
+                    console.log("[record-backend.js:attachAthlete()] " + error);
+                }
+                callback(error);
+            }
+        });
+    }
+    
+    /**
+     * Removes any tied with the user and the given record ID (backend-based).
+     * A user's email or backend ID can be given, and the function will attempt
+     * to use it accordingly based on type (i.e. String vs Integer). This function
+     * will probably be used to edit relay teams
+     * 
+     * @example detachAthlete("lafrazerl@gmail.com", 7, (result) => { // Added to relay! })
+     *          --> Disassociates Seth's account with record 7
+     * 
+     * @param {String | Integer} emailOrId the ID of the user to detach
+     * @param {AssociativeArray} recordId the ID of the record on the backend to modify
+     * @param {Function} callback callback to handle the response (JSON or String on failure)
+     */
+    static detachAthlete(emailOrId, recordId, callback) {
+        // TODO: Could probably consolidate this function with attachAthlete
+        //       since the logic is identical and the only change is intent number
+        
+        // Process emailOrId parameter
+        let storage = window.localStorage;
+        let identityKey = "email"; // "email" if emailOrId is a string, "id_user" if it's a number
+        
+        if(typeof emailOrId == "number") {
+            identityKey = "id_user";
+        } else { // Assume it was an email
+            if(emailOrId.length == 0) {
+                emailOrId = storage.getItem("email");
+            }
+        }
+        
+        // Add them to an array for post data
+        let postData = { };
+        postData.SID = storage.getItem("SID");
+        postData.accountIdentity = { };
+        postData.accountIdentity[identityKey] = emailOrId;
+        postData.id_record = recordId;
+        
+        // Submit the request and call the callback
+        return $.ajax({
+            type: "POST",
+            url: Constant.URL.record_action + "?intent=5",
+            timeout: Constant.AJAX_CFG.timeout,
+            data: postData,
+            success: (response) => {
+                if(DO_LOG) {
+                    console.log("[record-backend.js:detachAthlete()] " + response);
+                }
+                try {
+                    response = JSON.parse(response);
+                } catch (e) {
+                    // Couldn't parse, so just use string
+                }
+                callback(response);
+            },
+            error: (error) => {
+                if(DO_LOG) {
+                    console.log("[record-backend.js:detachAthlete()] " + error);
+                }
+                callback(error);
+            }
+        });
+    }
+    
+    /**
+     * Will PERMANENTLY delete the record from the backend (frontend not handled).
+     * Note: There are no restrictions on record deletion from the backend,
+     * so be sure that the logged in user should be issuing this action!
+     * 
+     * @example deleteRecord(9, (response) => { // response.substatus > 0 means record deleted })
+     *          --> Purges record 9 from the server database
+     * 
+     * @param {AssociativeArray} recordId the backend ID of the record to delete
+     * @param {Function} callback callback to handle the response (JSON or String on failure)
+     */
+    static deleteRecord(recordId, callback) {
+        
+        // Add them to an array for post data
+        let postData = { };
+        postData.SID = storage.getItem("SID");
+        postData.id_record = recordId;
+        
+        // Submit the request and call the callback
+        return $.ajax({
+            type: "POST",
+            url: Constant.URL.record_action + "?intent=6",
+            timeout: Constant.AJAX_CFG.timeout,
+            data: postData,
+            success: (response) => {
+                if(DO_LOG) {
+                    console.log("[record-backend.js:deleteRecord()] " + response);
+                }
+                try {
+                    response = JSON.parse(response);
+                } catch (e) {
+                    // Couldn't parse, so just use string
+                }
+                callback(response);
+            },
+            error: (error) => {
+                if(DO_LOG) {
+                    console.log("[record-backend.js:deleteRecord()] " + error);
                 }
                 callback(error);
             }
