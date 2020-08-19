@@ -57,7 +57,7 @@ class Signup extends Page {
                 <button id="returnWelcome" class="backButton">Back</button>
                 
                 <!-- Invalid dialog here (hidden by default) -->
-                <div class="invalidDialog" style="display: none;">
+                <div class="invalidDialog" style=" width: 0; opacity: 0">
                     <p id="d_message"></p>
                 </div>
             </div>
@@ -306,12 +306,18 @@ class Signup extends Page {
         if ((dialog.css("opacity") != "0") && (dialog.css("opacity") != "1")) {
             // There is an iOS bug that halts the fadeIn operation very early
             // This if statement fixes it by ignoring a near-zero opacity (return if greater)
-            if(parseFloat(dialog.css("opacity")) > 0.001) {
-                dialog.stop();
-                return;
-            } else {
-                dialog.css("opacity", "1");
-            }
+            // if(parseFloat(dialog.css("opacity")) > 0.001) {
+            //     dialog.stop();
+            //     return;
+            // } else {
+            //     dialog.css("opacity", "1");
+            // }
+            return;
+        }
+        
+         // Prevents previous timeouts from closing the new dialog
+        if (this.dialogInterval != 0) {
+            clearInterval(this.dialogInterval);
         }
         
         // Set dialog properties
@@ -335,12 +341,16 @@ class Signup extends Page {
         }
         dialog.css("left", x + "px");
         dialog.css("top", y + "px");
-        dialog.fadeTo(1000, 1);
-
-        // Prevents previous timeouts from closing the new dialog
-        if (this.dialogInterval != 0) {
-            clearInterval(this.dialogInterval);
-        }
+        // Use animate method to ensure the dialog is 60% in width
+        dialog.animate({
+            opacity: 1
+        }, {
+            duration: 1000,
+            start: function() {
+                dialog.css("width", "60%");
+            }
+        });
+        
         
         // And disappear in a few seconds
         this.dialogInterval = setTimeout(() => {
