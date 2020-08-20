@@ -227,6 +227,7 @@ class Stats extends Page {
         }, this.onErrorLoadFs);
     }
 
+    // reference this https://github.com/apache/cordova-plugin-file
     saveCSV(fileName, dataObj) {
         this.createFile(fileName, function(fileEntry) {
 

@@ -1,16 +1,32 @@
 let json = {
     "record_definition": [
+        ["second", "60m"]
         ["second", "75m"],
         ["second", "100m"],
         ["second", "200m"],
         ["second", "400m"],
         ["second", "800m"],
         ["second", "1500m"],
+        ["second", "1600m"],
+        ["second", "60m hurdle"],
         ["second", "100m hurdle"],
         ["second", "110m hurdle"],
+        ["second", "300m hurdle"],
         ["second", "400m hurdle"],
         ["second", "4x100m relay"],
         ["second", "4x400m relay"],
+        ["second", "4x800m relay"],
+        ["second", "3k"],
+        ["second", "5k"],
+        ["second", "6k"],
+        ["second", "8k"],
+        ["second", "10k"],
+        ["second", "20k"],
+        ["second", "half marathon"],
+        ["second", "marathon"],
+        ["second", "300m steeplechase"],
+        ["second", "20km race walk"],
+        ["second", "50km race walk"],
         ["meter", "long jump"],
         ["meter", "triple jump"],
         ["meter", "high jump"],
@@ -18,10 +34,17 @@ let json = {
         ["meter", "discus"],
         ["meter", "javelin"],
         ["meter", "hammer"],
-        ["meter", "shot put"]
+        ["meter", "shot put"],
+        ["score", "pentathlon"],
+        ["score", "heptathlon"],
+        ["score", "decathlon"],
+        ["second", "other"],
+        ["minute", "other"],
+        ["meter", "other"],
+        ["foot", "other"],
+        ["yard", "other"],
     ]
 }
-
 
 /**
  * @classdesc an interface for a database connection
