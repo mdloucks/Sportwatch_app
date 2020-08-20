@@ -30,6 +30,10 @@
     margin-top: env(safe-area-inset-top);
 }
 
+#settingsPage #editPage {
+    margin-bottom: 7em;
+}
+
 /* Setting -- Catagories */
 
 #settingsPage #cat_options {
