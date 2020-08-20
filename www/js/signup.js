@@ -74,11 +74,7 @@ class Signup extends Page {
         // When clicking on input, focus it
         this.getPageElement("input").click((e) => {
             $(e.target).focus();
-        })
-        
-        setInterval(() => {
-            console.log("Size=" + this.getPageElement(".invalidDialog").queue());
-        }, 1000);
+        });
         
         // INPUT HANDLING
         // Name
