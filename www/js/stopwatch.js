@@ -257,7 +257,6 @@ class Stopwatch extends Page {
                 this.clock.start = Date.now();
 
                 if (this.clock.isRunning) {
-
                     this.clock.seconds += Math.abs(dt / 1000);
                     this.clock.minutes = Math.floor(this.clock.seconds / 60);
                     this.clock.hours = Math.floor(this.clock.seconds / 3600);
@@ -575,6 +574,8 @@ class Stopwatch extends Page {
                 // generate for athlete
             } else {
                 
+                _this.saveTime(arrayObject, arrayObject); // Save before resetting stopwatch
+                
                 // on last athlete save
                 if(Number($(this).parent().children().length) - 2 == 0) {
                     _this.resetStopwatch();
@@ -589,7 +590,7 @@ class Stopwatch extends Page {
                 //     $(`${_this.landingPageSelector} .carousel_content`).css("marginLeft", -5 * clickedIndex + "em");
                 // }
 
-                _this.saveTime(arrayObject, arrayObject);
+                // _this.saveTime(arrayObject, arrayObject);
                 $(this).remove();
             }
         });
@@ -805,7 +806,7 @@ class Stopwatch extends Page {
             }
             if (response.status > 0) { // If success, insert into local database
                 let recordData = {
-                    "value": this.clock.seconds,
+                    "value": this.clock.seconds, // This is being reset, so use the backend data instead of clock seconds
                     "id_record_definition": event.rowid,
                     "is_practice": true,
                     "is_split": false,
