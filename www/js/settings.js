@@ -78,8 +78,8 @@ class Settings extends Page {
             "My Account": this.startMyAccount,
             "Team Preferences": this.startTeamPreferences,
             // "Notifications": this.startNotifications,
-            "Sign Out": this.startSignOut,
-            "Delete Account": this.startDeleteAccount
+            "Sign Out": this.startSignOut
+            // "Delete Account": this.startDeleteAccount
         };
 
         // remove team preferences if there is no team.

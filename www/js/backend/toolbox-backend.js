@@ -90,6 +90,8 @@ class ToolboxBackend {
                 if(userInfo.id_team > 0) {
                     storage.setItem("id_team", userInfo.id_team);
                     storage.setItem("user", userInfo);
+                } else {
+                    storage.removeItem("id_team");
                 }
             }
         });
@@ -101,7 +103,6 @@ class ToolboxBackend {
                 // Update team info (like team name)
                 ajaxRequest = TeamBackend.getTeamInfo((teamInfo) => {
                     if(teamInfo.status > 0) {
-                        console.log("SET TEAM DATA");
                         localStorage.setItem("id_team", teamInfo.id_team);
                         localStorage.setItem("teamName", teamInfo.teamName);
                         localStorage.setItem("school", teamInfo.schoolName);
