@@ -94,7 +94,7 @@ class Settings extends Page {
         });
 
         // When clicking on input, focus it
-        $("#account_edit_inputs input").click((e) => {
+        $("#settingsPage #editPage input").click((e) => {
             $(e.target).focus();
         })
 
@@ -205,7 +205,7 @@ class Settings extends Page {
 
             let ignoredValues = ["status", "substatus", "msg", "id_user", "accountType", "isAdmin",
                 "id_school", "id_team", "schoolName", "teamName", "email", "emailVerified",
-                "lastUpdated", "lastLogin"
+                "createDate", "lastUpdated", "lastLogin"
             ];
 
             let sensitiveValues = {
@@ -303,6 +303,9 @@ class Settings extends Page {
         }); // End of population function
 
         this.pageTransition.slideLeft("editPage");
+        $("#settingsPage #editPage").animate({
+            scrollTop: 0
+        }, 1000);
     }
 
     startTeamPreferences() {
@@ -314,6 +317,12 @@ class Settings extends Page {
         // (see end of function for the backend pull)
         
         // ---- BUTTONS / INTERFACE SETUP ---- //
+        
+        // LEAVE TEAM BUTTON (only setting given to non-coaches)
+        $(this.inputDivIdentifier).append(`
+            <br><button class="generated_button" style="background-color: #dd3333" id="leave_team_button">Leave Team</button>
+            <hr>
+        `);
         
         // BASIC INFO
         // TODO: add more fields here
@@ -327,55 +336,84 @@ class Settings extends Page {
         if(valuesToEdit["School"] == null) {
             valuesToEdit["School"] = "";
         }
+        // Used for editing logic later
+        let isNameValid = true;
+        let schoolId = storage.getItem("id_school");
         
         ValueEditor.editValues(this.inputDivIdentifier, valuesToEdit, (newValues) => {
+            $("#settingsPage #editPage #changeTeamButton").prop("disabled", true);
             
             // Pre-backend filtering
-            newValues["Team Name"] = newValues["Team Name"].replace(/[^A-Za-z0-9\- ]/gm, "");
-            if(newValues["Team Name"].length < 5) {
+            let newName = newValues["Team Name"];
+            newName = newName.replace(/[^A-Za-z0-9\- ]/gm, "");
+            if(newName.length < 5) {
                 Popup.createConfirmationPopup("The team name is too short, please try adding to it.", ["OK"]);
-            } else if(newValues["Team Name"].length > 75) {
+            } else if(newName > 75) {
                 Popup.createConfirmationPopup("The team name is too long, please shorten it.", ["OK"]);
             }
             
-            // Only perform oeprations if they changed
-            if(newValues["Team Name"] != valuesToEdit["Team Name"]) {
-                let newTeamName = newValues["Team Name"];
-                TeamBackend.changeTeamName(newTeamName, (response) => {
-                    if(response.status > 0) { // Success
-                        storage.setItem("teamName", newTeamName);
-                        Popup.createConfirmationPopup("Team name changed successfully!", ["OK"]);
-                        
-                    } else { // Error
-                        if(response.substatus == 3) { // Invalid action
-                            Popup.createConfirmationPopup("This action can only be performed by a coach.", ["OK"]);
-                        } else if(response.substatus == 4) { // Invalid length
-                            Popup.createConfirmationPopup("Please try re-typing or changing the team name.", ["OK"]);
+            let newRequest = -1;
+            let saveRequests = [];
+            let errorMessage = ""; // Use for popup error later
+            
+            // If team name was changed, submit the request
+            if(valuesToEdit["Team Name"] != newName) {
+                newRequest = TeamBackend.changeTeamName(newName, (r) => {
+                    if(r.status > 0) {
+                        storage.setItem("teamName", newName);
+                    } else {
+                        if(r.substatus == 3) {
+                            errorMessage = "Only coaches can change the team name";
+                        } else if(r.substatus == 4) {
+                            errorMessage = "Team name was invalid, please try again";
                         } else {
-                            Popup.createConfirmationPopup("Sorry, an error occured. Please try again later.", ["OK"]);
+                            errorMessage = "Sorry, an unknown error occured";
                         }
                     }
                 });
+                saveRequests.push(newRequest);
             }
             
-            // storage.setItem("teamName", newValues["Team Name"]);
-            // storage.setItem("school", newValues["School"]);
+            // School change
+            if(valuesToEdit["School"] != newValues["School"]) {
+                newRequest = TeamBackend.changeTeamSchool(schoolId, (r) => {
+                    if(r.status > 0) {
+                        storage.setItem("id_school", r.id_school);
+                        storage.setItem("school", r.schoolName);
+                    } else {
+                        if(r.substatus == 3) {
+                            errorMessage = "Only coaches can change the team's school";
+                        } else if(r.substatus == 4) {
+                            errorMessage = "We couldn't find that school, please try again";
+                        } else {
+                            errorMessage = "Sorry, an unknown error occured";
+                        }
+                    }
+                });
+                saveRequests.push(newRequest);
+            }
+            
+            // Notify the user upon finish
+            $.when(...saveRequests).then(() => {
+                if(errorMessage.length == 0) { // Defined above
+                    Popup.createConfirmationPopup("Team data successfully updated!", ["OK"]);
+                } else {
+                    Popup.createConfirmationPopup(errorMessage, ["OK"]);
+                }
+            });
+            
         });
         // Add the school search results in this div \/
         $('#settingsPage #editPage input[name="School"]').after(`<div id="searchList" class="noResults"></div>`);
-        $("#settingsPage #editPage .generated_button:first").prop("disabled", true); // Disable until edited
-        
-        // LEAVE TEAM BUTTON
-        $(this.inputDivIdentifier).append(`
-            <br><button class="generated_button" style="background-color: #dd3333" id="leave_team_button">Leave Team</button>
-        `);
+        $("#settingsPage #editPage .generated_button:last").prop("id", "changeTeamButton");
+        $("#settingsPage #editPage #changeTeamButton").prop("disabled", true); // Disable until edited
+        $(this.inputDivIdentifier).append(`<hr>`);
         
         // INVITE CODE
         let teamCode = "Unkown";
         if(storage.getItem("inviteCode") != null) {
             teamCode = storage.getItem("inviteCode");
         }
-        
         $(`${this.inputDivIdentifier}`).append(`
             <div id="inviteCode" class="subheading_text">Invite Code: <span class="underline">${teamCode}<span></div>
         `)
@@ -388,72 +426,10 @@ class Settings extends Page {
                 <br>
                 <button id="button_sendInvite" class="sw_button">Invite</button>
             </div><br><br><br><br>
+            <hr>
         `);
         
         // ---- LOGIC ---- //
-        
-        // GENERAL INFO EDITING
-        let isNameValid = true;
-        let schoolId = storage.getItem("id_school");
-        
-        // Name input
-        $('#settingsPage #editPage input[name="Team Name"]').on("input", (e) => {
-            let input = $('#settingsPage #editPage input[name="Team Name"]').val();
-            
-            isNameValid = true;
-            
-            input = input.replace(/[^A-Za-z0-9& ]/gm, "");
-            if((input.length < 5) || (input.length > 45)) {
-                isNameValid = false;
-            }
-            
-            if((isNameValid) && (schoolId > 0)) {
-                $("#settingsPage #editPage .generated_button:first").prop("disabled", false);
-            }
-        });
-        
-        // School input
-        $('#settingsPage #editPage input[name="School"]').on("input", (e) => {
-            let input = $('#settingsPage #editPage input[name="School"]').val();
-            
-            // User must select a dropdown option, do disable Change button until then
-            schoolId = -1;
-            
-            input = input.replace(/[^A-Za-z0-9. ]/gm, "");
-            // Search for schools with the given input
-            ToolboxBackend.searchForSchool(input, 10, (response) => {
-                if (response.status > 0) {
-                    if (response.substatus == 2) { // No matches, clear list and generate nothing
-                        this.generateSearchResults([]); // No options, so no need to resolve promise
-                        // Hide the search list since there are no results
-                        let searchList = $("#settingsPage #editPage #searchList");
-                        if(!searchList.hasClass("noResults")) { // Only show if not already hidden
-                            searchList.addClass("noResults");
-                        }
-                    } else {
-                        // Show and generate the list
-                        $("#settingsPage #editPage #searchList").removeClass("noResults");
-                        this.generateSearchResults(response.matches).then((selectedId) => {
-                            schoolId = selectedId;
-                            if(isNameValid) {
-                                $("#settingsPage #editPage .generated_button:first").prop("disabled", false);
-                            }
-                        });
-                        // And hide the results after being clicked on
-                        $("#settingsPage #editPage #searchList").addClass("noResults");
-                    }
-                } // End of status check. Nothing we can do really if this fails
-                
-            });
-        });
-        
-        // invite athlete to team
-        $(`${this.inputDivIdentifier} #button_sendInvite`).click((e) => {
-
-            let invitedEmail = $(`${this.inputDivIdentifier} #input_athleteEmail`).val();
-            ToolboxBackend.inviteAthleteWithFeedback(invitedEmail);
-            console.log("sent invite to " + invitedEmail);
-        });
         
         // LEAVE TEAM
         $(`${this.inputDivIdentifier} #leave_team_button`).click(() => {
@@ -489,17 +465,70 @@ class Settings extends Page {
                     } else {
                         if (result.msg.indexOf("coach") != -1) {
                             // TODO: Add options to delete team or nominate other coaches
-                            Popup.createConfirmationPopup("You're the only coach! You can't leave the team", ["OK"], [() => {}]);
+                            Popup.createConfirmationPopup("You're the only coach! You can't leave the team", ["OK"]);
                         } else {
-                            Popup.createConfirmationPopup("We're sorry, an error occured on our end. Please try later", ["OK"], [() => {}]);
+                            Popup.createConfirmationPopup("We're sorry, an error occured on our end. Please try later", ["OK"]);
                         }
                     }
                 });
                 // End of leave action
-
             }, () => {
-                // no action
+                // no action, they decided not to leave
             }])
+        });
+        
+        // GENERAL INFO EDITING
+        // Name input
+        this.addInputCheck('#editPage input[name="Team Name"]', 5, 45, /[A-Za-z0-9& ]/gm, false, (isValid) => {
+            if((isValid) && (schoolId > 0)) {
+                $("#settingsPage #editPage #changeTeamButton").prop("disabled", false);
+            }
+        }, () => {
+            document.activeElement.blur(); // On enter press
+        });
+        
+        // School input
+        $('#settingsPage #editPage input[name="School"]').on("input", (e) => {
+            let input = $('#settingsPage #editPage input[name="School"]').val();
+            
+            // User must select a dropdown option, do disable Change button until then
+            schoolId = -1;
+            
+            input = input.replace(/[^A-Za-z0-9. ]/gm, "");
+            // Search for schools with the given input
+            ToolboxBackend.searchForSchool(input, 10, (response) => {
+                if (response.status > 0) {
+                    if (response.substatus == 2) { // No matches, clear list and generate nothing
+                        this.generateSearchResults([]); // No options, so no need to resolve promise
+                        // Hide the search list since there are no results
+                        let searchList = $("#settingsPage #editPage #searchList");
+                        if(!searchList.hasClass("noResults")) { // Only show if not already hidden
+                            searchList.addClass("noResults");
+                        }
+                    } else {
+                        // Show and generate the list
+                        $("#settingsPage #editPage #searchList").removeClass("noResults");
+                        this.generateSearchResults(response.matches).then((selectedId) => {
+                            $("#settingsPage #editPage #searchList").addClass("noResults");
+                            schoolId = selectedId;
+                            if(isNameValid) {
+                                $("#settingsPage #editPage #changeTeamButton").prop("disabled", false);
+                            }
+                        });
+                        // And hide the results after being clicked on
+                        $("#settingsPage #editPage #searchList").removeClass("noResults");
+                    }
+                } // End of status check. Nothing we can do really if this fails
+                
+            });
+        });
+        
+        // INVITE VIA EMAIL
+        $(`${this.inputDivIdentifier} #button_sendInvite`).click((e) => {
+
+            let invitedEmail = $(`${this.inputDivIdentifier} #input_athleteEmail`).val();
+            ToolboxBackend.inviteAthleteWithFeedback(invitedEmail);
+            console.log("sent invite to " + invitedEmail);
         });
 
         let values = {}; // Used for the various database functions below
@@ -544,6 +573,9 @@ class Settings extends Page {
         
         // Slide the page, we're ready to show the user
         this.pageTransition.slideLeft("editPage");
+        $("#settingsPage #editPage").animate({
+            scrollTop: 0
+        }, 1000);
         
         
         // ---- BACKEND PULL ---- //
@@ -751,6 +783,67 @@ class Settings extends Page {
         });
         
         return afterSchoolSelect.promise();
+    }
+    
+    /**
+     * Checks the value / content of an input field to determine
+     * if it is valid. It will return the boolean to reflect the state of the
+     * input.
+     * 
+     * @example addInputCheck("#input_teamName", 15, 75, /[A-Za-z0-9/gm, false, () => { submitName(); });
+     *          --> Will return false until name is 16-75 characters long,
+     *              containing only letters or numbers, and will call the
+     *              function submitName() if entered is pressed
+     * 
+     * @param {String} inputSelector jQuery selector for the input element
+     * @param {Integer} lengthMin max length of input, exclusive
+     * @param {Integer} lengthMax minimum length of input, inclusive
+     * @param {Regex} acceptRegex regex expression ("/[A-Za-z0-9/gm") of accepted values
+     * @param {Boolean} isOptional is the parameter optional / allowed to have a length of 0?
+     * @param {Function} handleStatusCallback function that takes in a boolean (true for valid input, false otherwise)
+     * @param {Function} enterActionCallback [optional] function to call when the enter key is pressed
+     * 
+     * @returns
+     * True, if the input matches the criteria. False, otherwise
+     */
+    addInputCheck(inputSelector, lengthMin, lengthMax, acceptRegex, isOptional, handleStatusCallback, enterActionCallback = function () {}) {
+
+        // Create keyup handler for enter button
+        let bindingInput = $("#settingsPage " + inputSelector);
+        bindingInput.on("keyup", (e) => {
+            let keyCode = e.keyCode || e.charCode;
+            if (keyCode == 13) { // Enter
+                enterActionCallback();
+            }
+        });
+
+        // Create the input event handler
+        bindingInput.on("input", (e) => {
+
+            let input = bindingInput.val();
+            input = input.trim();
+            // Set it as true; if it passes, it won't be set to false
+            let isValid = true;
+
+            // Check to see if it's optional and return if it's eligible
+            if (isOptional) {
+                if (input.length == 0) {
+                    handleStatusCallback(true);
+                    return;
+                }
+            }
+
+            // Length
+            if ((input.length < lengthMin) || (input.length > lengthMax)) {
+                isValid = false;
+            }
+            // Special characters
+            if (input.replace(acceptRegex, "").length > 0) {
+                isValid = false;
+            }
+
+            handleStatusCallback(isValid);
+        });
     }
     
     

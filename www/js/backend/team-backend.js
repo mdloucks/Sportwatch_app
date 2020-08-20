@@ -721,6 +721,69 @@ class TeamBackend {
     }
     
     /**
+     * Changes the team (identified by local storage / teamIdentity parameter)
+     * school to the matching ID given in the first parameter. The school must
+     * exist on the backend for it to work.
+     * 
+     * @example changeTeamSchool(7, (r) => { // Handle change })
+     *          --> Changes the team's school to the school with ID 7
+     * 
+     * @param {String} schoolId the new name to assign for the team
+     * @param {Function} cb function to handle the callback info
+     * @param {AssociativeArray} teamIdentity [defaults to localStorage id_team] data (like inviteCode) to identify a team
+     */
+    static changeTeamSchool(schoolId, cb, teamIdentity = { }) {
+        
+        let storage = window.localStorage;
+        
+        // If teamIdentity is empty or omitted, try pulling the local storage value
+        if(Object.keys(teamIdentity).length == 0) {
+            if((storage.getItem("id_team") == null) || (storage.getItem("id_team") == undefined)) {
+                if(DO_LOG) {
+                    console.log("[team-backend.js:changeTeamName()] No teamIdentity given, cannot proceed!");
+                }
+                // Simulate the response
+                cb("{\"status\": -5, \"substatus\": 6, \"msg\": \"accuracy = 0 of 8. duplicates: false\"}");
+                
+            } else {
+                teamIdentity = { "id_team": storage.getItem("id_team") };
+            }
+        }
+        
+        // Prepare the array
+        let postArray = { };
+        postArray.SID = storage.getItem("SID");
+        postArray.accountEmail = storage.getItem("email");
+        postArray.teamIdentity = teamIdentity;
+        postArray.newSchoolId = schoolId;
+        
+        // Submit the request and call the callback
+        return $.ajax({
+            type: "POST",
+            url: Constant.URL.team_action + "?intent=13",
+            timeout: Constant.AJAX_CFG.timeout,
+            data: postArray,
+            success: (response) => {
+                if(DO_LOG) {
+                    console.log("[team-backend.js:changeTeamSchool()] " + response);
+                }
+                try {
+                    response = JSON.parse(response);
+                } catch (e) {
+                    // Couldn't parse, so just use string
+                }
+                cb(response);
+            },
+            error: (error) => {
+                if(DO_LOG) {
+                    console.log("[team-backend.js:changeTeamSchool()] " + error);
+                }
+                cb(error);
+            }
+        });
+    }
+    
+    /**
      * Removes all of the users from the team and deletes the team from the
      * backend database. This may be changed once we start storing
      * data for teams (i.e. keep the team, but disable it or something?).
@@ -760,7 +823,7 @@ class TeamBackend {
         // Submit the request and call the callback
         return $.ajax({
             type: "POST",
-            url: Constant.URL.team_action + "?intent=13",
+            url: Constant.URL.team_action + "?intent=14",
             timeout: Constant.AJAX_CFG.timeout,
             data: postArray,
             success: (response) => {
