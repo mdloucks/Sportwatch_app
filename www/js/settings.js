@@ -424,7 +424,7 @@ class Settings extends Page {
                 <h1 id="h1_emailInvite">Invite via Email</h1>
                 <input id="input_athleteEmail" class="sw_text_input" type="text" placeholder="randy@sportwatch.us"></input>
                 <br>
-                <button id="button_sendInvite" class="sw_button">Invite</button>
+                <button id="button_sendInvite" class="sw_button" disabled>Invite</button>
             </div><br><br><br><br>
             <hr>
         `);
@@ -524,13 +524,35 @@ class Settings extends Page {
         });
         
         // INVITE VIA EMAIL
-        $(`${this.inputDivIdentifier} #button_sendInvite`).click((e) => {
+        // Check input
+        this.addInputCheck("#input_athleteEmail", 5, 65, /[A-Za-z0-9.@\-_]/gm, false, (invitedValid) => {
 
+            let inputEmail = $(`${this.inputDivIdentifier} #input_athleteEmail`).val().trim();
+            if (inputEmail.length > 0) {
+                // Make sure email has all necessary parts (if given)
+                let emailValidMatch = inputEmail.match(/[A-Za-z0-9\-_.]*@[A-Za-z0-9\-_.]*\.(com|net|org|us|website|io)/gm);
+                if (emailValidMatch == null) {
+                    invitedValid = false;
+                } else if (emailValidMatch[0].length != inputEmail.length) {
+                    invitedValid = false;
+                }
+
+                $(`${this.inputDivIdentifier} #button_sendInvite`).prop("disabled", !invitedValid);
+            }
+        }, () => { // On enter press
+            document.activeElement.blur();
+            $(`${this.inputDivIdentifier} #button_sendInvite`).trigger("click");
+        });
+        // Send email
+        $(`${this.inputDivIdentifier} #button_sendInvite`).click((e) => {
+            $(`${this.inputDivIdentifier} #button_sendInvite`).prop("disabled", true);
+            
             let invitedEmail = $(`${this.inputDivIdentifier} #input_athleteEmail`).val();
             ToolboxBackend.inviteAthleteWithFeedback(invitedEmail);
             console.log("sent invite to " + invitedEmail);
         });
-
+        
+        
         let values = {}; // Used for the various database functions below
         
         // KICK ATHLETE
