@@ -14,6 +14,15 @@ class Stats extends Page {
         this.eventButtonsBoxSelector = "#statsPage #landingPage .button_box";
         this.headerText = `Events`;
 
+        this.athleteRecordQuery = (`
+            select * from record
+            INNER JOIN record_user_link
+            ON record_user_link.id_record = record.id_record
+            INNER JOIN athlete
+            ON athlete.id_backend = record_user_link.id_backend
+            WHERE record.id_record_definition = ?;
+        `)
+
         this.landingPage = (`
             <div id="landingPage" class="div_page">
                 <div class="left_container">
@@ -32,6 +41,7 @@ class Stats extends Page {
                 <div></div>
             </div>
             
+            <button id="save_csv" class="generated_button">Save to CSV file</button>
 
             <table id="event_results">
                 <tr class="column_names">
@@ -161,6 +171,7 @@ class Stats extends Page {
         $("#statsPage #eventPage #event_name").html(event.record_identity);
 
         $("#statsPage #eventPage #back_button_event").unbind("click");
+        $("#statsPage #eventPage #save_csv").unbind("click");
 
         $("#statsPage #eventPage #back_button_event").bind("click", (e) => {
             this.pageTransition.slideRight("landingPage");
@@ -170,7 +181,97 @@ class Stats extends Page {
             }, 1000);
         });
 
+        $("#statsPage #eventPage #save_csv").bind("click", (e) => {
+
+            let query = (`
+                select * from record
+                INNER JOIN record_user_link
+                ON record_user_link.id_record = record.id_record
+                INNER JOIN athlete
+                ON athlete.id_backend = record_user_link.id_backend
+                INNER JOIN record_definition
+                ON record_definition.rowid = record.id_record_definition
+                WHERE record.id_record_definition = ?;
+            `);
+
+            dbConnection.selectValues(query, [event.rowid]).then((results) => {
+                
+                let athletes = this.constructAthleteTimeArray(results, "");
+                this.saveCSV("data.csv", athletes);
+            });
+        });
+
         this.generateAthleteTimes(event);
+    }
+
+    onErrorCreateFile() {
+        Popup.createConfirmationPopup(`Unable to download CSV file. Could not create file.`, ["Ok"], [function() {
+        }]);
+    };
+    
+    onErrorLoadFs () {
+        Popup.createConfirmationPopup(`Unable to download CSV file. Could not load File System.`, ["Ok"], [function() {
+        }]);
+    };
+
+    createFile(fileName, callback) {
+        window.requestFileSystem(window.PERSISTENT, 5 * 1024 * 1024, (fs) => {
+
+            console.log('file system open: ' + fs.name);
+
+            // Creates a new file or returns the file if it already exists.
+            fs.root.getFile(fileName, {create: true, exclusive: false}, function(fileEntry) {
+                callback(fileEntry);
+            }, this.onErrorCreateFile);
+        
+        }, this.onErrorLoadFs);
+    }
+
+    saveCSV(fileName, dataObj) {
+        this.createFile(fileName, function(fileEntry) {
+
+            // Create a FileWriter object for our FileEntry (log.txt).
+            fileEntry.createWriter(function (fileWriter) {
+                
+                fileWriter.onwriteend = function() {
+                    Popup.createConfirmationPopup(`Successfully downloaded CSV file. Find it in your Documents folder.`, ["Ok"], [function() {
+                    }]);
+                };
+                
+                fileWriter.onerror = function (e) {
+                    Popup.createConfirmationPopup(`Unable to download CSV file. Sorry for the inconvenience`, ["Ok"], [function() {
+                    }]);
+                };
+    
+                console.log("saving csv...");
+    
+                let csv = "";
+                // append headers
+                csv += "record_identity,fname,lname,unit,last_updated,value\n";
+
+    
+                // append data
+                for (let i = 0; i < dataObj.length; i++) {
+                    
+                    if(dataObj[i] == undefined || dataObj[i] == null) {
+                        continue;
+                    } else {
+                        let obj = dataObj[i];
+
+                        for (let j = 0; j < obj.values.length; j++) {
+                            csv += [obj.record_identity, obj.fname, obj.lname, obj.unit, obj.last_updated, obj.values[j]].join(',') + "\n";
+                        }
+                    }
+                }
+
+                console.log(csv);
+    
+    
+                let csvBlob = new Blob([csv], { type: 'text/plain' });
+        
+                fileWriter.write(csvBlob);
+            });
+        });
     }
 
     /**
@@ -184,16 +285,8 @@ class Stats extends Page {
         this.clearResultsTable();
 
         // get all values from record that have an athlete value for a particular event
-        let query = `
-            select * from record
-            INNER JOIN record_user_link
-            ON record_user_link.id_record = record.id_record
-            INNER JOIN athlete
-            ON athlete.id_backend = record_user_link.id_backend
-            WHERE record.id_record_definition = ?;
-        `;
 
-        dbConnection.selectValues(query, [event.rowid]).then((results) => {
+        dbConnection.selectValues(this.athleteRecordQuery, [event.rowid]).then((results) => {
 
             if(results == false) {
                 return;
