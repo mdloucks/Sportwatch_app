@@ -216,11 +216,11 @@ class Stats extends Page {
 
                 if (athletes[i].gender == 'm') {
                     info_box = $("<tr>", {
-                        class: "male_color"
+                        class: "male_color_alternate"
                     });
                 } else if (athletes[i].gender == 'f') {
                     info_box = $("<tr>", {
-                        class: "female_color"
+                        class: "female_color_alternate"
                     });
                 } else {
                     info_box = $("<tr>");

@@ -35,16 +35,7 @@
     border: 3px solid black;
 }
 
-#statsPage td {
+#statsPage td { 
     font-size: 2em;
     border: 1px solid gray;
-}
-
-
-#statsPage .female_color {
-    background-color: lightpink;
-}
-
-#statsPage .male_color {
-    background-color: lightblue;
 }
