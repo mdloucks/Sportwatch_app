@@ -33,7 +33,7 @@ class Login extends Page {
                 </form>
                 <br>
                 <span id="label_forgotPassword">Forgot Password? Tap Here</span>
-                <div id="passResetWrapper" style="height: 0; opacity: 0">
+                <div id="passResetWrapper" style="width: 0; height: 0; opacity: 0;">
                     <label id="label_email" for="email">Enter Your Email</label><br>
                     <input id="reset_input" class="sw_text_input" type="email" name="resetEmail" placeholder="you@example.com">
                     <br>
@@ -177,7 +177,8 @@ class Login extends Page {
     };
 
     stop() {
-        this.getPageElement("#passResetWrapper").css("width", "0").css("height", "0").css("opacity", "0");
+        this.getPageElement("#passResetWrapper").css("height", "0px");
+        this.getPageElement("#passResetWrapper").css("width", "0").css("opacity", "0");
         $("#loginPage").unbind().off();
         $("#loginPage *").unbind().off();
     }

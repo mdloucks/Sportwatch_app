@@ -75,7 +75,11 @@ class Signup extends Page {
         this.getPageElement("input").click((e) => {
             $(e.target).focus();
         })
-
+        
+        setInterval(() => {
+            console.log("Size=" + this.getPageElement(".invalidDialog").queue());
+        }, 1000);
+        
         // INPUT HANDLING
         // Name
         this.getPageElement("input[name=fname], input[name=lname]").on("input", () => {
@@ -157,7 +161,7 @@ class Signup extends Page {
             if(input.length == 1) {
                 this.setupInvalidSymbol("#i_gender", true, "Saved!");
             } else {
-                this.setupInvalidSymbol("#i_gender", false, "Plese select a gender!");
+                this.setupInvalidSymbol("#i_gender", false, "Plese select a gender");
             }
         });
         // Add starting dialog when clicked (if empty)
@@ -304,20 +308,24 @@ class Signup extends Page {
         let dialog = this.getPageElement(".invalidDialog");
         // This prevents showing the dialog if it's not ready / transitioning
         if ((dialog.css("opacity") != "0") && (dialog.css("opacity") != "1")) {
-            // There is an iOS bug that halts the fadeIn operation very early
-            // This if statement fixes it by ignoring a near-zero opacity (return if greater)
-            // if(parseFloat(dialog.css("opacity")) > 0.001) {
-            //     dialog.stop();
-            //     return;
-            // } else {
-            //     dialog.css("opacity", "1");
-            // }
-            return;
+        //     // There is an iOS bug that halts the fadeIn operation very early
+        //     // This if statement fixes it by ignoring a near-zero opacity (return if greater)
+        //     // if(parseFloat(dialog.css("opacity")) > 0.001) {
+        //     //     dialog.stop();
+        //     //     return;
+        //     // } else {
+        //     //     dialog.css("opacity", "1");
+        //     // }
+            // return;
         }
         
          // Prevents previous timeouts from closing the new dialog
         if (this.dialogInterval != 0) {
             clearInterval(this.dialogInterval);
+        }
+        dialog.clearQueue();
+        if(dialog.queue.length > 0) { // Still not cleared, force clear it
+            dialog.stop();
         }
         
         // Set dialog properties
@@ -351,7 +359,6 @@ class Signup extends Page {
             }
         });
         
-        
         // And disappear in a few seconds
         this.dialogInterval = setTimeout(() => {
             dialog.fadeTo(1000, 0, () => {
@@ -373,27 +380,26 @@ class Signup extends Page {
 
         switch (substatus) {
             case 2:
-                this.openInvalidMessage("The email format was invalid, please re-enter it and try again");
-                this.setupInvalidSymbol("#i_email", false, "Please enter a valid email");
+                // this.openInvalidMessage("The email format was invalid, please re-enter it and try again");
+                this.setupInvalidSymbol("#i_email", false, "The email format was invalid, please re-enter it and try again");
                 break;
             case 3:
-                this.openInvalidMessage("The entered email doesn't exist, please try again");
-                this.setupInvalidSymbol("#i_email", false, "Please enter a valid email");
+                // this.openInvalidMessage("The entered email doesn't exist, please try again");
+                this.setupInvalidSymbol("#i_email", false, "The entered email doesn't exist, please try again");
                 break;
             case 4:
-                this.openInvalidMessage("An account with that email already exists. Please login or reset your password");
-                this.setupInvalidSymbol("#i_email", false, "Please log in or enter a different email");
+                // this.openInvalidMessage("An account with that email already exists. Please login or reset your password");
+                this.setupInvalidSymbol("#i_email", false, "An account with that email already exists. Please login or reset your password");
                 break;
             case 5:
-                this.openInvalidMessage("The entered password was too weak, please add complexity");
-                this.setupInvalidSymbol("#i_password", false, "Please enter a strong password");
+                // this.openInvalidMessage("The entered password was too weak, please add complexity");
+                this.setupInvalidSymbol("#i_password", false, "The entered password was too weak, please add complexity");
                 break;
             default:
                 if ((msg == undefined) || (msg.length > 0)) {
                     msg = "(" + msg + ")";
                 }
                 this.openInvalidMessage("An unknown error occured, please try again later " + msg);
-                this.getPageElement("#button_signup");
                 break;
         }
     }
