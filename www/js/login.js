@@ -177,8 +177,8 @@ class Login extends Page {
     };
 
     stop() {
-        this.getPageElement("#passResetWrapper").css("height", "0px");
-        this.getPageElement("#passResetWrapper").css("width", "0").css("opacity", "0");
+        this.getPageElement("#passResetWrapper").finish(); // Stop any animations
+        this.getPageElement("#passResetWrapper").css("width", "0").css("height", "0").css("opacity", "0");
         $("#loginPage").unbind().off();
         $("#loginPage *").unbind().off();
     }

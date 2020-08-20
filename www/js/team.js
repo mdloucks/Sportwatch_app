@@ -161,7 +161,8 @@ class Team extends Page {
 
                 $("#teamPage #landingPage .left_text").html(teamName);
                 $("#teamPage #landingPage .subheading_text").remove();
-
+                $("#teamPage #landingPage .missing_info_text").remove();
+                
                 // ButtonGenerator.generateButtonsFromDatabase("#teamPage #landingPage #male_container", males, (athlete) => {
                 //     this.startAthletePage(athlete);
                 // }, ["gender", "id_athlete_event_register", "id_backend", "rowid"], conditionalAttributes);

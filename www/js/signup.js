@@ -312,7 +312,7 @@ class Signup extends Page {
         //     // } else {
         //     //     dialog.css("opacity", "1");
         //     // }
-            // return;
+            return;
         }
         
          // Prevents previous timeouts from closing the new dialog
