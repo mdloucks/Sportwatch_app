@@ -59,6 +59,9 @@ input {
 .div_page > .div_page {
     overflow: auto;
 }
+.div_page > .div_page > *:last-child {
+    margin-bottom: 20%; /* Adds padding to allow scrolling to bottom of page */
+}
 
 .div_page.current_page {
     left: 0%;
