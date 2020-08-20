@@ -371,8 +371,8 @@ class Team extends Page {
 
         $("#teamPage #athleteStatPage #athlete_stats_container").append(`
             <tr>
-                <th>Result</th>
-                <th>Date</th>
+                <th style="width: 25%">Result</th>
+                <th style="width: 40%">Date</th>
                 <th>Value</th>
             </tr>
         `);
@@ -382,7 +382,7 @@ class Team extends Page {
             let row = (`
                 <tr id_record=${results.item(i).rowid}>
                     <td>${i + 1}</td>
-                    <td>${new Date(results.item(i).last_updated).toLocaleDateString("en-US")}</td>
+                    <td>${this.getRecordDate(results.item(i).last_updated)}</td>
                     <td>${results.item(i).value.toFixed(2)}</td>
                 </tr>
             `);
@@ -565,7 +565,28 @@ class Team extends Page {
             }
         }).get();
     }
-
+    
+    /**
+     * Formats a record's lastUpdated date/time to a format
+     * usable for javascript Date().
+     * 
+     * @example getRecordDate("2020-08-20 08-56-33");
+     * 
+     * @param {String} rawDateTime date formatted "yyyy-mm-dd hr:mi:ss"
+     * @returns
+     * US Date String formatted correctly
+     */
+    getRecordDate(rawDateTime) {
+        
+        let year = rawDateTime.substr(0, 4); 
+        let month = rawDateTime.substr(5, 2);
+        let day = rawDateTime.substr(8, 2);
+        let hour = rawDateTime.substr(11, 2);
+        let minute = rawDateTime.substr(14, 2);
+        let second = rawDateTime.substr(17, 2);
+        return new Date(year, month, day, hour, minute, second).toLocaleDateString("en-US");
+    }
+    
     /**
      * @description check if the current user has a team at all, either on account or local
      * @returns true or false
