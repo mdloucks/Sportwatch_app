@@ -379,10 +379,17 @@ class Team extends Page {
 
         for (let i = 0; i < results.length; i++) {
             // TODO: add date to event results
+            
+            // Parse date (first is local save, second handles server format)
+            let date = new Date(results.item(i).last_updated).toLocaleDateString("en-US");
+            if(date.includes("Invalid")) {
+                date = this.getRecordDate(results.item(i).last_updated);
+            }
+            
             let row = (`
                 <tr id_record=${results.item(i).id_record}>
                     <td>${i + 1}</td>
-                    <td>${this.getRecordDate(results.item(i).last_updated)}</td>
+                    <td>${date}</td>
                     <td>${results.item(i).value.toFixed(2)}</td>
                 </tr>
             `);
@@ -579,7 +586,7 @@ class Team extends Page {
     getRecordDate(rawDateTime) {
         
         let year = rawDateTime.substr(0, 4); 
-        let month = rawDateTime.substr(5, 2);
+        let month = rawDateTime.substr(5, 2) - 1; // Months are indexed weird in PHP
         let day = rawDateTime.substr(8, 2);
         let hour = rawDateTime.substr(11, 2);
         let minute = rawDateTime.substr(14, 2);
