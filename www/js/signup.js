@@ -38,11 +38,11 @@ class Signup extends Page {
                     <img id="i_password" class="invalidSym" src="img/invalidSymbol.png">
                     <br>
                     <label id="label_gender" for="gender">Gender</label><br>
-                    <select class="dropdown_input" name="gender" style="padding-left: 6vw">
+                    <select class="dropdown_input" name="gender">
                         <option value="NA">-- Tap to Select --</option>
                         <option value="M">Male</option>
                         <option value="F">Female</option>
-                        <option value="O">Other</option>
+                        <option value="O">Other / Prefer not to Say</option>
                     </select>
                     <img id="i_gender" class="invalidSym" src="img/invalidSymbol.png">
                     <br><br>
@@ -142,16 +142,16 @@ class Signup extends Page {
             let input = this.getPageElement("select[name=gender]").val();
             
             // Center the input text
-            if(input == "M") {
-                this.getPageElement("select[name=gender").css("padding-left", "20vw");
-            } else if(input == "F") {
-                this.getPageElement("select[name=gender").css("padding-left", "17vw");
-            } else if(input == "O") {
-                this.getPageElement("select[name=gender").css("padding-left", "19vw");
-            } else {
-                // Handles the "-- Tap to Select --" option
-                this.getPageElement("select[name=gender").css("padding-left", "6vw");
-            }
+            // if(input == "M") {
+            //     this.getPageElement("select[name=gender").css("padding-left", "20vw");
+            // } else if(input == "F") {
+            //     this.getPageElement("select[name=gender").css("padding-left", "17vw");
+            // } else if(input == "O") {
+            //     this.getPageElement("select[name=gender").css("padding-left", "19vw");
+            // } else {
+            //     // Handles the "-- Tap to Select --" option
+            //     this.getPageElement("select[name=gender").css("padding-left", "6vw");
+            // }
             
             // Check validity
             if(input.length == 1) {
