@@ -24,6 +24,7 @@
     <preference name="DisallowOverscroll" value="true" />
     <platform name="android">
 
+        <preference name="AndroidPersistentFileLocation" value="Compatibility" />
         <preference name="android-minSdkVersion" value="26" />
         <resource-file src="res/values/colors.xml" target="/app/src/main/res/values/colors.xml" />
 
@@ -82,6 +83,8 @@
     </platform>
 
     <platform name="ios">
+        <preference name="iosPersistentFileLocation" value="Library" />
+
         <icon height="60" src="res/icon/ios/icon-60.png" width="60" />
         <icon height="120" src="res/icon/ios/icon-60@2x.png" width="120" />
         <icon height="180" src="res/icon/ios/icon-60@3x.png" width="180" />

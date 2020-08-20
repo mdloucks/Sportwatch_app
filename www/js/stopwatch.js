@@ -221,7 +221,11 @@ class Stopwatch extends Page {
 
             $("#stopwatch_canvas").click((e) => {
                 e.preventDefault();
-                this.toggleStopwatch(this.clock);
+                if (this.selectedRecordDefinitionId != null) {
+                    this.startSlideupForAthletes(this.selectedAthleteId);
+                } else {
+                    this.toggleStopwatch(this.clock);
+                }
             });
 
             $("#stopwatch_reset").click((e) => {
@@ -524,7 +528,6 @@ class Stopwatch extends Page {
                 `);
                 // athletes
             } else {
-                console.log(JSON.stringify(array[i]));
                 $(`${this.landingPageSelector} #carousel_content`).append(`
                     <div index="${i}" class="carousel_item ${array[i].class}">
                         ${array[i].fname} ${array[i].lname}
