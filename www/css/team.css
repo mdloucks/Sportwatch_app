@@ -7,9 +7,10 @@
   font-size: 3.5em;
 }
 
+/*
 #teamPage button:not(:last-child) {
-  border-bottom: none; /* Prevent double borders */
-}
+  border-bottom: none; Prevent double borders
+} */
 
 #teamPage .athlete_container {
     float: left;
