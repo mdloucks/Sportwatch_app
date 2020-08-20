@@ -76,6 +76,21 @@
     font-size: 1.5em;
 }
 
+/* Try to prevent text breaks */
+#teamPage .alternating_table_shade th:nth-child(1) {
+    width: 25%;
+}
+#teamPage .alternating_table_shade th:nth-child(2) {
+    width: 40%;
+}
+
+#teamPage .delete_column_red th:nth-child(1) {
+    width: 25%;
+}
+#teamPage .delete_column_red th:nth-child(2) {
+    width: 21%;
+}
+
 #teamPage canvas {
     margin-top: 3em;
 
