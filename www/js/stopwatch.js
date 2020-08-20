@@ -805,28 +805,49 @@ class Stopwatch extends Page {
                 console.log("RECORD SAVED " + JSON.stringify(response));
             }
             if (response.status > 0) { // If success, insert into local database
+                // Define default fallback values, then use actual values in loop below
                 let recordData = {
-                    "value": this.clock.seconds, // This is being reset, so use the backend data instead of clock seconds
-                    "id_record_definition": event.rowid,
+                    "value": 0.000, // Clock gets reset before call can complete, so use backend value below
+                    "id_record_definition": 1,
                     "is_practice": true,
                     "is_split": false,
                     "id_split": null,
                     "id_split_index": null,
                     "last_updated": Date.now()
                 };
-
                 let linkData = {
                     "id_backend": athlete.id_backend
                 };
-
+                let newRecord = { };
+                
+                // Loop through each added record and save to local database
+                // TODO: Change backend to link users with the record for relays... this will get messy
+                for(let r = 0; r < response.addedRecords.length; r++) {
+                    newRecord = response.addedRecords[r];
+                    
+                    // record
+                    recordData["id_record"] = Number(newRecord.id_record);
+                    recordData["value"] = Number(newRecord.value);
+                    recordData["id_record_definition"] = Number(newRecord.id_recordDefinition);
+                    dbConnection.insertValuesFromObject("record", recordData);
+                    
+                    // record_user_link
+                    linkData.id_record = Number(newRecord.id_record);
+                    dbConnection.insertValuesFromObject("record_user_link", linkData);
+                }
+                
                 // Loop through each added record ID and save to local database
                 // TODO: Change backend to link users with the record for relays... this will get messy
-                for (let r = 0; r < response.addedRecordIds.length; r++) {
-                    recordData["id_record"] = response.addedRecordIds[r];
-                    dbConnection.insertValuesFromObject("record", recordData);
+                // for (let r = 0; r < response.addedRecordIds.length; r++) {
+                //     recordData["id_record"] = response.addedRecordIds[r];
+                //     dbConnection.insertValuesFromObject("record", recordData);
 
-                    linkData.id_record = response.addedRecordIds[r];
-                    dbConnection.insertValuesFromObject("record_user_link", linkData);
+                //     linkData.id_record = response.addedRecordIds[r];
+                //     dbConnection.insertValuesFromObject("record_user_link", linkData);
+                // }
+            } else {
+                if(DO_LOG) {
+                    console.log("[stopwatch.js:saveTime()]: Unable to save time to backend");
                 }
             }
         });
