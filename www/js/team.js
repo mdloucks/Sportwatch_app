@@ -380,7 +380,7 @@ class Team extends Page {
         for (let i = 0; i < results.length; i++) {
             // TODO: add date to event results
             let row = (`
-                <tr id_record=${results.item(i).rowid}>
+                <tr id_record=${results.item(i).id_record}>
                     <td>${i + 1}</td>
                     <td>${this.getRecordDate(results.item(i).last_updated)}</td>
                     <td>${results.item(i).value.toFixed(2)}</td>
