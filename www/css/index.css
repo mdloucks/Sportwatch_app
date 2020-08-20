@@ -220,6 +220,22 @@ https://css-tricks.com/places-its-tempting-to-use-display-none-but-dont/ */
     font-weight: bold;
 }
 
+.female_color {
+    background-color: #fc99b6;
+}
+
+.male_color {
+    background-color: #6a81e1;
+}
+
+.female_color_alternate {
+    background-color: lightpink;
+}
+
+.male_color_alternate {
+    background-color: lightblue;
+}
+
 .sprint_event {
     background-color: lightcoral;
 }
