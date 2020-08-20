@@ -1,6 +1,6 @@
 let json = {
     "record_definition": [
-        ["second", "60m"]
+        ["second", "60m"],
         ["second", "75m"],
         ["second", "100m"],
         ["second", "200m"],
@@ -42,7 +42,7 @@ let json = {
         ["minute", "other"],
         ["meter", "other"],
         ["foot", "other"],
-        ["yard", "other"],
+        ["yard", "other"]
     ]
 }
 
