@@ -83,7 +83,7 @@ class Signup extends Page {
             let lastName = this.getPageElement("input[name=lname]").val();
             let input = firstName + lastName;
 
-            if (input.replace(/[A-Za-z.]/gm, "") != "") {
+            if (input.replace(/[A-Za-z.\-]/gm, "") != "") {
                 this.setupInvalidSymbol("#i_name", false, "Please only use letters in your name.");
             } else if (input.length > 127) {
                 this.setupInvalidSymbol("#i_name", false, "Name is too long");

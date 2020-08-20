@@ -36,15 +36,23 @@ class ToolboxBackend {
         
         let pullState = $.Deferred();
         
+        // As of right now, these calls must happen sequentially in a synchronous
+        // fashion. If not, it causes the stats and team page to initialize
+        // before the database is fully populated
         ToolboxBackend.pullForStorage().then(() => {
+            ToolboxBackend.pullForDatabase().then(() => {
+                pullState.resolve();
+            }).catch(() => {
+                pullState.reject();
+            });
         }).catch(() => {
             pullState.reject();
         });
-        ToolboxBackend.pullForDatabase().then(() => {
-            pullState.resolve();
-        }).catch(() => {
-            pullState.reject();
-        });
+        // ToolboxBackend.pullForDatabase().then(() => {
+        //     pullState.resolve();
+        // }).catch(() => {
+        //     pullState.reject();
+        // });
         
         return pullState.promise(); // Return the promise to allow for .then() and .catch()
     }
@@ -92,7 +100,11 @@ class ToolboxBackend {
             // Update team info (like team name)
             ajaxRequest = TeamBackend.getTeamInfo((teamInfo) => {
                 if(teamInfo.status > 0) {
+                    localStorage.setItem("id_team", teamInfo.id_team);
                     localStorage.setItem("teamName", teamInfo.teamName);
+                    localStorage.setItem("school", teamInfo.schoolName);
+                    localStorage.setItem("id_school", teamInfo.id_school);
+                    localStorage.setItem("inviteCode", teamInfo.inviteCode);
                 } else {
                     if(teamInfo.substatus == 7) {
                         // This is the code for an invalid team ID

@@ -140,6 +140,54 @@ class AccountBackend {
     }
     
     /**
+     * Sends a request to the backend asking for a password reset
+     * email to be sent to the user (specified by the email parameter).
+     * This will create a code that expires in 30 minutes, allowing the user
+     * to reset their password.
+     * 
+     * @example requestPasswordReset("lafrazerl@gmail.com", (r) => { if(r.status > 0) { alert("Check your email!"); } });
+     *          --> Sends a Reset Password email to lafrazerl@gmail.com
+     * 
+     * @param {String} email the email of the user requesting a password reset
+     * @param {Function} callback function that should handle and error or success response
+     *                            (takes AssociativeArray as parameter, but may return string if response is malformed)
+     */
+    static requestPasswordReset(email, callback) {
+        
+        // Submit the request and call the callback
+        return $.ajax({
+            type: "POST",
+            url: Constant.URL.account_action + "?intent=2",
+            timeout: Constant.AJAX_CFG.timeout,
+            data: {
+                accountIdentity: {"email": email}
+            },
+            success: (response) => {
+                // Remove hyphen from wacky email service
+                if(response.charAt(0) == "–") {
+                    response = response.substring(1, response.length);
+                }
+                
+                if(DO_LOG) {
+                    console.log("[account-backend.js:requestPasswordReset()] " + response);
+                }
+                try {
+                    response = JSON.parse(response);
+                } catch(e) {
+                    // Couldn't parse, so just use string
+                }
+                callback(response);
+            },
+            error: (error) => {
+                if(DO_LOG) {
+                    console.log("[account-backend.js:requestPasswordReset()] " + error);
+                }
+                callback(error);
+            }
+        });
+    }
+    
+    /**
      * Used to recall values from local storage and will check to make sure
      * they aren't null or empty. It will also perform a basic sanitize on
      * strings. It returns an associaitve array of the keys and values

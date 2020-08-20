@@ -64,10 +64,10 @@ class Settings extends Page {
     start() {
 
         // Only add content if it isn't there yet (check if any catagories are there yet)
-        if ($("#settingsPage .cat_button").length) {
-            return;
-        }
-
+        // if ($("#settingsPage .cat_button").length) {
+        //     return;
+        // }
+        
         if (this.pageTransition.getPageCount() == 0) {
             this.pageTransition.addPage("catagoryPage", this.catagoryPage, true);
             this.pageTransition.addPage("editPage", this.editPage);
@@ -88,6 +88,7 @@ class Settings extends Page {
         }
 
         // add the account pages
+        $("#settingsPage #cat_options").empty(); // Remove all catagory buttons
         Object.keys(this.accountButtons).forEach((key, index) => {
             this.addSettingCatagory(key, this.accountButtons[key].bind(this));
         });
@@ -114,8 +115,8 @@ class Settings extends Page {
         // For now, don't unbind because adding the click events back is difficult
         // TODO: Change structure so it can properly unbind
         $("#settingsPage .cat_button").removeClass("cat_button_selected");
-        // $("#settingsPage").unbind().off();
-        // $("#settingsPage *").unbind().off();
+        $("#settingsPage").unbind().off();
+        $("#settingsPage *").unbind().off();
     }
 
     /**
@@ -447,7 +448,7 @@ class Settings extends Page {
         });
         
         // invite athlete to team
-        $(`#settingsPage ${this.inputDivIdentifier} #button_sendInvite`).click((e) => {
+        $(`${this.inputDivIdentifier} #button_sendInvite`).click((e) => {
 
             let invitedEmail = $(`${this.inputDivIdentifier} #input_athleteEmail`).val();
             ToolboxBackend.inviteAthleteWithFeedback(invitedEmail);
@@ -455,7 +456,7 @@ class Settings extends Page {
         });
         
         // LEAVE TEAM
-        $(`#settingsPage ${this.inputDivIdentifier} #leave_team_button`).click(() => {
+        $(`${this.inputDivIdentifier} #leave_team_button`).click(() => {
             Popup.createConfirmationPopup("Are you sure you want to leave your team?", ["Yes", "No"], [() => {
                 TeamBackend.leaveTeam((result) => {
 
@@ -477,7 +478,12 @@ class Settings extends Page {
                                 console.log("[settings.js]: Failed to pull from backend, localStorage email: " + localStorage.getItem("email"));
                             }
                         });
-                        Popup.createConfirmationPopup("You have successfully left the team", ["OK"], [() => {}]);
+                        Popup.createConfirmationPopup("You have successfully left the team", ["OK"], [() => {
+                            // Slide away so they aren't in the team page anymore
+                            this.pageTransition.slideRight("catagoryPage");
+                            // Remove the Team Peferences option (the one that's selected)
+                            $("#settingsPage .cat_button.cat_button_selected").remove();
+                        }]);
 
                         // Failure, let them know why
                     } else {
@@ -561,7 +567,7 @@ class Settings extends Page {
                 storage.setItem("school", schoolName);
                 storage.setItem("id_school", schoolId);
                 storage.setItem("inviteCode", inviteCode);
-                storage.setItem("isTeamLocked", isLocked);
+                // Don't store "isTeamLocked"
                 
                 // And finally, the actual page elements (may result in a flash change, but oh well)
                 $('#settingsPage #editPage input[name="Team Name"]').val(teamName);
@@ -622,6 +628,7 @@ class Settings extends Page {
         let indicators = ["teamName", "inviteCode", "id_team"];
 
         indicators.map(function(value) {
+            console.log(value + " = " + storage.getItem(value));
             if(storage.getItem(value) != null) {
                 doesExist = true;
             }
@@ -670,6 +677,9 @@ class Settings extends Page {
                 $('#settingsPage #editPage #lockTeamToggle').find('input').prop("checked", result.isLocked);
             } else {
                 Popup.createConfirmationPopup("Only a coach can lock the team.", ["OK"]);
+                // "Undo" the toggle from the user clicking it
+                let isChecked = $('#settingsPage #editPage #lockTeamToggle').find('input').prop("checked");
+                $('#settingsPage #editPage #lockTeamToggle').find('input').prop("checked", !isChecked);
             }
         });
     }

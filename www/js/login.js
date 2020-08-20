@@ -31,8 +31,18 @@ class Login extends Page {
                     
                     <input id="login_button" class="sw_big_button invalid" type="submit" value="Log In">
                 </form>
-                <br><br>
+                <br>
+                <span id="label_forgotPassword">Forgot Password? Tap Here</span>
+                <div id="passResetWrapper" style="height: 0; opacity: 0">
+                    <label id="label_email" for="email">Enter Your Email</label><br>
+                    <input id="reset_input" class="sw_text_input" type="email" name="resetEmail" placeholder="you@example.com">
+                    <br>
+                    
+                    <button id="resetPass_button" class="sw_big_button invalid">Reset Password</button>
+                </div>
+                
                 <button id="returnWelcome" class="backButton">Back</button>
+                <br><br>
                 
                 <!-- Invalid dialog here (hidden by default) -->
                 <div class="invalidDialog" style="display: none;">
@@ -56,18 +66,39 @@ class Login extends Page {
         })
 
         // Input Handling
-        this.getPageElement("input").on("input", (e) => {
+        this.getPageElement("form input").on("input", (e) => {
 
             // Check to make sure the fields are filled in
             this.getPageElement("#login_button").removeClass("invalid");
 
             // Loop through inputs to check length
-            this.getPageElement("input").each((index) => {
-                let inputEl = this.getPageElement("input").get(index); // Returns JS object, use $(...)
+            this.getPageElement("form input").each((index) => {
+                let inputEl = this.getPageElement("form input").get(index); // Returns JS object, use $(...)
                 if (($(inputEl).val().length < 3) && (!this.getPageElement("#login_button").hasClass("invalid"))) {
                     this.getPageElement("#login_button").addClass("invalid");
                 }
             });
+        });
+        // Input - Forgot email
+        this.getPageElement("#reset_input").on("input", (e) => {
+            let resetEmail = this.getPageElement("#reset_input").val();
+            let testMatch = resetEmail.match(/[A-Za-z0-9\-_.]*@[A-Za-z0-9\-_.]*\.(com|net|org|us|website|io)/gm);
+            
+            // Enable / Disable the button
+            if ((testMatch == null) || (testMatch[0].length != resetEmail.length) || (resetEmail.length > 250)) {
+                if(!this.getPageElement("#resetPass_button").hasClass("invalid")) {
+                    this.getPageElement("#resetPass_button").addClass("invalid");
+                }
+            } else {
+                this.getPageElement("#resetPass_button").removeClass("invalid");
+            }
+        });
+        this.getPageElement("#reset_input").on("keyup", (e) => {
+            let keyCode = e.keyCode || e.charCode;
+            if (keyCode == 13) { // Enter
+                document.activeElement.blur();
+                this.getPageElement("#resetPass_button").trigger("click");
+            }
         });
 
         // Animate the button to simulate a "press"
@@ -111,10 +142,41 @@ class Login extends Page {
                     this.handleLoginError(error.substatus, error.msg);
                 }.bind(this));
         }.bind(this)); // Binding this is CRITICAL for changing state, etc.
-
+        
+        // Reset password start
+        this.getPageElement("#label_forgotPassword").click((e) => {
+            this.getPageElement("#passResetWrapper").animate({
+                height: 200
+            }, 500, "swing", () => {
+                this.getPageElement("#passResetWrapper").fadeTo(250, 1);
+            });
+        });
+        
+        // Reset password submission
+        this.getPageElement("#resetPass_button").click((e) => {
+            if(this.getPageElement("#resetPass_button").hasClass("invalid")) {
+                return; // Don't do anything if the email isn't valid
+            }
+            
+            let email = this.getPageElement("#reset_input").val();
+            email = email.replace(/[^A-Za-z0-9\-_.@]/gm, "");
+            AccountBackend.requestPasswordReset(email, (response) => {
+                if(response.status > 0) {
+                    Popup.createConfirmationPopup("An email has been sent to you with a password reset link. It will expire in thirty minutes", ["OK"]);
+                } else {
+                    if(response.substatus == 9) {
+                        Popup.createConfirmationPopup("We couldn't find an account with that email. Try re-entering it or Sign Up for an account", ["OK"]);
+                    } else {
+                        Popup.createConfirmationPopup("Sorry, an error occured on our end. Please contact support or try later", ["OK"]);
+                    }
+                }
+            });
+        }); // End of reset button logic
+        
     };
 
     stop() {
+        this.getPageElement("#passResetWrapper").css("height", "0").css("opacity", "0");
         $("#loginPage").unbind().off();
         $("#loginPage *").unbind().off();
     }
