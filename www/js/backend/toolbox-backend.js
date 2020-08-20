@@ -96,29 +96,36 @@ class ToolboxBackend {
         ajaxArray.push(ajaxRequest);
         
         // TEAM //
-        if((storage.getItem("id_team") != null) && (storage.getItem("id_team") != undefined)) {
-            // Update team info (like team name)
-            ajaxRequest = TeamBackend.getTeamInfo((teamInfo) => {
-                if(teamInfo.status > 0) {
-                    localStorage.setItem("id_team", teamInfo.id_team);
-                    localStorage.setItem("teamName", teamInfo.teamName);
-                    localStorage.setItem("school", teamInfo.schoolName);
-                    localStorage.setItem("id_school", teamInfo.id_school);
-                    localStorage.setItem("inviteCode", teamInfo.inviteCode);
-                } else {
-                    if(teamInfo.substatus == 7) {
-                        // This is the code for an invalid team ID
-                        // If this occurs, the team was likely deleted, so update the frontend as well
-                        storage.removeItem("id_team");
-                        storage.removeItem("teamName");
-                        storage.removeItem("school");
-                        storage.removeItem("id_school");
-                        storage.removeItem("inviteCode");
+        ajaxRequest.promise().then(() => { // Need the promise since account pull defined id_team
+            if(storage.getItem("id_team") != null) {
+                // Update team info (like team name)
+                ajaxRequest = TeamBackend.getTeamInfo((teamInfo) => {
+                    if(teamInfo.status > 0) {
+                        console.log("SET TEAM DATA");
+                        localStorage.setItem("id_team", teamInfo.id_team);
+                        localStorage.setItem("teamName", teamInfo.teamName);
+                        localStorage.setItem("school", teamInfo.schoolName);
+                        localStorage.setItem("id_school", teamInfo.id_school);
+                        localStorage.setItem("inviteCode", teamInfo.inviteCode);
+                    } else {
+                        if(teamInfo.substatus == 7) {
+                            // This is the code for an invalid team ID
+                            // If this occurs, the team was likely deleted, so update the frontend as well
+                            storage.removeItem("id_team");
+                            storage.removeItem("teamName");
+                            storage.removeItem("school");
+                            storage.removeItem("id_school");
+                            storage.removeItem("inviteCode");
+                        }
                     }
+                });
+                ajaxArray.push(ajaxRequest);
+            } else {
+                if(DO_LOG) {
+                    console.log("[toolbox-backend.js:pullForStorage()] teamId was null");
                 }
-            });
-            ajaxArray.push(ajaxRequest);
-        }
+            }
+        });
         
         // RECORDS //
         // No local storage integration for records at this time
