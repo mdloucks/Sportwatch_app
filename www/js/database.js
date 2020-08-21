@@ -277,6 +277,20 @@ class DatabaseConnection {
         });
     }
 
+    runQuery(query, values) {
+        console.log("[database.js]: run query " + query + " " + JSON.stringify(values));
+
+        this.db.transaction(function (tx) {
+            tx.executeSql(query, values, function (tx, rs) {
+                for (let i = 0; i < rs.rows.length; i++) {
+                    console.log(JSON.stringify(rs.rows.item(i)));
+                }
+
+                console.log(JSON.stringify(tx));
+            });
+        });
+    }
+
     /**
      * @description insert some data into the given table
      * must be an array that follows order of parameters

@@ -492,40 +492,20 @@ class Team extends Page {
 
             // delete values in rowsToDelete
             for (let i = 0; i < this.rowsToDelete.length; i++) {
-                dbConnection.deleteValues("record", "WHERE record.id_record = ?", [this.rowsToDelete[i]]);
+                // dbConnection.deleteValues("record", "WHERE record.id_record = ?", [this.rowsToDelete[i]]);
+                dbConnection.runQuery("DELETE FROM record WHERE id_record = ?", [Number(this.rowsToDelete[i])]);
 
                 RecordBackend.deleteRecord(this.rowsToDelete[i], function (response) {
                     console.log("deleted " + JSON.stringify(response));
-                })
+                });
             }
 
             // save changed values
             let newData = this.tableToObject();
-            console.log(newData);
 
             for (let i = 0; i < newData.length; i++) {
 
                 if (newData[i].isAdded) { // true if user clicked "Add Value"
-
-                    // let recordData = {
-                    //     "id_athlete": Number(newData[i].id_backend),
-                    //     "id_record_definition": Number(newData[i].id_record_definition),
-                    //     "value": Number(newData[i].value),
-                    //     "is_split": false,
-                    //     "id_split": null,
-                    //     "id_split_index": null,
-                    //     "last_updated": Date.now()
-                    // }
-
-                    // // save locally and to backend
-                    // dbConnection.insertValuesFromObject("record", recordData);
-
-                    // RecordBackend.saveRecord((response) => {
-                    //     if (DO_LOG) {
-                    //         console.log("RECORD SAVED " + JSON.stringify(response));
-                    //     }
-                    // }, Number(newData[i].value), Number(newData[i].id_record_definition));
-
                     // Save the record first so the frontend will have a matching id to the backend
 
                     RecordBackend.saveRecord(Number(newData[i].value), Number(newData[i].id_record_definition), Number(newData[i].id_backend), (response) => {
