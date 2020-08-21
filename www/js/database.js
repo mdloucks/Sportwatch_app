@@ -270,10 +270,24 @@ class DatabaseConnection {
             let query = `DELETE FROM ${table} ${whereString}`;
 
             if (DO_LOG) {
-                console.log(query);
+                console.log(query +  " " + JSON.stringify(values));
             }
 
             tx.executeSql(query, values, function (tx, rs) {});
+        });
+    }
+
+    runQuery(query, values) {
+        console.log("[database.js]: run query " + query + " " + JSON.stringify(values));
+
+        this.db.transaction(function (tx) {
+            tx.executeSql(query, values, function (tx, rs) {
+                for (let i = 0; i < rs.rows.length; i++) {
+                    console.log(JSON.stringify(rs.rows.item(i)));
+                }
+
+                console.log(JSON.stringify(tx));
+            });
         });
     }
 

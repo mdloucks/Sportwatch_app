@@ -363,6 +363,8 @@ class RecordBackend {
      * @param {Function} callback callback to handle the response (JSON or String on failure)
      */
     static deleteRecord(recordId, callback) {
+
+        let storage = window.localStorage;
         
         // Add them to an array for post data
         let postData = { };

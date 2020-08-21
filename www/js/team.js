@@ -31,10 +31,10 @@ class Team extends Page {
             </div>
         `);
 
-    //     <div class="row">
-    //     <div id="male_container" class="athlete_container"></div>
-    //     <div id="female_container" class="athlete_container"></div>
-    // </div>
+        //     <div class="row">
+        //     <div id="male_container" class="athlete_container"></div>
+        //     <div id="female_container" class="athlete_container"></div>
+        // </div>
 
         this.athletePage = (`
             <div id="athletePage" class="div_page">
@@ -162,7 +162,7 @@ class Team extends Page {
                 $("#teamPage #landingPage .left_text").html(teamName);
                 $("#teamPage #landingPage .subheading_text").remove();
                 $("#teamPage #landingPage .missing_info_text").remove();
-                
+
                 // ButtonGenerator.generateButtonsFromDatabase("#teamPage #landingPage #male_container", males, (athlete) => {
                 //     this.startAthletePage(athlete);
                 // }, ["gender", "id_athlete_event_register", "id_backend", "rowid"], conditionalAttributes);
@@ -283,6 +283,7 @@ class Team extends Page {
         let length;
         let data = [];
 
+        // generate the table and graph data for athlete
         dbConnection.selectValues(query, [event.rowid, athlete.id_backend]).then((results) => {
 
             length = results.length | 0;
@@ -379,13 +380,13 @@ class Team extends Page {
 
         for (let i = 0; i < results.length; i++) {
             // TODO: add date to event results
-            
+
             // Parse date (first is local save, second handles server format)
             let date = new Date(results.item(i).last_updated).toLocaleDateString("en-US");
-            if(date.includes("Invalid")) {
+            if (date.includes("Invalid")) {
                 date = this.getRecordDate(results.item(i).last_updated);
             }
-            
+
             let row = (`
                 <tr id_record=${results.item(i).id_record}>
                     <td>${i + 1}</td>
@@ -453,12 +454,12 @@ class Team extends Page {
 
         // change all of the styling for the table
         $("#teamPage td, #teamPage input").each(function () {
-            
+
             let val = $(this).text();
-            if((val == null) || (val.length == 0)) { // Inputs use .val()
+            if ((val == null) || (val.length == 0)) { // Inputs use .val()
                 val = $(this).val();
             }
-            
+
             // strings
             if (!isNaN(Number(val))) {
 
@@ -491,48 +492,68 @@ class Team extends Page {
 
             // delete values in rowsToDelete
             for (let i = 0; i < this.rowsToDelete.length; i++) {
-                dbConnection.deleteValues("record", "WHERE rowid = ?", [this.rowsToDelete[i]])
+                // dbConnection.deleteValues("record", "WHERE record.id_record = ?", [this.rowsToDelete[i]]);
+                dbConnection.runQuery("DELETE FROM record WHERE id_record = ?", [Number(this.rowsToDelete[i])]);
+
+                RecordBackend.deleteRecord(this.rowsToDelete[i], function (response) {
+                    console.log("deleted " + JSON.stringify(response));
+                });
             }
 
             // save changed values
             let newData = this.tableToObject();
-            console.log(newData);
-            
+
             for (let i = 0; i < newData.length; i++) {
 
                 if (newData[i].isAdded) { // true if user clicked "Add Value"
+                    // Save the record first so the frontend will have a matching id to the backend
 
-                    let recordData = {
-                        "id_athlete": Number(newData[i].id_backend),
-                        "id_record_definition": Number(newData[i].id_record_definition),
-                        "value": Number(newData[i].value),
-                        "is_split": false,
-                        "id_split": null,
-                        "id_split_index": null,
-                        "last_updated": Date.now()
-                    }
-
-                    // save locally and to backend
-                    dbConnection.insertValuesFromObject("record", recordData);
-
-                    // TODO: seth save the record to the server
-                    // right now it just saves it for the current logged in user (Matt Loucks)
-                    RecordBackend.saveRecord((response) => {
+                    RecordBackend.saveRecord(Number(newData[i].value), Number(newData[i].id_record_definition), Number(newData[i].id_backend), (response) => {
                         if (DO_LOG) {
                             console.log("RECORD SAVED " + JSON.stringify(response));
                         }
-                    }, Number(newData[i].value), Number(newData[i].id_record_definition));
+                        if (response.status > 0) { // If success, insert into local database
+                            // Define default fallback values, then use actual values in loop below
+                            let recordData = {
+                                "id_record": Number(response["addedRecords"][0]["id_record"]),
+                                "value": Number(newData[i].value),
+                                "id_record_definition": Number(newData[i].id_record_definition),
+                                "is_practice": true,
+                                "is_split": false,
+                                "id_split": null,
+                                "id_split_index": null,
+                                "last_updated": Date.now()
+                            };
+                            let linkData = {
+                                "id_backend": Number(newData[i].id_backend),
+                                "id_record": Number(response["addedRecords"][0]["id_record"])
+                            };
+
+                            console.log("INSERT " + JSON.stringify(linkData));
+
+                            dbConnection.insertValuesFromObject("record", recordData);
+                            dbConnection.insertValuesFromObject("record_user_link", linkData);
+
+                            dbConnection.printTable("record");
+                            dbConnection.printTable("record_user_link");
+                        } else {
+                            if (DO_LOG) {
+                                console.log("[stopwatch.js:saveTime()]: Unable to save time to backend");
+                            }
+                        }
+                    });
 
                     // check to see if it contains non-numbers
                 } else if ((/^[0-9.]+$/).test(newData[i].value)) {
                     dbConnection.updateValues("record", ["value"], [newData[i].value], `WHERE id_record = ?`, [newData[i].id_record]);
-                    RecordBackend.modifyRecord(newData[i].id_record, {"value": newData[i].value}, (r) => {
-                        if((r.status < 0) && (DO_LOG)) {
+                    RecordBackend.modifyRecord(newData[i].id_record, {
+                        "value": newData[i].value
+                    }, (r) => {
+                        if ((r.status < 0) && (DO_LOG)) {
                             console.log("[team.js:toggleTableEditable()]: Updating backend failed for ID " + newData[i].id_record);
                         }
                     });
-                    
-                    // TODO: seth update the record on the server
+
                 }
             }
 
@@ -579,11 +600,12 @@ class Team extends Page {
                 x: $tr.eq(3).text(),
                 isAdded: $tr.parent().attr("isAdded"),
                 id_record: Number($tr.parent().attr("id_record")),
+                id_backend: $tr.parent().attr("id_backend"),
                 id_record_definition: Number($tr.parent().attr("id_record_definition"))
             };
         }).get();
     }
-    
+
     /**
      * Formats a record's lastUpdated date/time to a format
      * usable for javascript Date().
@@ -595,8 +617,8 @@ class Team extends Page {
      * US Date String formatted correctly
      */
     getRecordDate(rawDateTime) {
-        
-        let year = rawDateTime.substr(0, 4); 
+
+        let year = rawDateTime.substr(0, 4);
         let month = rawDateTime.substr(5, 2) - 1; // Months are indexed weird in PHP
         let day = rawDateTime.substr(8, 2);
         let hour = rawDateTime.substr(11, 2);
@@ -604,7 +626,7 @@ class Team extends Page {
         let second = rawDateTime.substr(17, 2);
         return new Date(year, month, day, hour, minute, second).toLocaleDateString("en-US");
     }
-    
+
     /**
      * @description check if the current user has a team at all, either on account or local
      * @returns true or false
