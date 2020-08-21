@@ -6,7 +6,7 @@ body {
     padding: 0;
     margin: 0;
     width: 100%;
-    height: 92vh;
+    height: 100vh;
     overflow-x: hidden;
 }
 
@@ -58,6 +58,7 @@ input {
 
 .div_page > .div_page {
     overflow: auto;
+    overflow-x: hidden; /* Prevents side scrolling */
 }
 .div_page > .div_page > *:last-child {
     margin-bottom: 20% !important; /* Adds padding to allow scrolling to bottom of page */
