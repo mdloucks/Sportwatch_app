@@ -270,7 +270,7 @@ class DatabaseConnection {
             let query = `DELETE FROM ${table} ${whereString}`;
 
             if (DO_LOG) {
-                console.log(query);
+                console.log(query +  " " + JSON.stringify(values));
             }
 
             tx.executeSql(query, values, function (tx, rs) {});
