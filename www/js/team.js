@@ -452,24 +452,31 @@ class Team extends Page {
         let _this = this;
 
         // change all of the styling for the table
-        $("#teamPage td").each(function () {
-
+        $("#teamPage td, #teamPage input").each(function () {
+            
+            let val = $(this).text();
+            if((val == null) || (val.length == 0)) { // Inputs use .val()
+                val = $(this).val();
+            }
+            
             // strings
-            if (!isNaN(Number($(this).text()))) {
+            if (!isNaN(Number(val))) {
 
                 // change to not editing
                 if (_this.isEditing) {
-                    $($(this)).attr('contenteditable', false);
+                    // $($(this)).attr('contenteditable', false);
+                    $(this).replaceWith(`<td>${val}</td>`);
                     $("#teamPage #edit_values_button").html("Edit");
                     $("#teamPage #edit_values_button").addClass("edit_values_button").removeClass("save_values_button");
                     // change to editing
                 } else {
-                    $($(this)).attr('contenteditable', true);
+                    // $($(this)).attr('contenteditable', true);
+                    $(this).replaceWith(`<input value="${val}">`);
                     $("#teamPage #edit_values_button").html("Save")
                     $("#teamPage #edit_values_button").addClass("save_values_button").removeClass("edit_values_button");
                 }
 
-            } else if (isNaN(Number($(this).text()))) {
+            } else if (isNaN(Number(val))) {
                 // prohibit editing name values
             }
         });
@@ -489,10 +496,11 @@ class Team extends Page {
 
             // save changed values
             let newData = this.tableToObject();
-
+            console.log(newData);
+            
             for (let i = 0; i < newData.length; i++) {
 
-                if (newData[i].isAdded) {
+                if (newData[i].isAdded) { // true if user clicked "Add Value"
 
                     let recordData = {
                         "id_athlete": Number(newData[i].id_backend),
@@ -517,8 +525,13 @@ class Team extends Page {
 
                     // check to see if it contains non-numbers
                 } else if ((/^[0-9.]+$/).test(newData[i].value)) {
-                    dbConnection.updateValues("record", ["value"], [newData[i].value], `WHERE rowid = ?`, [newData[i].id_backend]);
-
+                    dbConnection.updateValues("record", ["value"], [newData[i].value], `WHERE id_record = ?`, [newData[i].id_record]);
+                    RecordBackend.modifyRecord(newData[i].id_record, {"value": newData[i].value}, (r) => {
+                        if((r.status < 0) && (DO_LOG)) {
+                            console.log("[team.js:toggleTableEditable()]: Updating backend failed for ID " + newData[i].id_record);
+                        }
+                    });
+                    
                     // TODO: seth update the record on the server
                 }
             }
@@ -558,18 +571,16 @@ class Team extends Page {
      */
     tableToObject() {
         return $(`#athlete_stats_container tr:has(td)`).map(function (i, v) {
-            var $td = $('td', this);
+            var $tr = $(v).children(); // v stands for value
             return {
-                result: $td.eq(0).text(),
-                date: $td.eq(1).text(),
-                value: $td.eq(2).text(),
-                x: $td.eq(3).text(),
-                rowid: $td.parent().attr("id_record"),
-                isAdded: $td.parent().attr("isAdded"),
-                id_backend: $td.parent().attr("id_backend"),
-                id_record_definition: $td.parent().attr("id_record_definition"),
-                
-            }
+                result: $tr.eq(0).text(),
+                date: $tr.eq(1).text(),
+                value: Number($tr.eq(2).text()),
+                x: $tr.eq(3).text(),
+                isAdded: $tr.parent().attr("isAdded"),
+                id_record: Number($tr.parent().attr("id_record")),
+                id_record_definition: Number($tr.parent().attr("id_record_definition"))
+            };
         }).get();
     }
     

@@ -91,6 +91,15 @@
     width: 21%;
 }
 
+#teamPage .delete_column_red input {
+    width: 70%;
+    margin: 0;
+    padding: 0;
+    font-family: 'Courier New', Courier, monospace;
+    text-align: center;
+    border: none;
+}
+
 #teamPage canvas {
     margin-top: 3em;
 
