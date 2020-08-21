@@ -535,6 +535,7 @@ class Team extends Page {
                         if (response.status > 0) { // If success, insert into local database
                             // Define default fallback values, then use actual values in loop below
                             let recordData = {
+                                "id_record": Number(response["addedRecords"][0]["id_record"]),
                                 "value": Number(newData[i].value),
                                 "id_record_definition": Number(newData[i].id_record_definition),
                                 "is_practice": true,
@@ -552,6 +553,9 @@ class Team extends Page {
 
                             dbConnection.insertValuesFromObject("record", recordData);
                             dbConnection.insertValuesFromObject("record_user_link", linkData);
+
+                            dbConnection.printTable("record");
+                            dbConnection.printTable("record_user_link");
                         } else {
                             if (DO_LOG) {
                                 console.log("[stopwatch.js:saveTime()]: Unable to save time to backend");
