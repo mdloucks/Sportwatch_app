@@ -234,7 +234,10 @@ class Team extends Page {
         $("#teamPage").animate({
             scrollTop: 0
         }, 1000);
-
+        // Add top padding to avoid header overlap (iOS issue)
+        let headerWidth = $("#teamPage #athletePage > .generic_header").height();
+        $("#teamPage #athletePage > *:not(.generic_header)").first().css("margin-top", `calc(${headerWidth}px + 5vh)`);
+        
         // Slide back; athlete page will be overwritten next select
         $("#back_button_athlete").bind("click", (e) => {
             this.pageTransition.slideRight("landingPage");
@@ -257,6 +260,7 @@ class Team extends Page {
         $("#teamPage").animate({
             scrollTop: 0
         }, 1000);
+        // Padding added in createTable function
 
         this.tableData = [];
 
@@ -397,6 +401,10 @@ class Team extends Page {
 
             $("#teamPage #athleteStatPage #athlete_stats_container").append(row);
         }
+        
+        // Add the padding now that the table has been created
+        let headerWidth = $("#teamPage #athleteStatPage > .generic_header").height();
+        $("#teamPage #athleteStatPage #athlete_stat_chart").first().css("margin-top", `calc(${headerWidth}px + 5vh)`);
     }
 
     /**

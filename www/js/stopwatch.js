@@ -712,7 +712,9 @@ class Stopwatch extends Page {
      */
     startSelectAthletePage() {
         this.pageTransition.slideLeft("selectAthletePage");
-
+        let headerWidth = $("#stopwatchPage #selectAthletePage > .generic_header").height();
+        $("#stopwatchPage #selectAthletePage > *:not(.generic_header)").first().css("margin-top", `calc(${headerWidth}px + 5vh)`);
+        
         $("#stopwatchPage #selectAthletePage .button_box").empty();
         $("#stopwatchPage #selectAthletePage .subheading_text").empty();
 
@@ -752,6 +754,8 @@ class Stopwatch extends Page {
         $("#stopwatchPage").animate({
             scrollTop: 0
         }, 1000);
+        let headerWidth = $("#stopwatchPage #selectEventPage > .generic_header").height();
+        $("#stopwatchPage #selectEventPage > *:not(.generic_header)").first().css("margin-top", `calc(${headerWidth}px + 5vh)`);
 
         $("#stopwatchPage #selectEventPage #saved_events_box").empty();
         $("#stopwatchPage #selectEventPage #new_events_box").empty();

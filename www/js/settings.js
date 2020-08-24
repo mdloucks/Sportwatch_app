@@ -306,6 +306,8 @@ class Settings extends Page {
         $("#settingsPage #editPage").animate({
             scrollTop: 0
         }, 1000);
+        let headerWidth = $("#settingsPage #editPage > .generic_header").height();
+        $("#settingsPage #editPage > *:not(.generic_header)").first().css("margin-top", `calc(${headerWidth}px + 10vh)`);
     }
 
     startTeamPreferences() {
@@ -598,7 +600,8 @@ class Settings extends Page {
         $("#settingsPage #editPage").animate({
             scrollTop: 0
         }, 1000);
-        
+        let headerWidth = $("#settingsPage #editPage > .generic_header").height();
+        $("#settingsPage #editPage > *:not(.generic_header)").first().css("margin-top", `calc(${headerWidth}px + 10vh)`);
         
         // ---- BACKEND PULL ---- //
         
@@ -646,6 +649,8 @@ class Settings extends Page {
         }]);
 
         this.pageTransition.slideLeft("editPage");
+        let headerWidth = $("#settingsPage #editPage > .generic_header").height();
+        $("#settingsPage #editPage > *:not(.generic_header)").first().css("margin-top", `calc(${headerWidth}px + 10vh)`);
     }
 
     startSignOut() {
@@ -671,22 +676,6 @@ class Settings extends Page {
             $("#settingsPage .cat_button").removeClass("cat_button_selected");
         }]);
 
-    }
-
-    /**
-     * check for a series of localstorage variables to determine if the user has a team.
-     */
-    doesTeamExist() {
-        let storage = window.localStorage;
-        let doesExist = true;
-        let indicators = ["teamName", "inviteCode", "id_team"];
-
-        indicators.map(function(value) {
-            if((storage.getItem(value) == null) || ((storage.getItem(value) == undefined))) {
-                doesExist = false;
-            }
-        })
-        return doesExist;
     }
 
     startDeleteAccount() {
@@ -716,9 +705,27 @@ class Settings extends Page {
         }]);
 
         this.pageTransition.slideLeft("editPage");
+        let headerWidth = $("#settingsPage #editPage > .generic_header").height();
+        $("#settingsPage #editPage > *:not(.generic_header)").first().css("margin-top", `calc(${headerWidth}px + 10vh)`);
     }
     
-    // MISC FUNCTIONS
+    // MISC FUNCTIONS //
+    
+    /**
+     * check for a series of localstorage variables to determine if the user has a team.
+     */
+    doesTeamExist() {
+        let storage = window.localStorage;
+        let doesExist = true;
+        let indicators = ["teamName", "inviteCode", "id_team"];
+
+        indicators.map(function(value) {
+            if((storage.getItem(value) == null) || ((storage.getItem(value) == undefined))) {
+                doesExist = false;
+            }
+        })
+        return doesExist;
+    }
     
     /**
      * Toggles the team lock both on the backend and will update
