@@ -186,6 +186,7 @@ class Stats extends Page {
         });
 
         $("#statsPage #eventPage #save_csv").bind("click", (e) => {
+            $("#statsPage #eventPage #save_csv").prop("disabled", true);
 
             let query = (`
                 select * from record
@@ -214,13 +215,17 @@ class Stats extends Page {
                             console.log("On success");
                             console.log(result);
                         }
+                        $("#statsPage #eventPage #save_csv").prop("disabled", false);
                     }, (msg) => {
                         if(DO_LOG) {
                             console.log("On fail");
                             console.log(msg);
                         }
+                        $("#statsPage #eventPage #save_csv").prop("disabled", false);
                     });
-                } // End of iOS share logic
+                } else { // End of iOS share logic
+                    $("#statsPage #eventPage #save_csv").prop("disabled", false);
+                }
                 
             });
         });

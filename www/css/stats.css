@@ -40,6 +40,10 @@
     border: 1px solid gray;
 }
 
-/* #statsPage #save_csv {
-    
-} */
+#statsPage #save_csv {
+    background-color: rgb(64, 202, 0);
+    transition: background-color 0.5s;
+}
+#statsPage #save_csv:disabled {
+    background-color: lightgray;
+}

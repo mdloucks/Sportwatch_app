@@ -124,6 +124,14 @@
     background-color: crimson;
 }
 
+#settingsPage #changeTeamButton {
+    background-color: rgb(64, 202, 0);
+    transition: background-color 0.5s;
+}
+#settingsPage #changeTeamButton:disabled {
+    background-color: lightgray;
+}
+
 #settingsPage #button_sendInvite {
     padding: 10px;
     font-size: 1.5em;
