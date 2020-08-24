@@ -96,9 +96,15 @@ class Team extends Page {
 
         let storage = window.localStorage;
 
-        $(`${this.landingPageSelector} #team_name`).html(storage.getItem("teamName"));
+        let teamName = storage.getItem("teamName");
+
+        if(teamName == null) {
+            teamName = "My Team";
+        }
+
+        $(`${this.landingPageSelector} #team_name`).html(teamName);
         // $(`${this.landingPageSelector} #team_name`).slideUp(1000);
-        $(`${this.landingPageSelector} #team_name`).fadeIn(1000);
+        // $(`${this.landingPageSelector} #team_name`).fadeIn(1000);
 
 
 
@@ -537,13 +543,9 @@ class Team extends Page {
                                 "id_record": Number(response["addedRecords"][0]["id_record"])
                             };
 
-                            console.log("INSERT " + JSON.stringify(linkData));
-
                             dbConnection.insertValuesFromObject("record", recordData);
                             dbConnection.insertValuesFromObject("record_user_link", linkData);
 
-                            dbConnection.printTable("record");
-                            dbConnection.printTable("record_user_link");
                         } else {
                             if (DO_LOG) {
                                 console.log("[stopwatch.js:saveTime()]: Unable to save time to backend");
@@ -655,6 +657,6 @@ class Team extends Page {
         // Animations.hideChildElements(this.athleteButtonsBoxSelectorFemales);
         Animations.hideChildElements(this.athleteBoxSelector);
 
-        $(`${this.landingPageSelector} #team_name`).hide();
+        // $(`${this.landingPageSelector} #team_name`).hide();
     }
 }
