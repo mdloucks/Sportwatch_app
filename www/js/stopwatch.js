@@ -94,7 +94,7 @@ class Stopwatch extends Page {
                 <img src="${this.upArrowPath}" alt="" id="slideup_arrow" class="slideup_arrow_up"></img>
                 <div id="slideup" class="slideup_contracted"></div>
 
-                <div id="slideup_container">
+                <div id="slideup_container" style="height: 7%;">
                 </div>
             </div>
         `);
@@ -374,7 +374,7 @@ class Stopwatch extends Page {
         let _this = this;
 
         $("#stopwatchPage #landingPage #slideup_container").animate({
-            height: "0%"
+            height: "7%" // Makes it the width of the navbar so slideup_arrow and container move at the same rate
         }, {
             duration: this.chooseEventTransitionDuration,
             queue: false,
