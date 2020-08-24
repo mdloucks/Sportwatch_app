@@ -124,6 +124,14 @@
         <icon src="res/icon/ios/icon-50@2x.png" width="100" height="100" />
         <!-- iPad Pro -->
         <icon src="res/icon/ios/icon-167.png" width="167" height="167" />
+	<!-- Other -->
+	<icon src="res/icon/ios/icon-20.png" width="20" height="20" />
+	<icon src="res/icon/ios/icon-24@2x.png" width="48" height="48" />
+	<icon src="res/icon/ios/icon-27.5@2x.png" width="55" height="55" />
+	<icon src="res/icon/ios/icon-44@2x.png" width="88" height="88" />
+	<icon src="res/icon/ios/icon-86@2x.png" width="172" height="172" />
+	<icon src="res/icon/ios/icon-98@2x.png" width="196" height="196" />
+	<icon src="res/icon/ios/icon-1024.png" width="1024" height="1024" />
 	
         <!-- Splash screens -->
         <!-- Prepare manually when changing icons, otherwise Xcode build fails -->
