@@ -32,6 +32,9 @@ Constant.fadeIncrement = 100;
 
 Constant.eventColorConditionalAttributes = {
     "record_identity": {
+        "60m": {
+            class: "generated_button sprint_event"
+        },
         "75m": {
             class: "generated_button sprint_event"
         },
@@ -47,10 +50,50 @@ Constant.eventColorConditionalAttributes = {
         "800m": {
             class: "generated_button mid_event"
         },
+        "4x800m relay": {
+            class: "generated_button mid_event"
+        },
         "1500m": {
             class: "generated_button long_event"
         },
+        "1600m": {
+            class: "generated_button long_event"
+        },
+        "3k": {
+            class: "generated_button long_event"
+        },
+        "4k": {
+            class: "generated_button long_event"
+        },
+        "5k": {
+            class: "generated_button long_event"
+        },
+        "6k": {
+            class: "generated_button long_event"
+        },
+        "8k": {
+            class: "generated_button long_event"
+        },
+        "10k": {
+            class: "generated_button long_event"
+        },
+        "20k": {
+            class: "generated_button ultra_long_event"
+        },
+        "half marathon": {
+            class: "generated_button ultra_long_event"
+        },
+        "marathon": {
+            class: "generated_button ultra_long_event"
+        },
+
         "100m hurdle": {
+            class: "generated_button hurdle_event"
+        },
+        "60m hurdle": {
+            class: "generated_button hurdle_event"
+        },
+        "300m hurdle": {
             class: "generated_button hurdle_event"
         },
         "110m hurdle": {

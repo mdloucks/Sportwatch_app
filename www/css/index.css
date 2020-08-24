@@ -254,7 +254,11 @@ https://css-tricks.com/places-its-tempting-to-use-display-none-but-dont/ */
 }
 
 .long_event {
-    background-color: #7d7d7b;
+    background-color: #68bebc;
+}
+
+.ultra_long_event {
+    background-color: #beb868;
 }
 
 .power_field_event {
