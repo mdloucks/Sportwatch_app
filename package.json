@@ -25,11 +25,21 @@
             "cordova-plugin-whitelist": {},
             "cordova-sqlite-storage": {},
             "cordova-plugin-file": {},
-            "cordova-plugin-wkwebview-engine": {}
+            "cordova-plugin-wkwebview-engine": {},
+            "cordova-plugin-x-socialsharing": {
+                "PHOTO_LIBRARY_ADD_USAGE_DESCRIPTION": "This app requires photo library access to function properly.",
+                "PHOTO_LIBRARY_USAGE_DESCRIPTION": "This app requires photo library access to function properly."
+            },
+            "cordova-plugin-device": {}
         },
         "platforms": [
             "browser",
             "android"
         ]
+    },
+    "devDependencies": {
+        "cordova-plugin-device": "^2.0.3",
+        "cordova-plugin-x-socialsharing": "^6.0.1",
+        "es6-promise-plugin": "^4.2.2"
     }
 }

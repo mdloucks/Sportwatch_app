@@ -13,7 +13,8 @@ class Stats extends Page {
 
         this.eventButtonsBoxSelector = "#statsPage #landingPage .button_box";
         this.headerText = `Events`;
-
+        this.csvLocation = ""; // For iOS sharing reference
+        
         this.athleteRecordQuery = (`
             select * from record
             INNER JOIN record_user_link
@@ -200,7 +201,27 @@ class Stats extends Page {
             dbConnection.selectValues(query, [event.rowid]).then((results) => {
                 
                 let athletes = this.constructAthleteTimeArray(results, "");
-                this.saveCSV("data.csv", athletes);
+                this.saveCSV("data.csv", athletes, false);
+                
+                // If it's iOS, share the saved file with native "share" dialog
+                if(device.platform == "iOS") {
+                    let shareOptions = {
+                        files: [this.csvLocation]
+                    };
+                    
+                    window.plugins.socialsharing.shareWithOptions(shareOptions, (result) => {
+                        if(DO_LOG) {
+                            console.log("On success");
+                            console.log(result);
+                        }
+                    }, (msg) => {
+                        if(DO_LOG) {
+                            console.log("On fail");
+                            console.log(msg);
+                        }
+                    });
+                } // End of iOS share logic
+                
             });
         });
 
@@ -219,11 +240,14 @@ class Stats extends Page {
 
     createFile(fileName, callback) {
         window.requestFileSystem(window.PERSISTENT, 5 * 1024 * 1024, (fs) => {
-
-            console.log('file system open: ' + fs.name);
+            
+            if(DO_LOG) {
+                console.log('file system open: ' + fs.name);
+            }
 
             // Creates a new file or returns the file if it already exists.
-            fs.root.getFile(fileName, {create: true, exclusive: false}, function(fileEntry) {
+            fs.root.getFile(fileName, {create: true, exclusive: false}, (fileEntry) => {
+                this.csvLocation = fileEntry.nativeURL;
                 callback(fileEntry);
             }, this.onErrorCreateFile);
         
@@ -231,13 +255,14 @@ class Stats extends Page {
     }
 
     // reference this https://github.com/apache/cordova-plugin-file
-    saveCSV(fileName, dataObj) {
-        this.createFile(fileName, function(fileEntry) {
-
+    saveCSV(fileName, dataObj, showPopup = true) {
+        this.createFile(fileName, (fileEntry) => {
+            
             // Create a FileWriter object for our FileEntry (log.txt).
-            fileEntry.createWriter(function (fileWriter) {
+            fileEntry.createWriter((fileWriter) => {
                 
                 fileWriter.onwriteend = function() {
+                    if(!showPopup) return; // Don't show for iOS
                     Popup.createConfirmationPopup(`Successfully downloaded CSV file. Find it in your Documents folder.`, ["Ok"], [function() {
                     }]);
                 };
@@ -246,8 +271,10 @@ class Stats extends Page {
                     Popup.createConfirmationPopup(`Unable to download CSV file. Sorry for the inconvenience`, ["Ok"], [function() {
                     }]);
                 };
-    
-                console.log("saving csv...");
+                
+                if(DO_LOG) {
+                    console.log("saving csv...");
+                }
     
                 let csv = "";
                 // append headers
@@ -267,8 +294,10 @@ class Stats extends Page {
                         }
                     }
                 }
-
-                console.log(csv);
+                
+                if(DO_LOG) {
+                    console.log(csv);
+                }
     
     
                 let csvBlob = new Blob([csv], { type: 'text/plain' });
