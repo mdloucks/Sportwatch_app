@@ -113,7 +113,6 @@ class Settings extends Page {
 
     stop() {
         // For now, don't unbind because adding the click events back is difficult
-        // TODO: Change structure so it can properly unbind
         $("#settingsPage .cat_button").removeClass("cat_button_selected");
         $("#settingsPage").unbind().off();
         $("#settingsPage *").unbind().off();
@@ -558,33 +557,8 @@ class Settings extends Page {
         let values = {}; // Used for the various database functions below
         
         // KICK ATHLETE
-        // this function will be called when a athlete is selected for deletion
-        let deleteAthlete = (rowid, id_backend) => {
-
-            Popup.createConfirmationPopup("Are you sure you want to delete this athlete?", ["Yes", "No"], [() => {
-                dbConnection.deleteValues("athlete", "WHERE rowid = ?", [rowid]);
-
-                // TODO: seth please delete athlete
-                console.log("delete " + id_backend);
-
-            }, () => {
-                // no action
-            }]);
-        }
-
-        // generate select form to select an athlete, and pass its rowid to deleteAthlete
-        dbConnection.selectValues("SELECT *, rowid FROM athlete").then((athletes) => {
-
-            for (let i = 0; i < athletes.length; i++) {
-                values[`${athletes.item(i).fname} ${athletes.item(i).lname}`] = athletes.item(i).rowid;
-            }
-
-            ButtonGenerator.generateSelectForm(`${this.inputDivIdentifier}`, "Remove athlete from team", "Remove Selected Athlete", values, function (form) {
-                dbConnection.selectValues("SELECT id_backend FROM athlete WHERE rowid = ?", [$(form).val()]).then((athlete) => {
-                    deleteAthlete($(form).val(), athlete.item(0).id_backend);
-                });
-            });
-        });
+        // Generate a list of athletes that can be kicked
+        this.generateKickableAthletes(this.inputDivIdentifier);
         
         // LOCK TEAM
         ButtonGenerator.generateToggle(`${this.inputDivIdentifier}`, "Lock Team", function () {
@@ -742,6 +716,79 @@ class Settings extends Page {
                 $('#settingsPage #editPage #lockTeamToggle').find('input').prop("checked", !isChecked);
             }
         });
+    }
+    
+    /**
+     * Populates a list of kickable athletes and appends a "Remove athlete" button.
+     * All of this is created inside a form HTML element and will
+     * be appended o the end of the given element (in the first parameter)
+     * 
+     * @example generateKickableAthletes("#editPage")
+     * 
+     * @param {String} appendToElement jQuery selector that identifies where the form will be appended
+     */
+    generateKickableAthletes(appendToElement) {
+        // generate select form to select an athlete, and pass its rowid to deleteAthlete
+        dbConnection.selectValues("SELECT *, rowid FROM athlete").then((athletes) => {
+            
+            let values = { };
+            for (let i = 0; i < athletes.length; i++) {
+                values[`${athletes.item(i).fname} ${athletes.item(i).lname}`] = athletes.item(i).rowid;
+            }
+
+            ButtonGenerator.generateSelectForm(appendToElement, "Remove athlete from team", "Remove Selected Athlete", values, (form) => {
+                dbConnection.selectValues("SELECT id_backend FROM athlete WHERE rowid = ?", [$(form).val()]).then((athlete) => {
+                    this.kickAthleteWithFeedback($(form).val(), athlete.item(0).id_backend);
+                });
+            });
+        });
+    }
+    
+    /**
+     * Kicks the athlete identified by the given local and backend database IDs.
+     * It will also display popup messages that provide feedback to the user
+     * in the event of any errors
+     * 
+     * @param {Integer} rowid local database id of the athlete
+     * @param {Integer} id_backend backend database id of the athlete
+     */
+    kickAthleteWithFeedback(rowid, id_backend) {
+        
+        Popup.createConfirmationPopup("Are you sure you want to delete this athlete?", ["Yes", "No"], [() => {
+            
+            // Since we aren't storing the user's email on the frontend, grab it
+            //  then kick the athlete via email
+            AccountBackend.getAccount((kickedInfo) => {
+                if(kickedInfo.status > 0) {
+                    TeamBackend.kickAthlete(kickedInfo.email, (result) => {
+                        if(result.status > 0) {
+                            dbConnection.deleteValues("athlete", "WHERE rowid = ?", [rowid]);
+                            $(this.inputDivIdentifier).find("form").remove();
+                            this.generateKickableAthletes(this.inputDivIdentifier);
+                            
+                            Popup.createConfirmationPopup(kickedInfo.fname + " " + kickedInfo.lname + " has been kicked from the team",
+                                                            ["OK"]);
+                        } else {
+                            if(result.substatus == 3) {
+                                if(result.msg.includes("not in team")) {
+                                    Popup.createConfirmationPopup("That user is no longer in the team", ["OK"]);
+                                } else if(result.msg.includes("primary")) {
+                                    Popup.createConfirmationPopup("The primary coach cannot be kicked", ["OK"]);
+                                } else {
+                                    Popup.createConfirmationPopup("Only coaches can kick an athlete", ["OK"]);
+                                }
+                            } else {
+                                Popup.createConfirmationPopup("Sorry, an error occured. Please try again later"), ["OK"];
+                            }
+                        } // End of error processing
+                    });
+                } else {
+                    Popup.createConfirmationPopup("Sorry, we were unable to kick that athlete. Please try again later"), ["OK"];
+                }
+            }, id_backend);
+        }, () => {
+            // no action
+        }]);
     }
     
     /**

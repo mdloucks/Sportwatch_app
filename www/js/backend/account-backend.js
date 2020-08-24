@@ -16,18 +16,23 @@ class AccountBackend {
      * @param {Function} callback function to handle the callback info
      * @param {String} email [defaults to localStorage value] email of the user to get info for
      */
-    static getAccount(callback, email = "") {
+    static getAccount(callback, emailOrId = "") {
         
         let storage = window.localStorage;
-        let userEmail = email;
-        if(userEmail.length == 0) {
-            userEmail = storage.getItem("email");
+        let identityKey = "email"; // "email" if emailOrId is a string, "id_user" if it's a number
+        
+        if(typeof emailOrId == "number") {
+            identityKey = "id_user";
+        } else { // Assume it was an email
+            if(emailOrId.length == 0) {
+                emailOrId = storage.getItem("email");
+            }
         }
         
         // Prepare the array
         let postArray = {};
         postArray.SID = storage.getItem("SID");
-        postArray.accountIdentity = { "email": userEmail };
+        postArray.accountIdentity = { [identityKey]: emailOrId };
         
         // Submit the request and call the callback
         return $.ajax({

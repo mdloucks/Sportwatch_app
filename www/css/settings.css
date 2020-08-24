@@ -144,6 +144,13 @@
     background-color: gray;
 }
 
+#settingsPage form > .generated_button { /* Remove athlete button */
+    background-color: crimson;
+}
+#settingsPage form > .generated_button:disabled {
+    background-color: lightgray;
+}
+
 /* .act_drop_wrapper {
     margin: 20px;
     margin-left: 7%;
