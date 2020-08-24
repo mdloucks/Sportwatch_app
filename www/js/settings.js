@@ -553,9 +553,6 @@ class Settings extends Page {
             console.log("sent invite to " + invitedEmail);
         });
         
-        
-        let values = {}; // Used for the various database functions below
-        
         // KICK ATHLETE
         // Generate a list of athletes that can be kicked
         this.generateKickableAthletes(this.inputDivIdentifier);

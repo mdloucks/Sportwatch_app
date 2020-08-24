@@ -111,7 +111,8 @@ class Login extends Page {
         
         this.getPageElement("form").on("submit", function (e) {
             e.preventDefault();
-
+            document.activeElement.blur();
+            
             if (this.getPageElement("#login_button").hasClass("invalid")) {
                 return; // Exit the handler, not valid
             }

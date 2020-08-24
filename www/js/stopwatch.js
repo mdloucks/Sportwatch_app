@@ -165,7 +165,8 @@ class Stopwatch extends Page {
             this.pageTransition.addPage("selectAthletePage", this.selectAthletePage);
             this.pageTransition.addPage("selectEventPage", this.selectEventPage);
         }
-
+        $("html").scrollTop(0); // Fixes bug on iOS that shows scrollbar after login
+        
         this.setupStopwatch();
         this.setupSlideup();
     }
