@@ -88,7 +88,7 @@ class Stopwatch extends Page {
                 <div class="table_container">
                     <a id="stopwatch_reset" class="stopwatch_button">Reset</a>
                     <img src="${this.playButtonPath}" alt="" id="stopwatch_start_stop" class="play_button noSelect"></img>
-                    <a id="stopwatch_lap" class="stopwatch_button">Lap</a>
+                    <a id="stopwatch_lap" class="stopwatch_button">Save</a>
                 </div>
 
                 <img src="${this.upArrowPath}" alt="" id="slideup_arrow" class="slideup_arrow_up"></img>
@@ -128,7 +128,7 @@ class Stopwatch extends Page {
 
             </div>
 
-            <div class="subheading_text">Save To New Event</div>
+            <div class="subheading_text">Save To New Event</div><hr>
 
             <div id="new_events_box" class="button_box">
             
@@ -172,7 +172,6 @@ class Stopwatch extends Page {
 
     stop() {
         // TODO: stop is called multiple times on startup, stop that, also lower slideup on switch
-        this.stopStopwatch();
     }
 
     /**
@@ -184,8 +183,6 @@ class Stopwatch extends Page {
             this.c = $("#stopwatch_canvas")[0];
             this.ctx = this.c.getContext("2d");
         }
-
-        this.resetStopwatch();
 
         // Switched the variable because if the user changes pages
         // before starting the stopwatch, the events are bound twice
@@ -240,13 +237,15 @@ class Stopwatch extends Page {
             $("#stopwatch_lap").click((e) => {
                 e.preventDefault();
 
-                if ($("#stopwatch_lap").html() == "Lap") {
-                    this.saveLapTime();
-                } else if ($("#stopwatch_lap").html() == "Save") {
-                    this.startSelectAthletePage();
-                } else {
-                    throw new Error(`innerHTML: ${$("#stopwatch_lap").html()} is invalid for #stopwatch_lap`);
-                }
+                this.startSelectAthletePage();
+
+                // if ($("#stopwatch_lap").html() == "Lap") {
+                //     this.saveLapTime();
+                // } else if ($("#stopwatch_lap").html() == "Save") {
+                //     this.startSelectAthletePage();
+                // } else {
+                //     throw new Error(`innerHTML: ${$("#stopwatch_lap").html()} is invalid for #stopwatch_lap`);
+                // }
             });
 
             let dt;
@@ -398,7 +397,16 @@ class Stopwatch extends Page {
 
     startSlideupForEvents() {
 
-        let unsavedEventsQuery = (`
+        let savedEventsQuery = (`
+            SELECT DISTINCT record_definition.record_identity, record_definition.rowid from record_definition
+            INNER JOIN record
+            ON record_definition.rowid = record.id_record_definition
+            INNER JOIN record_user_link
+            ON record_user_link.id_record = record.id_record
+            WHERE record_definition.unit = ?
+        `);
+
+        let remainingEventsQuery = (`
             SELECT DISTINCT record_definition.record_identity, record_definition.rowid from record_definition
             WHERE record_definition.unit = ?
             EXCEPT 
@@ -407,45 +415,72 @@ class Stopwatch extends Page {
             ON record_definition.rowid = record.id_record_definition
             INNER JOIN record_user_link
             ON record_user_link.id_record = record.id_record
-        `);
+        `)
 
-        let savedEventsQuery = (`
-            SELECT DISTINCT record_definition.record_identity, record_definition.rowid from record_definition
-            INNER JOIN record
-            ON record_definition.rowid = record.id_record_definition
-            INNER JOIN record_user_link
-            ON record_user_link.id_record = record.id_record
-        `);
+        let savedEventsPromise = dbConnection.selectValues(savedEventsQuery, ["second"]);
+        let remainingEventsPromise = dbConnection.selectValues(remainingEventsQuery, ["second"]);
 
-        dbConnection.selectValues(savedEventsQuery).then((record_identities) => {
+        Promise.all([savedEventsPromise, remainingEventsPromise]).then((values) => {
 
             let carouselData = [];
 
-            for (let i = 0; i < record_identities.length; i++) {
-                carouselData.push({
-                    innerHTML: record_identities.item(i).record_identity,
-                    id: record_identities.item(i).rowid,
-                    gender: 'f',
-                    class: "female_color"
-                });
-                carouselData.push({
-                    innerHTML: record_identities.item(i).record_identity,
-                    id: record_identities.item(i).rowid,
-                    gender: 'm',
-                    class: "male_color"
-                });
+            for (let i = 0; i < values.length; i++) {
+                let record_identities = values[i];
+
+                for (let j = 0; j < record_identities.length; j++) {
+                    carouselData.push({
+                        innerHTML: record_identities.item(j).record_identity,
+                        id: record_identities.item(j).rowid,
+                        gender: 'f',
+                        class: "female_color"
+                    });
+                    carouselData.push({
+                        innerHTML: record_identities.item(j).record_identity,
+                        id: record_identities.item(j).rowid,
+                        gender: 'm',
+                        class: "male_color"
+                    });
+                }
             }
 
             this.generateCarousel(this.carouselContainerSelector, carouselData, true);
         });
+
+        // dbConnection.selectValues(query, ["second"]).then((record_identities) => {
+
+        //     let carouselData = [];
+
+        //     for (let i = 0; i < record_identities.length; i++) {
+        //         carouselData.push({
+        //             innerHTML: record_identities.item(i).record_identity,
+        //             id: record_identities.item(i).rowid,
+        //             gender: 'f',
+        //             class: "female_color"
+        //         });
+        //         carouselData.push({
+        //             innerHTML: record_identities.item(i).record_identity,
+        //             id: record_identities.item(i).rowid,
+        //             gender: 'm',
+        //             class: "male_color"
+        //         });
+        //     }
+
+        //     this.generateCarousel(this.carouselContainerSelector, carouselData, true);
+        // });
 
         // dbConnection.selectValues(unsavedEventsQuery).then((record_identities) => {
         //     console.log(record_identities.length);
         // });
     }
 
+    /**
+     * This function will populate the slideup for the given event.
+     * This will also start the stopwatch.
+     * @param {Number} id_record_definition this is the id of the event that will be loaded
+     */
     startSlideupForAthletes(id_record_definition) {
         $(`${this.landingPageSelector} .table_container`).addClass("hidden");
+        this.resetStopwatch();
         this.startStopwatch();
 
         let query = (`
@@ -539,6 +574,7 @@ class Stopwatch extends Page {
             <div class="carousel_item_empty"></div>
         `);
 
+        // set css for the left and right buttons
         $(`${this.landingPageSelector} .carousel_content`).css("min-width", `calc(15em * ${array.length})`);
         $(`${this.landingPageSelector} .carousel_content`).css("marginLeft", "15em");
 
@@ -603,7 +639,7 @@ class Stopwatch extends Page {
         $("#stopwatchPage #landingPage #stopwatch_start_stop").removeClass("paused");
 
         $("#stopwatchPage #landingPage #stopwatch_start_stop").attr("src", this.stopButtonPath);
-        $("#stopwatchPage #landingPage #stopwatch_lap").html("Lap");
+        // $("#stopwatchPage #landingPage #stopwatch_lap").html("Lap");
         this.clock.start = 0;
     }
 
@@ -611,7 +647,7 @@ class Stopwatch extends Page {
         $("#stopwatchPage #landingPage #stopwatch_start_stop").attr("src", this.playButtonPath);
 
         this.clock.isRunning = false;
-        $("#stopwatchPage #landingPage #stopwatch_lap").html("Save");
+        // $("#stopwatchPage #landingPage #stopwatch_lap").html("Save");
         $("#stopwatchPage #landingPage #stopwatch_start_stop").addClass("paused");
     }
 
@@ -651,8 +687,8 @@ class Stopwatch extends Page {
             this.clock.centerY + (this.clock.textHeight / 2));
 
         this.stopStopwatch();
-        $(".stopwatch_lap_times").empty();
-        $("#stopwatch_lap").html("Lap");
+        // $(".stopwatch_lap_times").empty();
+        // $("#stopwatch_lap").html("Lap");
 
         this.clock.angle = this.clock.initialAngle;
         this.clock.epoch = 0;
@@ -783,7 +819,7 @@ class Stopwatch extends Page {
                     this.saveTime(record_definition, athlete);
                 }, ["id_record_definition", "value", "is_split",
                     "id_relay", "id_relay_index", "last_updated", "unit"
-                ], Constant.eventColorConditionalAttributes);
+                ], Constant.eventColorConditionalAttributes, "class");
             } else {
                 if (DO_LOG) {
                     console.log("record_definition table is empty");
