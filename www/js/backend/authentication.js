@@ -149,6 +149,10 @@ class Authentication {
                     }
                 },
                 error: (response) => {
+                    if(DO_LOG) {
+                        console.log("[authentication.js:signup(): ERROR");
+                        console.log(response);
+                    }
                     let data = JSON.parse(response);
                     // ErrorHandler.handleAjaxError(data);
                     reject(data);
