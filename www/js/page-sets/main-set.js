@@ -60,6 +60,14 @@ class MainSet extends PageSet {
     }
     
     switchPage(pageName) {
+        // Make sure an animation isn't currently happening
+        if(this.transitionObj.getIsAnimating()) {
+            if(DO_LOG) {
+                console.log("[main-set.js:switchPage()]: In the middle of a transition, ignore the request");
+            }
+            return;
+        }
+        
         if(DO_LOG) {
             console.log("[main-set.js:switchPage()]: Switching to " + pageName);
         }

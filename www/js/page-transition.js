@@ -37,6 +37,7 @@ class PageTransition {
         // which will help detect in-progress animations, and stop animations
         // from finishing if PageSet is changing. TL;DR: Don't delete this!!!
         this.timeoutId = -1; // Value returned by setTimeout
+        this.isAnimating = false;
     }
 
     /**
@@ -150,6 +151,14 @@ class PageTransition {
     }
     
     /**
+     * Should be used before calling slidePage functions to see if another
+     * page is being animated or not
+     */
+    getIsAnimating() {
+        return this.isAnimating;
+    }
+    
+    /**
      * Halts any sliding timeouts. This function should be used with EXTREME CARE,
      * as mis-use can cause pages to remain visible enough after they have moved
      * off the viewport. This function's main purpose is to prevent a TAP Gesture
@@ -165,6 +174,7 @@ class PageTransition {
     forceHaltSlide() {
         if(this.timeoutId != -1) {
             clearTimeout(this.timeoutId);
+            $(this.sourceElement + " > .div_page").css("transition", "");
             return true;
         }
         return false;
@@ -203,7 +213,113 @@ class PageTransition {
     slideRight(targetPageKey, duration = 1000) {
         this.slidePage(targetPageKey, false, duration);
     }
-
+    
+    /**
+     * Internal method used to slide a page left or right, depending on the
+     * second boolean parameter. slideLeft() and slideRight() should be
+     * used instead of this function. It makes use of the isAnimating member boolean
+     * to determine if it shuold animate or return.
+     *
+     * @param {String} targetPageKey the target page name (in pages Map) of
+     * the new page
+     * @param {Boolean} slideLeft should the page slide to the left? (i.e. right to left)
+     * @param {Integer} duration the duration of the transition, in milliseconds
+     */
+    slidePage(targetPageKey, slideLeft, duration) {
+        let prevPageId = "#" + this.currentPage.replace("#", "");
+        let targetPageId = "#" + targetPageKey.replace("#", "");
+        let prevGenericHeader = false;
+        let targetGenericHeader = false;
+        
+        let prevLeftDestination = 0; // Slide left, -100%, slide right, +100%
+        
+        // Prevent the double clicking of the button
+        if (this.isAnimating) {
+            if(DO_LOG) {
+                console.log("[PageTransition][slidePage()]: Still being transitioned!");
+            }
+            return false;
+        }
+        if (prevPageId == targetPageId) {
+            if(DO_LOG) {
+                console.log("[PageTransition][slidePage()]: Duplicate! New current page: " + this.currentPage);
+            }
+            return false;
+        }
+        
+        // Check for a generic header (needs to also be slid)
+        if($(this.sourceElement + " > " + prevPageId + " > .generic_header").length > 0) {
+            prevGenericHeader = true;
+        }
+        if($(this.sourceElement + " > " + targetPageId + " > .generic_header").length > 0) {
+            targetGenericHeader = true;
+        }
+        
+        // Define where the target page will end up
+        if(slideLeft) {
+            prevLeftDestination = -$("#app").width();
+        } else {
+            prevLeftDestination = $("#app").width();
+        }
+        
+        // Check to see if any sliding occured. If not, position pages
+        let prevLeftCss = parseInt($(this.sourceElement + " > " + prevPageId).css("left").replace("px").replace("%"));
+        if (Math.abs(prevLeftCss) == 0) {
+            // Invert destination since we want the target OPPOSITE the sliding direction
+            $(this.sourceElement + " > " + targetPageId).css("left", -prevLeftDestination + "px");
+            $(this.sourceElement + " > " + targetPageId + " .generic_header").css("left", -prevLeftDestination + "px");
+        }
+        
+        // Use these for promise resolution
+        let targetAnimation = -1;
+        let prevAnimation = -1;
+        
+        // Animate the pages!
+        // Target page
+        targetAnimation = $(this.sourceElement + " > " + targetPageId).animate({
+            left: 0
+        }, {
+            duration: duration,
+            start: () => {
+                this.isAnimating = true;
+                
+                // Show the target page on animation start
+                $(this.sourceElement + " > " + targetPageId).removeClass("hidden");
+                if(targetGenericHeader) {
+                    $(this.sourceElement + " > " + targetPageId + " > .generic_header").removeClass("hidden");
+                }
+            }
+        });
+        $(this.sourceElement + " > " + targetPageId + " .generic_header").animate({
+            left: 0
+        }, duration);
+        
+        // Previous page
+        prevAnimation = $(this.sourceElement + " > " + prevPageId).animate({
+            left: prevLeftDestination
+        }, {
+            duration: duration,
+            complete: () => {
+                // Hide this page, now that it's out of view
+                $(this.sourceElement + " > " + prevPageId).addClass("hidden").css("left", "0px");
+                $(this.sourceElement + " > " + prevPageId + " > .generic_header").addClass("hidden");
+            }
+        });
+        $(this.sourceElement + " > " + prevPageId + " .generic_header").animate({
+            left: prevLeftDestination
+        }, duration);
+        
+        // Animation completion logic
+        $.when(targetAnimation.promise(), prevAnimation.promise()).then(() => {
+            if(DO_LOG) {
+                console.log("[page-transition.js:slidePage()]: Animation complete");
+            }
+            this.isAnimating = false;
+            this.currentPage = targetPageId.replace("#", "");
+        });
+    }
+    
+    
     /**
      * Internal method used to slide a page left or right, depending on the
      * second boolean parameter. slideLeft() and slideRight() should be
@@ -214,8 +330,13 @@ class PageTransition {
      * the new page
      * @param {Boolean} slideLeft should the page slide to the left? (i.e. right to left)
      * @param {Integer} duration the duration of the transition, in milliseconds
+     * 
+     * @deprecated
+     * Renamed to "slidePageOld" and replaced by new "slidePage" method above due to:
+     *   1) A cleaner, more reliable and robust solution with jquery's animate()
+     *   2) Inability of this function to easily animate page headers (.generic_header) on iOS
      */
-    slidePage(targetPageKey, slideLeft, duration) {
+    slidePageOld(targetPageKey, slideLeft, duration) {
         
         // Create ID's for previous and new page after removing any sneaky #'s
         let prevPageId = "#" + this.currentPage.replace("#", "");
@@ -224,13 +345,13 @@ class PageTransition {
         if (($(this.sourceElement + " > " + prevPageId).hasClass("page_left")) || 
                 ($(this.sourceElement + " > " + prevPageId).hasClass("page_right"))) {
             if(DO_LOG) {
-                console.log("[PageTransition][slidePage()]: Still being transitioned!");
+                console.log("[PageTransition][slidePageOld()]: Still being transitioned!");
             }
             return false;
         }
         if (prevPageId == targetPageId) {
             if(DO_LOG) {
-                console.log("[PageTransition][slidePage()]: Duplicate! New current page: " + this.currentPage);
+                console.log("[PageTransition][slidePageOld()]: Duplicate! New current page: " + this.currentPage);
             }
             return false;
         }
@@ -298,10 +419,9 @@ class PageTransition {
         let prevPageId = "#" + this.currentPage.replace("#", "");
         let targetPageId = "#" + targetPageKey.replace("#", "");
         // Prevent the double clicking of the button
-        if (($(this.sourceElement + " > " + prevPageId).hasClass("page_left")) || 
-                ($(this.sourceElement + " > " + prevPageId).hasClass("page_right"))) {
+        if (this.isAnimating) {
             if(DO_LOG) {
-                console.log("[PageTransition][slidePage()]: Still being transitioned!");
+                console.log("[PageTransition][slidePageX()]: Still being transitioned!");
             }
             return;
         }

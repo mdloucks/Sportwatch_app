@@ -96,7 +96,7 @@ https://css-tricks.com/places-its-tempting-to-use-display-none-but-dont/ */
     font-family: 'Gill Sans', 'Gill Sans MT', Calibri, 'Trebuchet MS', sans-serif;
     display: table;
     table-layout: fixed;
-    padding: 0.5em;
+    padding: 0.5em 0; /* Don't pad the sides */
     border-bottom: solid #000 3px;
     background-color: rgb(44, 44, 46);
     text-align: center;
@@ -106,6 +106,14 @@ https://css-tricks.com/places-its-tempting-to-use-display-none-but-dont/ */
     /* pain-in-the-neck ihpone... has to have non-rectangular screens */
     padding-top: constant(safe-area-inset-top);
     padding-top: env(safe-area-inset-top);
+}
+
+.generic_header.page_right {
+    left: 100%;
+}
+
+.generic_header.page_left {
+    left: -100%;
 }
 
 
