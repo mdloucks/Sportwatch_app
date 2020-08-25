@@ -20,7 +20,7 @@ class JoinTeam extends Page {
             <div id="codePage" class="div_page">
                 <div class="generic_header">
                     <h1>Join Team</h1>
-                </div><br><br>
+                </div>
                 
                 <div class="sectionWrapper">
                     <p class="sectionLabel">Enter Join Code</p>
@@ -47,6 +47,9 @@ class JoinTeam extends Page {
     }
     
     start() {
+        
+        let headerWidth = $("#jointeamPage #codePage > .generic_header").height();
+        $("#jointeamPage #codePage > *:not(.generic_header)").first().css("margin-top", `calc(${headerWidth}px + 10vh)`);
         
         // When clicking on input, focus it
         this.getPageElement("input").click((e) => {
