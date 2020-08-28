@@ -27,8 +27,22 @@ Constant.AJAX_CFG = {
     timeout: 3000
 };
 
-Constant.fadeDuration = 600;
-Constant.fadeIncrement = 100;
+Constant.fadeDuration = 300;
+Constant.fadeIncrement = 45;
+
+Constant.boysColor = "#6abce1";
+Constant.girlsColor = "#fc99b6";
+
+Constant.genderColorConditionalAttributes = {
+    "gender": {
+        "m": {
+            style: `background-color: ${Constant.boysColor}; color: black; border: 1px solid black;`
+        },
+        "f": {
+            style: `background-color: ${Constant.girlsColor}; color: black; border: 1px solid black;`
+        }
+    }
+}
 
 Constant.eventColorConditionalAttributes = {
     "record_identity": {
