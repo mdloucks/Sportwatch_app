@@ -2,10 +2,6 @@
     font-size: 30px;
 }
 
-/* give spacing away from header */
-#settingsPage .div_page .generic_header {
-    margin-bottom: 2em;
-}
 /* General Page Styling */
 
 #settingsPage .back_arrow {
