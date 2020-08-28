@@ -44,7 +44,8 @@ class Team extends Page {
                     <div></div>
                 </div>
 
-                <div id="athlete_events"></div>
+                <div id="athlete_events_registered"></div>
+                <div id="athlete_events_remaining"></div>
             </div>
         `);
 
@@ -55,7 +56,7 @@ class Team extends Page {
                     <div id="back_button_athlete_stats" class="back_button">&#9668;</div>
                     <h1>Athlete Stats</h1>
                     <div></div>
-                </div>
+                </div><br><br><br>
                 <canvas id="athlete_stat_chart"></canvas>
                 <table class="alternating_table_shade" id="athlete_stats_container"></table>
             </div>
@@ -112,6 +113,7 @@ class Team extends Page {
             this.hasStarted = true;
         } else {
             this.startLandingPage(() => {
+                console.log("FADE IN CHILDREN");
                 // Animations.fadeInChildren(this.athleteButtonsBoxSelectorMales, Constant.fadeDuration, Constant.fadeIncrement);
                 // Animations.fadeInChildren(this.athleteButtonsBoxSelectorFemales, Constant.fadeDuration, Constant.fadeIncrement);
                 Animations.fadeInChildren(this.athleteBoxSelector, Constant.fadeDuration, Constant.fadeIncrement);
@@ -129,17 +131,6 @@ class Team extends Page {
         $("#teamPage #landingPage #male_container").empty();
         $("#teamPage #landingPage #female_container").empty();
         $(this.athleteBoxSelector).empty();
-
-        let conditionalAttributes = {
-            "gender": {
-                "m": {
-                    style: "background-color: #6a81e1; color: black; border: 1px solid white;"
-                },
-                "f": {
-                    style: "background-color: #fc99b6; color: black; border: 1px solid white;"
-                }
-            }
-        };
 
         // generate list of athletes then hide them
         dbConnection.selectValues("SELECT *, ROWID FROM athlete", []).then((athletes) => {
@@ -180,7 +171,7 @@ class Team extends Page {
 
                 ButtonGenerator.generateButtonsFromDatabase(this.athleteBoxSelector, array, (athlete) => {
                     this.startAthletePage(athlete);
-                }, ["gender", "id_athlete_event_register", "id_backend", "rowid"], conditionalAttributes, "lname");
+                }, ["gender", "id_athlete_event_register", "id_backend", "rowid"], Constant.genderColorConditionalAttributes, "lname");
 
                 // Animations.hideChildElements(this.athleteButtonsBoxSelectorMales);
                 // Animations.hideChildElements(this.athleteButtonsBoxSelectorFemales);
@@ -208,10 +199,11 @@ class Team extends Page {
      */
     startAthletePage(athlete) {
 
-        $("#teamPage #athletePage #athlete_events").empty()
+        $("#teamPage #athletePage #athlete_events_registered").empty()
+        $("#teamPage #athletePage #athlete_events_remaining").empty()
 
         // get any unique entries in record identity with values
-        let query = (`
+        let registeredEventsQuery = (`
             SELECT DISTINCT record_definition.record_identity, record_definition.rowid from record_definition
             INNER JOIN record
             ON record_definition.rowid = record.id_record_definition
@@ -220,15 +212,44 @@ class Team extends Page {
             WHERE record_user_link.id_backend = ?
         `);
 
+        let remainingEventsQuery = (`
+            SELECT DISTINCT record_definition.record_identity, record_definition.rowid from record_definition
+            WHERE record_definition.unit = ?
+            EXCEPT
+            SELECT DISTINCT record_definition.record_identity, record_definition.rowid from record_definition
+            INNER JOIN record
+            ON record_definition.rowid = record.id_record_definition
+            INNER JOIN record_user_link
+            ON record_user_link.id_record = record.id_record
+            WHERE record_user_link.id_backend = ?
+        `);
+
+        let registeredEventsPromise = dbConnection.selectValues(registeredEventsQuery, [athlete.id_backend]);
+        let remainingEventsPromise = dbConnection.selectValues(remainingEventsQuery, ["second", athlete.id_backend]);
+
+
         // generate events
-        dbConnection.selectValues(query, [athlete.id_backend]).then((events) => {
-            if (events == false) {
-                $("#teamPage #athletePage #athlete_events").html("<div class='missing_info_text'>There are no events for this athlete. Save a time in the stopwatch for an event to create one.</div>")
-            } else {
-                ButtonGenerator.generateButtonsFromDatabase("#teamPage #athletePage #athlete_events", events, (event) => {
-                    this.startAthleteStatPage(athlete, event);
-                }, ["gender", "unit", "is_relay", "last_updated"], Constant.eventColorConditionalAttributes);
-            }
+        Promise.all([registeredEventsPromise, remainingEventsPromise]).then((events) => {
+
+            // generate registered events
+            ButtonGenerator.generateButtonsFromDatabase("#teamPage #athletePage #athlete_events_registered", events[0], (event) => {
+                this.startAthleteStatPage(athlete, event);
+            }, ["gender", "unit", "is_relay", "last_updated"], Constant.eventColorConditionalAttributes, "class");
+
+            $("#teamPage #athletePage #athlete_events_registered").append(`
+                <br><br>
+                <div class="subheading_text">Other Events</div>
+                <hr>
+            `);
+
+            $("#teamPage #athletePage #athlete_events_registered").prepend(`
+                <div class="subheading_text">Events With Saved Times.</div>
+            `);
+
+            // generate remaining events
+            ButtonGenerator.generateButtonsFromDatabase("#teamPage #athletePage #athlete_events_remaining", events[1], (event) => {
+                this.startAthleteStatPage(athlete, event);
+            }, ["gender", "unit", "is_relay", "last_updated"], Constant.eventColorConditionalAttributes, "class");
         });
 
         // Set athlete data before sliding
@@ -241,8 +262,9 @@ class Team extends Page {
             scrollTop: 0
         }, 1000);
         // Add top padding to avoid header overlap (iOS issue)
-        let headerWidth = $("#teamPage #athletePage > .generic_header").height();
-        $("#teamPage #athletePage > *:not(.generic_header)").first().css("margin-top", `calc(${headerWidth}px + 5vh)`);
+        // TODO: I removed this. Tell me if it's an issue for iOS (probably sorry)
+        // let headerWidth = $("#teamPage #athletePage > .generic_header").height();
+        // $("#teamPage #athletePage > *:not(.generic_header)").first().css("margin-top", `calc(${headerWidth}px + 5vh)`);
         
         // Slide back; athlete page will be overwritten next select
         $("#back_button_athlete").bind("click", (e) => {
@@ -312,7 +334,7 @@ class Team extends Page {
                 $("#edit_values_button").remove();
                 $("#teamPage #athleteStatPage .subheading_text").remove();
 
-                $("#teamPage #athleteStatPage").append(`<div class="subheading_text">No data available</div>`);
+                $("#teamPage #athleteStatPage").append(`<div class="missing_info_text">No times for this athlete's events. Add them here or at the stopwatch.</div>`);
                 // don't need to graph for a single point, only show table
             } else if (length == 1) {
                 $("#athlete_stat_chart").remove();
@@ -656,7 +678,6 @@ class Team extends Page {
         // Animations.hideChildElements(this.athleteButtonsBoxSelectorMales);
         // Animations.hideChildElements(this.athleteButtonsBoxSelectorFemales);
         Animations.hideChildElements(this.athleteBoxSelector);
-
         // $(`${this.landingPageSelector} #team_name`).hide();
     }
 }
