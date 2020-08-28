@@ -45,10 +45,6 @@
   overflow: auto;
 }
 
-#teamPage #editAthletePage .generated_button {
-  margin-top: 2.5em;
-}
-
 /*^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ 
 // athleteStats elements
 .......................................................................................................*/
@@ -59,7 +55,6 @@
     table-layout: fixed;
     word-wrap: break-word;
     border-collapse: collapse;
-    margin-top: 2em;
 }
 
 #athlete_stats_container * {
@@ -101,8 +96,6 @@
 }
 
 #teamPage canvas {
-    margin-top: 3em;
-
     width: 400px;
     height: 400px;
 }
