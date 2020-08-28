@@ -55,12 +55,13 @@
 }
 
 #stopwatchPage #landingPage .slideup_contracted {
-    background-color: lightgray;
-    border: 2px solid #dd3333;
+    background-color: rgb(229, 229, 234);
+    border: 2px solid black;
 }
 
-#stopwatchPage #landingPage .slideup_contracted_gender_specific {
+#stopwatchPage #landingPage .slideup_both_genders {
     border: 2px solid black;
+    background-image: linear-gradient(to right, #fc99b6, #6a81e1);
 }
 
 #stopwatchPage #landingPage #slideup {
@@ -68,6 +69,7 @@
     bottom: 7%;
     font-size: 3em;
     text-align: center;
+    font-weight: bold;
     width: 100%;
     border-radius: 45% 45% 0 0;
 }
@@ -81,11 +83,13 @@
     width: 4em;
     height: auto;
     border-radius: 50%;
+    padding: 5px;
     transform: translateX(-50%);
 }
 
 #stopwatchPage #landingPage .slideup_arrow_up {
-    background-color: lightgray;
+    background-color: rgb(229, 229, 234);
+    border: 2px solid #dd3333;
 }
 
 #stopwatchPage #landingPage .slideup_arrow_down {
@@ -93,12 +97,27 @@
 }
 
 
-#stopwatchPage #landingPage #slideup_container {
+#stopwatchPage #landingPage #slideup_content {
     position: absolute;
     width: 100%;
-    background-color: lightgray;
+    background-color: rgb(229, 229, 234);
     bottom: 0;
     margin-bottom: 0 !important;
+    overflow-y: scroll;
+    overflow-x: hidden;
+    margin-bottom: 6em;
+}
+
+#stopwatchPage #landingPage .girls_box {
+    margin: 2em;
+}
+
+#stopwatchPage #landingPage .boys_box input:checked + .slider {
+    background-color: #6abce1;
+}
+
+#stopwatchPage #landingPage .girls_box input:checked + .slider {
+    background-color: #fc99b6;
 }
 
 #stopwatchPage #landingPage .carousel_container {

@@ -15,6 +15,7 @@ class Stopwatch extends Page {
         this.chooseEventSlideAmount = 40;
         this.chooseEventTransitionDuration = 650;
         this.isSlideupActive = false;
+        this.isSlideupTransitioning = false;
 
         this.stopButtonPath = "img/stop_button.png";
         this.playButtonPath = "img/play_button.png";
@@ -29,18 +30,15 @@ class Stopwatch extends Page {
         this.selectedRecordDefinitionGender = null;
 
         this.landingPageSelector = "#stopwatchPage #landingPage";
-        this.carouselContainerSelector = `${this.landingPageSelector} #slideup_container`;
+        this.carouselContainerSelector = `${this.landingPageSelector} #slideup_content`;
+
+        this.defaultStopwatchToggleFunction = () => {
+            this.toggleStopwatch();
+        };
 
         this.unsavedEventsQuery = (`
-            SELECT DISTINCT record_definition.record_identity, record_definition.rowid from record_definition
+            SELECT record_definition.record_identity, record_definition.rowid from record_definition
             WHERE record_definition.unit = ?
-            EXCEPT 
-            SELECT DISTINCT record_definition.record_identity, record_definition.rowid from record_definition
-            INNER JOIN record
-            ON record_definition.rowid = record.id_record_definition
-            INNER JOIN record_user_link
-            ON record_user_link.id_record = record.id_record
-            WHERE record_user_link.id_backend = ?
         `);
 
         this.savedEventsQuery = (`
@@ -94,7 +92,7 @@ class Stopwatch extends Page {
                 <img src="${this.upArrowPath}" alt="" id="slideup_arrow" class="slideup_arrow_up"></img>
                 <div id="slideup" class="slideup_contracted"></div>
 
-                <div id="slideup_container" style="height: 7%;">
+                <div id="slideup_content" style="height: 7%;">
                 </div>
             </div>
         `);
@@ -116,25 +114,25 @@ class Stopwatch extends Page {
         `);
 
         this.selectEventPage = (`
-        <div id="selectEventPage" class="div_page">
+            <div id="selectEventPage" class="div_page">
 
-            <div class="generic_header">
-                <div class="back_button">&#9668;</div>
-                <h1>Chose An Event</h1>
-                <div></div>
+                <div class="generic_header">
+                    <div class="back_button">&#9668;</div>
+                    <h1>Chose An Event</h1>
+                    <div></div>
+                </div>
+
+                <div class="subheading_text"></div>
+
+                <div id="new_events_box" class="button_box">
+                
+                </div>
             </div>
-
-            <div id="saved_events_box" class="button_box new_event">
-
-            </div>
-
-            <div class="subheading_text">Save To New Event</div><hr>
-
-            <div id="new_events_box" class="button_box">
-            
-            </div>
-        </div>
         `);
+
+        // <div id="saved_events_box" class="button_box new_event">
+
+        // </div>
     }
 
     /**
@@ -167,27 +165,28 @@ class Stopwatch extends Page {
         }
         $("html").scrollTop(0); // Fixes bug on iOS that shows scrollbar after login
         
-        this.setupStopwatch();
+        this.setupStopwatch(this.defaultStopwatchToggleFunction);
+
         this.setupSlideup();
+
+        $(`${this.landingPageSelector} .table_container`).addClass("hidden");
     }
 
     stop() {
+        this.resetSlideup();
         // TODO: stop is called multiple times on startup, stop that, also lower slideup on switch
     }
 
     /**
      * @description retreive the context for the canvas and setup necessary event listeners
      */
-    setupStopwatch() {
+    setupStopwatch(stopCallback) {
 
         if (this.c == null || this.ctx == null) {
             this.c = $("#stopwatch_canvas")[0];
             this.ctx = this.c.getContext("2d");
         }
 
-        // Switched the variable because if the user changes pages
-        // before starting the stopwatch, the events are bound twice
-        // I recorded a video of the issue if you wanted to see it, let me know
         if (!this.clock.hasInitialized) {
 
             this.clock.angleInterval = 360 / this.clock.interval;
@@ -207,24 +206,6 @@ class Stopwatch extends Page {
             this.ctx.fillText("0.00", this.clock.centerX - (this.ctx.measureText("0.00").width / 2),
                 this.clock.centerY + (this.clock.textHeight / 2));
 
-            $("#stopwatch_start_stop").click((e) => {
-                e.preventDefault();
-                // if the user selected an event to save for on the slideup
-                if (this.selectedRecordDefinitionId != null) {
-                    this.startSlideupForAthletes(this.selectedAthleteId);
-                } else {
-                    this.toggleStopwatch(this.clock);
-                }
-            });
-
-            $("#stopwatch_canvas").click((e) => {
-                e.preventDefault();
-                if (this.selectedRecordDefinitionId != null) {
-                    this.startSlideupForAthletes(this.selectedAthleteId);
-                } else {
-                    this.toggleStopwatch(this.clock);
-                }
-            });
 
             $("#stopwatch_reset").click((e) => {
                 e.preventDefault();
@@ -233,20 +214,6 @@ class Stopwatch extends Page {
 
             $("#stopwatchPage .back_button").click((e) => {
                 this.pageTransition.slideRight("landingPage");
-            });
-
-            $("#stopwatch_lap").click((e) => {
-                e.preventDefault();
-
-                this.startSelectAthletePage();
-
-                // if ($("#stopwatch_lap").html() == "Lap") {
-                //     this.saveLapTime();
-                // } else if ($("#stopwatch_lap").html() == "Save") {
-                //     this.startSelectAthletePage();
-                // } else {
-                //     throw new Error(`innerHTML: ${$("#stopwatch_lap").html()} is invalid for #stopwatch_lap`);
-                // }
             });
 
             let dt;
@@ -275,6 +242,20 @@ class Stopwatch extends Page {
                 this.ctx.fillText(clockText, textX, textY);
             });
         }
+
+        $("#stopwatch_canvas").unbind("click");
+        $("#stopwatch_canvas").unbind("dblclick");
+
+        $("#stopwatch_canvas").bind("dblclick", (e) => { 
+            this.resetStopwatch();
+            this.resetSlideup();
+        });
+
+        $("#stopwatch_canvas").bind("click", (e) => {
+            stopCallback();
+        });
+
+
         this.clock.hasInitialized = true; // Prevent re-binding of touchend
     }
 
@@ -292,62 +273,90 @@ class Stopwatch extends Page {
         $("#slideup").unbind("click");
         $("#slideup").html(this.defaultSlideupText);
 
-        $("#slideup_arrow").click((e) => {
+        let slideupCallback = () => {
             this.toggleSlideup();
-        });
+        }
 
-        $("#slideup").click((e) => {
-            this.toggleSlideup();
-        });
+        $("#slideup_arrow").click(slideupCallback);
+        $("#slideup").click(slideupCallback);
     }
 
-    toggleSlideup() {
+    toggleSlideup(onFinishCallback = () => {}) {
         $("#slideup").html(this.currentSlideupText);
+
+        // don't toggle if slideup already moving (it creates big problems for clicking twice)
+        if(this.isSlideupTransitioning) {
+            return;
+        }
+
+        this.isSlideupTransitioning = true;
 
         // slide down
         if (this.isSlideupActive) {
 
-            this.lowerSlideup();
+            this.lowerSlideup(onFinishCallback);
             // slide up
         } else {
-            this.raiseSlideup();
+            
+            if(this.selectedRecordDefinitionId == null) {
+                this.startSlideupForEvents((record_definition, gender) => {
+                    this.selectedRecordDefinitionId = record_definition;
+                    this.selectedRecordDefinitionGender = gender;
+                    this.startSlideupForAthletes(record_definition, gender);
+                });
+            }
+
+            this.raiseSlideup(onFinishCallback);
         }
 
-        if (this.selectedRecordDefinitionId == null) {
-            this.startSlideupForEvents();
-        }
 
         this.isSlideupActive = !this.isSlideupActive;
     }
 
     resetSlideup() {
         this.currentSlideupText = this.defaultSlideupText;
+        $("#slideup").html(this.currentSlideupText);
 
         this.selectedAthleteId = null;
         this.selectedRecordDefinitionId = null;
         this.selectedRecordDefinitionGender = null;
 
-        $(this.carouselContainerSelector).empty();
-        $(`${this.landingPageSelector} .table_container`).removeClass("hidden");
+        if(this.isSlideupActive) {
+            this.toggleSlideup();
+        }
+
+        $(`${this.landingPageSelector} #slideup_content`).empty();
     }
 
-    raiseSlideup() {
+    /**
+     * This function will lower the slideup using appropriate animations
+     * as well as changing various styling and text
+     */
+    raiseSlideup(onFinishCallback) {
+
+        // change button direction and change styling
         $("#slideup_arrow").attr("src", this.downArrowPath);
         $("#slideup_arrow").removeClass('slideup_arrow_up');
         $("#slideup_arrow").addClass('slideup_arrow_down');
 
+
+        // animate to slide up
         $("#slideup, #slideup_arrow").animate({
             bottom: `+=${this.chooseEventSlideAmount}%`,
         }, {
             duration: this.chooseEventTransitionDuration,
             queue: false,
-            complete: function () {
+            complete: () => {
                 $("#slideup").removeClass('slideup_contracted');
                 $("#slideup").addClass('slideup_expanded');
+                $("#slideup").removeClass('slideup_both_genders');
+
+                this.isSlideupTransitioning = false;
+                onFinishCallback();
             }
         });
 
-        $("#stopwatchPage #landingPage #slideup_container").animate({
+        $("#stopwatchPage #landingPage #slideup_content").animate({
             height: `${this.chooseEventSlideAmount + 7}%`
         }, {
             duration: this.chooseEventTransitionDuration,
@@ -355,10 +364,14 @@ class Stopwatch extends Page {
         });
     }
 
-    lowerSlideup() {
+    /**
+     * This function will lower the slideup using appropriate animations
+     * as well as changing various styling and text
+     */
+    lowerSlideup(onFinishCallback) {
+        // change arrow direction
         $("#slideup_arrow").attr("src", this.upArrowPath);
         $("#slideup_arrow").removeClass('slideup_arrow_down');
-        $("#slideup").removeClass('slideup_contracted_gender_specific');
         $("#slideup").removeClass('male_color');
         $("#slideup").removeClass('female_color');
 
@@ -373,170 +386,243 @@ class Stopwatch extends Page {
 
         let _this = this;
 
-        $("#stopwatchPage #landingPage #slideup_container").animate({
+        $("#stopwatchPage #landingPage #slideup_content").animate({
             height: "7%" // Makes it the width of the navbar so slideup_arrow and container move at the same rate
         }, {
             duration: this.chooseEventTransitionDuration,
             queue: false,
-            complete: function () {
+            complete: () => {
+                this.isSlideupTransitioning = false;
+
                 $("#slideup").removeClass('slideup_expanded');
 
                 if(_this.selectedRecordDefinitionGender) {
-                    $("#slideup").addClass('slideup_contracted_gender_specific');
 
                     if(_this.selectedRecordDefinitionGender == 'm') {
                         $("#slideup").addClass('male_color');
                     } else if(_this.selectedRecordDefinitionGender == 'f') {
                         $("#slideup").addClass('female_color');
                     }
+                    // on both genders selected
+                } else if(_this.selectedRecordDefinitionGender == '') {
+                    $("#slideup").addClass('slideup_both_genders');
                 } else {
                     $("#slideup").addClass('slideup_contracted');
                 }
+
+                onFinishCallback();
             }
         });
     }
 
-    startSlideupForEvents() {
+    startSlideupForEvents(callback) {
 
-        let savedEventsQuery = (`
-            SELECT DISTINCT record_definition.record_identity, record_definition.rowid from record_definition
-            INNER JOIN record
-            ON record_definition.rowid = record.id_record_definition
-            INNER JOIN record_user_link
-            ON record_user_link.id_record = record.id_record
-            WHERE record_definition.unit = ?
+        $(`${this.landingPageSelector} #slideup_content`).html(`
+            <div class="toggle_box">
+                <div class="boys_box"><div>
+                <div class="girls_box"><div>
+            </div>
         `);
 
-        let remainingEventsQuery = (`
-            SELECT DISTINCT record_definition.record_identity, record_definition.rowid from record_definition
-            WHERE record_definition.unit = ?
-            EXCEPT 
-            SELECT DISTINCT record_definition.record_identity, record_definition.rowid from record_definition
-            INNER JOIN record
-            ON record_definition.rowid = record.id_record_definition
-            INNER JOIN record_user_link
-            ON record_user_link.id_record = record.id_record
-        `)
+        // select both genders by default
+        let isBoys = true;
+        let isGirls = true;
 
-        let savedEventsPromise = dbConnection.selectValues(savedEventsQuery, ["second"]);
-        let remainingEventsPromise = dbConnection.selectValues(remainingEventsQuery, ["second"]);
-
-        Promise.all([savedEventsPromise, remainingEventsPromise]).then((values) => {
-
-            let carouselData = [];
-
-            for (let i = 0; i < values.length; i++) {
-                let record_identities = values[i];
-
-                for (let j = 0; j < record_identities.length; j++) {
-                    carouselData.push({
-                        innerHTML: record_identities.item(j).record_identity,
-                        id: record_identities.item(j).rowid,
-                        gender: 'f',
-                        class: "female_color"
-                    });
-                    carouselData.push({
-                        innerHTML: record_identities.item(j).record_identity,
-                        id: record_identities.item(j).rowid,
-                        gender: 'm',
-                        class: "male_color"
-                    });
-                }
-            }
-
-            this.generateCarousel(this.carouselContainerSelector, carouselData, true);
+        // Toggle boys
+        ButtonGenerator.generateToggle(`${this.landingPageSelector} #slideup_content .boys_box`, "Include Boys", () => {
+            isBoys = true;
+        }, () => {
+            isBoys = false;
         });
 
-        // dbConnection.selectValues(query, ["second"]).then((record_identities) => {
 
-        //     let carouselData = [];
+        // Toggle girls
+        ButtonGenerator.generateToggle(`${this.landingPageSelector} #slideup_content .girls_box`, "Include Girls", () => {
+            isGirls = true;
+        }, () => {
+            isGirls = false;
+        });     
 
-        //     for (let i = 0; i < record_identities.length; i++) {
-        //         carouselData.push({
-        //             innerHTML: record_identities.item(i).record_identity,
-        //             id: record_identities.item(i).rowid,
-        //             gender: 'f',
-        //             class: "female_color"
-        //         });
-        //         carouselData.push({
-        //             innerHTML: record_identities.item(i).record_identity,
-        //             id: record_identities.item(i).rowid,
-        //             gender: 'm',
-        //             class: "male_color"
-        //         });
-        //     }
+        dbConnection.selectValues(this.unsavedEventsQuery, ["second"]).then((record_definitions) => {
 
-        //     this.generateCarousel(this.carouselContainerSelector, carouselData, true);
-        // });
+            if (record_definitions != false) {
+                ButtonGenerator.generateButtonsFromDatabase(`${this.landingPageSelector} #slideup_content`, record_definitions, (record_definition) => {
 
-        // dbConnection.selectValues(unsavedEventsQuery).then((record_identities) => {
-        //     console.log(record_identities.length);
-        // });
+                    let gender = '';
+
+                    if(isBoys && !isGirls) {
+                        gender = 'm';
+                    } else if(!isBoys && isGirls) {
+                        gender = 'f';
+                    } else {
+                        gender = '';
+                    }
+
+                    this.currentSlideupText = record_definition.record_identity
+                    this.selectedRecordDefinitionGender = gender;
+
+                    let onSlideDoneFunction = function() {
+                        callback(record_definition, gender);
+                    }.bind(this);
+                    
+                    this.toggleSlideup(onSlideDoneFunction);
+                }, ["id_record_definition", "value", "is_split",
+                    "id_relay", "id_relay_index", "last_updated", "unit"
+                ], Constant.eventColorConditionalAttributes, "class");
+
+                $(`${this.landingPageSelector} #slideup_content`).append("<br><br><br><br><br><br>");
+            } else {
+                if (DO_LOG) {
+                    console.log("record_definition table is empty");
+                }
+                Popup.createConfirmationPopup("Something went very wrong, try restarting the app :(", ["Ok"], () => {});
+            }
+        });
     }
 
     /**
      * This function will populate the slideup for the given event.
      * This will also start the stopwatch.
-     * @param {Number} id_record_definition this is the id of the event that will be loaded
+     * @param {Number} record_definition this is the id of the event that will be loaded
+     * @param {string} gender gender of athletes to load possible values: 'm' 'f' or ''
      */
-    startSlideupForAthletes(id_record_definition) {
-        $(`${this.landingPageSelector} .table_container`).addClass("hidden");
-        this.resetStopwatch();
-        this.startStopwatch();
+    startSlideupForAthletes(record_definition, gender) {
 
-        let query = (`
-            SELECT DISTINCT athlete.id_backend, athlete.fname, athlete.lname, athlete.gender, id_record_definition  from athlete
+        $(`${this.landingPageSelector} #slideup_content`).empty();
+        
+        // set watch to slide up, then only change stopwatch
+        this.setupStopwatch(() => {
+            this.toggleStopwatch();
+
+            if(!this.isSlideupActive) {
+                this.toggleSlideup();
+            }
+        });
+
+        let genderConditionalQuery = "";
+        let eventConditionalQuery = "WHERE record.id_record_definition = ?";
+        let savedRecordsArray = [];
+        let unsavedRecordsArray = [];
+
+        // set specific gender query
+        if(gender != undefined || gender != null) {
+            if(gender == 'm' || gender == 'f') {
+                genderConditionalQuery = "WHERE athlete.gender = ?";
+                eventConditionalQuery = "AND record.id_record_definition = ?";
+
+                savedRecordsArray = [gender, record_definition.rowid];
+                unsavedRecordsArray = [gender, gender, record_definition.rowid];
+                // gender not selected, only use record definition to select
+            } else {
+                savedRecordsArray = [record_definition.rowid];
+                unsavedRecordsArray = [record_definition.rowid];
+            }
+        }
+
+        // query for athletes with saved records which orders them by value
+        let savedRecordsQuery = (`
+            SELECT fname, lname, athlete.id_backend, gender, athlete.rowid from athlete
             INNER JOIN record_user_link
             ON record_user_link.id_backend = athlete.id_backend
             INNER JOIN record
-            ON record_user_link.id_record = record_user_link.id_record
-            WHERE record.id_record_definition = ? AND athlete.gender = ?
+            ON record_user_link.id_record = record.id_record
+            ${genderConditionalQuery} ${eventConditionalQuery}
+            GROUP BY athlete.lname
             ORDER BY record.value DESC
         `);
 
+        // query for athletes with no records saved in the event at all
+        let unsavedRecordsQuery = (`
+            SELECT fname, lname, athlete.id_backend, gender, athlete.rowid from athlete
+            ${genderConditionalQuery} 
+            EXCEPT
+            SELECT fname, lname, athlete.id_backend, gender, athlete.rowid from athlete
+            INNER JOIN record_user_link
+            ON record_user_link.id_backend = athlete.id_backend
+            INNER JOIN record
+            ON record_user_link.id_record = record.id_record
+            ${genderConditionalQuery} ${eventConditionalQuery}
+            GROUP BY athlete.lname
+            ORDER BY athlete.lname ASC
+        `);
 
-        dbConnection.selectValues(query, [this.selectedRecordDefinitionId, this.selectedRecordDefinitionGender]).then((athletes) => {
+        let savedRecordsPromise = dbConnection.selectValues(savedRecordsQuery, savedRecordsArray);
+        let unsavedRecordsPromise = dbConnection.selectValues(unsavedRecordsQuery, unsavedRecordsArray);
+        
+        let isSavedRecordsEmpty = false;
+        let isUnsavedRecordsEmpty = false;
 
-            let isEmptySet = false;
+        Promise.all([savedRecordsPromise, unsavedRecordsPromise]).then((athletesArray) => {
+            
+            // check to see if both saved and unsaved queries are empty
 
-            if(athletes.length == 0) {
-                isEmptySet = true;
+            if((athletesArray[0] == false || athletesArray[0].length == undefined)) {
+                isSavedRecordsEmpty = true;
             }
 
-            if(athletes == false) {
-                isEmptySet = true;
+            if((athletesArray[1] == false || athletesArray[1].length == undefined)) {
+                isUnsavedRecordsEmpty = true;
             }
 
-            if(isEmptySet) {
-                Popup.createConfirmationPopup("There are no athletes for this event. Please try picking another.", ["Ok"], [function() {
+            for (let i = 0; i < athletesArray.length; i++) {
+                const athletes = athletesArray[i];
+                
 
-                }]);
-            }
-
-            let athleteData = [];
-
-            for (let i = 0; i < athletes.length; i++) {
-
-                let athleteObject = {
-                    fname: athletes.item(i).fname,
-                    lname: athletes.item(i).lname,
-                    id_backend: athletes.item(i).id_backend,
-                    id_record_definition: athletes.item(i).id_record_definition,
-                    rowid: athletes.item(i).id_record_definition
-                };
-
-                if(athletes.item(i).gender == 'm') {
-                    athleteObject["class"] = "male_color";
-                } else if(athletes.item(i).gender == 'f') {
-                    athleteObject["class"] = "female_color";
+                if(isSavedRecordsEmpty && i == 0) {
+                    continue;
+                } 
+                
+                if(isUnsavedRecordsEmpty && i == 1) {
+                    continue;
                 }
 
-                athleteData.push(athleteObject);
+
+                ButtonGenerator.generateButtonsFromDatabase(`${this.landingPageSelector} #slideup_content`, athletes, (athlete) => {
+                    this.saveTime(record_definition, athlete);
+                    
+                    $(`${this.landingPageSelector} #slideup_content #${athlete.id}`).remove();
+
+                    let nAthletesRemaining = $(`${this.landingPageSelector} #slideup_content > button`).length;
+
+                    if(nAthletesRemaining == 0) {
+                        this.selectedRecordDefinitionId = null;
+                        this.selectedRecordDefinitionGender = null;
+                        let eventName = this.currentSlideupText;
+                        
+                        this.currentSlideupText = this.defaultSlideupText;
+                        this.toggleSlideup();
+                        this.resetStopwatch();
+
+                        Popup.createConfirmationPopup(`Successfully saved times for the ${eventName}!`, ["Ok"], [() => {
+                        }]);
+
+                        // stop here
+                    }
+
+                }, ["gender", "unit", "is_relay", "timestamp", "id_backend"], Constant.genderColorConditionalAttributes)
+
+                if(i == 0 && (!isUnsavedRecordsEmpty && !isSavedRecordsEmpty)) {
+                    $(`${this.landingPageSelector} #slideup_content`).append(`<br><br><br><hr style="height: 8px;">`);
+                }
             }
 
-            this.generateCarousel(this.carouselContainerSelector, athleteData, false)
-            this.toggleSlideup();
+            if(isSavedRecordsEmpty && isunSavedRecordsEmpty) {
+                $("#slideup").removeClass('male_color');
+                $("#slideup").removeClass('female_color');
+                $("#slideup").addClass('slideup_contracted');
+                this.resetStopwatch();
+                this.resetSlideup();
+                Popup.createConfirmationPopup("You're not on a team yet! Go to the team tab and become a part of a team to start recording times.", ["Ok"], [() => {
+                }]);
+
+                return;
+            }
+
+
+            $(`${this.landingPageSelector} #slideup_content`).append("<br><br><br><br><br><br>");
         });
+        
+
     }
 
     generateCarousel(element, array, isRecordDefinitions) {
@@ -688,8 +774,7 @@ class Stopwatch extends Page {
             this.clock.centerY + (this.clock.textHeight / 2));
 
         this.stopStopwatch();
-        // $(".stopwatch_lap_times").empty();
-        // $("#stopwatch_lap").html("Lap");
+        this.setupStopwatch(this.defaultStopwatchToggleFunction);
 
         this.clock.angle = this.clock.initialAngle;
         this.clock.epoch = 0;
@@ -755,24 +840,15 @@ class Stopwatch extends Page {
         $("#stopwatchPage #selectAthletePage .button_box").empty();
         $("#stopwatchPage #selectAthletePage .subheading_text").empty();
 
-        let conditionalAttributes = {
-            "gender": {
-                "m": {
-                    style: "background-color: #6a81e1; color: black; border: 1px solid white;"
-                },
-                "f": {
-                    style: "background-color: #fc99b6; color: black; border: 1px solid white;"
-                }
-            }
-        };
-
         // generate a list of athletes for the user to select
         dbConnection.selectValues("SELECT *, athlete.rowid FROM athlete", []).then((athletes) => {
             if (athletes != false) {
                 $("#stopwatchPage #selectAthletePage .subheading_text").remove();
                 ButtonGenerator.generateButtonsFromDatabase("#stopwatchPage #selectAthletePage .button_box", athletes, (athlete) => {
-                    this.startSelectEventPage(athlete)
-                }, ["gender", "unit", "is_relay", "timestamp", "id_backend"], conditionalAttributes, "lname");
+                    this.startSelectEventPage(athlete, (event, athlete) => {
+                        this.saveTime(event, athlete);
+                    })
+                }, ["gender", "unit", "is_relay", "timestamp", "id_backend"], Constant.genderColorConditionalAttributes, "lname");
             } else {
                 $("#stopwatchPage #selectAthletePage .subheading_text").html(`
                 You have no athletes on your team yet. Go to the Team page and invite some athletes to join!
@@ -784,7 +860,7 @@ class Stopwatch extends Page {
     /**
      * this function will start the select event page
      */
-    startSelectEventPage(athlete) {
+    startSelectEventPage(athlete = undefined, callback = () => {}) {
 
         this.pageTransition.slideLeft("selectEventPage");
         // While transitioning, scroll to the top
@@ -794,30 +870,30 @@ class Stopwatch extends Page {
         let headerWidth = $("#stopwatchPage #selectEventPage > .generic_header").height();
         $("#stopwatchPage #selectEventPage > *:not(.generic_header)").first().css("margin-top", `calc(${headerWidth}px + 5vh)`);
 
-        $("#stopwatchPage #selectEventPage #saved_events_box").empty();
+        // $("#stopwatchPage #selectEventPage #saved_events_box").empty();
         $("#stopwatchPage #selectEventPage #new_events_box").empty();
+
 
         // get any unique entries in record identity with values
         // user selects an existing event
-        dbConnection.selectValues(this.savedEventsQuery, [athlete.rowid]).then((events) => {
+        // dbConnection.selectValues(this.savedEventsQuery, [athlete.rowid]).then((events) => {
+        //     if ((events.length == 0) || (events == false)) {
+        //         return;
+        //     }
 
-            if ((events.length == 0) || (events == false)) {
-                return;
-            }
-
-            ButtonGenerator.generateButtonsFromDatabase("#stopwatchPage #selectEventPage #saved_events_box", events, (event) => {
-                this.saveTime(event, athlete);
-            }, ["id_record_definition", "value",
-                "is_split", "id_relay", "id_relay_index", "last_updated", "unit"
-            ], Constant.eventColorConditionalAttributes, "class");
-        });
+        //     ButtonGenerator.generateButtonsFromDatabase("#stopwatchPage #selectEventPage #saved_events_box", events, (event) => {
+        //         callback(event, athlete);
+        //     }, ["id_record_definition", "value",
+        //         "is_split", "id_relay", "id_relay_index", "last_updated", "unit"
+        //     ], Constant.eventColorConditionalAttributes, "class");
+        // });
 
         // get a list of every event definition and take away the ones with records already
         // User selects a new event that the athlete is not already registered in
-        dbConnection.selectValues(this.unsavedEventsQuery, ["second", athlete.rowid]).then((record_definitions) => {
+        dbConnection.selectValues(this.unsavedEventsQuery, ["second"]).then((record_definitions) => {
             if (record_definitions != false) {
                 ButtonGenerator.generateButtonsFromDatabase("#stopwatchPage #selectEventPage #new_events_box", record_definitions, (record_definition) => {
-                    this.saveTime(record_definition, athlete);
+                    callback(record_definition, athlete);
                 }, ["id_record_definition", "value", "is_split",
                     "id_relay", "id_relay_index", "last_updated", "unit"
                 ], Constant.eventColorConditionalAttributes, "class");
