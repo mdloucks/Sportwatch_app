@@ -144,8 +144,9 @@ class Stats extends Page {
                 if($("#statsPage #landingPage .missing_info_text").length == 0) {
                     $("#statsPage #landingPage").append(`
                     <div class="missing_info_text">
-                        It looks like you don't have any times saved yet. 
-                        Go to the Stopwatch page and save a time.
+                        <h2>No Times Saved Yet</h2>
+                        It looks like you don't have any times saved yet. <br><br>
+                        Go to the Stopwatch page and save a time to get startedz.
                     </div>
                     `);
                 }
@@ -205,7 +206,7 @@ class Stats extends Page {
                 this.saveCSV("data.csv", athletes, false);
                 
                 // If it's iOS, share the saved file with native "share" dialog
-                if(device.platform == "iOS") {
+                if(device.platform) {
                     let shareOptions = {
                         files: [this.csvLocation]
                     };
