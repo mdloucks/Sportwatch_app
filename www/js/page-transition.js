@@ -197,7 +197,7 @@ class PageTransition {
      * @param {String} targetPageKey lowercase string of new page id
      * @param {Integer} duration [default = 1000] delay of transition play
      */
-    slideLeft(targetPageKey, duration = 1000) {
+    slideLeft(targetPageKey, duration = 300) {
         this.slidePage(targetPageKey, true, duration);
     }
 
@@ -210,7 +210,7 @@ class PageTransition {
      * @param {String} targetPageKey lowercase string of new page id
      * @param {Integer} duration [default = 1000] delay of transition play
      */
-    slideRight(targetPageKey, duration = 1000) {
+    slideRight(targetPageKey, duration = 300) {
         this.slidePage(targetPageKey, false, duration);
     }
     
@@ -413,7 +413,7 @@ class PageTransition {
      * @param {Integer} dx change to horizontal motion to move pages (often called with touchmove)
      * @param {Integer} duration [default = 1000] duration of delay in the event it's snapped back
     */
-    slidePageX(targetPageKey, slideLeft, dx, duration = 1000) {
+    slidePageX(targetPageKey, slideLeft, dx, duration = 300) {
         
         // Find ID's for previous and new page
         let prevPageId = "#" + this.currentPage.replace("#", "");
