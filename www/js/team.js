@@ -56,7 +56,7 @@ class Team extends Page {
                     <div id="back_button_athlete_stats" class="back_button">&#9668;</div>
                     <h1>Athlete Stats</h1>
                     <div></div>
-                </div><br><br><br>
+                </div>
                 <canvas id="athlete_stat_chart"></canvas>
                 <table class="alternating_table_shade" id="athlete_stats_container"></table>
             </div>
@@ -141,33 +141,16 @@ class Team extends Page {
                 if (storage.getItem("teamName") != null) {
                     teamName = storage.getItem("teamName");
                 }
-                // separate boys and girls
 
-                let males = [];
-                let females = [];
                 let array = []
 
                 for (let i = 0; i < athletes.length; i++) {
                     array.push(athletes.item(i));
-                    // if (athletes.item(i).gender == "m") {
-                    //     males.push(athletes.item(i));
-                    // } else if (athletes.item(i).gender == "f") {
-                    //     females.push(athletes.item(i));
-                    // }
                 }
 
                 $("#teamPage #landingPage .left_text").html(teamName);
                 $("#teamPage #landingPage .subheading_text").remove();
                 $("#teamPage #landingPage .missing_info_text").remove();
-
-                // ButtonGenerator.generateButtonsFromDatabase("#teamPage #landingPage #male_container", males, (athlete) => {
-                //     this.startAthletePage(athlete);
-                // }, ["gender", "id_athlete_event_register", "id_backend", "rowid"], conditionalAttributes);
-
-                // ButtonGenerator.generateButtonsFromDatabase("#teamPage #landingPage #female_container", females, (athlete) => {
-                //     this.startAthletePage(athlete);
-                // }, ["gender", "id_athlete_event_register", "id_backend", "rowid"], conditionalAttributes);
-
 
                 ButtonGenerator.generateButtonsFromDatabase(this.athleteBoxSelector, array, (athlete) => {
                     this.startAthletePage(athlete);
@@ -293,6 +276,7 @@ class Team extends Page {
         this.tableData = [];
 
         $("#teamPage #athleteStatPage #athlete_stats_container").empty();
+        $("#teamPage #athleteStatPage .missing_info_text").remove();
 
         // back button
         $("#teamPage #athleteStatPage #back_button_athlete_stats").bind("click", () => {
@@ -305,6 +289,7 @@ class Team extends Page {
             }, 1000);
         });
 
+        // select values for given event and athlete
         let query = `
             SELECT *, record.id_record from record
             INNER JOIN record_user_link
@@ -332,17 +317,18 @@ class Team extends Page {
                 $("#athlete_stat_chart").remove();
                 $("#athlete_stats_container").remove();
                 $("#edit_values_button").remove();
-                $("#teamPage #athleteStatPage .subheading_text").remove();
+                $("#teamPage #athleteStatPage .missing_info_text").remove();
 
+                this.createTable(athlete, results, event.rowid);
                 $("#teamPage #athleteStatPage").append(`<div class="missing_info_text">No times for this athlete's events. Add them here or at the stopwatch.</div>`);
                 // don't need to graph for a single point, only show table
             } else if (length == 1) {
                 $("#athlete_stat_chart").remove();
-                this.createTable(athlete, results);
+                this.createTable(athlete, results, event.rowid);
                 // there is enough data, graph
             } else {
                 this.createGraph(data);
-                this.createTable(athlete, results);
+                this.createTable(athlete, results, event.rowid);
             }
         });
     }
@@ -352,7 +338,7 @@ class Team extends Page {
      * 
      * @param {Object} results database results
      */
-    createTable(athlete, results) {
+    createTable(athlete, results, id_record_definition) {
         $("#athlete_stats_container").remove();
         $("#edit_values_button").remove();
         $("#add_value_button").remove();
@@ -365,14 +351,13 @@ class Team extends Page {
             let nChildren = $("#athlete_stats_container > *").length;
 
             $("#athlete_stats_container").append(`
-                <tr isAdded="true" id_backend="${athlete.id_backend}" id_record_definition="${results.item(0).id_record_definition}">
+                <tr isAdded="true" id_backend="${athlete.id_backend}" id_record_definition="${id_record_definition}">
                     <td>${nChildren}</td>
                     <td>${new Date(Date.now()).toLocaleDateString("en-US")}</td>
                     <td></td>
                 </tr>
             `);
         };
-
 
         $("#add_value_button").click(addContainer);
 
