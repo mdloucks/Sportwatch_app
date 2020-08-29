@@ -75,11 +75,10 @@
 }
 
 #stopwatchPage #landingPage #slideup_arrow {
-    margin: 0 auto;
+    left: 50%;
     position: absolute;
     bottom: 15%;
     text-align: center;
-    width: 100%;
     width: 4em;
     height: auto;
     border-radius: 50%;
