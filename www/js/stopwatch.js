@@ -80,14 +80,6 @@ class Stopwatch extends Page {
         this.landingPage = (`
             <div id="landingPage" class="div_page">
                 <canvas id="stopwatch_canvas" class="stopwatch_canvas" width="400px" height="300px"></canvas>
-                
-                <div class="stopwatch_lap_times"></div>
-
-                <div class="table_container">
-                    <a id="stopwatch_reset" class="stopwatch_button">Reset</a>
-                    <img src="${this.playButtonPath}" alt="" id="stopwatch_start_stop" class="play_button noSelect"></img>
-                    <a id="stopwatch_lap" class="stopwatch_button">Save</a>
-                </div>
 
                 <img src="${this.upArrowPath}" alt="" id="slideup_arrow" class="slideup_arrow_up"></img>
                 <div id="slideup" class="slideup_contracted"></div>
@@ -96,6 +88,12 @@ class Stopwatch extends Page {
                 </div>
             </div>
         `);
+
+    //     <div class="table_container">
+    //     <a id="stopwatch_reset" class="stopwatch_button">Reset</a>
+    //     <img src="${this.playButtonPath}" alt="" id="stopwatch_start_stop" class="play_button noSelect"></img>
+    //     <a id="stopwatch_lap" class="stopwatch_button">Save</a>
+    // </div>
 
         // <div id="stopwatch_start_stop" class="play_button noSelect">${this.playHtmlCode}</div>
 
@@ -169,7 +167,7 @@ class Stopwatch extends Page {
 
         this.setupSlideup();
 
-        $(`${this.landingPageSelector} .table_container`).addClass("hidden");
+        // $(`${this.landingPageSelector} .table_container`).addClass("hidden");
     }
 
     stop() {
@@ -207,10 +205,10 @@ class Stopwatch extends Page {
                 this.clock.centerY + (this.clock.textHeight / 2));
 
 
-            $("#stopwatch_reset").click((e) => {
-                e.preventDefault();
-                this.resetStopwatch(this.clock, this.ctx);
-            });
+            // $("#stopwatch_reset").click((e) => {
+            //     e.preventDefault();
+            //     this.resetStopwatch(this.clock, this.ctx);
+            // });
 
             $("#stopwatchPage .back_button").click((e) => {
                 this.pageTransition.slideRight("landingPage");
@@ -723,19 +721,19 @@ class Stopwatch extends Page {
 
         this.clock.isRunning = true;
 
-        $("#stopwatchPage #landingPage #stopwatch_start_stop").removeClass("paused");
+        // $("#stopwatchPage #landingPage #stopwatch_start_stop").removeClass("paused");
 
-        $("#stopwatchPage #landingPage #stopwatch_start_stop").attr("src", this.stopButtonPath);
+        // $("#stopwatchPage #landingPage #stopwatch_start_stop").attr("src", this.stopButtonPath);
         // $("#stopwatchPage #landingPage #stopwatch_lap").html("Lap");
         this.clock.start = 0;
     }
 
     stopStopwatch() {
-        $("#stopwatchPage #landingPage #stopwatch_start_stop").attr("src", this.playButtonPath);
+        // $("#stopwatchPage #landingPage #stopwatch_start_stop").attr("src", this.playButtonPath);
 
         this.clock.isRunning = false;
         // $("#stopwatchPage #landingPage #stopwatch_lap").html("Save");
-        $("#stopwatchPage #landingPage #stopwatch_start_stop").addClass("paused");
+        // $("#stopwatchPage #landingPage #stopwatch_start_stop").addClass("paused");
     }
 
     toggleStopwatch() {
@@ -751,8 +749,8 @@ class Stopwatch extends Page {
         if (!this.clock.hasStarted) {
             this.startStopwatch();
             this.clock.hasStarted = true;
-            $("#stopwatchPage #landingPage .table_container a").css("animation", "fadein 2s");
-            $("#stopwatchPage #landingPage .table_container a").css("visibility", "visible");
+            // $("#stopwatchPage #landingPage .table_container a").css("animation", "fadein 2s");
+            // $("#stopwatchPage #landingPage .table_container a").css("visibility", "visible");
         }
     }
 
