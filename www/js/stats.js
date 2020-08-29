@@ -284,7 +284,7 @@ class Stats extends Page {
     
                 let csv = "";
                 // append headers
-                csv += "record_identity,fname,lname,unit,last_updated,value\n";
+                csv += "Event,First Name,Last Name,unit,Last Updated,Value\n";
 
     
                 // append data
@@ -340,9 +340,9 @@ class Stats extends Page {
                 }
 
                 let name = athletes[i].fname + "\t" + athletes[i].lname;
-                let min = Math.min(...athletes[i].values).toFixed(2);
-                let max = Math.max(...athletes[i].values).toFixed(2);
-                let average = (athletes[i].values.reduce((a, b) => a + b, 0) / athletes[i].values.length).toFixed(2);
+                let min = Clock.secondsToTimeString(Math.min(...athletes[i].values).toFixed(2));
+                let max = Clock.secondsToTimeString(Math.max(...athletes[i].values).toFixed(2));
+                let average = Clock.secondsToTimeString((athletes[i].values.reduce((a, b) => a + b, 0) / athletes[i].values.length).toFixed(2));
 
                 let info_box;
 

@@ -57,6 +57,7 @@ class Team extends Page {
                     <h1>Athlete Stats</h1>
                     <div></div>
                 </div>
+
                 <canvas id="athlete_stat_chart"></canvas>
                 <table class="alternating_table_shade" id="athlete_stats_container"></table>
             </div>
@@ -99,7 +100,7 @@ class Team extends Page {
 
         let teamName = storage.getItem("teamName");
 
-        if(teamName == null) {
+        if (teamName == null) {
             teamName = "My Team";
         }
 
@@ -113,9 +114,6 @@ class Team extends Page {
             this.hasStarted = true;
         } else {
             this.startLandingPage(() => {
-                console.log("FADE IN CHILDREN");
-                // Animations.fadeInChildren(this.athleteButtonsBoxSelectorMales, Constant.fadeDuration, Constant.fadeIncrement);
-                // Animations.fadeInChildren(this.athleteButtonsBoxSelectorFemales, Constant.fadeDuration, Constant.fadeIncrement);
                 Animations.fadeInChildren(this.athleteBoxSelector, Constant.fadeDuration, Constant.fadeIncrement);
             });
         }
@@ -248,7 +246,7 @@ class Team extends Page {
         // TODO: I removed this. Tell me if it's an issue for iOS (probably sorry)
         // let headerWidth = $("#teamPage #athletePage > .generic_header").height();
         // $("#teamPage #athletePage > *:not(.generic_header)").first().css("margin-top", `calc(${headerWidth}px + 5vh)`);
-        
+
         // Slide back; athlete page will be overwritten next select
         $("#back_button_athlete").bind("click", (e) => {
             this.pageTransition.slideRight("landingPage");
@@ -383,8 +381,6 @@ class Team extends Page {
             this.isEditing = !this.isEditing;
         });
 
-
-
         // populate table
 
         $("#teamPage #athleteStatPage #athlete_stats_container").append(`
@@ -408,16 +404,17 @@ class Team extends Page {
                 <tr id_record=${results.item(i).id_record}>
                     <td>${i + 1}</td>
                     <td>${date}</td>
-                    <td>${results.item(i).value.toFixed(2)}</td>
+                    <td>${Clock.secondsToTimeString(results.item(i).value)}</td>
                 </tr>
             `);
 
             $("#teamPage #athleteStatPage #athlete_stats_container").append(row);
         }
-        
+
         // Add the padding now that the table has been created
-        let headerWidth = $("#teamPage #athleteStatPage > .generic_header").height();
-        $("#teamPage #athleteStatPage #athlete_stat_chart").first().css("margin-top", `calc(${headerWidth}px + 5vh)`);
+        // TODO: add this back in for iOS if it's a problem
+        // let headerWidth = $("#teamPage #athleteStatPage > .generic_header").height();
+        // $("#teamPage #athleteStatPage #athlete_stat_chart").first().css("margin-top", `calc(${headerWidth}px + 5vh)`);
     }
 
     /**
@@ -486,25 +483,32 @@ class Team extends Page {
 
                 // change to not editing
                 if (_this.isEditing) {
-                    // $($(this)).attr('contenteditable', false);
+                    $($(this)).attr('contenteditable', false);
                     $(this).replaceWith(`<td>${val}</td>`);
-                    $("#teamPage #edit_values_button").html("Edit");
-                    $("#teamPage #edit_values_button").addClass("edit_values_button").removeClass("save_values_button");
+
                     // change to editing
                 } else {
-                    // $($(this)).attr('contenteditable', true);
+                    $($(this)).attr('contenteditable', true);
                     $(this).replaceWith(`<input value="${val}">`);
-                    $("#teamPage #edit_values_button").html("Save")
-                    $("#teamPage #edit_values_button").addClass("save_values_button").removeClass("edit_values_button");
                 }
 
             } else if (isNaN(Number(val))) {
-                // prohibit editing name values
+                // change to not editing
+                if (_this.isEditing) {
+                    $($(this)).attr('contenteditable', false);
+
+                    // change to editing
+                } else {
+                    $($(this)).attr('contenteditable', true);
+                }
             }
         });
 
         // when user clicks save the results
         if (this.isEditing) {
+
+            $("#teamPage #edit_values_button").html("Edit");
+            $("#teamPage #edit_values_button").addClass("edit_values_button").removeClass("save_values_button");
 
             $("#teamPage #athlete_stats_container").addClass("alternating_table_shade");
             $("#teamPage #athlete_stats_container").removeClass("delete_column_red");
@@ -525,11 +529,19 @@ class Team extends Page {
             let newData = this.tableToObject();
 
             for (let i = 0; i < newData.length; i++) {
+                let value = Number(Clock.timeStringToSeconds(newData[i].value));
+
+                // check if there was a bad type and trigger a popup menu only once
+                if (value == null || value == undefined) {
+                    Popup.createConfirmationPopup(`Unable to update results, please try again. (Is your time formatted correctly?)`, ["Ok"]);
+                    this.pageTransition.slideRight("athletePage");
+                    break;
+                }
 
                 if (newData[i].isAdded) { // true if user clicked "Add Value"
                     // Save the record first so the frontend will have a matching id to the backend
 
-                    RecordBackend.saveRecord(Number(newData[i].value), Number(newData[i].id_record_definition), Number(newData[i].id_backend), (response) => {
+                    RecordBackend.saveRecord(value, Number(newData[i].id_record_definition), Number(newData[i].id_backend), (response) => {
                         if (DO_LOG) {
                             console.log("RECORD SAVED " + JSON.stringify(response));
                         }
@@ -537,7 +549,7 @@ class Team extends Page {
                             // Define default fallback values, then use actual values in loop below
                             let recordData = {
                                 "id_record": Number(response["addedRecords"][0]["id_record"]),
-                                "value": Number(newData[i].value),
+                                "value": value,
                                 "id_record_definition": Number(newData[i].id_record_definition),
                                 "is_practice": true,
                                 "is_split": false,
@@ -560,11 +572,11 @@ class Team extends Page {
                         }
                     });
 
-                    // check to see if it contains non-numbers
-                } else if ((/^[0-9.]+$/).test(newData[i].value)) {
-                    dbConnection.updateValues("record", ["value"], [newData[i].value], `WHERE id_record = ?`, [newData[i].id_record]);
+                    // otherwise, update the value
+                } else {
+                    dbConnection.updateValues("record", ["value"], [value], `WHERE id_record = ?`, [newData[i].id_record]);
                     RecordBackend.modifyRecord(newData[i].id_record, {
-                        "value": newData[i].value
+                        "value": value
                     }, (r) => {
                         if ((r.status < 0) && (DO_LOG)) {
                             console.log("[team.js:toggleTableEditable()]: Updating backend failed for ID " + newData[i].id_record);
@@ -573,17 +585,14 @@ class Team extends Page {
 
                 }
             }
-
-            // check if there was a bad type and trigger a popup menu only once
-            if (newData.some((e) => !(/^[0-9.]+$/).test(e.value))) {
-                Popup.createConfirmationPopup(`Unable to update results, please try again. (There may be no duplicate result numbers)`, ["Ok"]);
-                this.pageTransition.slideRight("athletePage");
-            }
             // when user clicks edit
         } else {
 
             $("#teamPage #athlete_stats_container").removeClass("alternating_table_shade");
             $("#teamPage #athlete_stats_container").addClass("delete_column_red");
+
+            $("#teamPage #edit_values_button").html("Save")
+            $("#teamPage #edit_values_button").addClass("save_values_button").removeClass("edit_values_button");
 
             // delete row callback
             $("#athlete_stats_container td").click(function (e) {
@@ -613,7 +622,7 @@ class Team extends Page {
             return {
                 result: $tr.eq(0).text(),
                 date: $tr.eq(1).text(),
-                value: Number($tr.eq(2).text()),
+                value: $tr.eq(2).text(),
                 x: $tr.eq(3).text(),
                 isAdded: $tr.parent().attr("isAdded"),
                 id_record: Number($tr.parent().attr("id_record")),
