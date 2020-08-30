@@ -64,6 +64,10 @@
     background-image: linear-gradient(to right, #fc99b6, #6a81e1);
 }
 
+#stopwatchPage .fadein_popup_bottom {
+    bottom: 14%;
+}
+
 #stopwatchPage #landingPage #slideup {
     position: absolute;
     bottom: 7%;

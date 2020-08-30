@@ -30,6 +30,9 @@ Constant.AJAX_CFG = {
 Constant.fadeDuration = 300;
 Constant.fadeIncrement = 45;
 
+Constant.popupFadeoutDelay = 4000
+Constant.popupFadeoutDuration = 1500;
+
 Constant.boysColor = "#6abce1";
 Constant.girlsColor = "#fc99b6";
 

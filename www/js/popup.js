@@ -38,7 +38,7 @@ class Popup {
         $("#app").append(`
             <div class="popup" id="popup_${popupId}">
     
-                <div class="popup_content">
+                <div class="popup_content popup_top_position">
                     <span class="close">&times;</span>
                     <p class="popup_tooltip">${tooltip}</p><br>
                 </div>
@@ -67,8 +67,8 @@ class Popup {
      * This function will create a simple popup which will fade out immediately
      * @param {String} text the text to be displayed
      */
-    static createFadeoutPopup(text) {
-        $("#app").append(`
+    static createFadeoutPopup(element, text, callback = () => {}) {
+        $(element).append(`
             <div class="popup">
                 <div class="popup_content">
                     ${text}
@@ -76,8 +76,9 @@ class Popup {
             </div>
         `);
 
-        $(".popup:first").fadeOut(1000, function () {
+        $(".popup:first").fadeOut(Constant.popupFadeoutDuration, function () {
             $(this).remove();
+            callback();
         });
     }
 }

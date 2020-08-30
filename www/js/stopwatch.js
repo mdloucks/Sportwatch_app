@@ -486,6 +486,18 @@ class Stopwatch extends Page {
      */
     startSlideupForAthletes(record_definition, gender) {
 
+        $("#stopwatchPage #stopwatch_canvas").after(`
+            <div class="missing_info_text">Tap clcock to start. <br> Tap twice to reset.</div>
+        `);
+
+        setTimeout(() => {
+            $("#stopwatchPage .missing_info_text").fadeOut(Constant.popupFadeoutDuration, function() {
+                $(this).remove();
+            });
+        }, Constant.popupFadeoutDelay);
+
+        
+
         $(`${this.landingPageSelector} #slideup_content`).empty();
         
         // set watch to slide up, then only change stopwatch
