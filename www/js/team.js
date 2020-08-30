@@ -449,6 +449,9 @@ class Team extends Page {
                 tooltips: {
                     enabled: false
                 },
+                ticks: {
+                    precision:0
+                }
             }
         });
     }
@@ -474,48 +477,18 @@ class Team extends Page {
                 val = $(this).find("td").text();
             }
             
-            console.log(val);
-            console.log(this);
-            
             // Skip the delete button
             if(val.includes("X")) {
                 return;
             }
             
             // Since the times are now being formatted as strings, make all fields editable
-            if (_this.isEditing) { // Editing to not editing change
-                $($(this)).attr('contenteditable', false);
-                $(this).replaceWith(`<td>${val}</td>`);
+            if (_this.isEditing && $(this).is("input")) { // Editing to not editing change
+                $(this).parent().replaceWith(`<td>${val}</td>`);
 
-            } else { // Not editing --> Editing changes
-                $($(this)).attr('contenteditable', true);
+            } else if(!_this.isEditing && $(this).is("td")) { // Not editing --> Editing changes
                 $(this).replaceWith(`<td><input value="${val}"></td>`);
             }
-            
-            // strings
-            // if (!isNaN(Number(val))) {
-
-            //     // change to not editing
-            //     if (_this.isEditing) {
-            //         $($(this)).attr('contenteditable', false);
-            //         $(this).replaceWith(`<td>${val}</td>`);
-
-            //         // change to editing
-            //     } else {
-            //         $($(this)).attr('contenteditable', true);
-            //         $(this).replaceWith(`<input value="${val}">`);
-            //     }
-
-            // } else if (isNaN(Number(val))) {
-            //     // change to not editing
-            //     if (_this.isEditing) {
-            //         $($(this)).attr('contenteditable', false);
-
-            //         // change to editing
-            //     } else {
-            //         $($(this)).attr('contenteditable', true);
-            //     }
-            // }
         });
 
         // when user clicks save the results
@@ -633,11 +606,10 @@ class Team extends Page {
     tableToObject() {
         return $(`#athlete_stats_container tr:has(td)`).map(function (i, v) {
             var $tr = $(v).children(); // v stands for value
+
             return {
-                result: $tr.eq(0).text(),
-                date: $tr.eq(1).text(),
-                value: $tr.eq(2).text(),
-                x: $tr.eq(3).text(),
+                date: $tr.eq(0).text(),
+                value: $tr.eq(1).text(),
                 isAdded: $tr.parent().attr("isAdded"),
                 id_record: Number($tr.parent().attr("id_record")),
                 id_backend: $tr.parent().attr("id_backend"),

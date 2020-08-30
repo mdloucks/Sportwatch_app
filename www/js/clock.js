@@ -18,16 +18,24 @@ class Clock {
     static secondsToTimeString(time) {
 
         // convert seconds to ms
-        let formattedTime = new Date(time * 1000);
+        let dateTime = new Date(time * 1000);
+        let formattedTime;
 
-        if (time < 60) {
-            formattedTime = `${formattedTime.getSeconds()}.${formattedTime.getMilliseconds()}`;
-        } else if (time < 60 * 60) {
-            formattedTime = `${formattedTime.getMinutes()}:${formattedTime.getSeconds()}.${formattedTime.getMilliseconds()}`;
-        } else if (time > 60 * 60) {
-            formattedTime = `${formattedTime.getHours()}:${formattedTime.getMinutes()}:${formattedTime.getSeconds()}.${formattedTime.getMilliseconds()}`;
+
+
+        // format for hours
+        if(dateTime.getHours() - 19 >= 1) {
+            formattedTime = dateTime.toISOString().substr(11, 12);
+            // format for minutes
+        } else if(dateTime.getMinutes() >= 1) {
+            formattedTime = dateTime.toISOString().substr(14, 9);
+            // format for seconds
+        } else if(dateTime.getSeconds() >= 1) {
+            formattedTime = dateTime.toISOString().substr(17, 6);
+        } else {
+            formattedTime = dateTime.toISOString().substr(11, 12);
         }
-        
+
         return formattedTime;
     }
 
@@ -35,7 +43,7 @@ class Clock {
 
         string = string.trim();
 
-        if((/^[0-9.:]+$/).test(string)) {
+        if(!(/^[0-9.:]+$/).test(string)) {
             console.log("bad input! " + string);
             return null;
         }
@@ -67,7 +75,7 @@ class Clock {
             ms = timeArray[3];
         }
 
-        let seconds = (h * 60 * 60) + (m * 60) + (s) + (ms / 1000);
+        let seconds = Number(h * 60 * 60) + Number(m * 60) + Number(s) + Number(ms / 1000);
 
         return seconds;
     }
