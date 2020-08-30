@@ -431,7 +431,7 @@ class Stopwatch extends Page {
         let isGirls = true;
 
         // Toggle boys
-        ButtonGenerator.generateToggle(`${this.landingPageSelector} #slideup_content .boys_box`, "Include Boys", () => {
+        ButtonGenerator.generateToggle(`${this.landingPageSelector} #slideup_content .boys_box`, "Boys", () => {
             isBoys = true;
         }, () => {
             isBoys = false;
@@ -439,7 +439,7 @@ class Stopwatch extends Page {
 
 
         // Toggle girls
-        ButtonGenerator.generateToggle(`${this.landingPageSelector} #slideup_content .girls_box`, "Include Girls", () => {
+        ButtonGenerator.generateToggle(`${this.landingPageSelector} #slideup_content .girls_box`, "Girls", () => {
             isGirls = true;
         }, () => {
             isGirls = false;
