@@ -491,7 +491,7 @@ class Stopwatch extends Page {
     startSlideupForAthletes(record_definition, gender) {
 
         $("#stopwatchPage #stopwatch_canvas").after(`
-            <div class="missing_info_text">Tap clcock to start. <br> Tap twice to reset.</div>
+            <div class="missing_info_text">Tap clock to start. <br> Tap twice to reset.</div>
         `);
 
         setTimeout(() => {
