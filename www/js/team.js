@@ -57,7 +57,8 @@ class Team extends Page {
                     <h1>Athlete Stats</h1>
                     <div></div>
                 </div>
-
+                
+                <div id="paddingDiv"></div>
                 <canvas id="athlete_stat_chart"></canvas>
                 <table class="alternating_table_shade" id="athlete_stats_container"></table>
             </div>
@@ -345,12 +346,8 @@ class Team extends Page {
         $("#teamPage #athleteStatPage").append(`<button class="add_values_button action_button" id="add_value_button">Add Value</button>`);
 
         let addContainer = function (e) {
-
-            let nChildren = $("#athlete_stats_container > *").length;
-
             $("#athlete_stats_container").append(`
                 <tr isAdded="true" id_backend="${athlete.id_backend}" id_record_definition="${id_record_definition}">
-                    <td>${nChildren}</td>
                     <td>${new Date(Date.now()).toLocaleDateString("en-US")}</td>
                     <td></td>
                 </tr>
@@ -385,14 +382,12 @@ class Team extends Page {
 
         $("#teamPage #athleteStatPage #athlete_stats_container").append(`
             <tr>
-                <th>Result</th>
                 <th>Date</th>
                 <th>Value</th>
             </tr>
         `);
 
         for (let i = 0; i < results.length; i++) {
-            // TODO: add date to event results
 
             // Parse date (first is local save, second handles server format)
             let date = new Date(results.item(i).last_updated).toLocaleDateString("en-US");
@@ -402,7 +397,6 @@ class Team extends Page {
 
             let row = (`
                 <tr id_record=${results.item(i).id_record}>
-                    <td>${i + 1}</td>
                     <td>${date}</td>
                     <td>${Clock.secondsToTimeString(results.item(i).value)}</td>
                 </tr>
@@ -412,9 +406,8 @@ class Team extends Page {
         }
 
         // Add the padding now that the table has been created
-        // TODO: add this back in for iOS if it's a problem
-        // let headerWidth = $("#teamPage #athleteStatPage > .generic_header").height();
-        // $("#teamPage #athleteStatPage #athlete_stat_chart").first().css("margin-top", `calc(${headerWidth}px + 5vh)`);
+        let headerWidth = $("#teamPage #athleteStatPage > .generic_header").height();
+        $("#teamPage #athleteStatPage #paddingDiv").first().css("margin-top", `calc(${headerWidth}px + 5vh)`);
     }
 
     /**
@@ -477,31 +470,52 @@ class Team extends Page {
             if ((val == null) || (val.length == 0)) { // Inputs use .val()
                 val = $(this).val();
             }
-
-            // strings
-            if (!isNaN(Number(val))) {
-
-                // change to not editing
-                if (_this.isEditing) {
-                    $($(this)).attr('contenteditable', false);
-                    $(this).replaceWith(`<td>${val}</td>`);
-
-                    // change to editing
-                } else {
-                    $($(this)).attr('contenteditable', true);
-                    $(this).replaceWith(`<input value="${val}">`);
-                }
-
-            } else if (isNaN(Number(val))) {
-                // change to not editing
-                if (_this.isEditing) {
-                    $($(this)).attr('contenteditable', false);
-
-                    // change to editing
-                } else {
-                    $($(this)).attr('contenteditable', true);
-                }
+            if ((val == null) || (val.length == 0)) { // Inputs use .val()
+                val = $(this).find("td").text();
             }
+            
+            console.log(val);
+            console.log(this);
+            
+            // Skip the delete button
+            if(val.includes("X")) {
+                return;
+            }
+            
+            // Since the times are now being formatted as strings, make all fields editable
+            if (_this.isEditing) { // Editing to not editing change
+                $($(this)).attr('contenteditable', false);
+                $(this).replaceWith(`<td>${val}</td>`);
+
+            } else { // Not editing --> Editing changes
+                $($(this)).attr('contenteditable', true);
+                $(this).replaceWith(`<td><input value="${val}"></td>`);
+            }
+            
+            // strings
+            // if (!isNaN(Number(val))) {
+
+            //     // change to not editing
+            //     if (_this.isEditing) {
+            //         $($(this)).attr('contenteditable', false);
+            //         $(this).replaceWith(`<td>${val}</td>`);
+
+            //         // change to editing
+            //     } else {
+            //         $($(this)).attr('contenteditable', true);
+            //         $(this).replaceWith(`<input value="${val}">`);
+            //     }
+
+            // } else if (isNaN(Number(val))) {
+            //     // change to not editing
+            //     if (_this.isEditing) {
+            //         $($(this)).attr('contenteditable', false);
+
+            //         // change to editing
+            //     } else {
+            //         $($(this)).attr('contenteditable', true);
+            //     }
+            // }
         });
 
         // when user clicks save the results
