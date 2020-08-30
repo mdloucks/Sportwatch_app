@@ -604,7 +604,7 @@ class Stopwatch extends Page {
                 }
             }
 
-            if(isSavedRecordsEmpty && isunSavedRecordsEmpty) {
+            if(isSavedRecordsEmpty && isUnsavedRecordsEmpty) {
                 $("#slideup").removeClass('male_color');
                 $("#slideup").removeClass('female_color');
                 $("#slideup").addClass('slideup_contracted');
