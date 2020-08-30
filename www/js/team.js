@@ -57,7 +57,8 @@ class Team extends Page {
                     <h1>Athlete Stats</h1>
                     <div></div>
                 </div>
-
+                
+                <div id="paddingDiv"></div>
                 <canvas id="athlete_stat_chart"></canvas>
                 <table class="alternating_table_shade" id="athlete_stats_container"></table>
             </div>
@@ -412,9 +413,8 @@ class Team extends Page {
         }
 
         // Add the padding now that the table has been created
-        // TODO: add this back in for iOS if it's a problem
-        // let headerWidth = $("#teamPage #athleteStatPage > .generic_header").height();
-        // $("#teamPage #athleteStatPage #athlete_stat_chart").first().css("margin-top", `calc(${headerWidth}px + 5vh)`);
+        let headerWidth = $("#teamPage #athleteStatPage > .generic_header").height();
+        $("#teamPage #athleteStatPage #paddingDiv").first().css("margin-top", `calc(${headerWidth}px + 5vh)`);
     }
 
     /**
