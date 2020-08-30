@@ -655,9 +655,7 @@ class Team extends Page {
     }
 
     stop() {
-        // Animations.hideChildElements(this.athleteButtonsBoxSelectorMales);
-        // Animations.hideChildElements(this.athleteButtonsBoxSelectorFemales);
+        this.pageTransition.slideRight("landingPage");
         Animations.hideChildElements(this.athleteBoxSelector);
-        // $(`${this.landingPageSelector} #team_name`).hide();
     }
 }

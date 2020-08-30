@@ -428,6 +428,7 @@ class Stats extends Page {
 
 
     stop() {
+        this.pageTransition.slideRight("landingPage");
         Animations.hideChildElements(this.eventButtonsBoxSelector);
     }
 }
