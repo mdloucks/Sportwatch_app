@@ -66,30 +66,27 @@
     background-color: gray;
 }
 
-#teamPage .delete_column_red tr td:nth-child(4) {
+#teamPage .delete_column_red tr td:nth-child(3) {
     background: red;
     font-size: 1.5em;
 }
 
 /* Try to prevent text breaks */
-#teamPage .alternating_table_shade th:nth-child(1) {
-    width: 25%;
+#teamPage #athlete_stats_container tr > *:nth-child(1) {
+    width: 35%;
 }
-#teamPage .alternating_table_shade th:nth-child(2) {
-    width: 40%;
+#teamPage #athlete_stats_container tr > *:nth-child(2) {
+    width: 50%;
 }
-
-#teamPage .delete_column_red th:nth-child(1) {
-    width: 25%;
-}
-#teamPage .delete_column_red th:nth-child(2) {
-    width: 21%;
+#teamPage #athlete_stats_container tr > *:nth-child(3) {
+    width: 15%;
 }
 
 #teamPage .delete_column_red input {
-    width: 70%;
+    width: 100%;
     margin: 0;
     padding: 0;
+    font-size: 1em;
     font-family: 'Courier New', Courier, monospace;
     text-align: center;
     border: none;
