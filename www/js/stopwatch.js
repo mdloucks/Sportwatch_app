@@ -324,6 +324,10 @@ class Stopwatch extends Page {
         }
 
         $(`${this.landingPageSelector} #slideup_content`).empty();
+
+        $("#slideup").removeClass('male_color');
+        $("#slideup").removeClass('female_color');
+        $("#slideup").removeClass('slideup_both_genders');
     }
 
     /**

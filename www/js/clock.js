@@ -33,33 +33,41 @@ class Clock {
 
     static timeStringToSeconds(string) {
 
-        if((/^[0-9,:]+$/).test(string)) {
+        string = string.trim();
+
+        if((/^[0-9.:]+$/).test(string)) {
             console.log("bad input! " + string);
             return null;
         }
 
         // split by period and colon
         let timeArray = string.split(/[\.:]+/);
-        let secondsTime = new Date();
+        let h = 0;
+        let m = 0;
+        let s = 0;
+        let ms = 0;
 
         // seconds
-        if(timeArray.length == 2) {
-            secondsTime.setSeconds(timeArray[0]);
-            secondsTime.setMilliseconds(timeArray[1]);
-            // minutes
+        if(timeArray.length == 1) {
+            s = timeArray[0];
+        // minutes
+        } else if (timeArray.length == 2) {
+            s = timeArray[0];
+            ms = timeArray[1];
+        // minutes seconds milliseconds
         } else if(timeArray.length == 3) {
-            secondsTime.setMinutes(timeArray[0]);
-            secondsTime.setSeconds(timeArray[1]);
-            secondsTime.setMilliseconds(timeArray[2]);
+            m = timeArray[0];
+            s = timeArray[1];
+            ms = timeArray[2];
             // hours 
         } else if(timeArray.length == 4) {
-            secondsTime.setHours(timeArray[0]);
-            secondsTime.setMinutes(timeArray[1]);
-            secondsTime.setSeconds(timeArray[2]);
-            secondsTime.setMilliseconds(timeArray[3]);
+            h = timeArray[0];
+            m = timeArray[1];
+            s = timeArray[2];
+            ms = timeArray[3];
         }
 
-        let seconds = (secondsTime.getHours() * 60 * 60) + (secondsTime.getMinutes() * 60) + (secondsTime.getSeconds()) + (secondsTime.getMilliseconds() / 1000);
+        let seconds = (h * 60 * 60) + (m * 60) + (s) + (ms / 1000);
 
         return seconds;
     }
