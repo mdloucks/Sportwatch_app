@@ -146,7 +146,7 @@ class Stats extends Page {
                     <div class="missing_info_text">
                         <h2>No Times Saved Yet</h2>
                         It looks like you don't have any times saved yet. <br><br>
-                        Go to the Stopwatch page and save a time to get startedz.
+                        Go to the Stopwatch page and save a time to get started.
                     </div>
                     `);
                 }
@@ -428,7 +428,7 @@ class Stats extends Page {
 
 
     stop() {
-        this.pageTransition.slideRight("landingPage");
+        // this.pageTransition.slideRight("landingPage");
         Animations.hideChildElements(this.eventButtonsBoxSelector);
     }
 }
