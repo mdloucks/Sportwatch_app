@@ -21,7 +21,6 @@ class MainSet extends PageSet {
     // ---- OVERRIDE METHODS ---- //
     
     constructPages() {
-        // TODO: sorry seth, I'm testing the team page, just change TeamLanding back
         this.pageArray = [Stopwatch, Stats, TeamLanding, Settings].map((page, i) => new page(i, this));
         this.pageArray.forEach((pageObj, pageIndex) => {
             let shouldShow = false; // Should be page be visible at start? (only for first page)

@@ -81,4 +81,61 @@ class Popup {
             callback();
         });
     }
+
+    /**
+     * This function will prompt the user with a sportwatch membership
+     * which will include info, and payment options.
+     * 
+     * @param {function} callback callback when done
+     */
+    static createMembershipPopup(callback) {
+
+        $(".navbar").addClass("hidden");
+        
+        $("#app").append(`
+            <div class="popup white_background">
+
+                <div class="left_container">
+                    <div class="left_text underline" style="font-size: 3em;">Sportwatch Membership</div><br><br>
+                </div>
+
+                <div class="membership_popup_description">
+                Make your data work for you,<br>
+                Not the othe way around. <br><br>
+                <b>Buy now, and gain the following:</b>
+                </div>
+
+                <ul class="missing_info_text" style="font-style: italic;">
+                    <li>Unlimited athletes</li>
+                    <li>Keep data from old seasons</li>
+                <ul>
+
+                <button class="membership_purchase_button">
+                    $9.99
+                </button>
+            </div>
+        `);
+
+        // continue this here https://purchase.cordova.fovea.cc/use-cases/subscription-android 
+
+        $(".membership_purchase_button").click(function (e) { 
+            store.register([{
+                id:    'membership_2020',
+                type:   store.PAID_SUBSCRIPTION,
+            }]);
+        
+            // Setup the receipt validator service.
+            store.validator = '<<< YOUR_RECEIPT_VALIDATION_URL >>>';
+        
+            // Show errors for 10 seconds.
+            store.error(function(error) {
+                console.log("THERE WAS AN ERROR " + error);
+            });
+        
+            // Later, we will add our events handlers here
+        
+            // Load informations about products and purchases
+            store.refresh();
+        });
+    }   
 }
