@@ -27,13 +27,13 @@ class App {
         dbConnection = new DatabaseConnection();
 
         this.swipeHandler = new SwipeHolder("#app");
-        FastClick.attach(document.body);
+        // FastClick.attach(document.body); // Matt: Uncomment if clicks are slow; delete otherwise
+        
+        $(".loader").remove();
+        $("#app").html(""); // Clear so it's a clean slate to add to
         
         // Pull data from the backend, then start the app
         ToolboxBackend.pullFromBackend().then(() => {
-
-            $(".loader").remove();
-            $("#app").html(""); // Clear so it's a clean slate to add to
 
             this.initializeUI();
 
