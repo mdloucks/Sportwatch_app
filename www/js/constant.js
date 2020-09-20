@@ -10,14 +10,15 @@ class Constant {
 // outside of declaration
 Constant.DIR_CSS = "css/";
 
+Constant.HOSTNAME = "https://dev.sportwatch.us/"; // Append "dev." for testing
 Constant.URL = {
-    signup: "https://sportwatch.us/mobile/signup.php",
-    login: "https://sportwatch.us/mobile/login.php",
-    account_action: "https://sportwatch.us/mobile/account-action.php",
-    record_action: "https://sportwatch.us/mobile/record-action.php",
-    team_create: "https://sportwatch.us/mobile/team-create.php",
-    team_action: "https://sportwatch.us/mobile/team-action.php",
-    toolbox: "https://sportwatch.us/mobile/other-action.php"
+    signup: Constant.HOSTNAME + "mobile/signup.php",
+    login: Constant.HOSTNAME + "mobile/login.php",
+    account_action: Constant.HOSTNAME + "mobile/account-action.php",
+    record_action: Constant.HOSTNAME + "mobile/record-action.php",
+    team_create: Constant.HOSTNAME + "mobile/team-create.php",
+    team_action: Constant.HOSTNAME + "mobile/team-action.php",
+    toolbox: Constant.HOSTNAME + "mobile/other-action.php"
 };
 
 /**
