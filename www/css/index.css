@@ -24,6 +24,11 @@ span {
 
 input {
     -webkit-appearance: none;
+    -webkit-tap-highlight-color: rgba(0, 0, 0, 0);
+}
+
+button {
+    -webkit-tap-highlight-color: rgba(0, 0, 0, 0);
 }
 
 .loader {
@@ -148,6 +153,7 @@ https://css-tricks.com/places-its-tempting-to-use-display-none-but-dont/ */
     background: rgb(64, 202, 0);
     border-radius: 50%;
     border: 2px solid black;
+    -webkit-tap-highlight-color: rgba(0, 0, 0, 0);
 }
 
 .button_selected {
@@ -176,6 +182,7 @@ https://css-tricks.com/places-its-tempting-to-use-display-none-but-dont/ */
 
     border-radius: 7.5%;
     border: 2px solid black;
+    -webkit-tap-highlight-color: rgba(0, 0, 0, 0);
 }
 
 /* generic table layout */
