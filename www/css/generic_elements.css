@@ -9,6 +9,7 @@ This is to limit the file size for our page specific styles
     border-radius: 20px;
     border: none;
     outline: none;
+    -webkit-tap-highlight-color: rgba(0, 0, 0, 0);
 }
 
 .sw_big_button {
@@ -21,6 +22,7 @@ This is to limit the file size for our page specific styles
     color: white;
     -webkit-appearance: none;
     outline: none;
+    -webkit-tap-highlight-color: rgba(0, 0, 0, 0);
 }
 
 .sw_text_input {
@@ -32,6 +34,7 @@ This is to limit the file size for our page specific styles
     width: 60%;
     outline: none;
     -webkit-appearance: none;;
+    -webkit-tap-highlight-color: rgba(0, 0, 0, 0);
 }
 
 .back_arrow {

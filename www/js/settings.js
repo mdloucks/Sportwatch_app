@@ -97,7 +97,15 @@ class Settings extends Page {
         $("#settingsPage #editPage input").click((e) => {
             $(e.target).focus();
         })
-
+        
+        // Start the currently selected page in case it isn't the landing page
+        let activeEditPage = $("#settingsPage #editPage #editName").text();
+        if(activeEditPage.includes("Account")) {
+            this.startMyAccount();
+        } else if(activeEditPage.includes("Team")) {
+            this.startTeamPreferences();
+        }
+        
         // ---- MISC PAGE LOGIC ---- //
 
         $("#settingsPage .back_button").click((e) => {

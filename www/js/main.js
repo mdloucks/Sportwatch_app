@@ -27,7 +27,9 @@ class App {
         dbConnection = new DatabaseConnection();
 
         this.swipeHandler = new SwipeHolder("#app");
-        // FastClick.attach(document.body); // Matt: Uncomment if clicks are slow; delete otherwise
+        if(device.platform != "iOS") {
+            FastClick.attach(document.body); // iOS double clicks don't work with this plugin
+        }
         
         $(".loader").remove();
         $("#app").html(""); // Clear so it's a clean slate to add to
