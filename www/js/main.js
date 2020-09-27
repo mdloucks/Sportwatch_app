@@ -20,6 +20,10 @@ class App {
 
     onReady() {
         this.startApp();
+
+        // setTimeout(() => {
+
+        // }, 5000);
     }
 
     startApp() {
@@ -31,11 +35,12 @@ class App {
             FastClick.attach(document.body); // iOS double clicks don't work with this plugin
         }
         
-        $(".loader").remove();
-        $("#app").html(""); // Clear so it's a clean slate to add to
-        
         // Pull data from the backend, then start the app
         ToolboxBackend.pullFromBackend().then(() => {
+            
+            setTimeout(() => {
+                $(".loader_container").remove();
+            }, 4000);
 
             this.initializeUI();
 
