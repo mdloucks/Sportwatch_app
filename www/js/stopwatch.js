@@ -591,7 +591,9 @@ class Stopwatch extends Page {
                 }
 
 
+                // populate the athletes and set the callback on click
                 ButtonGenerator.generateButtonsFromDatabase(`${this.landingPageSelector} #slideup_content`, athletes, (athlete) => {
+                    navigator.vibrate(25);
                     this.saveTime(record_definition, athlete);
                     
                     $(`${this.landingPageSelector} #slideup_content #${athlete.id}`).remove();
@@ -607,8 +609,12 @@ class Stopwatch extends Page {
                         this.toggleSlideup();
                         this.resetStopwatch();
 
-                        Popup.createConfirmationPopup(`Successfully saved times for the ${eventName}!`, ["Ok"], [() => {
-                        }]);
+                        navigator.notification.alert(
+                            'Times saved successfully!',  // message
+                            () => {},         // callback
+                            'Event Completed',            // title
+                            'OK'                  // buttonName
+                        );
 
                         // stop here
                     }
