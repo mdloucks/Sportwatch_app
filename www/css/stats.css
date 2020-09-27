@@ -19,25 +19,21 @@
     width: 100%;
     table-layout: fixed;
     word-wrap: break-word;
-    border-collapse: collapse;
-    border: 1px solid gray;
-    margin-top: 2em;
-}
-
-#statsPage #eventPage #event_results .column_names {
-    font-size: 2.5em;
-    margin-bottom: 10px;
-    padding-bottom: 10px;
     font-weight: bold;
 }
 
-#statsPage #eventPage #event_results .column_names th {
-    border: 3px solid black;
+#statsPage #eventPage #event_results thead {
+    font-size: 1.1em;
+    font-weight: bolder;
 }
 
-#statsPage td { 
+.dataTables_wrapper {
     font-size: 2em;
-    border: 1px solid gray;
+}
+
+
+#statsPage #eventPage #event_results .column_names th {
+    border: 3px solid black;
 }
 
 #statsPage #save_csv {

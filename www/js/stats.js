@@ -35,26 +35,26 @@ class Stats extends Page {
         `);
 
         this.eventPage = (`
-        <div id="eventPage" class="div_page">
-            <div id="event_header" class="generic_header">
-                <div id="back_button_event" class="back_button">&#9668;</div>
-                <h1 id="event_name"></h1>
-                <div></div>
-            </div>
-            
-            <button id="save_csv" class="generated_button">Save to CSV file</button>
+            <div id="eventPage" class="div_page">
+                <div id="event_header" class="generic_header">
+                    <div id="back_button_event" class="back_button">&#9668;</div>
+                    <h1 id="event_name"></h1>
+                    <div></div>
+                </div>
+                
+                <button id="save_csv" class="generated_button">Save to CSV file</button><br><br>
 
-            <table id="event_results">
-                <tr class="column_names">
-                    <th id="name_sort">Name<span>&#9660;</span>></th>
-                    <th id="best_sort">Best</th>
-                    <th id="avg_sort">Avg</th>
-                    <th id="worst_sort">Worst</th>
-                </tr>
-            </table>
-        </div>
+                <table id="event_results" class="display striped compact">
+                </table>
+            </div>
         `);
 
+            // <tr class="column_names">
+            //     <th id="name_sort">Name<span>&#9660;</span>></th>
+            //     <th id="best_sort">Best</th>
+            //     <th id="avg_sort">Avg</th>
+            //     <th id="worst_sort">Worst</th>
+            // </tr>
 
         // TODO: deprecated
         this.addEventPage = (`
@@ -180,6 +180,7 @@ class Stats extends Page {
 
         $("#statsPage #eventPage #back_button_event").bind("click", (e) => {
             this.pageTransition.slideRight("landingPage");
+            $("#event_results").empty();
             // Reset the scroll
             $("#stopwatchPage").animate({
                 scrollTop: 0
@@ -325,55 +326,81 @@ class Stats extends Page {
 
         // get all values from record that have an athlete value for a particular event
 
-        dbConnection.selectValues(this.athleteRecordQuery, [event.rowid]).then((results) => {
+        dbConnection.selectValuesAsObject(this.athleteRecordQuery, [event.rowid]).then((results) => {
 
-            if(results == false) {
-                return;
+            for (let i = 0; i < results.length; i++) {
+                console.log(JSON.stringify(results[i]));
             }
 
-            let athletes = this.constructAthleteTimeArray(results, order);
-
-            for (let i = 0; i < athletes.length; i++) {
-
-                if (athletes[i] === null || athletes[i] === undefined) {
-                    continue;
+            let tabulator = new Tabulator();
+            tabulator.generateTable("#statsPage #eventPage #event_results", results, [
+                {
+                    data: "lname",
+                    title: "Last Name"
+                },
+                {
+                    data: "value",
+                    title: "Value"
+                },
+                {
+                    data: "last_updated",
+                    title: "Date",
+                    render : function ( data, type, row ) {
+                        return data.substring(0, 10);
+                    }
                 }
-
-                let name = athletes[i].fname + "\t" + athletes[i].lname;
-                let min = Clock.secondsToTimeString(Math.min(...athletes[i].values).toFixed(2));
-                let max = Clock.secondsToTimeString(Math.max(...athletes[i].values).toFixed(2));
-                let average = Clock.secondsToTimeString((athletes[i].values.reduce((a, b) => a + b, 0) / athletes[i].values.length).toFixed(2));
-
-                let info_box;
-
-                if (athletes[i].gender == 'm') {
-                    info_box = $("<tr>", {
-                        class: "male_color_alternate"
-                    });
-                } else if (athletes[i].gender == 'f') {
-                    info_box = $("<tr>", {
-                        class: "female_color_alternate"
-                    });
-                } else {
-                    info_box = $("<tr>");
-                }
-
-                info_box.append($("<td>", {
-                    text: name
-                }));
-                info_box.append($("<td>", {
-                    text: min
-                }));
-                info_box.append($("<td>", {
-                    text: average
-                }));
-                info_box.append($("<td>", {
-                    text: max
-                }));
-
-                $("#statsPage #eventPage #event_results").append(info_box);
-            }
+            ]);
         });
+
+        // dbConnection.selectValues(this.athleteRecordQuery, [event.rowid]).then((results) => {
+
+        //     if(results == false) {
+        //         return;
+        //     }
+
+        //     let athletes = this.constructAthleteTimeArray(results, order);
+
+        //     for (let i = 0; i < athletes.length; i++) {
+
+        //         if (athletes[i] === null || athletes[i] === undefined) {
+        //             continue;
+        //         }
+
+        //         let name = athletes[i].fname + "\t" + athletes[i].lname;
+        //         let min = Clock.secondsToTimeString(Math.min(...athletes[i].values).toFixed(2));
+        //         let max = Clock.secondsToTimeString(Math.max(...athletes[i].values).toFixed(2));
+        //         let average = Clock.secondsToTimeString((athletes[i].values.reduce((a, b) => a + b, 0) / athletes[i].values.length).toFixed(2));
+
+        //         let info_box;
+
+        //         if (athletes[i].gender == 'm') {
+        //             info_box = $("<tr>", {
+        //                 class: "male_color_alternate"
+        //             });
+        //         } else if (athletes[i].gender == 'f') {
+        //             info_box = $("<tr>", {
+        //                 class: "female_color_alternate"
+        //             });
+        //         } else {
+        //             info_box = $("<tr>");
+        //         }
+
+        //         info_box.append($("<td>", {
+        //             text: name
+        //         }));
+        //         info_box.append($("<td>", {
+        //             text: min
+        //         }));
+        //         info_box.append($("<td>", {
+        //             text: average
+        //         }));
+        //         info_box.append($("<td>", {
+        //             text: max
+        //         }));
+
+        //         $("#statsPage #eventPage #event_results").append(info_box);
+        //     }
+        // });
     }
 
     /**
@@ -415,14 +442,14 @@ class Stats extends Page {
      */
     clearResultsTable() {
 
-        $("#statsPage #eventPage #event_results").html(`
-            <tr class="column_names">
-                <th id="name_sort">Name</th>
-                <th id="best_sort">Best</th>
-                <th id="avg_sort">Avg</th>
-                <th id="worst_sort">Worst</th>
-            </tr>
-        `); // <span>&#9660;</span>
+        // $("#statsPage #eventPage #event_results").html(`
+        //     <tr class="column_names">
+        //         <th id="name_sort">Name</th>
+        //         <th id="best_sort">Best</th>
+        //         <th id="avg_sort">Avg</th>
+        //         <th id="worst_sort">Worst</th>
+        //     </tr>
+        // `); // <span>&#9660;</span>
     }
 
 

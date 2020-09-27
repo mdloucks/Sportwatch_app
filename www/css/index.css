@@ -41,7 +41,7 @@ button {
     left: 0;
     right: 0;
     z-index: 2;
-    background-color: lightgray;
+    background-color: rgb(229, 229, 234);
 }
 
 .loader {
@@ -52,7 +52,7 @@ button {
     right: 0;
     z-index: 3;
     margin: auto;
-    border: 16px solid #f3f3f3;
+    border: 8px solid #dd3333;
     /* Light grey */
     border-top: 16px groove black;
     /* Blue */

@@ -6,10 +6,11 @@
  */
 class Tabulator {
 
-    generateTable(element, data) {
+    generateTable(element, data, cols) {
         $(element).DataTable( {
+            destroy: true,
             data: data,
-            columns: [{"data": "fname"}, {"data": "lname"}]
-        } );
+            columns: cols
+        });
     }
 }

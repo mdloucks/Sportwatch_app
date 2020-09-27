@@ -20,10 +20,6 @@ class App {
 
     onReady() {
         this.startApp();
-
-        // setTimeout(() => {
-
-        // }, 5000);
     }
 
     startApp() {
