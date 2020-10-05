@@ -5,6 +5,16 @@
 class PlanBackend {
     // Docs: https://www.sportwatch.us/mobile/docs#plan
     
+    // More detailed documentation coming in the future
+    // For now, know that callback should take a boolean: does the user have a paid subscription (true/false)?
+    static isPremiumMember(targetEmailOrId, callback) {
+        
+        // Placeholder function until Seth can write a fully worked out solution
+        if(true) {
+            callback(true);
+        }
+    }
+    
     /**
      * Submits a request to the backend to retrieve the user's active subscription
      * plan. The email address or numerical ID of the user can be given in the first
