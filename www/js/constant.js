@@ -15,6 +15,7 @@ Constant.URL = {
     signup: Constant.HOSTNAME + "mobile/signup.php",
     login: Constant.HOSTNAME + "mobile/login.php",
     account_action: Constant.HOSTNAME + "mobile/account-action.php",
+    plan_action: Constant.HOSTNAME + "mobile/plan-action.php",
     record_action: Constant.HOSTNAME + "mobile/record-action.php",
     team_create: Constant.HOSTNAME + "mobile/team-create.php",
     team_action: Constant.HOSTNAME + "mobile/team-action.php",
