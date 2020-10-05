@@ -33,11 +33,6 @@ class App {
         
         // Pull data from the backend, then start the app
         ToolboxBackend.pullFromBackend().then(() => {
-            
-            setTimeout(() => {
-                $(".loader_container").remove();
-            }, 4000);
-
             this.initializeUI();
 
             if (DO_LOG) {
@@ -53,6 +48,8 @@ class App {
     }
 
     initializeUI() {
+        $(".loader_container").remove();
+        
         // ---- PAGE SETS ---- //
         this.mainSet = new MainSet(this.swipeHandler, this.setActivePageSet, this);
         this.mainSet.constructPages();
@@ -61,6 +58,21 @@ class App {
         this.welcomeSet.constructPages();
 
         this.determinePageSet();
+        
+        // Test Requests for Plan Usage (Remove as needed)
+        PlanBackend.getActivePlan("will@sportwatch.us", (r) => {
+            console.log(r.status);
+        });
+        PlanBackend.changePlan("", 1, (r) => {
+            console.log(r.planName);
+        });
+        PlanBackend.approvePayment("", 3.99, (r) => {
+            console.log(r);
+        });
+        // PlanBackend.makePayment("", 3.99, (r) => {
+        //     console.log(r.substatus);
+        // });
+        
     }
 
     /**
