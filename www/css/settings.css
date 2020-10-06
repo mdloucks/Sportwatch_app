@@ -12,7 +12,7 @@
 }
 
 #settingsPage .generic_selected {
-    background-color: crimson;
+    background-color: #dd3333;
 }
 
 #settingsPage #editPage p {
@@ -40,13 +40,14 @@
 }
 
 #settingsPage .cat_button {
+    font-weight: bolder;
     padding: 15px;
     margin: 15px;
     width: 90%;
     text-align: left;
-    font-size: 15px;
+    font-size: 2em;
     border-style: solid;
-    border-color: crimson;
+    border-color: #dd3333;
     border-radius: 20px;
     background-color: white;
     outline: none;
@@ -54,7 +55,7 @@
 }
 
 #settingsPage .cat_button_selected {
-    background-color: crimson;
+    background-color: #dd3333;
 }
 
 #settingsPage .cat_desc {
@@ -77,7 +78,7 @@
 #settingsPage #editPage > #account_edit_inputs > input {
     padding: 10px;
     border-width: 2px;
-    border-color: crimson;
+    border-color: #dd3333;
     margin-bottom: 15px;
     font-size: 1.5em;
     width: 60%;
@@ -117,7 +118,7 @@
 }
 
 #editPage input:checked + .slider {
-    background-color: crimson;
+    background-color: #dd3333;
 }
 
 #settingsPage #changeTeamButton {
@@ -141,7 +142,7 @@
 }
 
 #settingsPage form > .generated_button { /* Remove athlete button */
-    background-color: crimson;
+    background-color: #dd3333;
 }
 #settingsPage form > .generated_button:disabled {
     background-color: lightgray;
@@ -154,7 +155,7 @@
     height: 30px;
     text-align: center;
     border-style: solid;
-    border-color: crimson;
+    border-color: #dd3333;
     border-width: 1px;
     border-radius: 20px;
     background-color: white;
