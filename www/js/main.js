@@ -60,15 +60,15 @@ class App {
         this.determinePageSet();
         
         // Test Requests for Plan Usage (Remove as needed)
-        PlanBackend.getActivePlan("will@sportwatch.us", (r) => {
-            console.log(r.status);
-        });
-        PlanBackend.changePlan("", 1, (r) => {
-            console.log(r.planName);
-        });
-        PlanBackend.approvePayment("", 3.99, (r) => {
-            console.log(r);
-        });
+        // PlanBackend.getActivePlan("will@sportwatch.us", (r) => {
+        //     console.log(r.status);
+        // });
+        // PlanBackend.changePlan("", 1, (r) => {
+        //     console.log(r.planName);
+        // });
+        // PlanBackend.approvePayment("", 3.99, (r) => {
+        //     console.log(r);
+        // });
         // PlanBackend.makePayment("", 3.99, (r) => {
         //     console.log(r.substatus);
         // });
