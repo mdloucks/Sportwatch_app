@@ -111,6 +111,24 @@
     margin-bottom: 6em;
 }
 
+#stopwatchPage #landingPage #slideup_content .selected_button {
+    border: 2px dashed black;
+    background-color: yellow;
+}
+
+#done_adding_events_button {
+    position: sticky;
+    top: 0;
+    left: 0;
+    width: 100%;
+    background-color: rgb(48, 208, 88);
+    border: 2px solid black;
+    z-index: 1;
+    padding: 8px;
+    font-size: 2.5em;
+}
+
+
 #stopwatchPage #landingPage .girls_box {
     margin: 2em;
 }
