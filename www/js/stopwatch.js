@@ -12,17 +12,22 @@ class Stopwatch extends Page {
         this.pageTransition = new PageTransition("#stopwatchPage");
         this.lap_times = [];
 
+        // this has all of the events the the user has held down, or clicked
+        this.selectedEvents = [];
+
+        // the length of the slidedown
         this.chooseEventSlideAmount = 40;
-        this.chooseEventTransitionDuration = 650;
+        this.chooseEventTransitionDuration = 550;
         this.isSlideupActive = false;
         this.isSlideupTransitioning = false;
 
+        // paths
         this.stopButtonPath = "img/stop_button.png";
         this.playButtonPath = "img/play_button.png";
         this.upArrowPath = "img/up_arrow_transparent.png";
         this.downArrowPath = "img/down_arrow_transparent.png";
 
-        this.defaultSlideupText = "Choose An Event";
+        this.defaultSlideupText = "Choose Event";
         this.currentSlideupText = this.defaultSlideupText;
 
         this.selectedAthleteId = null;
@@ -296,6 +301,8 @@ class Stopwatch extends Page {
             // slide up
         } else {
             
+            // start the slideup for events by default on slide up
+            // but when the record id exists, then slideup for athletes
             if(this.selectedRecordDefinitionId == null) {
                 this.startSlideupForEvents((record_definition, gender) => {
                     this.selectedRecordDefinitionId = record_definition;
@@ -419,6 +426,7 @@ class Stopwatch extends Page {
 
     startSlideupForEvents(callback) {
 
+        // <button id="done_adding_events_button">Use Selected Events</button>
         $(`${this.landingPageSelector} #slideup_content`).html(`
             <div class="toggle_box">
                 <div class="boys_box"><div>
@@ -463,6 +471,7 @@ class Stopwatch extends Page {
                     this.currentSlideupText = record_definition.record_identity
                     this.selectedRecordDefinitionGender = gender;
 
+                    // callback for startSlideupForAthletes to start on event click
                     let onSlideDoneFunction = function() {
                         callback(record_definition, gender);
                     }.bind(this);
@@ -471,6 +480,17 @@ class Stopwatch extends Page {
                 }, ["id_record_definition", "value", "is_split",
                     "id_relay", "id_relay_index", "last_updated", "unit"
                 ], Constant.eventColorConditionalAttributes, "class");
+
+                $(`${this.landingPageSelector} #slideup_content *`).bind("longclick", (e) => {
+
+                    let id = $(e.target).attr("id");
+
+                    // strip the classes and restyle it
+                    if(id != undefined) {
+                        $(`#stopwatchPage #${id}`).removeClass();
+                        $(`#stopwatchPage #${id}`).addClass("generated_button selected_button");
+                    }
+                });
 
                 $(`${this.landingPageSelector} #slideup_content`).append("<br><br><br><br><br><br>");
             } else {

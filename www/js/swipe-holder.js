@@ -14,6 +14,13 @@ class SwipeHolder {
         this.currentTouch = []; // [x, y]  (Max length of 2)
         this.touchHistory = []; // Formatted as [0: [{initX, initY}, {endX, endY}], 1: ...]
         this.gestureHistory = []; // Consists of Gestures enum
+
+        this.longClickCallback = (element) => {
+            $(element).trigger("longclick");
+        }
+
+        this.longClickTimeoutObject = undefined;
+
         // Most recent will be at index 0
 
         // Fired during certain events
@@ -72,16 +79,20 @@ class SwipeHolder {
      */
     attachToElement(elementId) {
 
+        let _this = this;
+
         // START TOUCH
-        $(elementId).bind("touchstart", (e) => {
+        $(elementId).bind("touchstart", function (e) {
+
+            _this.longClickTimeoutObject = setTimeout(_this.longClickCallback.bind(_this, e.target), Constant.longClickMinimumDuration);
 
             // Now, add to the arrays for each touch
             for (let t = 0; t < e.changedTouches.length; t++) {
                 let touch = e.changedTouches[t];
-                this.currentTouch = touch;
-                this.touchHistory.unshift([touch, null]); // Set endTouch null, for now
-                if (this.touchHistory.length > this.MAX_HISTORY) {
-                    this.touchHistory.pop();
+                _this.currentTouch = touch;
+                _this.touchHistory.unshift([touch, null]); // Set endTouch null, for now
+                if (_this.touchHistory.length > _this.MAX_HISTORY) {
+                    _this.touchHistory.pop();
                 }
             }
         });
@@ -130,6 +141,8 @@ class SwipeHolder {
              */
             // e.preventDefault(); // Helps prevent "double clicking"
             // e.stopPropagation();
+
+            clearInterval(this.longClickTimeoutObject);
 
             this.isEvaluatingIntent = true;
             
