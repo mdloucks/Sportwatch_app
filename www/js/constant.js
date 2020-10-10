@@ -37,6 +37,8 @@ Constant.popupFadeoutDuration = 1500;
 
 Constant.longClickMinimumDuration = 1000;
 
+Constant.stopwatchSelectEventColumnCount = 3;
+
 Constant.boysColor = "#6abce1";
 Constant.girlsColor = "#fc99b6";
 
