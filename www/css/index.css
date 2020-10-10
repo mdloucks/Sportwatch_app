@@ -194,7 +194,7 @@ https://css-tricks.com/places-its-tempting-to-use-display-none-but-dont/ */
     background-color: lightgray;
     color: black;
 
-    border-radius: 7.5%;
+    border-radius: 12px;
     border: 2px solid black;
     -webkit-tap-highlight-color: rgba(0, 0, 0, 0);
 }
