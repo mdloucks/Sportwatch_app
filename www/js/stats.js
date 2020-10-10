@@ -324,8 +324,9 @@ class Stats extends Page {
 
         this.clearResultsTable();
 
+        $("#statsPage #eventPage #event_results").empty();
+        
         // get all values from record that have an athlete value for a particular event
-
         dbConnection.selectValuesAsObject(this.athleteRecordQuery, [event.rowid]).then((results) => {
 
             for (let i = 0; i < results.length; i++) {
