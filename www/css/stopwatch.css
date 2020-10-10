@@ -112,39 +112,59 @@
 }
 
 #stopwatchPage #landingPage #slideup_content .selected_button {
-    border: 2px dashed black;
-    background-color: yellow;
+    background-color: gold;
 }
 
-#done_adding_events_button {
+#stopwatchPage #landingPage #slideup_content .available_button {
+    border: 2px dashed black;
+}
+
+#stopwatchPage .slideup_top_bar {
     position: sticky;
     top: 0;
     left: 0;
     width: 100%;
-    background-color: rgb(48, 208, 88);
-    border: 2px solid black;
     z-index: 1;
-    padding: 8px;
     font-size: 2.5em;
 }
 
+#stopwatchPage .slideup_top_bar.select_events {
+    padding: 8px;
+    background-color: rgb(48, 208, 88);
+    border: 2px solid black;
+}
+
+#stopwatchPage .slideup_top_bar.change_saved_event {
+    table-layout: auto;
+    background-color: white;
+    padding: 0;
+}
+
+#stopwatchPage .slideup_top_bar.change_saved_event td.selected_event {
+    background-color: gold;
+    font-weight: bold;
+}
+
+#stopwatchPage .slideup_top_bar.change_saved_event td {
+    border: 1px solid black;
+}
 
 #stopwatchPage #landingPage .girls_box {
     margin: 2em;
 }
 
-#stopwatchPage #landingPage .boys_box input:checked + .slider {
+#stopwatchPage #landingPage .boys_box input:checked+.slider {
     background-color: #6abce1;
 }
 
-#stopwatchPage #landingPage .girls_box input:checked + .slider {
+#stopwatchPage #landingPage .girls_box input:checked+.slider {
     background-color: #fc99b6;
 }
 
 #stopwatchPage #landingPage .carousel_container {
     position: relative;
     max-width: 45em;
-    height:250px;
+    height: 250px;
     margin: auto;
     overflow: hidden;
 }
@@ -203,7 +223,7 @@
 
 #stopwatchPage #landingPage .arrow_left {
     left: 5%;
-} 
+}
 
 #stopwatchPage #landingPage .arrow_right {
     right: 5%;

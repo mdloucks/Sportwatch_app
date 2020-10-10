@@ -12,9 +12,6 @@ class Stopwatch extends Page {
         this.pageTransition = new PageTransition("#stopwatchPage");
         this.lap_times = [];
 
-        // this has all of the events the the user has held down, or clicked
-        this.selectedEvents = [];
-
         // the length of the slidedown
         this.chooseEventSlideAmount = 40;
         this.chooseEventTransitionDuration = 550;
@@ -42,7 +39,7 @@ class Stopwatch extends Page {
         };
 
         this.unsavedEventsQuery = (`
-            SELECT record_definition.record_identity, record_definition.rowid from record_definition
+            SELECT record_definition.record_identity, record_definition.rowid FROM record_definition
             WHERE record_definition.unit = ?
         `);
 
@@ -94,11 +91,11 @@ class Stopwatch extends Page {
             </div>
         `);
 
-    //     <div class="table_container">
-    //     <a id="stopwatch_reset" class="stopwatch_button">Reset</a>
-    //     <img src="${this.playButtonPath}" alt="" id="stopwatch_start_stop" class="play_button noSelect"></img>
-    //     <a id="stopwatch_lap" class="stopwatch_button">Save</a>
-    // </div>
+        //     <div class="table_container">
+        //     <a id="stopwatch_reset" class="stopwatch_button">Reset</a>
+        //     <img src="${this.playButtonPath}" alt="" id="stopwatch_start_stop" class="play_button noSelect"></img>
+        //     <a id="stopwatch_lap" class="stopwatch_button">Save</a>
+        // </div>
 
         // <div id="stopwatch_start_stop" class="play_button noSelect">${this.playHtmlCode}</div>
 
@@ -167,7 +164,7 @@ class Stopwatch extends Page {
             this.pageTransition.addPage("selectEventPage", this.selectEventPage);
         }
         $("html").scrollTop(0); // Fixes bug on iOS that shows scrollbar after login
-        
+
         this.setupStopwatch(this.defaultStopwatchToggleFunction);
 
         this.setupSlideup();
@@ -249,7 +246,7 @@ class Stopwatch extends Page {
         $("#stopwatch_canvas").unbind("click");
         $("#stopwatch_canvas").unbind("dblclick");
 
-        $("#stopwatch_canvas").bind("dblclick", (e) => { 
+        $("#stopwatch_canvas").bind("dblclick", (e) => {
             this.resetStopwatch();
             this.resetSlideup();
         });
@@ -288,7 +285,7 @@ class Stopwatch extends Page {
         $("#slideup").html(this.currentSlideupText);
 
         // don't toggle if slideup already moving (it creates big problems for clicking twice)
-        if(this.isSlideupTransitioning) {
+        if (this.isSlideupTransitioning) {
             return;
         }
 
@@ -296,14 +293,13 @@ class Stopwatch extends Page {
 
         // slide down
         if (this.isSlideupActive) {
-
             this.lowerSlideup(onFinishCallback);
             // slide up
         } else {
-            
+
             // start the slideup for events by default on slide up
             // but when the record id exists, then slideup for athletes
-            if(this.selectedRecordDefinitionId == null) {
+            if (this.selectedRecordDefinitionId == null) {
                 this.startSlideupForEvents((record_definition, gender) => {
                     this.selectedRecordDefinitionId = record_definition;
                     this.selectedRecordDefinitionGender = gender;
@@ -326,7 +322,7 @@ class Stopwatch extends Page {
         this.selectedRecordDefinitionId = null;
         this.selectedRecordDefinitionGender = null;
 
-        if(this.isSlideupActive) {
+        if (this.isSlideupActive) {
             this.toggleSlideup();
         }
 
@@ -405,15 +401,17 @@ class Stopwatch extends Page {
 
                 $("#slideup").removeClass('slideup_expanded');
 
-                if(_this.selectedRecordDefinitionGender) {
+                console.log("GENDER " + _this.selectedRecordDefinitionGender);
 
-                    if(_this.selectedRecordDefinitionGender == 'm') {
+                if (_this.selectedRecordDefinitionGender) {
+
+                    if (_this.selectedRecordDefinitionGender == 'm') {
                         $("#slideup").addClass('male_color');
-                    } else if(_this.selectedRecordDefinitionGender == 'f') {
+                    } else if (_this.selectedRecordDefinitionGender == 'f') {
                         $("#slideup").addClass('female_color');
                     }
                     // on both genders selected
-                } else if(_this.selectedRecordDefinitionGender == '') {
+                } else if (_this.selectedRecordDefinitionGender == '') {
                     $("#slideup").addClass('slideup_both_genders');
                 } else {
                     $("#slideup").addClass('slideup_contracted');
@@ -424,15 +422,28 @@ class Stopwatch extends Page {
         });
     }
 
+    /**
+     * This method will raise the slideup and populate it with a list of avaliable events to pick from
+     * It will select gender based on two different toggle buttons. 
+     * 
+     * A long click on a button will allow the user to select a list of events rather than a single one.
+     * The given callback will be called once the user has made a decision.
+     * 
+     * @param {function} callback the callback that will be called when an event, or list of events is selected. 
+     * Will pass record_definition or list of definitions, and gender
+     */
     startSlideupForEvents(callback) {
 
-        // <button id="done_adding_events_button">Use Selected Events</button>
         $(`${this.landingPageSelector} #slideup_content`).html(`
             <div class="toggle_box">
                 <div class="boys_box"><div>
                 <div class="girls_box"><div>
             </div>
         `);
+
+        // clear selected events
+        let selectedEvents = {};
+        let isSelectingMultipleEvents = false;
 
         // select both genders by default
         let isBoys = true;
@@ -441,7 +452,9 @@ class Stopwatch extends Page {
         // Toggle boys
         ButtonGenerator.generateToggle(`${this.landingPageSelector} #slideup_content .boys_box`, "Boys", () => {
             isBoys = true;
+            console.log("boys true");
         }, () => {
+
             isBoys = false;
         });
 
@@ -450,46 +463,85 @@ class Stopwatch extends Page {
         ButtonGenerator.generateToggle(`${this.landingPageSelector} #slideup_content .girls_box`, "Girls", () => {
             isGirls = true;
         }, () => {
+            console.log("girls false");
             isGirls = false;
-        });     
+        });
 
         dbConnection.selectValues(this.unsavedEventsQuery, ["second"]).then((record_definitions) => {
 
             if (record_definitions != false) {
                 ButtonGenerator.generateButtonsFromDatabase(`${this.landingPageSelector} #slideup_content`, record_definitions, (record_definition) => {
 
-                    let gender = '';
+                    let gender = this.getGender(isBoys, isGirls);
 
-                    if(isBoys && !isGirls) {
-                        gender = 'm';
-                    } else if(!isBoys && isGirls) {
-                        gender = 'f';
-                    } else {
-                        gender = '';
-                    }
-
-                    this.currentSlideupText = record_definition.record_identity
                     this.selectedRecordDefinitionGender = gender;
+                    this.currentSlideupText = record_definition.record_identity
 
                     // callback for startSlideupForAthletes to start on event click
-                    let onSlideDoneFunction = function() {
+                    let onSlideDoneFunction = function () {
+                        $(`${this.landingPageSelector} .slideup_top_bar`).remove();
                         callback(record_definition, gender);
                     }.bind(this);
-                    
+
                     this.toggleSlideup(onSlideDoneFunction);
                 }, ["id_record_definition", "value", "is_split",
                     "id_relay", "id_relay_index", "last_updated", "unit"
                 ], Constant.eventColorConditionalAttributes, "class");
 
+                // longclick for event buttons
                 $(`${this.landingPageSelector} #slideup_content *`).bind("longclick", (e) => {
 
-                    let id = $(e.target).attr("id");
+                    if (!isSelectingMultipleEvents) {
+                        $(`${this.landingPageSelector} #slideup_content`).prepend(`
+                            <button class="slideup_top_bar select_events">Use Selected Events</button>
+                        `);
 
-                    // strip the classes and restyle it
-                    if(id != undefined) {
-                        $(`#stopwatchPage #${id}`).removeClass();
-                        $(`#stopwatchPage #${id}`).addClass("generated_button selected_button");
+                        // rebind the click event on event buttons to add it to the list
+                        $(`${this.landingPageSelector} #slideup_content button:not(:first-child)`).each((index, element) => {
+
+                            $(element).unbind("click");
+                            $(element).addClass("available_button");
+
+                            $(element).click((e) => {
+                                selectedEvents[Number($(element).attr("rowid"))] = $(element).attr("record_identity");
+                                $(element).addClass("selected_button");
+                            });
+                        });
+
+                        // remove double any other conflicting click event
+                        $("#stopwatchPage .slideup_top_bar").unbind("click");
+
+                        // done selecting events: start athlete slideup
+                        $("#stopwatchPage .slideup_top_bar").click((e) => {
+                            // stop selecting multiple events 
+                            isSelectingMultipleEvents = false;
+
+                            let gender = this.getGender(isBoys, isGirls);
+
+                            console.log("THE GENDER IS " + gender);
+
+                            this.selectedRecordDefinitionGender = gender;
+
+                            // callback for startSlideupForAthletes to start on event click
+                            let onSlideDoneFunction = function () {
+                                $(`${this.landingPageSelector} .slideup_top_bar`).remove();
+                                callback(selectedEvents, gender);
+                            }.bind(this);
+
+                            this.toggleSlideup(onSlideDoneFunction);
+                        });
+
+                        let id = $(e.target).attr("id");
+
+                        // format the longclick button and add it to the list
+                        if (id != undefined) {
+                            $(`#stopwatchPage #${id}`).removeClass();
+                            $(`#stopwatchPage #${id}`).addClass("generated_button available_button selected_button");
+                            selectedEvents[Number($(`#stopwatchPage #${id}`).attr("rowid"))] = $(`#stopwatchPage #${id}`).attr("record_identity");
+                        }
                     }
+
+                    isSelectingMultipleEvents = true;
                 });
 
                 $(`${this.landingPageSelector} #slideup_content`).append("<br><br><br><br><br><br>");
@@ -503,55 +555,170 @@ class Stopwatch extends Page {
     }
 
     /**
+     * generate a string 'm' or 'f' depending on the boolean. 
+     * it will be blank if both or neither are present
+     * 
+     * @param {Boolean} isBoys are the boys selected
+     * @param {Boolean} isGirls are the girls selected
+     */
+    getGender(isBoys, isGirls) {
+        console.log("boys " + isBoys + " girls " + isGirls);
+        let gender = '';
+
+        if (isBoys && !isGirls) {
+            gender = 'm';
+        } else if (!isBoys && isGirls) {
+            gender = 'f';
+        } else {
+            gender = '';
+        }
+
+        return gender;
+    }
+
+    /**
      * This function will populate the slideup for the given event.
      * This will also start the stopwatch.
-     * @param {Number} record_definition this is the id of the event that will be loaded
+     * @param {Number | Object} record_definition this is the id of the event that will be loaded or list of ids
      * @param {string} gender gender of athletes to load possible values: 'm' 'f' or ''
      */
     startSlideupForAthletes(record_definition, gender) {
 
+        let genderConditionalQuery;
+        let eventConditionalQuery;
+        let savedRecordsArray;
+        let unsavedRecordsArray;
+
+        let selectedEvent;
+
+        $(`${this.landingPageSelector} #slideup_content`).empty();
+
+        console.log(JSON.stringify(record_definition));
+
+        let ids = Object.keys(record_definition);
+        let eventNames = Object.values(record_definition);
+
+        // if record_defininition is an array and isn't a single entry
+        if (typeof record_definition === 'object' && record_definition !== null && ids.length > 1) {
+
+            console.log("adding top bar thing");
+            // add the selector box to the slideup
+            $(`${this.landingPageSelector} #slideup_content`).append(`
+                <table class="slideup_top_bar change_saved_event"></table>
+            `);
+
+            // loop through the list of record definitions and add them to the slideup top bar
+            for (let i = 0; i < ids.length; i++) {
+
+                if (i == 0 || i % Constant.stopwatchSelectEventColumnCount == 0) {
+                    $(`${this.landingPageSelector} .slideup_top_bar.change_saved_event`).append(`<tr></tr>`);
+                }
+
+                let tdObject = {
+                    "id_record_definition": ids[i],
+                    "html": eventNames[i]
+                };
+                
+                // first element highlighted
+                if(i == 0) {
+                    tdObject["class"] = "selected_event";
+                    selectedEvent = Number(ids[0]);
+                }
+
+                // create a cell for the event and bind it to a click event
+                // which will set the color for it
+                let td = $("<td>", tdObject);
+
+                td.click((e) => {
+                    let recordId = $(e.target).attr("id_record_definition");
+                    $("#stopwatchPage .selected_event").removeClass("selected_event");
+                    selectedEvent = Number(recordId);
+
+                    $(e.target).addClass("selected_event");
+                });
+
+                // append to the last row added, which occurs ever three elements
+                $(`${this.landingPageSelector} .slideup_top_bar.change_saved_event tr:last-child`).append(td);
+            }
+
+
+            // configure WHERE condition
+            if (gender != undefined || gender != null) {
+                // alter the condition based on presence of gender
+                if (gender == 'm' || gender == 'f') {
+                    genderConditionalQuery = "WHERE athlete.gender = ?";
+                    eventConditionalQuery = `AND (record.id_record_definition = ? 
+                        ${"OR record.id_record_definition = ?".repeat(ids.length - 1)})`;
+
+                    savedRecordsArray = [gender].concat(ids);
+                    unsavedRecordsArray = [gender, gender].concat(ids);
+                    // gender not selected, only use record definition to select
+                } else if(gender == '') {
+
+                    genderConditionalQuery = "";
+
+                    eventConditionalQuery = `WHERE (record.id_record_definition = ? 
+                        ${"OR record.id_record_definition = ?".repeat(ids.length - 1)})`;
+
+                    savedRecordsArray = ids;
+                    unsavedRecordsArray = ids;
+                }
+            }
+
+            // only a single record definition is passed, configure normally
+        } else {
+
+            // rewrite the array to a single value
+            if(ids.length == 1) {
+                record_definition = ids[0]
+            }
+
+            selectedEvent = Number(record_definition);
+
+            genderConditionalQuery = "";
+            // default to select only by record definition
+            eventConditionalQuery = "WHERE record.id_record_definition = ?";
+            savedRecordsArray = [];
+            unsavedRecordsArray = [];
+
+            // configure WHERE condition
+            if (gender != undefined || gender != null) {
+                // alter the condition based on presence of gender
+                if (gender == 'm' || gender == 'f') {
+                    genderConditionalQuery = "WHERE athlete.gender = ?";
+                    eventConditionalQuery = "AND record.id_record_definition = ?";
+
+                    savedRecordsArray = [gender, record_definition.rowid];
+                    unsavedRecordsArray = [gender, gender, record_definition.rowid];
+                    // gender not selected, only use record definition to select
+                } else {
+                    savedRecordsArray = [record_definition.rowid];
+                    unsavedRecordsArray = [record_definition.rowid];
+                }
+            }
+        }
+
+        // add tooltip text and make it fade out
         $("#stopwatchPage #stopwatch_canvas").after(`
             <div class="missing_info_text">Tap clock to start. <br> Tap twice to reset.</div>
         `);
 
         setTimeout(() => {
-            $("#stopwatchPage .missing_info_text").fadeOut(Constant.popupFadeoutDuration, function() {
+            $("#stopwatchPage .missing_info_text").fadeOut(Constant.popupFadeoutDuration, function () {
                 $(this).remove();
             });
         }, Constant.popupFadeoutDelay);
 
-        
 
-        $(`${this.landingPageSelector} #slideup_content`).empty();
-        
+
         // set watch to slide up, then only change stopwatch
         this.setupStopwatch(() => {
             this.toggleStopwatch();
 
-            if(!this.isSlideupActive) {
+            if (!this.isSlideupActive) {
                 this.toggleSlideup();
             }
         });
-
-        let genderConditionalQuery = "";
-        let eventConditionalQuery = "WHERE record.id_record_definition = ?";
-        let savedRecordsArray = [];
-        let unsavedRecordsArray = [];
-
-        // set specific gender query
-        if(gender != undefined || gender != null) {
-            if(gender == 'm' || gender == 'f') {
-                genderConditionalQuery = "WHERE athlete.gender = ?";
-                eventConditionalQuery = "AND record.id_record_definition = ?";
-
-                savedRecordsArray = [gender, record_definition.rowid];
-                unsavedRecordsArray = [gender, gender, record_definition.rowid];
-                // gender not selected, only use record definition to select
-            } else {
-                savedRecordsArray = [record_definition.rowid];
-                unsavedRecordsArray = [record_definition.rowid];
-            }
-        }
 
         // query for athletes with saved records which orders them by value
         let savedRecordsQuery = (`
@@ -564,6 +731,8 @@ class Stopwatch extends Page {
             GROUP BY athlete.lname
             ORDER BY record.value DESC
         `);
+
+        console.log("SAVED QUERY\n" + savedRecordsQuery);
 
         // query for athletes with no records saved in the event at all
         let unsavedRecordsQuery = (`
@@ -582,31 +751,31 @@ class Stopwatch extends Page {
 
         let savedRecordsPromise = dbConnection.selectValues(savedRecordsQuery, savedRecordsArray);
         let unsavedRecordsPromise = dbConnection.selectValues(unsavedRecordsQuery, unsavedRecordsArray);
-        
+
         let isSavedRecordsEmpty = false;
         let isUnsavedRecordsEmpty = false;
 
         Promise.all([savedRecordsPromise, unsavedRecordsPromise]).then((athletesArray) => {
-            
+
             // check to see if both saved and unsaved queries are empty
 
-            if((athletesArray[0] == false || athletesArray[0].length == undefined)) {
+            if ((athletesArray[0] == false || athletesArray[0].length == undefined)) {
                 isSavedRecordsEmpty = true;
             }
 
-            if((athletesArray[1] == false || athletesArray[1].length == undefined)) {
+            if ((athletesArray[1] == false || athletesArray[1].length == undefined)) {
                 isUnsavedRecordsEmpty = true;
             }
 
             for (let i = 0; i < athletesArray.length; i++) {
                 const athletes = athletesArray[i];
-                
 
-                if(isSavedRecordsEmpty && i == 0) {
+
+                if (isSavedRecordsEmpty && i == 0) {
                     continue;
-                } 
-                
-                if(isUnsavedRecordsEmpty && i == 1) {
+                }
+
+                if (isUnsavedRecordsEmpty && i == 1) {
                     continue;
                 }
 
@@ -614,26 +783,26 @@ class Stopwatch extends Page {
                 // populate the athletes and set the callback on click
                 ButtonGenerator.generateButtonsFromDatabase(`${this.landingPageSelector} #slideup_content`, athletes, (athlete) => {
                     navigator.vibrate(25);
-                    this.saveTime(record_definition, athlete);
-                    
+                    this.saveTime(Number(selectedEvent), athlete);
+
                     $(`${this.landingPageSelector} #slideup_content #${athlete.id}`).remove();
 
                     let nAthletesRemaining = $(`${this.landingPageSelector} #slideup_content > button`).length;
 
-                    if(nAthletesRemaining == 0) {
+                    if (nAthletesRemaining == 0) {
                         this.selectedRecordDefinitionId = null;
                         this.selectedRecordDefinitionGender = null;
                         let eventName = this.currentSlideupText;
-                        
+
                         this.currentSlideupText = this.defaultSlideupText;
                         this.toggleSlideup();
                         this.resetStopwatch();
 
                         navigator.notification.alert(
-                            'Times saved successfully!',  // message
-                            () => {},         // callback
-                            'Event Completed',            // title
-                            'OK'                  // buttonName
+                            'Times saved successfully!', // message
+                            () => {}, // callback
+                            'Event Completed', // title
+                            'OK' // buttonName
                         );
 
                         // stop here
@@ -641,19 +810,18 @@ class Stopwatch extends Page {
 
                 }, ["gender", "unit", "is_relay", "timestamp", "id_backend"], Constant.genderColorConditionalAttributes)
 
-                if(i == 0 && (!isUnsavedRecordsEmpty && !isSavedRecordsEmpty)) {
+                if (i == 0 && (!isUnsavedRecordsEmpty && !isSavedRecordsEmpty)) {
                     $(`${this.landingPageSelector} #slideup_content`).append(`<br><br><br><hr style="height: 8px;">`);
                 }
             }
 
-            if(isSavedRecordsEmpty && isUnsavedRecordsEmpty) {
+            if (isSavedRecordsEmpty && isUnsavedRecordsEmpty) {
                 $("#slideup").removeClass('male_color');
                 $("#slideup").removeClass('female_color');
                 $("#slideup").addClass('slideup_contracted');
                 this.resetStopwatch();
                 this.resetSlideup();
-                Popup.createConfirmationPopup("You're not on a team yet! Go to the team tab and become a part of a team to start recording times.", ["Ok"], [() => {
-                }]);
+                Popup.createConfirmationPopup("You're not on a team yet! Go to the team tab and become a part of a team to start recording times.", ["Ok"], [() => {}]);
 
                 return;
             }
@@ -661,8 +829,6 @@ class Stopwatch extends Page {
 
             $(`${this.landingPageSelector} #slideup_content`).append("<br><br><br><br><br><br>");
         });
-        
-
     }
 
     generateCarousel(element, array, isRecordDefinitions) {
@@ -736,13 +902,13 @@ class Stopwatch extends Page {
                 _this.toggleSlideup();
                 // generate for athlete
             } else {
-                
+
                 _this.saveTime(arrayObject, arrayObject); // Save before resetting stopwatch
-                
+
                 // on last athlete save
-                if(Number($(this).parent().children().length) - 2 == 0) {
+                if (Number($(this).parent().children().length) - 2 == 0) {
                     _this.resetStopwatch();
-                    Popup.createConfirmationPopup(`Successfully saved times for the ${_this.currentSlideupText}!`, ["Ok"], [function() {
+                    Popup.createConfirmationPopup(`Successfully saved times for the ${_this.currentSlideupText}!`, ["Ok"], [function () {
                         _this.resetSlideup();
                         _this.toggleSlideup();
                     }]);
@@ -876,7 +1042,7 @@ class Stopwatch extends Page {
         this.pageTransition.slideLeft("selectAthletePage");
         let headerWidth = $("#stopwatchPage #selectAthletePage > .generic_header").height();
         $("#stopwatchPage #selectAthletePage > *:not(.generic_header)").first().css("margin-top", `calc(${headerWidth}px + 5vh)`);
-        
+
         $("#stopwatchPage #selectAthletePage .button_box").empty();
         $("#stopwatchPage #selectAthletePage .subheading_text").empty();
 
@@ -949,15 +1115,20 @@ class Stopwatch extends Page {
     /**
      * @description this function is called when the user chooses an event to save 
      * 
-     * @param {Object} event the event to save
+     * @param {Object || Number} event the event to save
      * @param {Object} athlete the event to for
      */
     saveTime(event, athlete) {
 
         this.pageTransition.slideRight("landingPage");
 
+        // pass either object with rowid or number
+        if(typeof event === "object" && event !== null) {
+            event = event.rowid;
+        }
+
         // Save the record first so the frontend will have a matching id to the backend
-        RecordBackend.saveRecord(this.clock.seconds, event.rowid, athlete.id_backend, (response) => {
+        RecordBackend.saveRecord(this.clock.seconds, event, athlete.id_backend, (response) => {
             if (DO_LOG) {
                 console.log("RECORD SAVED " + JSON.stringify(response));
             }
@@ -975,24 +1146,24 @@ class Stopwatch extends Page {
                 let linkData = {
                     "id_backend": athlete.id_backend
                 };
-                let newRecord = { };
-                
+                let newRecord = {};
+
                 // Loop through each added record and save to local database
                 // TODO: Change backend to link users with the record for relays... this will get messy
-                for(let r = 0; r < response.addedRecords.length; r++) {
+                for (let r = 0; r < response.addedRecords.length; r++) {
                     newRecord = response.addedRecords[r];
-                    
+
                     // record
                     recordData["id_record"] = Number(newRecord.id_record);
                     recordData["value"] = Number(newRecord.value);
                     recordData["id_record_definition"] = Number(newRecord.id_recordDefinition);
                     dbConnection.insertValuesFromObject("record", recordData);
-                    
+
                     // record_user_link
                     linkData.id_record = Number(newRecord.id_record);
                     dbConnection.insertValuesFromObject("record_user_link", linkData);
                 }
-                
+
                 // Loop through each added record ID and save to local database
                 // TODO: Change backend to link users with the record for relays... this will get messy
                 // for (let r = 0; r < response.addedRecordIds.length; r++) {
@@ -1003,7 +1174,7 @@ class Stopwatch extends Page {
                 //     dbConnection.insertValuesFromObject("record_user_link", linkData);
                 // }
             } else {
-                if(DO_LOG) {
+                if (DO_LOG) {
                     console.log("[stopwatch.js:saveTime()]: Unable to save time to backend");
                 }
             }
