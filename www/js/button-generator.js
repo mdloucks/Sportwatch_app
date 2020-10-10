@@ -142,10 +142,9 @@ class ButtonGenerator {
         let span = $("<span>", {class: "slider round noSelect"});
 
         input.on("click", function(e) {
-            let isChecked = $(this).find("input").is(":checked");
+            let isChecked = $(this).is(":checked");
             // Simulate a toggle / click
             $(this).find("input").prop("checked", !isChecked); // Invert current status
-            isChecked = !isChecked; // Invert to match status
             
             // Handle callbacks
             if(isChecked) {
