@@ -512,6 +512,8 @@ class Stopwatch extends Page {
                             // stop selecting multiple events 
                             isSelectingMultipleEvents = false;
 
+                            this.currentSlideupText = "Multi-Event";
+
                             let gender = this.getGender(isBoys, isGirls);
 
                             console.log("THE GENDER IS " + gender);
