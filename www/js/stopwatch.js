@@ -401,8 +401,6 @@ class Stopwatch extends Page {
 
                 $("#slideup").removeClass('slideup_expanded');
 
-                console.log("GENDER " + _this.selectedRecordDefinitionGender);
-
                 if (_this.selectedRecordDefinitionGender) {
 
                     if (_this.selectedRecordDefinitionGender == 'm') {
@@ -452,7 +450,6 @@ class Stopwatch extends Page {
         // Toggle boys
         ButtonGenerator.generateToggle(`${this.landingPageSelector} #slideup_content .boys_box`, "Boys", () => {
             isBoys = true;
-            console.log("boys true");
         }, () => {
 
             isBoys = false;
@@ -463,7 +460,6 @@ class Stopwatch extends Page {
         ButtonGenerator.generateToggle(`${this.landingPageSelector} #slideup_content .girls_box`, "Girls", () => {
             isGirls = true;
         }, () => {
-            console.log("girls false");
             isGirls = false;
         });
 
@@ -562,7 +558,6 @@ class Stopwatch extends Page {
      * @param {Boolean} isGirls are the girls selected
      */
     getGender(isBoys, isGirls) {
-        console.log("boys " + isBoys + " girls " + isGirls);
         let gender = '';
 
         if (isBoys && !isGirls) {
