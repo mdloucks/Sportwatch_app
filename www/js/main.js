@@ -16,6 +16,9 @@ class App {
         document.addEventListener('deviceready', this.onReady.bind(this), false);
         document.addEventListener('pause', this.onPause.bind(this), false);
         document.addEventListener('resume', this.onResume.bind(this), false);
+
+        document.addEventListener("online", NetworkInfo.onOnline.bind(this), false);
+        document.addEventListener("offline", NetworkInfo.onOffline.bind(this), false);
     }
 
     onReady() {
@@ -31,20 +34,27 @@ class App {
             FastClick.attach(document.body); // iOS double clicks don't work with this plugin
         }
         
-        // Pull data from the backend, then start the app
-        ToolboxBackend.pullFromBackend().then(() => {
-            this.initializeUI();
 
-            if (DO_LOG) {
-                console.log("[main.js:onReady()]: Backend sync finished!");
-            }
-        }).catch(() => {
-            // Likely a corrupted / lost local storage, so they'll be signed out anyway
-            if (DO_LOG) {
-                console.log("[main.js:onReady]: Failed to pull from backend, localStorage email: " + localStorage.getItem("email"));
-            }
+        if(NetworkInfo.isOnline()) {
+            // Pull data from the backend, then start the app
+            ToolboxBackend.pullFromBackend().then(() => {
+                this.initializeUI();
+    
+                if (DO_LOG) {
+                    console.log("[main.js:onReady()]: Backend sync finished!");
+                }
+            }).catch(() => {
+                // Likely a corrupted / lost local storage, so they'll be signed out anyway
+                if (DO_LOG) {
+                    console.log("[main.js:onReady]: Failed to pull from backend, localStorage email: " + localStorage.getItem("email"));
+                }
+                
+            });
+        } else {
+            NetworkInfo.onOffline();
+            
             this.initializeUI();
-        });
+        }
     }
 
     initializeUI() {
