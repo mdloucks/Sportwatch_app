@@ -22,7 +22,15 @@ class App {
     }
 
     onReady() {
-        this.startApp();
+        // Update the API path in case the backend version changed
+        ToolboxBackend.setBackendPathConstant().then(() => {
+            this.startApp();
+        }).catch(() => {
+            if(DO_LOG) {
+                console.log("[main.js:onReady]: Failed to load backend API path, errors likely!");
+                this.startApp();
+            }
+        });
     }
 
     startApp() {
@@ -34,21 +42,20 @@ class App {
             FastClick.attach(document.body); // iOS double clicks don't work with this plugin
         }
         
-
         if(NetworkInfo.isOnline()) {
             // Pull data from the backend, then start the app
             ToolboxBackend.pullFromBackend().then(() => {
                 this.initializeUI();
     
                 if (DO_LOG) {
-                    console.log("[main.js:onReady()]: Backend sync finished!");
+                    console.log("[main.js:startApp()]: Backend sync finished!");
                 }
             }).catch(() => {
                 // Likely a corrupted / lost local storage, so they'll be signed out anyway
                 if (DO_LOG) {
                     console.log("[main.js:onReady]: Failed to pull from backend, localStorage email: " + localStorage.getItem("email"));
                 }
-                
+                this.initializeUI();
             });
         } else {
             NetworkInfo.onOffline();
