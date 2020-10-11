@@ -49,7 +49,7 @@ class PlanBackend {
         // Submit the request and call the callback
         return $.ajax({
             type: "POST",
-            url: Constant.URL.plan_action + "?intent=0",
+            url: Constant.getPlanURL() + "?intent=0",
             timeout: Constant.AJAX_CFG.timeout,
             data: requestArray,
             success: (response) => {
@@ -107,7 +107,7 @@ class PlanBackend {
         // Submit the request and call the callback
         return $.ajax({
             type: "POST",
-            url: Constant.URL.plan_action + "?intent=1",
+            url: Constant.getPlanURL() + "?intent=1",
             timeout: Constant.AJAX_CFG.timeout,
             data: requestArray,
             success: (response) => {
@@ -168,7 +168,7 @@ class PlanBackend {
         // Submit the request and call the callback
         return $.ajax({
             type: "POST",
-            url: Constant.URL.plan_action + "?intent=2",
+            url: Constant.getPlanURL() + "?intent=2",
             timeout: Constant.AJAX_CFG.timeout,
             data: requestArray,
             success: (response) => {
@@ -226,7 +226,7 @@ class PlanBackend {
         // Submit the request and call the callback
         return $.ajax({
             type: "POST",
-            url: Constant.URL.plan_action + "?intent=3",
+            url: Constant.getPlanURL() + "?intent=3",
             timeout: Constant.AJAX_CFG.timeout,
             data: requestArray,
             success: (response) => {

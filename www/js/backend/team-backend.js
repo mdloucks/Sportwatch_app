@@ -57,7 +57,7 @@ class TeamBackend {
         // Submit the request and call the callback
         return $.ajax({
             type: "POST",
-            url: Constant.URL.team_create,
+            url: Constant.getTeamCreateURL(),
             timeout: Constant.AJAX_CFG.timeout,
             data: details,
             success: (response) => {
@@ -103,7 +103,7 @@ class TeamBackend {
         // Submit the request and call the callback
         return $.ajax({
             type: "POST",
-            url: Constant.URL.team_action + "?intent=3",
+            url: Constant.getTeamActionURL() + "?intent=3",
             timeout: Constant.AJAX_CFG.timeout,
             data: requestArray,
             success: (response) => {
@@ -156,7 +156,7 @@ class TeamBackend {
         // Submit the request and call the callback
         return $.ajax({
             type: "POST",
-            url: Constant.URL.team_action + "?intent=4",
+            url: Constant.getTeamActionURL() + "?intent=4",
             timeout: Constant.AJAX_CFG.timeout,
             data: requestArray,
             success: (response) => {
@@ -217,7 +217,7 @@ class TeamBackend {
         // Submit the request and call the callback
         return $.ajax({
             type: "POST",
-            url: Constant.URL.team_action + "?intent=0",
+            url: Constant.getTeamActionURL() + "?intent=0",
             timeout: Constant.AJAX_CFG.timeout,
             data: postArray,
             success: (response) => {
@@ -279,7 +279,7 @@ class TeamBackend {
         // Submit the request and call the callback
         return $.ajax({
             type: "POST",
-            url: Constant.URL.team_action + "?intent=1",
+            url: Constant.getTeamActionURL() + "?intent=1",
             timeout: Constant.AJAX_CFG.timeout,
             data: postArray,
             success: (response) => {
@@ -323,7 +323,7 @@ class TeamBackend {
         // Submit the request and call the callback
         return $.ajax({
             type: "POST",
-            url: Constant.URL.team_action + "?intent=5",
+            url: Constant.getTeamActionURL() + "?intent=5",
             timeout: Constant.AJAX_CFG.timeout,
             data: requestArray,
             success: (response) => {
@@ -377,7 +377,7 @@ class TeamBackend {
         // Submit the request and call the callback
         return $.ajax({
             type: "POST",
-            url: Constant.URL.team_action + "?intent=6",
+            url: Constant.getTeamActionURL() + "?intent=6",
             timeout: Constant.AJAX_CFG.timeout,
             data: requestArray,
             success: (response) => {
@@ -427,7 +427,7 @@ class TeamBackend {
         // Submit the request and call the callback
         return $.ajax({
             type: "POST",
-            url: Constant.URL.team_action + "?intent=7",
+            url: Constant.getTeamActionURL() + "?intent=7",
             timeout: Constant.AJAX_CFG.timeout,
             data: requestArray,
             success: (response) => {
@@ -476,7 +476,7 @@ class TeamBackend {
         // Submit the request and call the callback
         return $.ajax({
             type: "POST",
-            url: Constant.URL.team_action + "?intent=8",
+            url: Constant.getTeamActionURL() + "?intent=8",
             timeout: Constant.AJAX_CFG.timeout,
             data: requestArray,
             success: (response) => {
@@ -525,7 +525,7 @@ class TeamBackend {
         // Submit the request and call the callback
         return $.ajax({
             type: "POST",
-            url: Constant.URL.team_action + "?intent=9",
+            url: Constant.getTeamActionURL() + "?intent=9",
             timeout: Constant.AJAX_CFG.timeout,
             data: requestArray,
             success: (response) => {
@@ -571,7 +571,7 @@ class TeamBackend {
         // Submit the request and call the callback
         return $.ajax({
             type: "POST",
-            url: Constant.URL.team_action + "?intent=10",
+            url: Constant.getTeamActionURL() + "?intent=10",
             timeout: Constant.AJAX_CFG.timeout,
             data: requestArray,
             success: (response) => {
@@ -634,7 +634,7 @@ class TeamBackend {
         // Submit the request and call the callback
         return $.ajax({
             type: "POST",
-            url: Constant.URL.team_action + "?intent=11",
+            url: Constant.getTeamActionURL() + "?intent=11",
             timeout: Constant.AJAX_CFG.timeout,
             data: postArray,
             success: (response) => {
@@ -697,7 +697,7 @@ class TeamBackend {
         // Submit the request and call the callback
         return $.ajax({
             type: "POST",
-            url: Constant.URL.team_action + "?intent=12",
+            url: Constant.getTeamActionURL() + "?intent=12",
             timeout: Constant.AJAX_CFG.timeout,
             data: postArray,
             success: (response) => {
@@ -760,7 +760,7 @@ class TeamBackend {
         // Submit the request and call the callback
         return $.ajax({
             type: "POST",
-            url: Constant.URL.team_action + "?intent=13",
+            url: Constant.getTeamActionURL() + "?intent=13",
             timeout: Constant.AJAX_CFG.timeout,
             data: postArray,
             success: (response) => {
@@ -823,7 +823,7 @@ class TeamBackend {
         // Submit the request and call the callback
         return $.ajax({
             type: "POST",
-            url: Constant.URL.team_action + "?intent=14",
+            url: Constant.getTeamActionURL() + "?intent=14",
             timeout: Constant.AJAX_CFG.timeout,
             data: postArray,
             success: (response) => {

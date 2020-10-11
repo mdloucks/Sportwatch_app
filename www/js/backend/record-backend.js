@@ -104,7 +104,7 @@ class RecordBackend {
         // Submit the request and call the callback
         return $.ajax({
             type: "POST",
-            url: Constant.URL.record_action + "?intent=0",
+            url: Constant.getRecordURL() + "?intent=0",
             timeout: Constant.AJAX_CFG.timeout,
             data: details,
             success: (response) => {
@@ -156,7 +156,7 @@ class RecordBackend {
         // Submit the request and call the callback
         return $.ajax({
             type: "POST",
-            url: Constant.URL.record_action + "?intent=1",
+            url: Constant.getRecordURL() + "?intent=1",
             timeout: Constant.AJAX_CFG.timeout,
             data: criteria,
             success: (response) => {
@@ -206,7 +206,7 @@ class RecordBackend {
         // Submit the request and call the callback
         return $.ajax({
             type: "POST",
-            url: Constant.URL.record_action + "?intent=2",
+            url: Constant.getRecordURL() + "?intent=2",
             timeout: Constant.AJAX_CFG.timeout,
             data: newData,
             success: (response) => {
@@ -266,7 +266,7 @@ class RecordBackend {
         // Submit the request and call the callback
         return $.ajax({
             type: "POST",
-            url: Constant.URL.record_action + "?intent=4",
+            url: Constant.getRecordURL() + "?intent=4",
             timeout: Constant.AJAX_CFG.timeout,
             data: postData,
             success: (response) => {
@@ -328,7 +328,7 @@ class RecordBackend {
         // Submit the request and call the callback
         return $.ajax({
             type: "POST",
-            url: Constant.URL.record_action + "?intent=5",
+            url: Constant.getRecordURL() + "?intent=5",
             timeout: Constant.AJAX_CFG.timeout,
             data: postData,
             success: (response) => {
@@ -374,7 +374,7 @@ class RecordBackend {
         // Submit the request and call the callback
         return $.ajax({
             type: "POST",
-            url: Constant.URL.record_action + "?intent=6",
+            url: Constant.getRecordURL() + "?intent=6",
             timeout: Constant.AJAX_CFG.timeout,
             data: postData,
             success: (response) => {

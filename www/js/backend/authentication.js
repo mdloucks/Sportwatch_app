@@ -17,7 +17,7 @@ class Authentication {
         return new Promise((resolve, reject) => {
             $.ajax({
                 type: "POST",
-                url: Constant.URL.login,
+                url: Constant.getLoginURL(),
                 timeout: Constant.AJAX_CFG.timeout,
                 data: {
                     email : email,
@@ -73,7 +73,7 @@ class Authentication {
         return new Promise((resolve, reject) => {
             $.ajax({
                 type: "POST",
-                url: Constant.URL.login,
+                url: Constant.getLoginURL(),
                 timeout: Constant.AJAX_CFG.timeout,
                 data: {
                     SID : SID
@@ -119,7 +119,7 @@ class Authentication {
         return new Promise((resolve, reject) => {
             $.ajax({
                 type: "POST",
-                url: Constant.URL.signup,
+                url: Constant.getSignupURL(),
                 timeout: Constant.AJAX_CFG.timeout,
                 data: {
                     fname: fname,

@@ -234,6 +234,41 @@ class ToolboxBackend {
         });
     }
     
+    static setBackendPathConstant() {
+        
+        // Prepare the request
+        let postArray = {};
+        postArray.SID = localStorage.getItem("SID");
+        postArray.appVersion = AppVersion.version;
+        
+        // Submit the request and call the callback
+        return $.ajax({
+            type: "POST",
+            url: Constant.getToolboxURL() + "?intent=1",
+            timeout: Constant.AJAX_CFG.timeout,
+            data: postArray,
+            success: (response) => {
+                if(DO_LOG) {
+                    console.log("[toolbox-backend.js:setBackendPathConstant()] " + response);
+                }
+                try {
+                    response = JSON.parse(response);
+                    if(response.path != null) {
+                        Constant.BACKEND_PATH = response.path;
+                        console.log("SET= " + Constant.BACKEND_PATH);
+                    }
+                } catch (e) {
+                    // Couldn't parse, so just use string
+                }
+            },
+            error: (error) => {
+                if(DO_LOG) {
+                    console.log("[toolbox-backend.js:setBackendPathConstant()] ERROR: " + error);
+                }
+            }
+        });
+    }
+    
     /**
      * Works in connection with pullFromBackend() to pull and insert
      * all of the records of a given user identified by an email
@@ -309,7 +344,7 @@ class ToolboxBackend {
         // Submit the request and call the callback
         return $.ajax({
             type: "POST",
-            url: Constant.URL.toolbox + "?intent=0",
+            url: Constant.getToolboxURL() + "?intent=0",
             timeout: Constant.AJAX_CFG.timeout,
             data: postArray,
             success: (response) => {
@@ -358,7 +393,7 @@ class ToolboxBackend {
         // Submit the request and call the callback
         return $.ajax({
             type: "POST",
-            url: Constant.URL.toolbox + "?intent=0",
+            url: Constant.getToolboxURL() + "?intent=0",
             timeout: Constant.AJAX_CFG.timeout,
             data: postArray,
             success: (response) => {
@@ -406,7 +441,7 @@ class ToolboxBackend {
         // Submit the request and call the callback
         return $.ajax({
             type: "POST",
-            url: Constant.URL.toolbox + "?intent=0",
+            url: Constant.getToolboxURL() + "?intent=0",
             timeout: Constant.AJAX_CFG.timeout,
             data: postArray,
             success: (response) => {

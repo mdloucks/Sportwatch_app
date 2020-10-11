@@ -37,7 +37,7 @@ class AccountBackend {
         // Submit the request and call the callback
         return $.ajax({
             type: "POST",
-            url: Constant.URL.account_action + "?intent=0",
+            url: Constant.getAccountURL() + "?intent=0",
             timeout: Constant.AJAX_CFG.timeout,
             data: postArray,
             success: (response) => {
@@ -121,7 +121,7 @@ class AccountBackend {
         // Submit the request and call the callback
         return $.ajax({
             type: "POST",
-            url: Constant.URL.account_action + "?intent=1",
+            url: Constant.getAccountURL() + "?intent=1",
             timeout: Constant.AJAX_CFG.timeout,
             data: postArray,
             success: (response) => {
@@ -162,7 +162,7 @@ class AccountBackend {
         // Submit the request and call the callback
         return $.ajax({
             type: "POST",
-            url: Constant.URL.account_action + "?intent=2",
+            url: Constant.getAccountURL() + "?intent=2",
             timeout: Constant.AJAX_CFG.timeout,
             data: {
                 accountIdentity: {"email": email}

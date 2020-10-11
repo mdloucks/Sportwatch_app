@@ -4,22 +4,49 @@
 class Constant {
     // Holds all of the constants
     // Defined below
+    
+    // Use functions for backend calls to allow for versioning and backwards compatability
+    static getSignupURL() {
+        return Constant.HOSTNAME + Constant.BACKEND_PATH + Constant.FUNCTION.signup;
+    }
+    static getLoginURL() {
+        return Constant.HOSTNAME + Constant.BACKEND_PATH + Constant.FUNCTION.login;
+    }
+    static getAccountURL() {
+        return Constant.HOSTNAME + Constant.BACKEND_PATH + Constant.FUNCTION.account_action;
+    }
+    static getPlanURL() {
+        return Constant.HOSTNAME + Constant.BACKEND_PATH + Constant.FUNCTION.plan_action;
+    }
+    static getRecordURL() {
+        return Constant.HOSTNAME + Constant.BACKEND_PATH + Constant.FUNCTION.record_action;
+    }
+    static getTeamCreateURL() {
+        return Constant.HOSTNAME + Constant.BACKEND_PATH + Constant.FUNCTION.team_create;
+    }
+    static getTeamActionURL() {
+        return Constant.HOSTNAME + Constant.BACKEND_PATH + Constant.FUNCTION.team_action;
+    }
+    static getToolboxURL() {
+        return Constant.HOSTNAME + Constant.BACKEND_PATH + Constant.FUNCTION.toolbox;
+    }
 }
 
 // Due to the way ES6 classes work, constants have to be defined
 // outside of declaration
 Constant.DIR_CSS = "css/";
 
-Constant.HOSTNAME = "https://dev.sportwatch.us/"; // Append "dev." for testing
-Constant.URL = {
-    signup: Constant.HOSTNAME + "mobile/signup.php",
-    login: Constant.HOSTNAME + "mobile/login.php",
-    account_action: Constant.HOSTNAME + "mobile/account-action.php",
-    plan_action: Constant.HOSTNAME + "mobile/plan-action.php",
-    record_action: Constant.HOSTNAME + "mobile/record-action.php",
-    team_create: Constant.HOSTNAME + "mobile/team-create.php",
-    team_action: Constant.HOSTNAME + "mobile/team-action.php",
-    toolbox: Constant.HOSTNAME + "mobile/other-action.php"
+Constant.HOSTNAME = "https://dev.sportwatch.us"; // Append "dev." for testing
+Constant.BACKEND_PATH = "/mobile/"; // So we can adjust based on versions of backend
+Constant.FUNCTION = {
+    signup: "signup.php",
+    login: "login.php",
+    account_action: "account-action.php",
+    plan_action: "plan-action.php",
+    record_action: "record-action.php",
+    team_create: "team-create.php",
+    team_action: "team-action.php",
+    toolbox: "other-action.php"
 };
 
 /**
