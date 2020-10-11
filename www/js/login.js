@@ -146,6 +146,14 @@ class Login extends Page {
         
         // Reset password start
         this.getPageElement("#label_forgotPassword").click((e) => {
+            // If a valid email is entered in the login input, copy it here
+            let enteredValue = this.getPageElement("input[name=email]").val();
+            let regexMatch = enteredValue.match(/[A-Za-z0-9\-_.]*@[A-Za-z0-9\-_.]*\.(com|net|org|us|website|io)/gm);
+            if((regexMatch != null) && (regexMatch[0].length == enteredValue.length) && (enteredValue.length <= 250)) {
+                this.getPageElement("#reset_input").val(enteredValue);
+                this.getPageElement("#resetPass_button").removeClass("invalid");
+            }
+            
             this.getPageElement("#passResetWrapper").css("width", "");
             this.getPageElement("#passResetWrapper").animate({
                 height: 200
@@ -159,6 +167,7 @@ class Login extends Page {
             if(this.getPageElement("#resetPass_button").hasClass("invalid")) {
                 return; // Don't do anything if the email isn't valid
             }
+            this.getPageElement("#resetPass_button").addClass("invalid"); // Then disable to prevent spamming button
             
             let email = this.getPageElement("#reset_input").val();
             email = email.replace(/[^A-Za-z0-9\-_.@]/gm, "");
