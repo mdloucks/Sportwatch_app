@@ -234,41 +234,6 @@ class ToolboxBackend {
         });
     }
     
-    static setBackendPathConstant() {
-        
-        // Prepare the request
-        let postArray = {};
-        postArray.SID = localStorage.getItem("SID");
-        postArray.appVersion = AppVersion.version;
-        
-        // Submit the request and call the callback
-        return $.ajax({
-            type: "POST",
-            url: Constant.getToolboxURL() + "?intent=1",
-            timeout: Constant.AJAX_CFG.timeout,
-            data: postArray,
-            success: (response) => {
-                if(DO_LOG) {
-                    console.log("[toolbox-backend.js:setBackendPathConstant()] " + response);
-                }
-                try {
-                    response = JSON.parse(response);
-                    if(response.path != null) {
-                        Constant.BACKEND_PATH = response.path;
-                        console.log("SET= " + Constant.BACKEND_PATH);
-                    }
-                } catch (e) {
-                    // Couldn't parse, so just use string
-                }
-            },
-            error: (error) => {
-                if(DO_LOG) {
-                    console.log("[toolbox-backend.js:setBackendPathConstant()] ERROR: " + error);
-                }
-            }
-        });
-    }
-    
     /**
      * Works in connection with pullFromBackend() to pull and insert
      * all of the records of a given user identified by an email
@@ -319,6 +284,46 @@ class ToolboxBackend {
                     } // End of for loop for results
                 }
             } // End of status check
+        });
+    }
+    
+    /**
+     * Updates the URL endpoints that the app uses to connect to the server.
+     * Since we aren't forcing users to update the app every time we push an
+     * update, we should be able to offer backwards campatability, which requires
+     * specifying where to make requests to in case we update or change it in the future.
+     */
+    static setBackendPathConstant() {
+        
+        // Prepare the request
+        let postArray = {};
+        postArray.SID = localStorage.getItem("SID");
+        postArray.appVersion = AppVersion.version;
+        
+        // Submit the request and call the callback
+        return $.ajax({
+            type: "POST",
+            url: Constant.getToolboxURL() + "?intent=1",
+            timeout: Constant.AJAX_CFG.timeout,
+            data: postArray,
+            success: (response) => {
+                if(DO_LOG) {
+                    console.log("[toolbox-backend.js:setBackendPathConstant()] " + response);
+                }
+                try {
+                    response = JSON.parse(response);
+                    if(response.path != null) {
+                        Constant.BACKEND_PATH = response.path;
+                    }
+                } catch (e) {
+                    // Couldn't parse, so just use string
+                }
+            },
+            error: (error) => {
+                if(DO_LOG) {
+                    console.log("[toolbox-backend.js:setBackendPathConstant()] ERROR: " + error);
+                }
+            }
         });
     }
     
