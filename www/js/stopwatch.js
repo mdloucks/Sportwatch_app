@@ -12,6 +12,8 @@ class Stopwatch extends Page {
         this.pageTransition = new PageTransition("#stopwatchPage");
         this.lap_times = [];
 
+        this.offlineRecordRowid = 1;
+
         // the length of the slidedown
         this.chooseEventSlideAmount = 40;
         this.chooseEventTransitionDuration = 550;
@@ -516,8 +518,6 @@ class Stopwatch extends Page {
 
                             let gender = this.getGender(isBoys, isGirls);
 
-                            console.log("THE GENDER IS " + gender);
-
                             this.selectedRecordDefinitionGender = gender;
 
                             // callback for startSlideupForAthletes to start on event click
@@ -595,8 +595,8 @@ class Stopwatch extends Page {
         let ids = Object.keys(record_definition);
         let eventNames = Object.values(record_definition);
 
-        // if record_defininition is an array and isn't a single entry
-        if (typeof record_definition === 'object' && record_definition !== null && ids.length > 1) {
+        // if record_defininition is an array and isn't a record_definition object
+        if (typeof record_definition === 'object' && record_definition !== null && !ids.includes("rowid")) {
 
             console.log("adding top bar thing");
             // add the selector box to the slideup
@@ -615,9 +615,9 @@ class Stopwatch extends Page {
                     "id_record_definition": ids[i],
                     "html": eventNames[i]
                 };
-                
+
                 // first element highlighted
-                if(i == 0) {
+                if (i == 0) {
                     tdObject["class"] = "selected_event";
                     selectedEvent = Number(ids[0]);
                 }
@@ -650,7 +650,7 @@ class Stopwatch extends Page {
                     savedRecordsArray = [gender].concat(ids);
                     unsavedRecordsArray = [gender, gender].concat(ids);
                     // gender not selected, only use record definition to select
-                } else if(gender == '') {
+                } else if (gender == '') {
 
                     genderConditionalQuery = "";
 
@@ -666,7 +666,7 @@ class Stopwatch extends Page {
         } else {
 
             // rewrite the array to a single value
-            if(ids.length == 1) {
+            if (ids.length == 1) {
                 record_definition = ids[0]
             }
 
@@ -828,99 +828,99 @@ class Stopwatch extends Page {
         });
     }
 
-    generateCarousel(element, array, isRecordDefinitions) {
+    // generateCarousel(element, array, isRecordDefinitions) {
 
-        $(element).html(`
-            <div class="carousel_container">
+    //     $(element).html(`
+    //         <div class="carousel_container">
 
-                <div class="carousel_arrow arrow_left">\<</div>
-                <div class="carousel_arrow arrow_right">\></div>
+    //             <div class="carousel_arrow arrow_left">\<</div>
+    //             <div class="carousel_arrow arrow_right">\></div>
 
-                <div class="carousel_content" id="carousel_content">
+    //             <div class="carousel_content" id="carousel_content">
 
-                </div>
-            </div>
-        `);
+    //             </div>
+    //         </div>
+    //     `);
 
-        for (let i = 0; i < array.length; i++) {
-            // generate items for events 
-            if (isRecordDefinitions) {
-                $(`${this.landingPageSelector} #carousel_content`).append(`
-                    <div index="${i}" class="carousel_item ${array[i].class}">
-                        ${array[i].innerHTML}
-                    </div>
-                `);
-                // athletes
-            } else {
-                $(`${this.landingPageSelector} #carousel_content`).append(`
-                    <div index="${i}" class="carousel_item ${array[i].class}">
-                        ${array[i].fname} ${array[i].lname}
-                    </div>
-                `);
-            }
-        }
+    //     for (let i = 0; i < array.length; i++) {
+    //         // generate items for events 
+    //         if (isRecordDefinitions) {
+    //             $(`${this.landingPageSelector} #carousel_content`).append(`
+    //                 <div index="${i}" class="carousel_item ${array[i].class}">
+    //                     ${array[i].innerHTML}
+    //                 </div>
+    //             `);
+    //             // athletes
+    //         } else {
+    //             $(`${this.landingPageSelector} #carousel_content`).append(`
+    //                 <div index="${i}" class="carousel_item ${array[i].class}">
+    //                     ${array[i].fname} ${array[i].lname}
+    //                 </div>
+    //             `);
+    //         }
+    //     }
 
-        $(`${this.landingPageSelector} #carousel_content`).append(`
-            <div class="carousel_item_empty"></div>
-        `);
+    //     $(`${this.landingPageSelector} #carousel_content`).append(`
+    //         <div class="carousel_item_empty"></div>
+    //     `);
 
-        // set css for the left and right buttons
-        $(`${this.landingPageSelector} .carousel_content`).css("min-width", `calc(15em * ${array.length})`);
-        $(`${this.landingPageSelector} .carousel_content`).css("marginLeft", "15em");
+    //     // set css for the left and right buttons
+    //     $(`${this.landingPageSelector} .carousel_content`).css("min-width", `calc(15em * ${array.length})`);
+    //     $(`${this.landingPageSelector} .carousel_content`).css("marginLeft", "15em");
 
-        let clickedIndex = -1;
+    //     let clickedIndex = -1;
 
-        $(`${this.landingPageSelector} .arrow_left`).click((e) => {
-            if (clickedIndex > -1) {
-                clickedIndex = clickedIndex - 1;
-                $(`${this.landingPageSelector} .carousel_content`).css("marginLeft", -15 * clickedIndex + "em");
-            }
-        });
+    //     $(`${this.landingPageSelector} .arrow_left`).click((e) => {
+    //         if (clickedIndex > -1) {
+    //             clickedIndex = clickedIndex - 1;
+    //             $(`${this.landingPageSelector} .carousel_content`).css("marginLeft", -15 * clickedIndex + "em");
+    //         }
+    //     });
 
-        $(`${this.landingPageSelector} .arrow_right`).click((e) => {
-            if (clickedIndex < array.length - 3) {
-                clickedIndex = clickedIndex + 1;
-                $(`${this.landingPageSelector} .carousel_content`).css("marginLeft", -15 * clickedIndex + "em");
-            }
-        });
+    //     $(`${this.landingPageSelector} .arrow_right`).click((e) => {
+    //         if (clickedIndex < array.length - 3) {
+    //             clickedIndex = clickedIndex + 1;
+    //             $(`${this.landingPageSelector} .carousel_content`).css("marginLeft", -15 * clickedIndex + "em");
+    //         }
+    //     });
 
-        let _this = this;
+    //     let _this = this;
 
-        // user clicks on an event to lock, lower the slider!
-        $(`${this.landingPageSelector} .carousel_item`).click(function (e) {
-            // get the object corresponding to button in list
-            let arrayObject = array[Number($(this).attr("index"))];
+    //     // user clicks on an event to lock, lower the slider!
+    //     $(`${this.landingPageSelector} .carousel_item`).click(function (e) {
+    //         // get the object corresponding to button in list
+    //         let arrayObject = array[Number($(this).attr("index"))];
 
-            // generate for events
-            if (isRecordDefinitions) {
-                _this.selectedRecordDefinitionId = arrayObject.id;
-                _this.currentSlideupText = arrayObject.innerHTML;
-                _this.selectedRecordDefinitionGender = arrayObject.gender
-                _this.toggleSlideup();
-                // generate for athlete
-            } else {
+    //         // generate for events
+    //         if (isRecordDefinitions) {
+    //             _this.selectedRecordDefinitionId = arrayObject.id;
+    //             _this.currentSlideupText = arrayObject.innerHTML;
+    //             _this.selectedRecordDefinitionGender = arrayObject.gender
+    //             _this.toggleSlideup();
+    //             // generate for athlete
+    //         } else {
 
-                _this.saveTime(arrayObject, arrayObject); // Save before resetting stopwatch
+    //             _this.saveTime(arrayObject, arrayObject); // Save before resetting stopwatch
 
-                // on last athlete save
-                if (Number($(this).parent().children().length) - 2 == 0) {
-                    _this.resetStopwatch();
-                    Popup.createConfirmationPopup(`Successfully saved times for the ${_this.currentSlideupText}!`, ["Ok"], [function () {
-                        _this.resetSlideup();
-                        _this.toggleSlideup();
-                    }]);
-                }
+    //             // on last athlete save
+    //             if (Number($(this).parent().children().length) - 2 == 0) {
+    //                 _this.resetStopwatch();
+    //                 Popup.createConfirmationPopup(`Successfully saved times for the ${_this.currentSlideupText}!`, ["Ok"], [function () {
+    //                     _this.resetSlideup();
+    //                     _this.toggleSlideup();
+    //                 }]);
+    //             }
 
-                // if (clickedIndex < array.length - 3) {
-                //     clickedIndex = clickedIndex + 1;
-                //     $(`${_this.landingPageSelector} .carousel_content`).css("marginLeft", -5 * clickedIndex + "em");
-                // }
+    //             // if (clickedIndex < array.length - 3) {
+    //             //     clickedIndex = clickedIndex + 1;
+    //             //     $(`${_this.landingPageSelector} .carousel_content`).css("marginLeft", -5 * clickedIndex + "em");
+    //             // }
 
-                // _this.saveTime(arrayObject, arrayObject);
-                $(this).remove();
-            }
-        });
-    }
+    //             // _this.saveTime(arrayObject, arrayObject);
+    //             $(this).remove();
+    //         }
+    //     });
+    // }
 
     startStopwatch() {
 
@@ -1063,51 +1063,51 @@ class Stopwatch extends Page {
     /**
      * this function will start the select event page
      */
-    startSelectEventPage(athlete = undefined, callback = () => {}) {
+    // startSelectEventPage(athlete = undefined, callback = () => {}) {
 
-        this.pageTransition.slideLeft("selectEventPage");
-        // While transitioning, scroll to the top
-        $("#stopwatchPage").animate({
-            scrollTop: 0
-        }, 1000);
-        let headerWidth = $("#stopwatchPage #selectEventPage > .generic_header").height();
-        $("#stopwatchPage #selectEventPage > *:not(.generic_header)").first().css("margin-top", `calc(${headerWidth}px + 5vh)`);
+    //     this.pageTransition.slideLeft("selectEventPage");
+    //     // While transitioning, scroll to the top
+    //     $("#stopwatchPage").animate({
+    //         scrollTop: 0
+    //     }, 1000);
+    //     let headerWidth = $("#stopwatchPage #selectEventPage > .generic_header").height();
+    //     $("#stopwatchPage #selectEventPage > *:not(.generic_header)").first().css("margin-top", `calc(${headerWidth}px + 5vh)`);
 
-        // $("#stopwatchPage #selectEventPage #saved_events_box").empty();
-        $("#stopwatchPage #selectEventPage #new_events_box").empty();
+    //     // $("#stopwatchPage #selectEventPage #saved_events_box").empty();
+    //     $("#stopwatchPage #selectEventPage #new_events_box").empty();
 
 
-        // get any unique entries in record identity with values
-        // user selects an existing event
-        // dbConnection.selectValues(this.savedEventsQuery, [athlete.rowid]).then((events) => {
-        //     if ((events.length == 0) || (events == false)) {
-        //         return;
-        //     }
+    //     // get any unique entries in record identity with values
+    //     // user selects an existing event
+    //     // dbConnection.selectValues(this.savedEventsQuery, [athlete.rowid]).then((events) => {
+    //     //     if ((events.length == 0) || (events == false)) {
+    //     //         return;
+    //     //     }
 
-        //     ButtonGenerator.generateButtonsFromDatabase("#stopwatchPage #selectEventPage #saved_events_box", events, (event) => {
-        //         callback(event, athlete);
-        //     }, ["id_record_definition", "value",
-        //         "is_split", "id_relay", "id_relay_index", "last_updated", "unit"
-        //     ], Constant.eventColorConditionalAttributes, "class");
-        // });
+    //     //     ButtonGenerator.generateButtonsFromDatabase("#stopwatchPage #selectEventPage #saved_events_box", events, (event) => {
+    //     //         callback(event, athlete);
+    //     //     }, ["id_record_definition", "value",
+    //     //         "is_split", "id_relay", "id_relay_index", "last_updated", "unit"
+    //     //     ], Constant.eventColorConditionalAttributes, "class");
+    //     // });
 
-        // get a list of every event definition and take away the ones with records already
-        // User selects a new event that the athlete is not already registered in
-        dbConnection.selectValues(this.unsavedEventsQuery, ["second"]).then((record_definitions) => {
-            if (record_definitions != false) {
-                ButtonGenerator.generateButtonsFromDatabase("#stopwatchPage #selectEventPage #new_events_box", record_definitions, (record_definition) => {
-                    callback(record_definition, athlete);
-                }, ["id_record_definition", "value", "is_split",
-                    "id_relay", "id_relay_index", "last_updated", "unit"
-                ], Constant.eventColorConditionalAttributes, "class");
-            } else {
-                if (DO_LOG) {
-                    console.log("record_definition table is empty");
-                }
-                Popup.createConfirmationPopup("Something went wrong, try saving your time again.", ["Ok"], () => {});
-            }
-        });
-    }
+    //     // get a list of every event definition and take away the ones with records already
+    //     // User selects a new event that the athlete is not already registered in
+    //     dbConnection.selectValues(this.unsavedEventsQuery, ["second"]).then((record_definitions) => {
+    //         if (record_definitions != false) {
+    //             ButtonGenerator.generateButtonsFromDatabase("#stopwatchPage #selectEventPage #new_events_box", record_definitions, (record_definition) => {
+    //                 callback(record_definition, athlete);
+    //             }, ["id_record_definition", "value", "is_split",
+    //                 "id_relay", "id_relay_index", "last_updated", "unit"
+    //             ], Constant.eventColorConditionalAttributes, "class");
+    //         } else {
+    //             if (DO_LOG) {
+    //                 console.log("record_definition table is empty");
+    //             }
+    //             Popup.createConfirmationPopup("Something went wrong, try saving your time again.", ["Ok"], () => {});
+    //         }
+    //     });
+    // }
 
     /**
      * @description this function is called when the user chooses an event to save 
@@ -1117,116 +1117,75 @@ class Stopwatch extends Page {
      */
     saveTime(event, athlete) {
 
-        this.pageTransition.slideRight("landingPage");
+        
+        if (this.pageTransition.currentPage != "landingPage") {
+            this.pageTransition.slideRight("landingPage");
+        }
 
         // pass either object with rowid or number
-        if(typeof event === "object" && event !== null) {
+        if (typeof event === "object" && event !== null) {
             event = event.rowid;
         }
 
-        // Save the record first so the frontend will have a matching id to the backend
-        RecordBackend.saveRecord(this.clock.seconds, event, athlete.id_backend, (response) => {
-            if (DO_LOG) {
+
+        // Define default fallback values, then use actual values in loop below
+        let recordData = {
+            "value": 0.000, // Clock gets reset before call can complete, so use backend value below
+            "id_record_definition": 1,
+            "is_practice": true,
+            "is_split": false,
+            "id_split": null,
+            "id_split_index": null,
+            "last_updated": Date.now()
+        };
+
+        let linkData = {
+            "id_backend": athlete.id_backend
+        };
+
+
+        if (NetworkInfo.isOnline()) {
+            // Save the record first so the frontend will have a matching id to the backend
+            RecordBackend.saveRecord(this.clock.seconds, event, athlete.id_backend, (response) => {
+
                 console.log("RECORD SAVED " + JSON.stringify(response));
-            }
-            if (response.status > 0) { // If success, insert into local database
-                // Define default fallback values, then use actual values in loop below
-                let recordData = {
-                    "value": 0.000, // Clock gets reset before call can complete, so use backend value below
-                    "id_record_definition": 1,
-                    "is_practice": true,
-                    "is_split": false,
-                    "id_split": null,
-                    "id_split_index": null,
-                    "last_updated": Date.now()
-                };
-                let linkData = {
-                    "id_backend": athlete.id_backend
-                };
-                let newRecord = {};
 
-                // Loop through each added record and save to local database
-                // TODO: Change backend to link users with the record for relays... this will get messy
-                for (let r = 0; r < response.addedRecords.length; r++) {
-                    newRecord = response.addedRecords[r];
+                if (response.status > 0) { // If success, insert into local database
 
-                    // record
-                    recordData["id_record"] = Number(newRecord.id_record);
-                    recordData["value"] = Number(newRecord.value);
-                    recordData["id_record_definition"] = Number(newRecord.id_recordDefinition);
-                    dbConnection.insertValuesFromObject("record", recordData);
+                    let newRecord = {};
 
-                    // record_user_link
-                    linkData.id_record = Number(newRecord.id_record);
-                    dbConnection.insertValuesFromObject("record_user_link", linkData);
+                    // Loop through each added record and save to local database
+                    // TODO: Change backend to link users with the record for relays... this will get messy
+                    for (let r = 0; r < response.addedRecords.length; r++) {
+                        newRecord = response.addedRecords[r];
+
+                        // record
+                        recordData["id_record"] = Number(newRecord.id_record);
+                        recordData["value"] = Number(newRecord.value);
+                        recordData["id_record_definition"] = Number(newRecord.id_recordDefinition);
+                        dbConnection.insertValuesFromObject("record", recordData);
+
+                        // record_user_link
+                        linkData.id_record = Number(newRecord.id_record);
+                        dbConnection.insertValuesFromObject("record_user_link", linkData);
+                    }
+                } else {
+                    console.log("Error while saving value to backend");
                 }
+            });
+            // the phone is offline, save it to the local database for later use.
+        } else {
 
-                // Loop through each added record ID and save to local database
-                // TODO: Change backend to link users with the record for relays... this will get messy
-                // for (let r = 0; r < response.addedRecordIds.length; r++) {
-                //     recordData["id_record"] = response.addedRecordIds[r];
-                //     dbConnection.insertValuesFromObject("record", recordData);
+            recordData["id_record"] = Number(this.offlineRecordRowid);
+            recordData["value"] = Number(this.clock.seconds);
+            recordData["id_record_definition"] = Number(event);
+            dbConnection.insertValuesFromObject("offline_record", recordData);
+            
+            linkData["id_record"] = Number(this.offlineRecordRowid);
+            dbConnection.insertValuesFromObject("offline_record_user_link", linkData);
 
-                //     linkData.id_record = response.addedRecordIds[r];
-                //     dbConnection.insertValuesFromObject("record_user_link", linkData);
-                // }
-            } else {
-                if (DO_LOG) {
-                    console.log("[stopwatch.js:saveTime()]: Unable to save time to backend");
-                }
-            }
-        });
-
-        let query = (`
-            SELECT id_split
-            FROM record
-            ORDER BY id_split DESC
-        `)
-
-        // save lap times if they exist
-        // if (this.lap_times.length > 0) {
-
-        //     dbConnection.selectValues(query).then((result) => {
-        //         let index_value = 1;
-
-        //         for (let i = 0; i < result.length; i++) {
-        //             if (DO_LOG) {
-        //                 console.log("HEY " + JSON.stringify(result.item(i)));
-        //             }
-        //         }
-
-        //         if (result.item(0).id_split != null) {
-        //             index_value = (result.item(0).id_split + 1);
-        //         }
-
-        //         if (DO_LOG) {
-        //             console.log("USING INDEX " + index_value);
-        //         }
-
-        //         for (let i = 0; i < this.lap_times.length; i++) {
-        //             let recordData = {
-        //                 "id_athlete": athlete.rowid,
-        //                 "id_record_definition": event.rowid,
-        //                 "value": this.lap_times[i],
-        //                 "is_split": true,
-        //                 "id_split": index_value,
-        //                 "id_split_index": i + 1,
-        //                 "last_updated": Date.now()
-        //             };
-
-        //             dbConnection.insertValuesFromObject("record", recordData);
-        //         }
-
-        //         this.resetStopwatch();
-        //     });
-        // } else {
-        //     this.resetStopwatch();
-        // }
-
-
-
-        // TODO: create confirmation popup
-        // Popup.createFadeoutPopup("Times Saved!");
+            this.offlineRecordRowid += 1;
+        }
     }
 
 

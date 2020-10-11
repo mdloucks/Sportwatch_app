@@ -43,6 +43,16 @@ let json = {
         ["meter", "other"],
         ["foot", "other"],
         ["yard", "other"]
+    ], 
+    "offline_record": [
+        [1, 69, 1, false, false, 0, 0, Date.now()],
+        [2, 69, 1, false, false, 0, 0, Date.now()],
+        [3, 69, 1, false, false, 0, 0, Date.now()],
+    ],
+    "offline_record_user_link": [
+        [1, 1],
+        [1, 2],
+        [1, 3]
     ]
 }
 
@@ -88,6 +98,11 @@ class DatabaseConnection {
             tx.executeSql("DROP TABLE IF EXISTS record");
             tx.executeSql("DROP TABLE IF EXISTS record_user_link");
 
+            // offline
+            tx.executeSql("DROP TABLE IF EXISTS offline_record");
+            tx.executeSql("DROP TABLE IF EXISTS offline_record_user_link");
+
+
             tx.executeSql(`CREATE TABLE IF NOT EXISTS athlete (fname, lname, gender, id_backend)`);
 
             tx.executeSql(`CREATE TABLE IF NOT EXISTS record_definition (unit, record_identity)`);
@@ -95,6 +110,12 @@ class DatabaseConnection {
             tx.executeSql(`CREATE TABLE IF NOT EXISTS record (id_record, value, id_record_definition, is_practice, is_split, id_split, id_split_index, last_updated)`);
 
             tx.executeSql(`CREATE TABLE IF NOT EXISTS record_user_link (id_backend, id_record)`);
+            
+            // create duplicates of record and record_user_link to store offline data
+            tx.executeSql(`CREATE TABLE IF NOT EXISTS offline_record (id_record, value, id_record_definition, is_practice, is_split, id_split, id_split_index, last_updated)`);
+            tx.executeSql(`CREATE TABLE IF NOT EXISTS offline_record_user_link (id_backend, id_record)`);
+
+
 
         }, function (error) {
             if (DO_LOG) {
@@ -239,8 +260,6 @@ class DatabaseConnection {
     /**
      * This function will rexecute a sql statement
      * 
-     * @param {String} table name of the table
-     * @param {Array} values array of values to pass in
      */
     executeTransaction(query, values) {
         return new Promise((resolve, reject) => {
