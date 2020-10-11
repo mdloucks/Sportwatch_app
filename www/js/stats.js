@@ -14,7 +14,7 @@ class Stats extends Page {
         this.eventButtonsBoxSelector = "#statsPage #landingPage .button_box";
         this.headerText = `Events`;
         this.csvLocation = ""; // For iOS sharing reference
-        
+
         this.athleteRecordQuery = (`
             select * from record
             INNER JOIN record_user_link
@@ -49,12 +49,12 @@ class Stats extends Page {
             </div>
         `);
 
-            // <tr class="column_names">
-            //     <th id="name_sort">Name<span>&#9660;</span>></th>
-            //     <th id="best_sort">Best</th>
-            //     <th id="avg_sort">Avg</th>
-            //     <th id="worst_sort">Worst</th>
-            // </tr>
+        // <tr class="column_names">
+        //     <th id="name_sort">Name<span>&#9660;</span>></th>
+        //     <th id="best_sort">Best</th>
+        //     <th id="avg_sort">Avg</th>
+        //     <th id="worst_sort">Worst</th>
+        // </tr>
 
         // TODO: deprecated
         this.addEventPage = (`
@@ -98,6 +98,27 @@ class Stats extends Page {
             this.startLandingPage(() => {
                 Animations.fadeInChildren(this.eventButtonsBoxSelector, Constant.fadeDuration, Constant.fadeIncrement);
             });
+
+
+            // show the user the number of offline entries
+            if (!NetworkInfo.isOnline()) {
+
+                dbConnection.executeTransaction("SELECT Count(*) FROM offline_record", []).then((values) => {
+                    let nOfflineRecords = values.item(0)["Count(*)"];
+
+                    if (nOfflineRecords != undefined && nOfflineRecords != 0) {
+                        $("#statsPage #landingPage .button_box").before(`
+                        <div id="internet_required_prompt" class="info_box">
+                            You have ${nOfflineRecords} entries that need to be uploaded.
+                            Please connect to the internet.
+                        </div>
+                    `);
+                    }
+                });
+
+            } else {
+                $("#statsPage #landingPage #internet_required_prompt").remove();
+            }
         }
     }
 
@@ -118,9 +139,9 @@ class Stats extends Page {
             INNER JOIN record_definition
             ON record_definition.rowid = record.id_record_definition
         `);
-        
+
         dbConnection.selectValues(query).then((events) => {
-            if(events != false) {
+            if (events != false) {
                 $("#statsPage #landingPage .left_text").html(this.headerText);
                 $("#statsPage #landingPage .missing_info_text").remove();
 
@@ -135,13 +156,13 @@ class Stats extends Page {
                 ButtonGenerator.generateButtonsFromDatabase("#statsPage #landingPage .button_box", array, (event) => {
                     this.startEventPage(event);
                 }, [], Constant.eventColorConditionalAttributes, "class");
-                
+
                 Animations.hideChildElements(this.eventButtonsBoxSelector);
                 callback();
             } else {
                 $("#statsPage #landingPage .left_text").empty();
 
-                if($("#statsPage #landingPage .missing_info_text").length == 0) {
+                if ($("#statsPage #landingPage .missing_info_text").length == 0) {
                     $("#statsPage #landingPage").append(`
                     <div class="missing_info_text">
                         <h2>No Times Saved Yet</h2>
@@ -150,7 +171,7 @@ class Stats extends Page {
                     </div>
                     `);
                 }
-                
+
             }
         });
     }
@@ -170,7 +191,7 @@ class Stats extends Page {
         // Add top padding to avoid header overlap (iOS issue)
         let headerWidth = $("#statsPage #eventPage > .generic_header").height();
         $("#statsPage #eventPage > *:not(.generic_header)").first().css("margin-top", `calc(${headerWidth}px + 10vh)`);
-        
+
         this.clearResultsTable();
 
         $("#statsPage #eventPage #event_name").html(event.record_identity);
@@ -202,24 +223,24 @@ class Stats extends Page {
             `);
 
             dbConnection.selectValues(query, [event.rowid]).then((results) => {
-                
+
                 let athletes = this.constructAthleteTimeArray(results, "");
                 this.saveCSV("data.csv", athletes, false);
-                
+
                 // If it's iOS, share the saved file with native "share" dialog
-                if(device.platform) {
+                if (device.platform) {
                     let shareOptions = {
                         files: [this.csvLocation]
                     };
-                    
+
                     window.plugins.socialsharing.shareWithOptions(shareOptions, (result) => {
-                        if(DO_LOG) {
+                        if (DO_LOG) {
                             console.log("On success");
                             console.log(result);
                         }
                         $("#statsPage #eventPage #save_csv").prop("disabled", false);
                     }, (msg) => {
-                        if(DO_LOG) {
+                        if (DO_LOG) {
                             console.log("On fail");
                             console.log(msg);
                         }
@@ -228,7 +249,7 @@ class Stats extends Page {
                 } else { // End of iOS share logic
                     $("#statsPage #eventPage #save_csv").prop("disabled", false);
                 }
-                
+
             });
         });
 
@@ -236,62 +257,61 @@ class Stats extends Page {
     }
 
     onErrorCreateFile() {
-        Popup.createConfirmationPopup(`Unable to download CSV file. Could not create file.`, ["Ok"], [function() {
-        }]);
+        Popup.createConfirmationPopup(`Unable to download CSV file. Could not create file.`, ["Ok"], [function () {}]);
     };
-    
-    onErrorLoadFs () {
-        Popup.createConfirmationPopup(`Unable to download CSV file. Could not load File System.`, ["Ok"], [function() {
-        }]);
+
+    onErrorLoadFs() {
+        Popup.createConfirmationPopup(`Unable to download CSV file. Could not load File System.`, ["Ok"], [function () {}]);
     };
 
     createFile(fileName, callback) {
         window.requestFileSystem(window.PERSISTENT, 5 * 1024 * 1024, (fs) => {
-            
-            if(DO_LOG) {
+
+            if (DO_LOG) {
                 console.log('file system open: ' + fs.name);
             }
 
             // Creates a new file or returns the file if it already exists.
-            fs.root.getFile(fileName, {create: true, exclusive: false}, (fileEntry) => {
+            fs.root.getFile(fileName, {
+                create: true,
+                exclusive: false
+            }, (fileEntry) => {
                 this.csvLocation = fileEntry.nativeURL;
                 callback(fileEntry);
             }, this.onErrorCreateFile);
-        
+
         }, this.onErrorLoadFs);
     }
 
     // reference this https://github.com/apache/cordova-plugin-file
     saveCSV(fileName, dataObj, showPopup = true) {
         this.createFile(fileName, (fileEntry) => {
-            
+
             // Create a FileWriter object for our FileEntry (log.txt).
             fileEntry.createWriter((fileWriter) => {
-                
-                fileWriter.onwriteend = function() {
-                    if(!showPopup) return; // Don't show for iOS
-                    Popup.createConfirmationPopup(`Successfully downloaded CSV file. Find it in your Documents folder.`, ["Ok"], [function() {
-                    }]);
+
+                fileWriter.onwriteend = function () {
+                    if (!showPopup) return; // Don't show for iOS
+                    Popup.createConfirmationPopup(`Successfully downloaded CSV file. Find it in your Documents folder.`, ["Ok"], [function () {}]);
                 };
-                
+
                 fileWriter.onerror = function (e) {
-                    Popup.createConfirmationPopup(`Unable to download CSV file. Sorry for the inconvenience`, ["Ok"], [function() {
-                    }]);
+                    Popup.createConfirmationPopup(`Unable to download CSV file. Sorry for the inconvenience`, ["Ok"], [function () {}]);
                 };
-                
-                if(DO_LOG) {
+
+                if (DO_LOG) {
                     console.log("saving csv...");
                 }
-    
+
                 let csv = "";
                 // append headers
                 csv += "Event,First Name,Last Name,unit,Last Updated,Value\n";
 
-    
+
                 // append data
                 for (let i = 0; i < dataObj.length; i++) {
-                    
-                    if(dataObj[i] == undefined || dataObj[i] == null) {
+
+                    if (dataObj[i] == undefined || dataObj[i] == null) {
                         continue;
                     } else {
                         let obj = dataObj[i];
@@ -301,14 +321,16 @@ class Stats extends Page {
                         }
                     }
                 }
-                
-                if(DO_LOG) {
+
+                if (DO_LOG) {
                     console.log(csv);
                 }
-    
-    
-                let csvBlob = new Blob([csv], { type: 'text/plain' });
-        
+
+
+                let csvBlob = new Blob([csv], {
+                    type: 'text/plain'
+                });
+
                 fileWriter.write(csvBlob);
             });
         });
@@ -325,7 +347,7 @@ class Stats extends Page {
         this.clearResultsTable();
 
         $("#statsPage #eventPage #event_results").empty();
-        
+
         // get all values from record that have an athlete value for a particular event
         dbConnection.selectValuesAsObject(this.athleteRecordQuery, [event.rowid]).then((results) => {
 
@@ -334,8 +356,7 @@ class Stats extends Page {
             }
 
             let tabulator = new Tabulator();
-            tabulator.generateTable("#statsPage #eventPage #event_results", results, [
-                {
+            tabulator.generateTable("#statsPage #eventPage #event_results", results, [{
                     data: "lname",
                     title: "Last Name"
                 },
@@ -346,7 +367,7 @@ class Stats extends Page {
                 {
                     data: "last_updated",
                     title: "Date",
-                    render : function ( data, type, row ) {
+                    render: function (data, type, row) {
                         return data.substring(0, 10);
                     }
                 }
