@@ -54,7 +54,8 @@ class CreateTeam extends Page {
                 <div id="searchList">
                     <!-- School matches go here -->
                 </div>
-                <br><br>
+                <button id="noSchool">Tap Here to Skip</button>
+                <br>
                 
                 <!-- Progression Buttons -->
                 <button id="schoolBack" class="button_progression button_back"></button>
@@ -373,6 +374,17 @@ class CreateTeam extends Page {
             });
 
         }, () => {}); // Don't worry about Enter press for this input
+        this.getPageElement("#schoolPage #noSchool").click((e) => {
+            // Simulate selecting a school, but don't show the user
+            // Unfocus input, select the school, and clear search results
+            document.activeElement.blur();
+            this.schoolId = 2; // <-- Pre-programmed "None" school
+            this.schoolName = ""; // Can be blank, only used internally
+            
+            this.getPageElement("#searchList").empty();
+            this.getPageElement("#input_school").val(this.schoolName);
+            this.getPageElement("#schoolPage .button_next").trigger("click");
+        });
 
         // Secondary coach email (Options page)
         this.addInputCheck("#input_secondaryCoach", 5, 65, /[A-Za-z0-9.@\-_]/gm, true, (secondaryValid) => {
@@ -549,6 +561,11 @@ class CreateTeam extends Page {
      * @param {Boolean} slideLeft [default = true] slide left when progressing, right (aka false) when going back
      */
     selectPage(stepNum, slideLeft = true) {
+        // Reset any scrolling that may have occured
+        $("html, #teamlandingPage").animate({
+            scrollTop: 0
+        }, 250);
+        
         if (stepNum == 1) {
             if (slideLeft) {
                 this.transitionObj.slideLeft("namePage");
@@ -632,7 +649,7 @@ class CreateTeam extends Page {
 
         // Finally, generate them
         ButtonGenerator.generateButtons("#createteamPage #schoolPage #searchList", schoolArray, (school) => {
-
+            
             // Unfocus input, select the school, and clear search results
             document.activeElement.blur();
             this.schoolId = school.id_school;

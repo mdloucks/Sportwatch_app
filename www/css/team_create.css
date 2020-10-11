@@ -47,7 +47,7 @@
 /* ---- GENERAL ---- */
 
 #createteamPage > .div_page {
-    height: 60%;
+    height: auto;
 }
 
 #createteamPage .button_progression {
@@ -79,6 +79,7 @@
 
 #createteamPage button {
     outline: none;
+    -webkit-appearance: none;
 }
 #createteamPage input {
     outline: none;
@@ -174,6 +175,14 @@
     margin-right: 0.5em;
     width: 1.5em;
     border: 1px solid black;
+}
+
+#createteamPage #schoolPage #noSchool {
+    padding: 0.5em;
+    border: none;
+    color: #dd3333;
+    font-size: 1.5em;
+    font-weight: bold;
 }
 
 
