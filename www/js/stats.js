@@ -102,17 +102,19 @@ class Stats extends Page {
 
             // show the user the number of offline entries
             if (!NetworkInfo.isOnline()) {
-
+                
                 dbConnection.executeTransaction("SELECT Count(*) FROM offline_record", []).then((values) => {
-                    let nOfflineRecords = values.item(0)["Count(*)"];
+                    let nOfflineRecords = Number(values.item(0)["Count(*)"]);
 
                     if (nOfflineRecords != undefined && nOfflineRecords != 0) {
                         $("#statsPage #landingPage .button_box").before(`
-                        <div id="internet_required_prompt" class="info_box">
-                            You have ${nOfflineRecords} entries that need to be uploaded.
-                            Please connect to the internet.
-                        </div>
-                    `);
+                            <div id="internet_required_prompt" class="info_box">
+                                You have ${nOfflineRecords} entries that need to be uploaded.
+                                Please connect to the internet.
+                            </div>
+                        `);
+                    } else {
+                        $("#statsPage #landingPage #internet_required_prompt").remove();
                     }
                 });
 
@@ -351,14 +353,16 @@ class Stats extends Page {
         // get all values from record that have an athlete value for a particular event
         dbConnection.selectValuesAsObject(this.athleteRecordQuery, [event.rowid]).then((results) => {
 
-            for (let i = 0; i < results.length; i++) {
-                console.log(JSON.stringify(results[i]));
-            }
-
+            // populate the table with the specified data.
             let tabulator = new Tabulator();
             tabulator.generateTable("#statsPage #eventPage #event_results", results, [{
-                    data: "lname",
-                    title: "Last Name"
+                    data: "fname",
+                    title: "Name",
+                    render: function (data, type, row) {
+                        console.log(JSON.stringify(row));
+                        console.log("data " + JSON.stringify(data));
+                        return `${row["fname"]} ${row["lname"]}`
+                    }
                 },
                 {
                     data: "value",
