@@ -498,11 +498,26 @@ class Stopwatch extends Page {
                         $(`${this.landingPageSelector} #slideup_content button:not(:first-child)`).each((index, element) => {
 
                             $(element).unbind("click");
-                            $(element).addClass("available_button");
 
+                            $(element).addClass("available_button");
+                            
+                            // new click event for buttons. Highlight or remove highlighting on click
                             $(element).click((e) => {
-                                selectedEvents[Number($(element).attr("rowid"))] = $(element).attr("record_identity");
-                                $(element).addClass("selected_button");
+                                
+                                if($(element).hasClass("selected_button")) {
+                                    $(element).removeClass("selected_button");
+                                    delete selectedEvents[Number($(element).attr("rowid"))];
+                                } else {
+                                    selectedEvents[Number($(element).attr("rowid"))] = $(element).attr("record_identity");
+                                    $(element).addClass("selected_button");
+                                }
+                                
+                                navigator.vibrate(25);
+                                
+                                if($("#stopwatchPage .selected_button").length == 0) {
+                                    $("#stopwatchPage .slideup_top_bar").remove();
+                                    this.resetSlideup();
+                                }
                             });
                         });
 
@@ -576,6 +591,7 @@ class Stopwatch extends Page {
     /**
      * This function will populate the slideup for the given event.
      * This will also start the stopwatch.
+     * 
      * @param {Number | Object} record_definition this is the id of the event that will be loaded or list of ids
      * @param {string} gender gender of athletes to load possible values: 'm' 'f' or ''
      */
