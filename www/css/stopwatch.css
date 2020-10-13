@@ -1,7 +1,10 @@
 #stopwatchPage #landingPage .stopwatch_canvas {
-    margin-top: 1em;
-    height: 75vw;
-    width: 100vw;
+    position: absolute;
+    left: 0;
+    top: 5%;
+    height: 40%;
+    width: 100%;
+    margin: auto;
 }
 
 
@@ -56,7 +59,7 @@
 
 #stopwatchPage #landingPage .slideup_contracted {
     background-color: rgb(229, 229, 234);
-    border: 2px solid black;
+    border-top: 0.5vw solid black;
 }
 
 #stopwatchPage #landingPage .slideup_both_genders {
@@ -71,7 +74,7 @@
 #stopwatchPage #landingPage #slideup {
     position: absolute;
     bottom: 7%;
-    font-size: 3em;
+    font-size: 5vh;
     text-align: center;
     font-weight: bold;
     width: 100%;
@@ -83,7 +86,7 @@
     position: absolute;
     bottom: 15%;
     text-align: center;
-    width: 4em;
+    width: 12vw;
     height: auto;
     border-radius: 50%;
     padding: 5px;
@@ -92,7 +95,7 @@
 
 #stopwatchPage #landingPage .slideup_arrow_up {
     background-color: rgb(229, 229, 234);
-    border: 2px solid #dd3333;
+    border: 0.5vw solid #dd3333;
 }
 
 #stopwatchPage #landingPage .slideup_arrow_down {
@@ -227,6 +230,13 @@
 
 #stopwatchPage #landingPage .arrow_right {
     right: 5%;
+}
+
+#stopwatchPage #landingPage .info_text {
+    position: absolute;
+    left: 0;
+    top: 50%;
+    margin: auto;
 }
 
 

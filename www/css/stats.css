@@ -28,7 +28,7 @@
 }
 
 .dataTables_wrapper {
-    font-size: 2em;
+    font-size: 4vw;
 }
 
 
@@ -39,7 +39,9 @@
 #statsPage #save_csv {
     background-color: rgb(64, 202, 0);
     transition: background-color 0.5s;
+    font-size: 3.5vw;
 }
+
 #statsPage #save_csv:disabled {
     background-color: lightgray;
 }

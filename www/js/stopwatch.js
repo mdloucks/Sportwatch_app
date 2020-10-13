@@ -55,8 +55,8 @@ class Stopwatch extends Page {
         `);
 
         this.clock = {
-            radius: 100,
-            pointSize: 7,
+            radius: 120,
+            pointSize: 12,
             centerX: 0,
             centerY: 0,
             font: "30px Arial",
@@ -64,7 +64,7 @@ class Stopwatch extends Page {
             fillStyle: "dd3333",
             circleColor: "#dd3333",
             dotColor: "#000000",
-            lineWidth: 5,
+            lineWidth: 8.5,
 
             angle: 90,
             initialAngle: 90,
@@ -83,7 +83,7 @@ class Stopwatch extends Page {
 
         this.landingPage = (`
             <div id="landingPage" class="div_page">
-                <canvas id="stopwatch_canvas" class="stopwatch_canvas" width="400px" height="300px"></canvas>
+                <canvas id="stopwatch_canvas" class="stopwatch_canvas"></canvas>
 
                 <img src="${this.upArrowPath}" alt="" id="slideup_arrow" class="slideup_arrow_up"></img>
                 <div id="slideup" class="slideup_contracted"></div>
@@ -190,16 +190,58 @@ class Stopwatch extends Page {
         }
 
         if (!this.clock.hasInitialized) {
+            
+            // set the canvas size dynamically to accomodate various screen sizes
+            let windowWidth  = window.screen.availWidth;
+            let windowHeight = window.screen.availHeight;
 
+            
+            let prefWidth = windowWidth;
+            // make sure that the height is being scaled properly 
+            // (0.38 comes from the percent of the screen that the stopwatch occupies) found in stopwatch.css
+            let prefHeight = windowHeight * 0.40;
+
+            this.c.width  = prefWidth;
+            this.c.height = prefHeight;
+
+            // find the largest scale size we can reasonable accomodate
+            let scale = Math.max(this.c.width / 480, this.c.height / 720);
+            
+            /**^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+             * these values are used to shift the canvas back to its original position
+             * in order compensate for the fact that everything is being scaled and stretched
+             * 
+             * Math (prefWidth * scale) -> this is the size of the new canvas after being transformed
+             * Take away the prefWidth to find the size of the original canvas
+             * divide that by two to find how far the canvas has shifted
+             * ...............................................................................................................
+             */
+            const translate = {
+                x: -((prefWidth * scale) - prefWidth) / 2,
+                y: -((prefHeight * scale) - prefHeight) / 2
+            }
+
+            // console.log("Canvas resolution: " + windowWidth + "x" + windowHeight);
+            // console.log("Canvas dimensions: " + prefWidth + "x" + prefHeight);
+            // console.log("scale: " + scale);
+            // console.log("translate x: " + translate.x + " translate y: " + translate.y);
+        
+            // apply the transformation
+            this.ctx.setTransform(scale, 0, 0, scale, translate.x, translate.y);
+
+
+            // init clock constants
             this.clock.angleInterval = 360 / this.clock.interval;
             this.ctx.lineWidth = this.clock.lineWidth;
             this.ctx.font = this.clock.font;
             this.ctx.fillStyle = this.clock.fillStyle;
 
-            this.clock.centerX = this.c.width / 2;
-            this.clock.centerY = this.c.height / 2;
-
+            
+            this.clock.centerX = Math.min(this.c.width / 2);
+            this.clock.centerY = Math.min(this.c.height / 2);
+            
             this.clock.textHeight = this.measureTextHeight(0, 0, 50, 100);
+
 
             this.ctx.clearRect(0, 0, this.c.width, this.c.height);
             this.drawCircle();
@@ -713,7 +755,7 @@ class Stopwatch extends Page {
 
         // add tooltip text and make it fade out
         $("#stopwatchPage #stopwatch_canvas").after(`
-            <div class="missing_info_text">Tap clock to start. <br> Tap twice to reset.</div>
+            <div class="missing_info_text info_text">Tap clock to start. <br> Tap twice to reset.</div>
         `);
 
         setTimeout(() => {
