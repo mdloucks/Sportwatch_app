@@ -44,16 +44,16 @@ let json = {
         ["foot", "other"],
         ["yard", "other"]
     ], 
-    "offline_record": [
-        [1, 69, 1, false, false, 0, 0, Date.now()],
-        [2, 69, 1, false, false, 0, 0, Date.now()],
-        [3, 69, 1, false, false, 0, 0, Date.now()],
-    ],
-    "offline_record_user_link": [
-        [1, 1],
-        [1, 2],
-        [1, 3]
-    ]
+    // "offline_record": [
+    //     [1, 69, 1, false, false, 0, 0, Date.now()],
+    //     [2, 69, 1, false, false, 0, 0, Date.now()],
+    //     [3, 69, 1, false, false, 0, 0, Date.now()],
+    // ],
+    // "offline_record_user_link": [
+    //     [1, 1],
+    //     [1, 2],
+    //     [1, 3]
+    // ]
 }
 
 /**
