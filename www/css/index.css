@@ -236,7 +236,7 @@ https://css-tricks.com/places-its-tempting-to-use-display-none-but-dont/ */
 
 /* info that will be displayed in the middle of screen to indicate missing information */
 .missing_info_text {
-    font-size: 3.5vw;
+    font-size: 5.5vw;
     position: absolute;
     left: 0; 
     right: 0; 
