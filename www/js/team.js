@@ -27,6 +27,8 @@ class Team extends Page {
                     <div id="team_name" class="left_text underline">My Team</div>
                 </div>
 
+                <button id="invite_athletes" class="generated_button">Invite Athletes +</button>
+
                 <div class="button_box"></div>
             </div>
         `);
@@ -113,6 +115,21 @@ class Team extends Page {
 
         if (!this.hasStarted) {
             this.hasStarted = true;
+
+            let teamCode = "Unkown";
+            if(storage.getItem("inviteCode") != null) {
+                teamCode = storage.getItem("inviteCode");
+            }
+    
+    
+            $("#teamPage #invite_athletes").click(function (e) { 
+                Popup.createConfirmationPopup(`
+                    <div id="inviteCode" class="subheading_text">
+                        Invite Code: <span class="underline">${teamCode}</span>
+                        <br><br>Have your athletes download the app, and enter this code on the team page!
+                    </div>
+                `, ["Ok"], [() => {}]);
+            });
         } else {
             this.startLandingPage(() => {
                 Animations.fadeInChildren(this.athleteBoxSelector, Constant.fadeDuration, Constant.fadeIncrement);
@@ -165,8 +182,7 @@ class Team extends Page {
                 if ($("#teamPage #landingPage .missing_info_text").length == 0) {
                     $("#teamPage #landingPage").append(`
                         <div class="missing_info_text">
-                            There aren't any athletes on your team yet. Go to Settings -> Team Preferences to
-                            invite athletes with a code, or by email.
+                            There aren't any athletes on your team yet. If you haven't invited anyone yet, hit the "Invite Athletes" button to get started!
                         </div>
                     `);
                 }

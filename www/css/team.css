@@ -3,8 +3,8 @@
 /*^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ 
 // univsersal teamPage elements
 .......................................................................................................*/
-#teamPage > h1 {
-  font-size: 3.5em;
+#teamPage>h1 {
+    font-size: 3.5em;
 }
 
 /*
@@ -21,7 +21,13 @@
     content: "";
     display: table;
     clear: both;
-  }
+}
+
+#teamPage #invite_athletes {
+    border-radius: 0;
+    padding: 5px;
+    background-color: rgb(48, 208, 88);
+}
 
 
 /*^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ 
@@ -30,8 +36,8 @@
 
 
 #teamPage #athletePage #athlete_edit {
-  display: inline;
-  font-size: 2.5em;
+    display: inline;
+    font-size: 2.5em;
 }
 
 /*^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ 
@@ -40,9 +46,9 @@
 
 /* editAthletePage */
 #teamPage #editAthletePage p {
-  font-weight: bold;
-  font-size: 2em;
-  overflow: auto;
+    font-weight: bold;
+    font-size: 2em;
+    overflow: auto;
 }
 
 /*^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ 
@@ -72,13 +78,15 @@
 }
 
 /* Try to prevent text breaks */
-#teamPage #athlete_stats_container tr > *:nth-child(1) {
+#teamPage #athlete_stats_container tr>*:nth-child(1) {
     width: 35%;
 }
-#teamPage #athlete_stats_container tr > *:nth-child(2) {
+
+#teamPage #athlete_stats_container tr>*:nth-child(2) {
     width: 50%;
 }
-#teamPage #athlete_stats_container tr > *:nth-child(3) {
+
+#teamPage #athlete_stats_container tr>*:nth-child(3) {
     width: 15%;
 }
 
@@ -100,7 +108,8 @@
 /* ---- MISC ---- */
 
 #teamPage {
-    height: 100%; /* Since it's embedded in another div page */
+    height: 100%;
+    /* Since it's embedded in another div page */
 }
 
 #teamPage .action_button {
