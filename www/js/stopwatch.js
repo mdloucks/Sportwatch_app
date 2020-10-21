@@ -55,16 +55,16 @@ class Stopwatch extends Page {
         `);
 
         this.clock = {
-            radius: 120,
-            pointSize: 12,
+            radius: 125,
+            pointSize: 10,
             centerX: 0,
             centerY: 0,
-            font: "40px Arial",
+            font: "40px Poppins",
             textHeight: 0,
             fillStyle: "dd3333",
             circleColor: "#dd3333",
             dotColor: "#000000",
-            lineWidth: 8.5,
+            lineWidth: 5.5,
 
             angle: 90,
             initialAngle: 90,
@@ -250,12 +250,6 @@ class Stopwatch extends Page {
             this.ctx.fillText("0.00", this.clock.centerX - (this.ctx.measureText("0.00").width / 2),
                 this.clock.centerY + (this.clock.textHeight / 2));
 
-
-            // $("#stopwatch_reset").click((e) => {
-            //     e.preventDefault();
-            //     this.resetStopwatch(this.clock, this.ctx);
-            // });
-
             $("#stopwatchPage .back_button").click((e) => {
                 this.pageTransition.slideRight("landingPage");
             });
@@ -291,8 +285,17 @@ class Stopwatch extends Page {
         $("#stopwatch_canvas").unbind("dblclick");
 
         $("#stopwatch_canvas").bind("dblclick", (e) => {
-            this.resetStopwatch();
-            this.resetSlideup();
+
+            if(this.isSlideupTransitioning) {
+                setTimeout(() => {
+                    this.resetStopwatch();
+                    this.resetSlideup();
+                }, this.chooseEventTransitionDuration);
+            } else {
+                this.resetStopwatch();
+                this.resetSlideup();
+            }
+
         });
 
         $("#stopwatch_canvas").bind("click", (e) => {
