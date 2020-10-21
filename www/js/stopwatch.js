@@ -59,7 +59,7 @@ class Stopwatch extends Page {
             pointSize: 12,
             centerX: 0,
             centerY: 0,
-            font: "30px Arial",
+            font: "40px Arial",
             textHeight: 0,
             fillStyle: "dd3333",
             circleColor: "#dd3333",
@@ -604,7 +604,7 @@ class Stopwatch extends Page {
                 if (DO_LOG) {
                     console.log("record_definition table is empty");
                 }
-                Popup.createConfirmationPopup("Something went very wrong, try restarting the app :(", ["Ok"], () => {});
+                Popup.createConfirmationPopup("Something went very wrong, try restarting the app :(", ["Ok"], [() => {}]);
             }
         });
     }
@@ -853,12 +853,7 @@ class Stopwatch extends Page {
                         this.toggleSlideup();
                         this.resetStopwatch();
 
-                        navigator.notification.alert(
-                            'Times saved successfully!', // message
-                            () => {}, // callback
-                            'Event Completed', // title
-                            'OK' // buttonName
-                        );
+                        Popup.createConfirmationPopup("Time saved successfully!", ["Ok"], [() => {}]);
 
                         // stop here
                     }

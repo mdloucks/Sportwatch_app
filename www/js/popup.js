@@ -38,7 +38,7 @@ class Popup {
         $("#app").append(`
             <div class="popup" id="popup_${popupId}">
     
-                <div class="popup_content popup_top_position">
+                <div class="popup_content">
                     <span class="close">&times;</span>
                     <p class="popup_tooltip">${tooltip}</p><br>
                 </div>
