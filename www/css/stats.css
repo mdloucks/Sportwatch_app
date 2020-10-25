@@ -31,6 +31,26 @@
     font-size: 4vw;
 }
 
+#statsPage #stats_summary {
+    border: 1px solid black;
+    border-radius: 12px;
+    width: 80%;
+    text-align: center;
+    margin: auto;
+    font-size: 5vw;
+    padding: 15px;
+}
+
+#statsPage #stats_summary_interval {
+    font-size: 2em;
+    font-weight: bold;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    box-sizing: border-box;
+    margin: 8px 0;
+    text-align: center;
+}
+
 
 #statsPage #eventPage #event_results .column_names th {
     border: 3px solid black;
@@ -39,7 +59,7 @@
 #statsPage #save_csv {
     background-color: rgb(64, 202, 0);
     transition: background-color 0.5s;
-    font-size: 3.5vw;
+    font-size: 4.5vw;
 }
 
 #statsPage #save_csv:disabled {

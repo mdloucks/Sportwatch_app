@@ -12,7 +12,7 @@ class Stats extends Page {
         this.isEditing = false;
 
         this.eventButtonsBoxSelector = "#statsPage #landingPage .button_box";
-        this.headerText = `Events`;
+        this.headerText = `Stats`;
         this.csvLocation = ""; // For iOS sharing reference
 
         this.athleteRecordQuery = (`
@@ -22,14 +22,27 @@ class Stats extends Page {
             INNER JOIN athlete
             ON athlete.id_backend = record_user_link.id_backend
             WHERE record.id_record_definition = ?;
-        `)
+        `);
+
+        this.athleteRecordQueryAll = (`
+            select * from record
+            INNER JOIN record_user_link
+            ON record_user_link.id_record = record.id_record
+            INNER JOIN athlete
+            ON athlete.id_backend = record_user_link.id_backend
+        `);
 
         this.landingPage = (`
             <div id="landingPage" class="div_page">
                 <div class="left_container">
-                    <div class="left_text underline">Events</div><br><br>
+                    <div class="left_text underline">Stats</div><br><br>
                 </div>
 
+                <h2>Days:</h2>
+                <input type="number" id="stats_summary_interval" value="7" step="1" name="stats_summary_interval"></input><br>
+                <div id="stats_summary"></div>
+
+                <div class="subheading_text">Stats by Event</div><br><hr>
                 <div class="button_box"></div>
             </div>
         `);
@@ -41,6 +54,9 @@ class Stats extends Page {
                     <h1 id="event_name"></h1>
                     <div></div>
                 </div>
+
+                <h2>Days:</h2> <input type="number" id="stats_summary_interval" value="7" step="1" name="stats_summary_interval"></input><br>
+                <div id="stats_summary"></div>
                 
                 <button id="save_csv" class="generated_button">Save to CSV file</button><br><br>
 
@@ -92,22 +108,30 @@ class Stats extends Page {
             this.pageTransition.addPage("eventPage", this.eventPage);
         }
 
+
         if (!this.hasStarted) {
             this.hasStarted = true;
+
+            $("#statsPage #landingPage #stats_summary_interval").off("input propertychange");
+
+            $("#statsPage #landingPage #stats_summary_interval").on("input propertychange", (e) => {
+                this.updateStatsSummary($(e.target).val());
+            });
+
         } else {
             this.startLandingPage(() => {
                 Animations.fadeInChildren(this.eventButtonsBoxSelector, Constant.fadeDuration, Constant.fadeIncrement);
+                this.updateStatsSummary($("#statsPage #landingPage #stats_summary_interval").val());
             });
-
 
             // show the user the number of offline entries
             if (!NetworkInfo.isOnline()) {
-                
+
                 dbConnection.executeTransaction("SELECT Count(*) FROM offline_record", []).then((values) => {
                     let nOfflineRecords = Number(values.item(0)["Count(*)"]);
 
                     if (nOfflineRecords != undefined && nOfflineRecords != 0) {
-                        $("#statsPage #landingPage .button_box").before(`
+                        $("#statsPage #landingPage #stats_summary").before(`
                             <div id="internet_required_prompt" class="info_box">
                                 You have ${nOfflineRecords} entries that need to be uploaded.
                                 Please connect to the internet.
@@ -143,6 +167,7 @@ class Stats extends Page {
         `);
 
         dbConnection.selectValues(query).then((events) => {
+            // if records exist for any event
             if (events != false) {
                 $("#statsPage #landingPage .left_text").html(this.headerText);
                 $("#statsPage #landingPage .missing_info_text").remove();
@@ -160,7 +185,9 @@ class Stats extends Page {
                 }, [], Constant.eventColorConditionalAttributes, "class");
 
                 Animations.hideChildElements(this.eventButtonsBoxSelector);
+
                 callback();
+                // there are no events that have any records 
             } else {
                 $("#statsPage #landingPage .left_text").empty();
 
@@ -177,6 +204,85 @@ class Stats extends Page {
             }
         });
     }
+
+    updateStatsSummary(interval) {
+
+        console.log("INTERVAL " + interval);
+
+        dbConnection.selectValues(this.athleteRecordQueryAll, []).then((results) => {
+
+            if (results == false || results.length == 0) {
+                return;
+            }
+
+            let athletes = this.constructAthleteTimeArray(results);
+            let slopes = [];
+
+            // generate time array for each athlete
+            for (let i = 0; i < athletes.length; i++) {
+
+                if (athletes[i] === null || athletes[i] === undefined) {
+                    continue;
+                }
+
+                // change the unit of the dates depending on interval
+                // if user selects 7 days, the time unit will be weeks (improvement per week)
+                let adjustedDates = [];
+
+                for (let j = 0; j < athletes[i].dates.length; j++) {
+                    adjustedDates.push(athletes[i].dates[j] / (60 * 60 * 24 * interval * 1000))
+                }
+
+                // calculate derivative
+                slopes.push({
+                    name: athletes[i].fname + " " + athletes[i].lname,
+                    slope: this.linearRegression(athletes[i].values, adjustedDates).slope
+                });
+
+                // find average percentage improvement of athletes. 
+                console.log("athlete times " + JSON.stringify(athletes[i].values));
+
+                // console.log("athlete " + JSON.stringify(athletes[i]));
+                // console.log("athlete " + Date.parse(athletes[i].last_updated));
+
+                // let name = athletes[i].fname + "\t" + athletes[i].lname;
+                // let min = Clock.secondsToTimeString(Math.min(...athletes[i].values).toFixed(2));
+                // let max = Clock.secondsToTimeString(Math.max(...athletes[i].values).toFixed(2));
+                // let average = Clock.secondsToTimeString((athletes[i].values.reduce((a, b) => a + b, 0) / athletes[i].values.length).toFixed(2));
+            }
+
+            let dayInterval = (60 * 60 * 24) * 1000;
+            let weekInterval = (60 * 60 * 24 * 7) * 1000;
+            let monthInterval = (60 * 60 * 24 * 30) * 1000;
+
+            let generalInterval = (60 * 60 * 24 * interval) * 1000
+
+            let selectedInterval = generalInterval;
+            let nRecords = 0;
+
+            // loop through records to count the number of them.
+            for (let i = 0; i < results.length; i++) {
+
+                if (Date.parse(results.item(i).last_updated) > (Date.now() - selectedInterval)) {
+                    nRecords += 1;
+                }
+            }
+
+            $("#statsPage #landingPage #stats_summary").html(`
+                <div>Results of the past (${interval}) days</div>
+                <div>
+                    Number of results saved: ${nRecords}
+                </div>
+            `);
+
+            // for (let i = 0; i < slopes.length; i++) {
+            //     $("#statsPage #stats_summary").append(`
+            //         <br><b>${slopes[i].name}:</b> ${slopes[i].slope} seconds
+            //     `);
+            // }
+        });
+    }
+
 
     /**
      * @description This function will start the event page which will show stats
@@ -255,7 +361,156 @@ class Stats extends Page {
             });
         });
 
+        this.generateEventPageStatSummary(event);
         this.generateAthleteTimes(event);
+    }
+
+
+    /**
+     * this method iwll generate the stats for the summary for the individual event pages
+     * rather than the overview
+     * 
+     * @param {Object} event the object database result
+     * @param {Integer} interval the day interval to consider
+     */
+    generateEventPageStatSummary(event, interval = 1) {
+
+        interval = Number($("#statsPage #eventPage #stats_summary_interval").val());
+
+        // on input change, set the interval and regenerate stats
+        $("#statsPage #eventPage #stats_summary_interval").off("input propertychange");
+
+        $("#statsPage #eventPage #stats_summary_interval").on("input propertychange", (e) => {
+            this.generateEventPageStatSummary(event, Number($(e.target).val()));
+        });
+
+        console.log("GENERATING FOR INTERVAL " + interval);
+
+        dbConnection.selectValues(this.athleteRecordQuery, [event.rowid]).then((results) => {
+
+            if (results == false) {
+                return;
+            }
+
+            let athletes = this.constructAthleteTimeArray(results);
+            let slopes = [];
+
+            let average = (array) => array.reduce((a, b) => a + b) / array.length;
+
+            let percentChangeAverages = [];
+
+            let dayInterval = (60 * 60 * 24) * 1000;
+            let weekInterval = (60 * 60 * 24 * 7) * 1000;
+            let monthInterval = (60 * 60 * 24 * 30) * 1000;
+
+            let generalInterval = (60 * 60 * 24 * interval) * 1000
+
+            let selectedInterval = generalInterval;
+
+            // generate time array for each athlete
+            for (let i = 0; i < athletes.length; i++) {
+
+                if (athletes[i] === null || athletes[i] === undefined) {
+                    continue;
+                }
+
+                // change the unit of the dates depending on interval
+                // if user selects 7 days, the time unit will be weeks
+                let adjustedDates = [];
+
+                for (let j = 0; j < athletes[i].dates.length; j++) {
+                    adjustedDates.push(athletes[i].dates[j] / (60 * 60 * 24 * interval * 1000))
+                }
+
+                // calculate derivative
+                slopes.push({
+                    name: athletes[i].fname + " " + athletes[i].lname,
+                    slope: this.linearRegression(athletes[i].values, adjustedDates).slope
+                });
+
+                // find average percent change of athletes. 
+                let percentChange = [];
+
+                for (let j = 0; j < athletes[i].values.length - 1; j++) {
+
+                    // skip this entry if it's outside of the specified date range
+                    if (athletes[i].dates[j] < (Date.now() - selectedInterval)) {
+                        console.log("date " + Date.parse(athletes[i].dates[j]) + " is out of date range");
+                        continue;
+                    }
+
+                    // get two values to find difference
+                    let a = athletes[i].values[j];
+                    let b = athletes[i].values[j + 1];
+
+                    // negative percentage is good
+                    percentChange.push(((a - b) / b) * 100);
+                }
+
+                if (percentChange.length != 0) {
+                    athletes[i].percentChange = percentChange;
+                    athletes[i].percentChangeAverage = average(percentChange);
+                    percentChangeAverages.push(athletes[i].percentChangeAverage)
+                }
+
+                // console.log(athletes[i].lname + " " + athletes[i].percentChangeAverage);
+
+
+                // console.log("athlete " + JSON.stringify(athletes[i]));
+                // console.log("athlete " + Date.parse(athletes[i].last_updated));
+
+                // let name = athletes[i].fname + "\t" + athletes[i].lname;
+                // let min = Clock.secondsToTimeString(Math.min(...athletes[i].values).toFixed(2));
+                // let max = Clock.secondsToTimeString(Math.max(...athletes[i].values).toFixed(2));
+                // let average = Clock.secondsToTimeString((athletes[i].values.reduce((a, b) => a + b, 0) / athletes[i].values.length).toFixed(2));
+            }
+
+            let nRecords = 0;
+
+            // loop through records to count the number of them.
+            for (let i = 0; i < results.length; i++) {
+
+                if (Date.parse(results.item(i).last_updated) > (Date.now() - selectedInterval)) {
+                    nRecords += 1;
+                }
+            }
+
+            let teamPercentChange = 0;
+            let teamPercentChangeString = "";
+
+            if(percentChangeAverages.length != 0) {
+                teamPercentChange = average(percentChangeAverages).toFixed(2);
+                teamPercentChangeString = "";
+            }
+
+            // display message based on percentage
+            if (teamPercentChange < 0) {
+                teamPercentChangeString = `Your team improved in this event by <b><span style="color: rgb(48, 208, 88);">${Math.abs(teamPercentChange)}%</span></b>`;
+            } else if (teamPercentChange > 0) {
+                teamPercentChangeString = `Your team worsened in this event by <b><span style="color: darkred;">${Math.abs(teamPercentChange)}%</span></b>`;
+            } else if(teamPercentChange == 0) {
+                teamPercentChangeString = `Your team's performance has not changed in the given period of time`;
+            } else if(!isFinite(teamPercentChange) || isNaN(teamPercentChange)) {
+                teamPercentChangeString = `Your team's improvements in this event cannot be determined. (are there any results with a time of zero?)`;
+            } else {
+                teamPercentChangeString = `Your team's improvements in this event cannot be determined.`;
+            }
+
+
+            $("#statsPage #eventPage #stats_summary").html(`
+                <div><b>Results of the past (${interval}) </b>days</div>
+                <div>
+                    Number of results saved: <b>${nRecords}</b><br><br>
+                    ${teamPercentChangeString}
+                </div>
+            `);
+
+            // for (let i = 0; i < slopes.length; i++) {
+            //     $("#statsPage #stats_summary").append(`
+            //         <br><b>${slopes[i].name}:</b> ${slopes[i].slope} seconds
+            //     `);
+            // }
+        });
     }
 
     onErrorCreateFile() {
@@ -342,9 +597,8 @@ class Stats extends Page {
      * @description this will generate all of the times for the given event in the specified order 
      * and append it to the table
      * @param {row} event the event row from the database
-     * @param {String} order what order to generate the times in
      */
-    generateAthleteTimes(event, order) {
+    generateAthleteTimes(event) {
 
         this.clearResultsTable();
 
@@ -359,8 +613,8 @@ class Stats extends Page {
                     data: "fname",
                     title: "Name",
                     render: function (data, type, row) {
-                        console.log(JSON.stringify(row));
-                        console.log("data " + JSON.stringify(data));
+                        // console.log(JSON.stringify(row));
+                        // console.log("data " + JSON.stringify(data));
                         return `${row["fname"]} ${row["lname"]}`
                     }
                 },
@@ -377,56 +631,6 @@ class Stats extends Page {
                 }
             ]);
         });
-
-        // dbConnection.selectValues(this.athleteRecordQuery, [event.rowid]).then((results) => {
-
-        //     if(results == false) {
-        //         return;
-        //     }
-
-        //     let athletes = this.constructAthleteTimeArray(results, order);
-
-        //     for (let i = 0; i < athletes.length; i++) {
-
-        //         if (athletes[i] === null || athletes[i] === undefined) {
-        //             continue;
-        //         }
-
-        //         let name = athletes[i].fname + "\t" + athletes[i].lname;
-        //         let min = Clock.secondsToTimeString(Math.min(...athletes[i].values).toFixed(2));
-        //         let max = Clock.secondsToTimeString(Math.max(...athletes[i].values).toFixed(2));
-        //         let average = Clock.secondsToTimeString((athletes[i].values.reduce((a, b) => a + b, 0) / athletes[i].values.length).toFixed(2));
-
-        //         let info_box;
-
-        //         if (athletes[i].gender == 'm') {
-        //             info_box = $("<tr>", {
-        //                 class: "male_color_alternate"
-        //             });
-        //         } else if (athletes[i].gender == 'f') {
-        //             info_box = $("<tr>", {
-        //                 class: "female_color_alternate"
-        //             });
-        //         } else {
-        //             info_box = $("<tr>");
-        //         }
-
-        //         info_box.append($("<td>", {
-        //             text: name
-        //         }));
-        //         info_box.append($("<td>", {
-        //             text: min
-        //         }));
-        //         info_box.append($("<td>", {
-        //             text: average
-        //         }));
-        //         info_box.append($("<td>", {
-        //             text: max
-        //         }));
-
-        //         $("#statsPage #eventPage #event_results").append(info_box);
-        //     }
-        // });
     }
 
     /**
@@ -440,17 +644,32 @@ class Stats extends Page {
         let array = [];
 
         let athlete_ids = [];
+        let dates = [];
 
         for (let i = 0; i < rows.length; i++) {
+            // push if the array already exists
             if (athlete_ids.includes(rows.item(i).id_backend)) {
                 array[rows.item(i).id_backend].values.push(rows.item(i).value);
+                array[rows.item(i).id_backend].dates.push(Date.parse(rows.item(i).last_updated));
 
+                // if the array doesn't exist inside, create one
             } else if (!athlete_ids.includes(rows.item(i).id_backend)) {
                 athlete_ids.push(rows.item(i).id_backend);
                 array[rows.item(i).id_backend] = rows.item(i);
+
+                array[rows.item(i).id_backend].dates = [Date.parse(rows.item(i).last_updated)];
                 array[rows.item(i).id_backend].values = [rows.item(i).value];
             }
+
+            dates.push(rows.item(i).last_updated);
+
+            let orderedDates = dates.sort(function (a, b) {
+                return Date.parse(a) > Date.parse(b);
+            });
+
+            array[rows.item(i).id_backend].last_updated = orderedDates[orderedDates.length - 1];
         }
+
 
         if (order == "A-z") {
             array.sort((a, b) => (a.lname > b.lname) ? 1 : ((b.lname > a.lname) ? -1 : 0));
@@ -461,6 +680,36 @@ class Stats extends Page {
         }
 
         return array;
+    }
+
+    /**
+     * run a simple linear R squared regression on the given set of data
+     * @param {array} y y data
+     * @param {array} x x data
+     */
+    linearRegression(y, x) {
+        var lr = {};
+        var n = y.length;
+        var sum_x = 0;
+        var sum_y = 0;
+        var sum_xy = 0;
+        var sum_xx = 0;
+        var sum_yy = 0;
+
+        for (var i = 0; i < y.length; i++) {
+
+            sum_x += x[i];
+            sum_y += y[i];
+            sum_xy += (x[i] * y[i]);
+            sum_xx += (x[i] * x[i]);
+            sum_yy += (y[i] * y[i]);
+        }
+
+        lr['slope'] = (n * sum_xy - sum_x * sum_y) / (n * sum_xx - sum_x * sum_x);
+        lr['intercept'] = (sum_y - lr.slope * sum_x) / n;
+        lr['r2'] = Math.pow((n * sum_xy - sum_x * sum_y) / Math.sqrt((n * sum_xx - sum_x * sum_x) * (n * sum_yy - sum_y * sum_y)), 2);
+
+        return lr;
     }
 
     /**
