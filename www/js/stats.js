@@ -38,11 +38,6 @@ class Stats extends Page {
                     <div class="left_text underline">Stats</div><br><br>
                 </div>
 
-                <h2>Days:</h2>
-                <input type="number" id="stats_summary_interval" value="7" step="1" name="stats_summary_interval"></input><br>
-                <div id="stats_summary"></div>
-
-                <div class="subheading_text">Stats by Event</div><br><hr>
                 <div class="button_box"></div>
             </div>
         `);
@@ -112,16 +107,10 @@ class Stats extends Page {
         if (!this.hasStarted) {
             this.hasStarted = true;
 
-            $("#statsPage #landingPage #stats_summary_interval").off("input propertychange");
-
-            $("#statsPage #landingPage #stats_summary_interval").on("input propertychange", (e) => {
-                this.updateStatsSummary($(e.target).val());
-            });
 
         } else {
             this.startLandingPage(() => {
                 Animations.fadeInChildren(this.eventButtonsBoxSelector, Constant.fadeDuration, Constant.fadeIncrement);
-                this.updateStatsSummary($("#statsPage #landingPage #stats_summary_interval").val());
             });
 
             // show the user the number of offline entries
