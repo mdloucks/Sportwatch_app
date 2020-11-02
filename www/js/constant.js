@@ -18,6 +18,9 @@ class Constant {
     static getPlanURL() {
         return Constant.HOSTNAME + Constant.BACKEND_PATH + Constant.FUNCTION.plan_action;
     }
+    static getValidateURL() {
+        return "https://validator.fovea.cc/v1/validate?appName=us.sportwatch.sportwatchapp&apiKey=3fae594f-542c-4e20-97de-028a4a9e567b";
+    }
     static getRecordURL() {
         return Constant.HOSTNAME + Constant.BACKEND_PATH + Constant.FUNCTION.record_action;
     }
@@ -36,8 +39,8 @@ class Constant {
 // outside of declaration
 Constant.DIR_CSS = "css/";
 
-Constant.HOSTNAME = "https://sportwatch.us"; // Append "dev." for testing
-Constant.BACKEND_PATH = "/mobile/"; // So we can adjust based on versions of backend
+Constant.HOSTNAME = "https://dev.sportwatch.us"; // Append "dev." for testing
+Constant.BACKEND_PATH = "/backend/v1-0/"; // So we can adjust based on versions of backend
 Constant.FUNCTION = {
     signup: "signup.php",
     login: "login.php",
@@ -55,6 +58,9 @@ Constant.FUNCTION = {
 Constant.AJAX_CFG = {
     timeout: 3000
 };
+
+// Subscription information
+Constant.MONTHLY_ID = "sp_m_KXqzG";
 
 Constant.fadeDuration = 300;
 Constant.fadeIncrement = 45;

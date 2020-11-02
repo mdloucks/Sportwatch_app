@@ -36,8 +36,9 @@ class App {
     startApp() {
         // Have to initialize database here after device is ready
         dbConnection = new DatabaseConnection();
-
+        
         this.swipeHandler = new SwipeHolder("#app");
+        PaymentHandler.initPlans();
         if(device.platform != "iOS") {
             FastClick.attach(document.body); // iOS double clicks don't work with this plugin
         }
