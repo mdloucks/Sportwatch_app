@@ -5,14 +5,26 @@
 class PlanBackend {
     // Docs: https://www.sportwatch.us/mobile/docs#plan
     
-    // More detailed documentation coming in the future
-    // For now, know that callback should take a boolean: does the user have a paid subscription (true/false)?
+    /**
+     * Function to be used to limit a user's access to premium features.
+     * The callback should accept a boolean, indicative of the status of the plan.
+     * 
+     * @example isPremiumMember("loucks@sportwatch.us", (status) => { // If status = true, they have premium });
+     * 
+     * @param {String} targetEmailOrId email or numerical ID of the user to check
+     * @param {Function} callback function that accepts a boolean; true, if the pla is active
+     */
     static isPremiumMember(targetEmailOrId, callback) {
         
-        // Placeholder function until Seth can write a fully worked out solution
-        if(true) {
-            callback(true);
-        }
+        // Get the plan for this user and pass true of false based on status
+        this.getActivePlan(targetEmailOrId, (response) => {
+            
+            if(response.isActive == true) {
+                callback(true);
+            }
+            
+            callback(false);
+        });
     }
     
     /**
