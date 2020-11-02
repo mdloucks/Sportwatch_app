@@ -105,37 +105,56 @@ class Popup {
                 <b>Buy now, and gain the following:</b>
                 </div>
 
-                <ul class="missing_info_text" style="font-style: italic;">
+                <ul class="missing_info_text" style="font-style: italic; list-style: none; position: unset;">
                     <li>Unlimited athletes</li>
                     <li>Keep data from old seasons</li>
-                <ul>
-
-                <button class="membership_purchase_button">
-                    $9.99
-                </button>
+                </ul>
+                
+                <div id="planOptions">
+                </div>
+                
+                <br>
+                <p style="margin: 15px; color: #222;">
+                    Subscriptions will be charged to your iTunes account on purchase confirmation
+                    in an amount listed above for the selected plan.
+                    Subscriptions will automatically renew unless cancelled within
+                    24 hours before the end of the current period. You can cancel at anytime
+                    in your iTunes account settings. Any unused portion of a free trial will be
+                    forfeited if you purchase a subscription. For more information, view our
+                    <a href="https://sportwatch.us/privacy-policy">Privacy Policy</a> and
+                    <a href="https://sportwatch.us/privacy-policy">Terms of Service</a>.
+                </p>
             </div>
         `);
 
         // continue this here https://purchase.cordova.fovea.cc/use-cases/subscription-android 
-
-        $(".membership_purchase_button").click(function (e) { 
-            store.register([{
-                id:    'membership_2020',
-                type:   store.PAID_SUBSCRIPTION,
-            }]);
         
-            // Setup the receipt validator service.
-            store.validator = '<<< YOUR_RECEIPT_VALIDATION_URL >>>';
+        // -- PURCHASE SETUP -- //
+        // Add a title and button for each plan
+        let plans = PaymentHandler.PLANS;
+        for(let p = 0; p < plans.length; p++) {
+            
+            // Don't add the plan more than once
+            if($("#" + plans[p].id).length != 0) {
+                return;
+            }
+            
+            // Append the content
+            $(".popup #planOptions").append(`
+                <p style="margin: 0; font-size: 2em;">${plans[p].title}</p>
+                <button id="${plans[p].id}" class="membership_purchase_button">
+                    ${plans[p].price}
+                </button><br><br>
+            `);
+        }
         
-            // Show errors for 10 seconds.
-            store.error(function(error) {
-                console.log("THERE WAS AN ERROR " + error);
-            });
-        
-            // Later, we will add our events handlers here
-        
-            // Load informations about products and purchases
-            store.refresh();
+        // -- SUBSCRIPTION PLANS -- //
+        $(".popup .membership_purchase_button").click((e) => {
+            let subId = $(e.target).prop("id");
+            console.log($(e.target));
+            console.log(subId);
+            store.order(Constant.MONTHLY_ID);
         });
+        
     }   
 }

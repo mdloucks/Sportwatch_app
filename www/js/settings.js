@@ -78,6 +78,7 @@ class Settings extends Page {
             "My Account": this.startMyAccount,
             "Team Preferences": this.startTeamPreferences,
             // "Notifications": this.startNotifications,
+            "Premium": this.startPremium,
             "Sign Out": this.startSignOut
             // "Delete Account": this.startDeleteAccount
         };
@@ -633,7 +634,17 @@ class Settings extends Page {
         let headerWidth = $("#settingsPage #editPage > .generic_header").height();
         $("#settingsPage #editPage > *:not(.generic_header)").first().css("margin-top", `calc(${headerWidth}px + 10vh)`);
     }
+    
+    startPremium() {
+        this.setupSettingsPage("Premium");
+        
+        Popup.createMembershipPopup();
 
+        this.pageTransition.slideLeft("editPage");
+        let headerWidth = $("#settingsPage #editPage > .generic_header").height();
+        $("#settingsPage #editPage > *:not(.generic_header)").first().css("margin-top", `calc(${headerWidth}px + 10vh)`);
+    }
+    
     startSignOut() {
 
         Popup.createConfirmationPopup("Are you sure you want to sign out?", ["Yes", "No"], [() => {
