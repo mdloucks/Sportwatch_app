@@ -99,11 +99,13 @@ class Settings extends Page {
         })
         
         // Start the currently selected page in case it isn't the landing page
-        let activeEditPage = $("#settingsPage #editPage #editName").text();
-        if(activeEditPage.includes("Account")) {
-            this.startMyAccount();
-        } else if(activeEditPage.includes("Team")) {
-            this.startTeamPreferences();
+        if(this.pageTransition.getCurrentPage() != "catagoryPage") {
+            let activeEditPage = $("#settingsPage #editPage #editName").text();
+            if(activeEditPage.includes("Account")) {
+                this.startMyAccount();
+            } else if(activeEditPage.includes("Team")) {
+                this.startTeamPreferences();
+            }
         }
         
         // ---- MISC PAGE LOGIC ---- //
