@@ -83,78 +83,117 @@ class Popup {
     }
 
     /**
-     * This function will prompt the user with a sportwatch membership
+     * This function will prompt the user with a sportwatch premium
      * which will include info, and payment options.
      * 
      * @param {function} callback callback when done
      */
-    static createMembershipPopup(callback) {
+    static createPremiumPopup(callback) {
 
         $(".navbar").addClass("hidden");
+
+        // this is the text at the bottom that lets the user know about the purchase, different for iOS and android
+        let paymentInfo = "";
+
+        if(device.platform == "iOS") {
+            paymentInfo = (`
+                Subscriptions will be charged to your iTunes account on purchase confirmation
+                in an amount listed above for the selected plan.
+                Subscriptions will automatically renew unless cancelled within
+                24 hours before the end of the current period. You can cancel at anytime
+                in your iTunes account settings. Any unused portion of a free trial will be
+                forfeited if you purchase a subscription. For more information, view our
+                <a href="https://sportwatch.us/privacy-policy">Privacy Policy</a> and
+                <a href="https://sportwatch.us/terms-and-conditions/">Terms of Service</a>.
+            `);
+        } else {
+            paymentInfo = (`
+                Subscription renews every month. <a href="https://support.google.com/googleplay/answer/7018481?co=GENIE.Platform%3DAndroid&hl=en">Cancel at any time</a>.
+                For more information, view our <a href="https://sportwatch.us/privacy-policy">Privacy Policy</a> and
+                <a href="https://sportwatch.us/terms-and-conditions/">Terms of Service</a>.
+            `);
+        }
         
         $("#app").append(`
             <div class="popup white_background">
 
-                <div class="left_container">
-                    <div class="left_text underline" style="font-size: 3em;">Sportwatch Membership</div><br><br>
+                <img width=45% src="img/logo.png" alt=""></img>
+
+                <div class="premium_popup_description">
+                    <b>Your free trial has expired.</b><br><br>
+                    Continue to improve with Sportwatch Premium.<br><br><br>
                 </div>
 
-                <div class="membership_popup_description">
-                Make your data work for you,<br>
-                Not the othe way around. <br><br>
-                <b>Buy now, and gain the following:</b>
-                </div>
+                <button class="premium_purchase_button">1 Month - $3.99 / month</button>
 
-                <ul class="missing_info_text" style="font-style: italic; list-style: none; position: unset;">
-                    <li>Unlimited athletes</li>
-                    <li>Keep data from old seasons</li>
-                </ul>
-                
+                <button class="premium_purchase_button">1 Year - $39.99 / year</button>
+
                 <div id="planOptions">
                 </div>
-                
+
                 <br>
-                <p style="margin: 15px; color: #222;">
-                    Subscriptions will be charged to your iTunes account on purchase confirmation
-                    in an amount listed above for the selected plan.
-                    Subscriptions will automatically renew unless cancelled within
-                    24 hours before the end of the current period. You can cancel at anytime
-                    in your iTunes account settings. Any unused portion of a free trial will be
-                    forfeited if you purchase a subscription. For more information, view our
-                    <a href="https://sportwatch.us/privacy-policy">Privacy Policy</a> and
-                    <a href="https://sportwatch.us/privacy-policy">Terms of Service</a>.
-                </p>
+                <div class="payment_footer">
+                    <div class="premium_deny_text">
+                        No Thanks
+                    </div><br>
+
+                    <div>
+                        ${paymentInfo}
+                    </div>
+
+                </div>
             </div>
         `);
+
+        // close the app if the user does not make a purchase
+        $(".premium_deny_text").click(function (e) { 
+            Popup.createConfirmationPopup("Sportwatch requires a premium membership in order to use. Do you want to go back to using a clipboard?",
+             ["No, take me back!", "Yes"], [function() {
+                return;
+            }, function() {
+                // TODO: open a link that prompts the user for a reason why they don't want to keep using the app.
+                navigator.app.exitApp();
+            }])
+        });
+
+        $(".premium_purchase_button:first").click(function (e) { 
+            console.log("BUY MONTHLY");
+            store.order(Constant.MONTHLY_ID);
+        });
+
+        $(".premium_purchase_button:last").click(function (e) { 
+            console.log("BUY ANNUALLY");
+            store.order(Constant.ANNUALLY_ID);            
+        });
 
         // continue this here https://purchase.cordova.fovea.cc/use-cases/subscription-android 
         
         // -- PURCHASE SETUP -- //
         // Add a title and button for each plan
-        let plans = PaymentHandler.PLANS;
-        for(let p = 0; p < plans.length; p++) {
+        // let plans = PaymentHandler.PLANS;
+        // for(let p = 0; p < plans.length; p++) {
             
-            // Don't add the plan more than once
-            if($("#" + plans[p].id).length != 0) {
-                return;
-            }
+        //     // Don't add the plan more than once
+        //     if($("#" + plans[p].id).length != 0) {
+        //         return;
+        //     }
             
-            // Append the content
-            $(".popup #planOptions").append(`
-                <p style="margin: 0; font-size: 2em;">${plans[p].title}</p>
-                <button id="${plans[p].id}" class="membership_purchase_button">
-                    ${plans[p].price}
-                </button><br><br>
-            `);
-        }
+        //     // Append the content
+        //     $(".popup #planOptions").append(`
+        //         <p style="margin: 0; font-size: 2em;">${plans[p].title}</p>
+        //         <button id="${plans[p].id}" class="premium_purchase_button">
+        //             ${plans[p].price}
+        //         </button><br><br>
+        //     `);
+        // }
         
         // -- SUBSCRIPTION PLANS -- //
-        $(".popup .membership_purchase_button").click((e) => {
-            let subId = $(e.target).prop("id");
-            console.log($(e.target));
-            console.log(subId);
-            store.order(Constant.MONTHLY_ID);
-        });
+        // $(".popup .premium_purchase_button").click((e) => {
+        //     let subId = $(e.target).prop("id");
+        //     console.log($(e.target));
+        //     console.log(subId);
+        //     store.order(Constant.MONTHLY_ID);
+        // });
         
     }   
 }
