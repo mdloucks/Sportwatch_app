@@ -40,8 +40,26 @@ button {
     left: 0;
     right: 0;
     z-index: 2;
-    background-color: rgb(229, 229, 234);
+    background-color: #eff3f0;
 }
+
+/* old loader */
+
+/* .loader {
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    z-index: 3;
+    margin: auto;
+    border: 16px solid #dd3333;
+    border-top: 16px groove black;
+    border-radius: 50%;
+    width: 120px;
+    height: 120px;
+    animation: spin 1s linear infinite;
+} */
 
 .loader {
     position: absolute;
@@ -51,14 +69,7 @@ button {
     right: 0;
     z-index: 3;
     margin: auto;
-    border: 16px solid #dd3333;
-    /* Light grey */
-    border-top: 16px groove black;
-    /* Blue */
-    border-radius: 50%;
-    width: 120px;
-    height: 120px;
-    animation: spin 1s linear infinite;
+    width: 70%;
 }
 
 /* ---- TRANSITION STYLING ---- */

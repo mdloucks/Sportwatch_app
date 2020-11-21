@@ -26,7 +26,7 @@ class App {
         ToolboxBackend.setBackendPathConstant().then(() => {
             this.startApp();
         }).catch(() => {
-            if(DO_LOG) {
+            if (DO_LOG) {
                 console.log("[main.js:onReady]: Failed to load backend API path, errors likely!");
                 this.startApp();
             }
@@ -36,18 +36,18 @@ class App {
     startApp() {
         // Have to initialize database here after device is ready
         dbConnection = new DatabaseConnection();
-        
+
         this.swipeHandler = new SwipeHolder("#app");
         PaymentHandler.initPlans();
-        if(device.platform != "iOS") {
+        if (device.platform != "iOS") {
             FastClick.attach(document.body); // iOS double clicks don't work with this plugin
         }
-        
-        if(NetworkInfo.isOnline()) {
+
+        if (NetworkInfo.isOnline()) {
             // Pull data from the backend, then start the app
             ToolboxBackend.pullFromBackend().then(() => {
                 this.initializeUI();
-    
+
                 if (DO_LOG) {
                     console.log("[main.js:startApp()]: Backend sync finished!");
                 }
@@ -60,14 +60,18 @@ class App {
             });
         } else {
             NetworkInfo.onOffline();
-            
+
             this.initializeUI();
         }
     }
 
     initializeUI() {
-        $(".loader_container").remove();
-        
+
+        setTimeout(() => {
+            $(".loader_container").remove();
+
+        }, 6000);
+
         // ---- PAGE SETS ---- //
         this.mainSet = new MainSet(this.swipeHandler, this.setActivePageSet, this);
         this.mainSet.constructPages();
@@ -76,7 +80,7 @@ class App {
         this.welcomeSet.constructPages();
 
         this.determinePageSet();
-        
+
         // Test Requests for Plan Usage (Remove as needed)
         // PlanBackend.getActivePlan("will@sportwatch.us", (r) => {
         //     console.log(r.status);
@@ -90,7 +94,7 @@ class App {
         // PlanBackend.makePayment("", 3.99, (r) => {
         //     console.log(r.substatus);
         // });
-        
+
     }
 
     /**
