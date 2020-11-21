@@ -89,15 +89,14 @@ class Popup {
      * @param {function} callback callback when done
      */
     static createMembershipPopup(callback) {
-
+        
         $(".navbar").addClass("hidden");
         
         $("#app").append(`
-            <div class="popup white_background">
-
-                <div class="left_container">
-                    <div class="left_text underline" style="font-size: 3em;">Sportwatch Membership</div><br><br>
-                </div>
+            <div id="membershipPopup" class="popup white_background">
+                <span id="membershipClose" class="close">&times;</span>    
+                
+                <div id="popupTitle" class="underline" style="font-size: 3em;">Sportwatch Membership</div><br><br>
 
                 <div class="membership_popup_description">
                 Make your data work for you,<br>
@@ -106,8 +105,10 @@ class Popup {
                 </div>
 
                 <ul class="missing_info_text" style="font-style: italic; list-style: none; position: unset;">
-                    <li>Unlimited athletes</li>
-                    <li>Keep data from old seasons</li>
+                    <li>~ Unified platform of stats ~</li>
+                    <li>~ Customized graphs ~</li>
+                    <li>~ Versatile stopwatch ~</li>
+                    <li>~ And much more! ~</li>
                 </ul>
                 
                 <div id="planOptions">
@@ -126,7 +127,17 @@ class Popup {
                 </p>
             </div>
         `);
-
+        
+        // Close click handler
+        $("#membershipPopup #membershipClose").on("click", function (e) {
+            e.preventDefault();
+            $("#membershipPopup #membershipClose").unbind();            
+            $("#membershipPopup").fadeOut(300, function () {
+                $(this).remove();
+                $(".navbar").removeClass("hidden");
+            });
+        });
+        
         // continue this here https://purchase.cordova.fovea.cc/use-cases/subscription-android 
         
         // -- PURCHASE SETUP -- //
@@ -136,7 +147,7 @@ class Popup {
             
             // Don't add the plan more than once
             if($("#" + plans[p].id).length != 0) {
-                return;
+                continue;
             }
             
             // Append the content
@@ -150,10 +161,9 @@ class Popup {
         
         // -- SUBSCRIPTION PLANS -- //
         $(".popup .membership_purchase_button").click((e) => {
-            let subId = $(e.target).prop("id");
-            console.log($(e.target));
-            console.log(subId);
-            store.order(Constant.MONTHLY_ID);
+            let planId = $(e.target).prop("id");
+            let planPrice = $(e.target).html();
+            store.order(planId);
         });
         
     }   
