@@ -262,6 +262,61 @@ class PlanBackend {
     }
     
     /**
+     * Gets an array of past payments associated for this user account
+     * 
+     * @example getPastPayments("loucks@sportwatch.us", 3.99, (p) => { // p.payments is array of transactions })
+     *          --> Gets array of payments for this user
+     * 
+     * @param {AssociativeArray} targetEmailOrId email or ID of the user
+     * @param {Integer} count number of payments to retrieve (if 0 or negative, will return all)
+     * @param {Function} callback callback to handle the response (JSON or String on failure)
+     */
+    static getPastPayments(targetEmailOrId, count, callback) {
+        
+        let storage = window.localStorage;
+        let identityKey = "email"; // "email" if targetEmailOrId is a string, "id_user" if it's a number
+        
+        if(typeof targetEmailOrId == "number") {
+            identityKey = "id_user";
+        } else { // Assume it was an email
+            if(targetEmailOrId.length == 0) {
+                targetEmailOrId = storage.getItem("email");
+            }
+        }
+        
+        // Prepare the array
+        let requestArray = {};
+        requestArray.SID = storage.getItem("SID");
+        requestArray.accountIdentity = { [identityKey]: targetEmailOrId };
+        requestArray.receiptDepth = ((count <= 0) ? 0 : count);
+        
+        // Submit the request and call the callback
+        return $.ajax({
+            type: "POST",
+            url: Constant.getPlanURL() + "?intent=4",
+            timeout: Constant.AJAX_CFG.timeout,
+            data: requestArray,
+            success: (response) => {
+                if(DO_LOG) {
+                    console.log("[plan-backend.js:getPastPayments()] " + response);
+                }
+                try {
+                    response = JSON.parse(response);
+                } catch (e) {
+                    // Couldn't parse, so just use string
+                }
+                callback(response);
+            },
+            error: (error) => {
+                if(DO_LOG) {
+                    console.log("[plan-backend.js:getPastPayments()] " + error);
+                }
+                callback(error);
+            }
+        });
+    }
+    
+    /**
      * Used to recall values from local storage and will check to make sure
      * they aren't null or empty. It will also perform a basic sanitize on
      * strings. It returns an associaitve array of the keys and values

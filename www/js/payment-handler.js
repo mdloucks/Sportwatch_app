@@ -12,10 +12,12 @@ class PaymentHandler {
      * app information once a subscription is purchased.
      */
     static initPlans() {
+        
         // Add plans (annual, seasonal) here \/
         store.register([{
             // Sportwatch Monthly
             id:    Constant.MONTHLY_ID,
+            alias: "Sportwatch Premium - Monthly",
             type:   store.PAID_SUBSCRIPTION,
         }]);
     
@@ -33,8 +35,31 @@ class PaymentHandler {
             PaymentHandler.PLANS.push(store.get(Constant.MONTHLY_ID));
         });
         
+        // Handle a purchase workflow (initiated by store.order --> approved --> verified --> done!)
+        store.when("subscription").approved((plan) => {
+            plan.verify();
+        });
+        store.when("subscription").verified((finishedPurchase) => {
+            PaymentHandler.afterBuying(finishedPurchase);
+        });
+        
         // Load informations about products and purchases
         store.refresh();
+    }
+    
+    /**
+     * Function that will handle the logic after purchasing a membership / premium.
+     * It consists mainly of syncing with the backend, but also with
+     * showing a confirmation of purchase dialoge to the user.
+     * 
+     * @param {Object} purchaseData data returned from the purchase validator
+     */
+    static afterBuying(purchaseData) {
+        
+        console.log("Bought the plan!");
+        console.log(purchaseData);
+        Popup.createConfirmationPopup("Welcome to Sportwatch Premium!", ["OK"]);
+        purchaseData.finish();
     }
     
 }
