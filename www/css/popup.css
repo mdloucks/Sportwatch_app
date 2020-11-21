@@ -33,6 +33,7 @@
 }
 
 .membership_popup_description {
+    margin-top: 1em;
     font-family: "Poppins", sans-serif;
 
     word-wrap: break-word;
@@ -49,23 +50,38 @@ li span {
     left: -10px;
 }
 
-.membership_purchase_button {
+.premium_purchase_button {
     font-family: "Poppins", sans-serif;
-    font-size: 2em;
+    font-size: 3vh;
+    width: 80%;
     margin: 0.5em 0 1.5em 0;
     font-weight: bold;
     text-align: center;
-    
+
     /* left: 50%;
     transform: translateX(-50%); */
-
-    padding: 18px 35px 18px 35px;
+    padding: 10px;
 
     background-color: #dd3333;
     color: white;
 
-    border-radius: 7.5%;
+    border-radius: 28px;
     border: 2px solid #000;
+}
+
+.payment_footer {
+    margin: auto;
+    color: #222;
+    position: absolute;
+    word-wrap: break-word;
+    text-align: center;
+    bottom: 0.5em;
+    padding: 16px;
+}
+
+.premium_deny_text {
+    text-align: center;
+    font-size: 3vh;
 }
 
 .popup_top_position {
@@ -100,7 +116,8 @@ li span {
 
 .popup_button {
     background: lightpink;
-    border-radius: 85%;
+    padding: 6px;
+    border-radius: 12px;
     border: 1px black solid;
     font-size: 2.5em;
     margin: 1em;

@@ -61,6 +61,7 @@ Constant.AJAX_CFG = {
 
 // Subscription information
 Constant.MONTHLY_ID = "sp_m_KXqzG";
+Constant.ANNUALLY_ID = "sRfafDxVzo";
 
 Constant.fadeDuration = 300;
 Constant.fadeIncrement = 45;
