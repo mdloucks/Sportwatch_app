@@ -215,7 +215,7 @@ class Settings extends Page {
 
             let ignoredValues = ["status", "substatus", "msg", "id_user", "accountType", "isAdmin",
                 "id_school", "id_team", "schoolName", "teamName", "email", "emailVerified",
-                "createDate", "lastUpdated", "lastLogin"
+                "createDate", "lastUpdated", "lastLogin, isDeleted"
             ];
 
             let sensitiveValues = {
