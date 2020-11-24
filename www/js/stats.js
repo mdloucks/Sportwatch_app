@@ -50,15 +50,15 @@ class Stats extends Page {
                     <div></div>
                 </div>
 
-                <h2>Days:</h2> <input type="number" id="stats_summary_interval" value="7" step="1" name="stats_summary_interval"></input><br>
-                <div id="stats_summary"></div>
-                
                 <button id="save_csv" class="generated_button">Save to CSV file</button><br><br>
 
                 <table id="event_results" class="display striped compact">
                 </table>
             </div>
         `);
+
+        // <h2>Days:</h2> <input type="number" id="stats_summary_interval" value="7" step="1" name="stats_summary_interval"></input><br>
+        // <div id="stats_summary"></div>
 
         // <tr class="column_names">
         //     <th id="name_sort">Name<span>&#9660;</span>></th>
@@ -350,7 +350,7 @@ class Stats extends Page {
             });
         });
 
-        this.generateEventPageStatSummary(event);
+        // this.generateEventPageStatSummary(event);
         this.generateAthleteTimes(event);
     }
 
