@@ -115,7 +115,7 @@ class Popup {
         }
         
         $("#app").append(`
-            <div id="membershipPopup" class="popup white_background">
+            <div id="premiumPopup" class="popup white_background">
 
                 <img width=45% src="img/logo.png" alt=""></img>
 
@@ -123,11 +123,7 @@ class Popup {
                     <b>Your free trial has expired.</b><br><br>
                     Continue to improve with Sportwatch Premium.<br><br><br>
                 </div>
-
-                <button class="premium_purchase_button">1 Month - $3.99 / month</button>
-
-                <button class="premium_purchase_button">1 Year - $39.99 / year</button>
-
+            
                 <div id="planOptions">
                 </div>
 
@@ -155,37 +151,49 @@ class Popup {
                 navigator.app.exitApp();
             }])
         });
-
-        $(".premium_purchase_button:first").click(function (e) { 
-            console.log("BUY MONTHLY");
-            store.order(Constant.MONTHLY_ID);
-        });
-
-        $(".premium_purchase_button:last").click(function (e) { 
-            console.log("BUY ANNUALLY");
-            store.order(Constant.ANNUALLY_ID);            
-        });
-
-        // continue this here https://purchase.cordova.fovea.cc/use-cases/subscription-android 
         
         // -- PURCHASE SETUP -- //
-        // Add a title and button for each plan
-        // let plans = PaymentHandler.PLANS;
-        // for(let p = 0; p < plans.length; p++) {
+        // Add a title and button for each plan (since Apple doesn't allow hard-coding)
+        let plans = PaymentHandler.PLANS;
+        for(let p = 0; p < plans.length; p++) {
             
-        //     // Don't add the plan more than once
-        //     if($("#" + plans[p].id).length != 0) {
-        //         return;
-        //     }
+            // Don't add the plan more than once
+            if($("#" + plans[p].id).length != 0) {
+                return;
+            }
             
-        //     // Append the content
-        //     $(".popup #planOptions").append(`
-        //         <p style="margin: 0; font-size: 2em;">${plans[p].title}</p>
-        //         <button id="${plans[p].id}" class="premium_purchase_button">
-        //             ${plans[p].price}
-        //         </button><br><br>
-        //     `);
-        // }
+            // Append the content
+            $(".popup #planOptions").append(`
+                <button id="${plans[p].id}" class="premium_purchase_button">${plans[p].title} - ${plans[p].price}</button>
+            `);
+        }
+        
+        // -- BUTTON CLICK -- //
+        // Prevent the user from spamming a button
+        $(".premium_purchase_button").click(function (e) {
+            $(e.target).prop("disabled", true);
+            
+            let planId = $(e.target).prop("id");
+            store.order(planId).then((param) => {
+                // $(".loader_container").css("display", "unset"); // Let user know we're working on it
+            }).error(() => {
+                Popup.createConfirmationPopup("Sorry, an unknown error occured. Please try again later", ["OK"]);
+            });
+            
+        });
+        
+        // $(".premium_purchase_button:first").click(function (e) { 
+        //     console.log("BUY MONTHLY");
+        //     store.order(Constant.MONTHLY_ID).then(() => {
+                
+        //     }).error((err) => {
+                
+        //     });
+        // });
+        // $(".premium_purchase_button:last").click(function (e) { 
+        //     console.log("BUY ANNUALLY");
+        //     store.order(Constant.ANNUALLY_ID);            
+        // });
         
         // -- SUBSCRIPTION PLANS -- //
         // $(".popup .premium_purchase_button").click((e) => {

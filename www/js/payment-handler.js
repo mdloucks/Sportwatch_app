@@ -36,16 +36,35 @@ class PaymentHandler {
 
         // Update the status of each subscription when updated
         store.when("subscription").updated(() => {
+            console.log("Updating...");
+            PaymentHandler.PLANS = []; // Clear the array to re-register the plans
             PaymentHandler.PLANS.push(store.get(Constant.MONTHLY_ID));
             PaymentHandler.PLANS.push(store.get(Constant.ANNUALLY_ID));
         });
         
-        // Handle a purchase workflow (initiated by store.order --> approved --> verified --> done!)
-        store.when("subscription").approved((plan) => {
-            plan.verify();
+        // Good docs: https://github.com/j3k0/cordova-plugin-purchase/blob/master/doc/api.md#order
+        
+        // Check to see if they own any of the plans
+        store.when(Constant.MONTHLY_ID).updated((product) => {
+            console.log("Monthly updated");
+            if((product.owned) && (product.state == "approved") || (product.state == "owned")) {
+                this.handlePremiumSetup();
+            }
         });
-        store.when("subscription").verified((finishedPurchase) => {
-            PaymentHandler.afterBuying(finishedPurchase);
+        store.when(Constant.ANNUALLY_ID).updated((product) => {
+            if((product.owned) && (product.state == "approved") || (product.state == "owned")) {
+                this.handlePremiumSetup();
+            }
+        });
+        
+        // Set up the logic for when a plan is ordered (i.e. initiated by button press)
+        store.when(Constant.MONTHLY_ID).approved((product) => {
+            console.log("Monthly approved: ");
+            console.log(product);
+            product.finish();
+        });
+        store.when(Constant.ANNUALLY_ID).approved((product) => {
+            
         });
         
         // Load informations about products and purchases
@@ -54,17 +73,13 @@ class PaymentHandler {
     
     /**
      * Function that will handle the logic after purchasing a membership / premium.
-     * It consists mainly of syncing with the backend, but also with
-     * showing a confirmation of purchase dialoge to the user.
+     * It sets up the event listener for when a product is updated.
      * 
-     * @param {Object} purchaseData data returned from the purchase validator
+     * @param {String} planId unique ID of the plan (defined in Constant object)
      */
-    static afterBuying(purchaseData) {
-        
-        console.log("Bought the plan!");
-        console.log(purchaseData);
-        Popup.createConfirmationPopup("Welcome to Sportwatch Premium!", ["OK"]);
-        purchaseData.finish();
+    static handlePremiumSetup(planId) {
+        console.log("Premium member");
+        // Set a global constant or something
     }
     
 }

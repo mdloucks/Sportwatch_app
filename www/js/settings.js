@@ -638,7 +638,7 @@ class Settings extends Page {
     startPremium() {
         this.setupSettingsPage("Premium");
         
-        Popup.createMembershipPopup();
+        Popup.createPremiumPopup();
 
         this.pageTransition.slideLeft("editPage");
         let headerWidth = $("#settingsPage #editPage > .generic_header").height();
