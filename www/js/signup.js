@@ -37,12 +37,11 @@ class Signup extends Page {
                     <input class="sw_text_input" type="password" name="password" placeholder="●●●●●●●●">
                     <img id="i_password" class="invalidSym" src="img/invalidSymbol.png">
                     <br>
-                    <label id="label_gender" for="gender">Gender</label><br>
+                    <label id="label_gender" for="gender">Competition Gender</label><br>
                     <select class="dropdown_input" name="gender">
                         <option value="NA">-- Tap to Select --</option>
                         <option value="M">Male</option>
                         <option value="F">Female</option>
-                        <option value="O">Other / Prefer not to Say</option>
                     </select>
                     <img id="i_gender" class="invalidSym" src="img/invalidSymbol.png">
                     <br><br>
