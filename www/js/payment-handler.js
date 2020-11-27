@@ -36,7 +36,6 @@ class PaymentHandler {
 
         // Update the status of each subscription when updated
         store.when("subscription").updated(() => {
-            console.log("Updating...");
             PaymentHandler.PLANS = []; // Clear the array to re-register the plans
             PaymentHandler.PLANS.push(store.get(Constant.MONTHLY_ID));
             PaymentHandler.PLANS.push(store.get(Constant.ANNUALLY_ID));
@@ -46,25 +45,32 @@ class PaymentHandler {
         
         // Check to see if they own any of the plans
         store.when(Constant.MONTHLY_ID).updated((product) => {
-            console.log("Monthly updated");
-            if((product.owned) && (product.state == "approved") || (product.state == "owned")) {
+            if((product.owned) && (product.state == "owned") && (!product.isExpired)) {
                 this.handlePremiumSetup();
             }
         });
-        store.when(Constant.ANNUALLY_ID).updated((product) => {
-            if((product.owned) && (product.state == "approved") || (product.state == "owned")) {
+         store.when(Constant.ANNUALLY_ID).updated((product) => {
+            if((product.owned) && (product.state == "owned") && (!product.isExpired)) {
                 this.handlePremiumSetup();
             }
         });
         
         // Set up the logic for when a plan is ordered (i.e. initiated by button press)
         store.when(Constant.MONTHLY_ID).approved((product) => {
-            console.log("Monthly approved: ");
+            console.log("Monthly approved");
             console.log(product);
-            product.finish();
+            product.verify();
         });
         store.when(Constant.ANNUALLY_ID).approved((product) => {
             
+        });
+        
+        store.when(Constant.MONTHLY_ID).verified((product) => {
+            product.finish();
+            // console.log("Is verified");
+            // this.handlePremiumSetup();
+        });
+        store.when(Constant.ANNUALLY_ID).verified((product) => {
         });
         
         // Load informations about products and purchases
@@ -78,9 +84,23 @@ class PaymentHandler {
      * @param {String} planId unique ID of the plan (defined in Constant object)
      */
     static handlePremiumSetup(planId) {
-        console.log("Premium member");
-        // Set a global constant or something
+        console.log("Premium member!");
+        // If the popup is open, we know the user just bought a membership
+        // Make sure it's ONLY the premium popup; don't want to thank the user twice
+        if(($("#premiumPopup").length != 0) && ($(".popup:not(#premiumPopup)").length == 0)) {
+            
+            Popup.createConfirmationPopup("Welcome to Sportwatch Premium! Thank you for your purchase!", ["Start Tracking!"], [function() {
+                // After clicking the button, remove the premium popup too
+                $("#premiumPopup").fadeOut(1500, function() {
+                    $("#premiumPopup").remove();
+                });
+            }]);
+            
+        }
+        // Else, they already have an active subscription, so don't pester them
     }
+    
+    
     
 }
 
