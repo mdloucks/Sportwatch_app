@@ -73,7 +73,7 @@ class App {
 
         setTimeout(() => {
             $(".loader_container").fadeOut(1500, function () {
-                
+                $(".loader_container").remove();
             });
         }, 5000);
         

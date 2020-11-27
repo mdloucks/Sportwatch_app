@@ -45,6 +45,24 @@ class MainSet extends PageSet {
         this.defineSwipes(0);
         
         $(".navbar").css("display", "table");
+        
+        // If they don't have an active subscription, display the premium popup
+        if(localStorage.getItem("id_team") != undefined) {
+            TeamBackend.getTeamInfo((teamInfo) => {
+                
+                // See if the primary coach holds a subscription
+                PlanBackend.isPremiumMember(teamInfo.id_coachPrimary, (isPremium) => {
+                    if(!isPremium) {
+                        // Have to wait to load the premium plans
+                        setTimeout(() => {
+                            // UNCOMMENT FOR PRODUCTION
+                            // Popup.createPremiumPopup();
+                        }, 5000);
+                    }
+                });
+            });
+        }
+        
     }
     
     disable() {
