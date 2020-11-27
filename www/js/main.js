@@ -44,9 +44,13 @@ class App {
         }
 
         if (NetworkInfo.isOnline()) {
+
+            $(".loader_container > h1").text("Synchronizing results...");
+
             // Pull data from the backend, then start the app
             ToolboxBackend.pullFromBackend().then(() => {
                 this.initializeUI();
+                $(".loader_container > h1").text("Starting Sportwatch...");
 
                 if (DO_LOG) {
                     console.log("[main.js:startApp()]: Backend sync finished!");
@@ -68,15 +72,22 @@ class App {
     initializeUI() {
 
         setTimeout(() => {
-            $(".loader_container").remove();
-
-        }, 6000);
-
+            $(".loader_container").fadeOut(1500, function () {
+                
+            });
+        }, 5000);
+        
         // ---- PAGE SETS ---- //
-        this.mainSet = new MainSet(this.swipeHandler, this.setActivePageSet, this);
+        this.mainSet = new MainSet(this.swipeHandler, this.setActivePageSet, this, () => {
+            console.log("DONE CONSTRUCTING");
+        });
+
         this.mainSet.constructPages();
 
-        this.welcomeSet = new WelcomeSet(this.swipeHandler, this.setActivePageSet, this);
+        this.welcomeSet = new WelcomeSet(this.swipeHandler, this.setActivePageSet, this, () => {
+
+        });
+
         this.welcomeSet.constructPages();
 
         this.determinePageSet();
