@@ -37,6 +37,15 @@ This is to limit the file size for our page specific styles
     -webkit-tap-highlight-color: rgba(0, 0, 0, 0);
 }
 
+.sw_dropdown {
+    padding: 5px 10px;
+    width: 50vw;
+    height: 40px;
+    font-size: 1.8em;
+    border: 2px solid crimson;
+    -webkit-appearance: none;
+}
+
 .back_arrow {
     cursor: pointer;
     font-size: 2em;

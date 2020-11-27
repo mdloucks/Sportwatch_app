@@ -85,4 +85,46 @@ class ValueEditor {
 
         callback(newValues);
     }
+    
+    /**
+     * Creates a dropdown and appends it to the specified element. It will
+     * add all of the options as defined in the name and value array. If the
+     * length doesn't match for these two arrays, it will log a warning to console but still
+     * continue.
+     * 
+     * @example createDropdown("#app #signupGender", "gender", ["Male", "Female"], ["male", "female"]);
+     *          --> Creates a generic Sportwatch dropdown with gender options
+     * 
+     * @param {String} appendToElement jQuery selection string of the element to append to
+     * @param {String} dropdownId element ID and name of this select input
+     * @param {Array} optionNames array of Strings that will serve as the name for each option
+     * @param {Array} optionValues array of Strings that define the value for each option, corresponding to optionNames
+     * @param {String} selectedValue value of the option to select by default (default = "" / 1st option given)
+     * @param {String} dropdownClasses the class / classes to add to the dropdown (default = "sw_dropdown")
+     */
+    static createDropdown(appendToElement, dropdownId, optionNames, optionValues, selectedValue = "", dropdownClasses = "sw_dropdown") {
+        
+        let htmlContent = `<select id="${dropdownId}" class="${dropdownClasses}" name="${dropdownId}">`;
+        
+        // Do a quick check
+        if(optionNames.length != optionValues.length) {
+            if(DO_LOG) {
+                console.log("[value-editor.js:createDropdown()]: Name and value array lengths don't match for dropdown!");
+            }
+        }
+        
+        // Add all of the options
+        for(let o = 0; o < optionNames.length; o++) {
+            htmlContent = htmlContent + `<option value="${optionValues[o]}"`;
+            if(optionValues[o] == selectedValue) { // Select value specified
+                htmlContent = htmlContent + ` selected`;
+            }
+            htmlContent = htmlContent + `>${optionNames[o]}</option>`;
+        }
+        
+        // Finalize and append
+        htmlContent = htmlContent + `</select>`;
+        $(appendToElement).append(htmlContent);
+    }
+    
 }
