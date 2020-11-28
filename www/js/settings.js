@@ -568,8 +568,8 @@ class Settings extends Page {
         // Generate a list of athletes that can be kicked
         this.generateKickableAthletes(this.inputDivIdentifier);
         
-        // LOCK TEAM
-        ButtonGenerator.generateToggle(`${this.inputDivIdentifier}`, "Lock Team", function () {
+        // TODO: check to see if the team is locked or not then set the default here to true or false
+        ButtonGenerator.generateToggle(`${this.inputDivIdentifier}`, "Lock Team", false, function () {
             this.toggleLockWithFeedback();
         }.bind(this), function() {
             this.toggleLockWithFeedback();
