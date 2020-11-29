@@ -12,7 +12,7 @@ class Settings extends Page {
         this.currentPageId = "catagoryPage";
         
         // Define an array of states for the edit account page
-        this.stateNames = ["Alabama", "Alaska", "Arizona", "Arkansas", "California", "Colorado", "Connecticut", "Delaware", "District of Columbia", "Florida", "Georgia", "Hawaii", "Idaho", "Illinois", "Indiana", "Iowa", "Kansas", "Kentucky", "Louisiana", "Maine", "Maryland", "Massachusetts", "Michigan", "Minnesota", "Mississippi", "Missouri", "Montana", "Nebraska", "Nevada", "New Hampshire", "New Jersey", "New Mexico", "New York", "North Carolina", "North Dakota", "Ohio", "Oklahoma", "Oregon", "Pennsylvania", "Rhode Island", "South Carolina", "South Dakota", "Tennessee", "Texas", "Utah", "Vermont", "Virginia", "Washington", "West Virginia", "Wisconsin", "Wyoming"];
+        this.stateNames = ["Alabama", "Alaska", "Arizona", "Arkansas", "California", "Colorado", "Connecticut", "Delaware", "D.C.", "Florida", "Georgia", "Hawaii", "Idaho", "Illinois", "Indiana", "Iowa", "Kansas", "Kentucky", "Louisiana", "Maine", "Maryland", "Massachusetts", "Michigan", "Minnesota", "Mississippi", "Missouri", "Montana", "Nebraska", "Nevada", "New Hampshire", "New Jersey", "New Mexico", "New York", "North Carolina", "North Dakota", "Ohio", "Oklahoma", "Oregon", "Pennsylvania", "Rhode Island", "South Carolina", "South Dakota", "Tennessee", "Texas", "Utah", "Vermont", "Virginia", "Washington", "West Virginia", "Wisconsin", "Wyoming"];
         this.stateShort = ["AL", "AK", "AZ", "AR", "CA", "CO", "CT", "DE", "DC", "FL", "GA", "HI", "ID", "IL", "IN", "IA", "KS", "KY", "LA", "ME", "MD", "MA", "MI", "MN", "MS", "MO", "MT", "NE", "NV", "NH", "NJ", "NM", "NY", "NC", "ND", "OH", "OK", "OR", "PA", "RI", "SC", "SD", "TN", "TX", "UT", "VT", "VA", "WA", "WV", "WI", "WY"];
         
         // ---- PAGES ---- //
@@ -193,7 +193,8 @@ class Settings extends Page {
 
         // Populate the account fields and prepare edits
         AccountBackend.getAccount((accountInfo) => {
-
+            
+            // -- PAGE CREATION -- //
             // May have errored out
             if (accountInfo.status < 0) {
                 Popup.createConfirmationPopup("Sorry, an error occured. Please try again later or sign out and re-log in", ["OK"], [() => {
@@ -202,37 +203,13 @@ class Settings extends Page {
                 return;
             }
             accountInfo = AccountBackend.beautifyResponse(accountInfo);
-
-            let displayNames = {
-                "fname": "First Name",
-                "lname": "Last Name",
-                "gender": "Gender",
-                "cellNum": "Phone Number",
-                "state": "State",
-                "dob": "Date of Birth",
-                "email": "Email",
-                "password": "New Password",
-                "passwordConfirm": "Confirm New Password",
-                "passwordOld": "Current Password"
-            }; // TODO: Add possibly school change
-            // TODO: Make state change a dropdown instead of typing, sanitize to abbreviation
-            
-            // Remove any variables that don't have a defined display name
-            for(let key in accountInfo) {
-                if((accountInfo.hasOwnProperty(key)) && (!displayNames.hasOwnProperty(key))) {
-                    delete accountInfo[key];
-                }
+            if(!("schoolName" in accountInfo)) {
+                accountInfo["schoolName"] = ""; // Have to set here so 'undefined' isn't shown to user
             }
             
-            let sensitiveValues = {
-                "email": accountInfo["email"],
-                "password": "", // The new password
-                "passwordConfirm": "",
-                "passwordOld": ""
-            };
-            
+            // Append the form
             $(this.inputDivIdentifier).append(`
-                <button id="saveChanges" class="generated_button" style="background-color: rgb(64, 202, 0)">Save Changes</button>
+                <button id="saveChanges" class="generated_button">Save</button>
                 <hr>
                 <p>Name</p>
                 <input type="text" name="fname" value="${accountInfo["fname"]}" placeholder="John" style="width: 30%">
@@ -251,16 +228,28 @@ class Settings extends Page {
                 <br>
                 <div id="dobPhoneWrapper" class="twoColWrapper">
                     <div class="leftColumn">
-                        <p>Date of Birth</p>
+                        <p>Birthdate</p>
                         <input type="date" name="dob" value="${accountInfo["dob"]}">
                     </div>
                     <div class="rightColumn">
                         <p>Phone Number</p>
-                        <input type="text" name="dob" value="${accountInfo["cellNum"]}" placeholder="(989) 111-2223">
+                        <input type="text" name="cellNum" value="${accountInfo["cellNum"]}" placeholder="(989) 111-2223">
                     </div>
                 </div>
                 <br>
-                
+                <p>School</p>
+                <input type="text" name="school" value="${accountInfo["schoolName"]}" placeholder="Wayworth High School">
+                <div id="schoolResults" class="noResult"></div>
+                <br>
+                <div id="passwordWrapper" style="height: 0; opacity: 0">
+                    <p style="display: inline">Current Password</p><br>
+                    <input type="password" name="password" placeholder="●●●●●●●●" disabled>
+                </div>
+                <p>Email</p>
+                <input type="text" name="email" value="${accountInfo["email"]}" placeholder="example@sportwatch.us">
+                <br>
+                <p>Change Password</p>
+                <input type="password" name="newPassword" placeholder="●●●●●●●●">
             `);
             
             // Add the dropdowns now with the dedicated method
@@ -268,6 +257,228 @@ class Settings extends Page {
                                         ["Male", "Female"], ["M", "F"], accountInfo["gender"]);
             ValueEditor.createDropdown(this.inputDivIdentifier + " #genderStateWrapper .rightColumn", "state",
                                         this.stateNames, this.stateShort, accountInfo["state"]);
+            
+            
+            // -- INPUT & SUBMISSION -- //
+            let newSchoolId = -1;
+            let invalidMessages = ["", ""]; // Populated with input errors for user feedback ([0] = email, [1] = password)
+            let schoolValid = true;
+            let emailValid = true;
+            let passwordValid = true; // Starts as false since it's blank to start
+            
+            // Configure school search
+            $('#settingsPage #editPage input[name="school"]').on("input", (e) => {
+                let input = $('#settingsPage #editPage input[name="school"]').val();
+                
+                // User must select a dropdown option, so disable Save button until then
+                newSchoolId = -1;
+                
+                input = input.replace(/[^A-Za-z0-9. ]/gm, "");
+                // Search for schools with the given input
+                ToolboxBackend.searchForSchool(input, 10, (response) => {
+                    if (response.status > 0) {
+                        if (response.substatus == 2) { // No matches, clear list and generate nothing
+                            this.generateSearchResults([], "#settingsPage #editPage #schoolResults"); // No options, so no need to resolve promise
+                            // Hide the search list since there are no results
+                            let searchList = $("#settingsPage #editPage #schoolResults");
+                            if(!searchList.hasClass("noResults")) { // Only show if not already hidden
+                                searchList.addClass("noResults");
+                            }
+                        } else {
+                            // Show and generate the list
+                            $("#settingsPage #editPage #schoolResults").removeClass("noResults");
+                            this.generateSearchResults(response.matches, "#settingsPage #editPage #schoolResults").then((selectedSchool) => {
+                                // Set the school name
+                                let schoolName = selectedSchool.id.replace("school_", "").replace(/\-/gm, " ");
+                                $("#settingsPage #editPage #schoolResults").empty();
+                                $('#settingsPage #editPage input[name="school"]').val(schoolName);
+                                
+                                // Save school Id
+                                $("#settingsPage #editPage #schoolResults").addClass("noResults");
+                                newSchoolId = selectedSchool.id_school;
+                                $("#settingsPage #editPage #saveChanges").prop("disabled", false);
+                            });
+                            // And hide the results after being clicked on
+                            $("#settingsPage #editPage #schoolResults").removeClass("noResults");
+                        }
+                    } // End of status check. Nothing we can do really if this fails
+                });
+            });
+            
+            // If an email or password is being changed, show the current password
+            $('#settingsPage #editPage input[name="email"], #settingsPage #editPage input[name="newPassword"]').on("input", (e) => {
+                
+                // Show or hide the current password field
+                if(($('#settingsPage #editPage input[name="email"]').val().toLowerCase() == accountInfo["email"]) && 
+                        ($('#settingsPage #editPage input[name="newPassword"]').val().length == 0)) {
+                    // Hide the current password field
+                    if($(this.inputDivIdentifier + " #passwordWrapper").css("opacity") == 1) {
+                        $(this.inputDivIdentifier + " #passwordWrapper").fadeTo(250, 0, () => {
+                            $('#settingsPage #editPage input[name="password"]').prop("disabled", true);
+                            $(this.inputDivIdentifier + " #passwordWrapper").animate({
+                                height: 0
+                            }, 500, "swing");
+                        });
+                    }
+                } else {
+                    // Show the current password field
+                    if($(this.inputDivIdentifier + " #passwordWrapper").css("opacity") == 0) {
+                        $(this.inputDivIdentifier + " #passwordWrapper").animate({
+                            height: 75
+                        }, 500, "swing", () => {
+                            $(this.inputDivIdentifier + " #passwordWrapper").fadeTo(250, 1);
+                            $('#settingsPage #editPage input[name="password"]').prop("disabled", false);
+                        });
+                    }
+                }
+                
+                // Do input processing based on which input
+                let input = $(e.target).val();
+                if($(e.target).prop("name") == "email") {
+                    
+                    if(input == accountInfo["email"]) {
+                        emailValid = true;
+                    } else {
+                        emailValid = false;
+                    }
+                    
+                    let emailRegex = input.match(/[A-Za-z0-9\-_.]*@[A-Za-z0-9\-_.]*\.(com|net|org|us|website|io)/gm);
+                    
+                    if (emailRegex == null) {
+                        invalidMessages[0] = "Please enter valid email";
+                    } else if (emailRegex[0].length != input.length) {
+                        invalidMessages[0] = "Email can only contain: A-Z, a-z, 0-9, hyphens, underscores, periods, and the @ symbol";
+                    } else if (input.length > 250) {
+                        invalidMessages[0] = "Email is too long";
+                    } else {
+                        invalidMessages[0] = "";
+                        emailValid = true;
+                    }
+                    
+                    // New password
+                } else if($(e.target).prop("name") == "newPassword") {
+                    
+                    if(input.length == 0) {
+                        passwordValid = true;
+                    } else {
+                        passwordValid = false;
+                    }
+                    
+                    if ((input.match(/[`"';<>{} ]/gm) != null) || (input.length < 10) || (input.length > 250)) {
+                        invalidMessages[1] = "Password must be at least 10 characters long and cannot contain spaces or: \";\'<>{}";
+                    } else if ((input.match(/[A-Z]/gm) == null) || (input.match(/[0-9]/gm) == null)) {
+                        invalidMessages[1] = "Please strengthen your password (must include uppercase, and numbers)";
+                    } else {
+                        invalidMessages[1] = "";
+                        passwordValid = true;
+                    }
+                }
+            });
+            
+            // Clicking of the Save button
+            $("#settingsPage #editPage #saveChanges").click((e) => {
+                $("#settingsPage #editPage #saveChanges").prop("disabled", true);
+                
+                if((schoolValid) && (emailValid) && (passwordValid)) {
+                    
+                    // If the email or password was changed, make sure current password is set
+                    if(($('#settingsPage #editPage input[name="email"]').val().toLowerCase() != accountInfo["email"]) || 
+                            ($('#settingsPage #editPage input[name="newPassword"]').val().length > 0)) {
+                        if($('#settingsPage #editPage input[name="password"]').val().length == 0) {
+                            Popup.createConfirmationPopup("Your current password is required to update your email or password", ["OK"]);
+                            return;
+                        }
+                    }
+                    
+                    // Now, extract the values and submit to the backend
+                    let profileChanges = {};
+                    profileChanges["fname"] = $(this.inputDivIdentifier + ' input[name="fname"]').val();
+                    profileChanges["lname"] = $(this.inputDivIdentifier + ' input[name="lname"]').val();
+                    profileChanges["gender"] = $(this.inputDivIdentifier + ' #gender').val();
+                    profileChanges["state"] = $(this.inputDivIdentifier + ' #state').val();
+                    profileChanges["dob"] = $(this.inputDivIdentifier + ' input[name="dob"]').val();
+                    profileChanges["cellNum"] = $(this.inputDivIdentifier + ' input[name="cellNum"]').val();
+                    profileChanges["id_school"] = newSchoolId;
+                    profileChanges["email"] = $(this.inputDivIdentifier + ' input[name="email"]').val();
+                    profileChanges["password"] = $(this.inputDivIdentifier + ' input[name="newPassword"]').val();
+                    profileChanges["currentPassword"] = $(this.inputDivIdentifier + ' input[name="password"]').val();
+                    // ^ Ignored if not needed, so it's easier to just include it
+                    
+                    AccountBackend.updateAccount(profileChanges, (response) => {
+                        $("#settingsPage #editPage #saveChanges").prop("disabled", false);
+                        
+                        if(response.status > 0) { // EDIT SUCCESS
+                            if ("didSetPassword" in response) {
+                                if (response.didSetPassword == 0) {
+                                    Popup.createConfirmationPopup("Warning: Password was not updated! Please try again", ["OK"], [() => {}]);
+                                    return;
+                                } else {
+                                    Popup.createConfirmationPopup("Successfully saved!", ["OK"], [() => {}]);
+                                }
+                            } else {
+                                Popup.createConfirmationPopup("Successfully saved!", ["OK"], [() => {}]);
+                            }
+                            
+                            // Update email if they changed it
+                            if("email" in response) {
+                                localStorage.setItem("email", response.email);
+                                accountInfo["email"] = response.email;
+                            }
+                            
+                            response = AccountBackend.beautifyResponse(response);
+                            // Populate fields with the updated values
+                            
+                        } else if(response.substatus == 5) { // EDIT FAILED
+                            
+                            // Was the response from the backend or faked by frontend (account-backend.js)
+                            if(response.msg.includes("frontend")) {
+                                Popup.createConfirmationPopup("There is an error in the form. Please correct to save", ["OK"]);
+                            } else {
+                                // Backend error
+                                // Isolate the invalid parameters
+                                let invalidParams = response.msg; // Formatted "some params invalid: fnameNew lnameNew ..."
+                                invalidParams = invalidParams.substring(invalidParams.indexOf(":") + 2, invalidParams.length);
+                                invalidParams = invalidParams.replace(/New/gm, ""); // Remove "New" from variable names
+                                invalidParams = invalidParams.replace(/ /gm, ", "); // Add commas for pretty formatting
+
+                                // Convert variable names to human-readable named
+                                invalidParams = invalidParams.replace("fname", "First Name");
+                                invalidParams = invalidParams.replace("lname", "Last Name");
+                                invalidParams = invalidParams.replace("gender", "Competition Gender");
+                                invalidParams = invalidParams.replace("state", "State");
+                                invalidParams = invalidParams.replace("cellNum", "Phone Number");
+                                invalidParams = invalidParams.replace("dob", "Birthdate");
+                                invalidParams = invalidParams.replace("id_school", "School");
+                                invalidParams = invalidParams.replace("email", "Email");
+                                
+                                Popup.createConfirmationPopup("The following were invalid, please correct to save: " + invalidParams,
+                                    ["OK"], [() => {}]);
+                            }
+                            
+                        } else if(response.substatus == 6) { // BAD PASSWORD
+                            Popup.createConfirmationPopup("The current password was incorrect. Please try again", ["OK"]);
+                            
+                        } else { // UNKNOWN ERROR
+                            Popup.createConfirmationPopup("An unknown error occured. Please try again later", ["OK"]);
+                        }
+                        
+                    }, profileChanges["currentPassword"]);
+                    
+                } else {
+                    // Display the appropriate error
+                    if(!schoolValid) {
+                        Popup.createConfirmationPopup("Please search for and select a school", ["OK"]);
+                    } else if(!emailValid) {
+                        Popup.createConfirmationPopup(invalidMessages[0], ["OK"]);
+                    } else if(!passwordValid) {
+                        Popup.createConfirmationPopup(invalidMessages[1], ["OK"]);
+                    } else {
+                        Popup.createConfirmationPopup("There is an error in the form. Please correct to save", ["OK"]);
+                    }
+                }
+                
+            });
+            
             
             // Basic values (not requiring a password)
         //     ValueEditor.editValues(this.inputDivIdentifier, accountInfo, (newValues) => {
@@ -547,7 +758,7 @@ class Settings extends Page {
         $('#settingsPage #editPage input[name="School"]').on("input", (e) => {
             let input = $('#settingsPage #editPage input[name="School"]').val();
             
-            // User must select a dropdown option, do disable Change button until then
+            // User must select a dropdown option, so disable Change button until then
             schoolId = -1;
             
             input = input.replace(/[^A-Za-z0-9. ]/gm, "");
@@ -555,7 +766,7 @@ class Settings extends Page {
             ToolboxBackend.searchForSchool(input, 10, (response) => {
                 if (response.status > 0) {
                     if (response.substatus == 2) { // No matches, clear list and generate nothing
-                        this.generateSearchResults([]); // No options, so no need to resolve promise
+                        this.generateSearchResults([], "#settingsPage #editPage #searchList"); // No options, so no need to resolve promise
                         // Hide the search list since there are no results
                         let searchList = $("#settingsPage #editPage #searchList");
                         if(!searchList.hasClass("noResults")) { // Only show if not already hidden
@@ -564,9 +775,15 @@ class Settings extends Page {
                     } else {
                         // Show and generate the list
                         $("#settingsPage #editPage #searchList").removeClass("noResults");
-                        this.generateSearchResults(response.matches).then((selectedId) => {
+                        this.generateSearchResults(response.matches, "#settingsPage #editPage #searchList").then((selectedSchool) => {
+                            // Set the school name
+                            let schoolName = selectedSchool.id.replace("school_", "").replace(/\-/gm, " ");
+                            $("#settingsPage #editPage #searchList").empty();
+                            $('#settingsPage #editPage input[name="School"]').val(schoolName);
+                            
+                            // Save school Id
                             $("#settingsPage #editPage #searchList").addClass("noResults");
-                            schoolId = selectedId;
+                            schoolId = selectedSchool.id_school;
                             if(isNameValid) {
                                 $("#settingsPage #editPage #changeTeamButton").prop("disabled", false);
                             }
@@ -859,15 +1076,16 @@ class Settings extends Page {
      * user.
      * 
      * @param {AssociativeArray} resultsList js object returned from the backend search request
+     * @param {String} resultsContainer jQuery selector for where to append the results to
      */
-    generateSearchResults(resultsList) {
+    generateSearchResults(resultsList, resultsContainer) {
 
         let schoolArray = []; // Array of button attribute objects [{...}, {...}, etc.]
         let currentSchool = {}; // Set to each object in the matches array
         let loopCount = 5; // Max number of results to show
 
-        // Clear list to remove old results
-        $("#settingsPage #editPage #searchList").empty();
+        // Clear list to remove old results "#settingsPage #editPage #searchList"
+        $(resultsContainer).empty();
 
         // Set max results to 5
         if (resultsList.length < loopCount) {
@@ -909,15 +1127,15 @@ class Settings extends Page {
         let afterSchoolSelect = $.Deferred();
         
         // Finally, generate them
-        ButtonGenerator.generateButtons("#settingsPage #editPage #searchList", schoolArray, (school) => {
+        ButtonGenerator.generateButtons(resultsContainer, schoolArray, (school) => {
 
             // Unfocus input, select the school, and clear search results
             document.activeElement.blur();
-            afterSchoolSelect.resolve(school.id_school);
+            afterSchoolSelect.resolve(school);
             
-            let schoolName = school.id.replace("school_", "").replace(/\-/gm, " ");
-            $("#settingsPage #editPage #searchList").empty();
-            $('#settingsPage #editPage input[name="School"]').val(schoolName);
+            // let schoolName = school.id.replace("school_", "").replace(/\-/gm, " ");
+            // $("#settingsPage #editPage #searchList").empty();
+            // $('#settingsPage #editPage input[name="School"]').val(schoolName);
         });
         
         return afterSchoolSelect.promise();

@@ -71,13 +71,11 @@
 
 /* Setting -- Account */
 
-#settingsPage #editPage > #account_edit_inputs > p,
-#settingsPage #editPage #account_edit_inputs .twoColWrapper p {
+#settingsPage #editPage #account_edit_inputs p {
     margin-bottom: 5px;
 }
 
-#settingsPage #editPage > #account_edit_inputs > input,
-#settingsPage #editPage .twoColWrapper input {
+#settingsPage #editPage #account_edit_inputs input {
     padding: 10px;
     border-width: 2px;
     border-color: #dd3333;
@@ -87,8 +85,17 @@
     outline: none;
 }
 
+#settingsPage #editPage > #account_edit_inputs > .generated_button {
+    margin-bottom: 8vh;
+    background-color: rgb(64, 202, 0);
+    transition: background-color 0.5s;
+}
+#settingsPage #editPage > #account_edit_inputs > .generated_button:disabled {
+    background-color: lightgray;
+}
+
 #settingsPage #editPage > #account_edit_inputs .twoColWrapper > * {
-    width: 30%;
+    width: 45%;
     display: inline-block;
 }
 #settingsPage #editPage .twoColWrapper > .leftColumn > *:not(p),
@@ -96,8 +103,8 @@
     width: fit-content;
 }
 
-#settingsPage #editPage > #account_edit_inputs > .generated_button {
-    margin-bottom: 8vh;
+#settingsPage #editPage #passwordWrapper {
+    transition: all 0.5s;
 }
 
 /* Setting -- Team Preference */

@@ -95,7 +95,7 @@ class AccountBackend {
             let returnObj = { };
             returnObj.status = -6;
             returnObj.substatus = 5;
-            returnObj.msg = "invalid params";
+            returnObj.msg = "invalid params (frontend)";
             callback(returnObj);
             return;
         }
@@ -300,7 +300,14 @@ class AccountBackend {
                 } // Else leave the number as is
             }
         }
-
+        if("email" in payload) {
+            if ((payload["email"] == null) || (payload["email"] == undefined)) {
+                payload["email"] = "";
+            } else {
+                payload["email"] = payload["email"].toLowerCase();
+            }
+        }
+        
         return payload;
     }
     
@@ -381,6 +388,16 @@ class AccountBackend {
                 }
             }
         }
+        // School
+        if("id_school" in postArray) {
+            if((typeof postArray["id_school"] != "number") || (parseInt(postArray["id_school"]) < 1)) {
+                if(removeInvalid) {
+                    delete postArray["id_school"];
+                } else {
+                    return false;
+                }
+            }
+        }
         // Email
         if("email" in postArray) {
             let cleanedInput = this.getValidInput(postArray["email"], /[^A-Za-z0-9.@\-_]/gm, 5, 128);
@@ -429,9 +446,9 @@ class AccountBackend {
         if("dob" in postArray) {
             let cleanedInput = this.getValidInput(postArray["dob"], /[^0-9]/gm, 5, 10);
             if(cleanedInput !== false) {
-                let month = cleanedInput.substr(0, 2);
-                let day = cleanedInput.substr(2, 2);
-                let year = cleanedInput.substr(4, 4);
+                let year = cleanedInput.substr(0, 4);
+                let month = cleanedInput.substr(4, 2);
+                let day = cleanedInput.substr(6, 2);
                 postArray["dob"] = year + "-" + month + "-" + day;
             } else {
                 if(removeInvalid) {
