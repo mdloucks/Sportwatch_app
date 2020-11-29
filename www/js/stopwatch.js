@@ -190,23 +190,23 @@ class Stopwatch extends Page {
         }
 
         if (!this.clock.hasInitialized) {
-            
+
             // set the canvas size dynamically to accomodate various screen sizes
-            let windowWidth  = window.screen.availWidth;
+            let windowWidth = window.screen.availWidth;
             let windowHeight = window.screen.availHeight;
 
-            
+
             let prefWidth = windowWidth;
             // make sure that the height is being scaled properly 
             // (0.38 comes from the percent of the screen that the stopwatch occupies) found in stopwatch.css
             let prefHeight = windowHeight * 0.40;
 
-            this.c.width  = prefWidth;
+            this.c.width = prefWidth;
             this.c.height = prefHeight;
 
             // find the largest scale size we can reasonable accomodate
             let scale = Math.max(this.c.width / 480, this.c.height / 720);
-            
+
             /**^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
              * these values are used to shift the canvas back to its original position
              * in order compensate for the fact that everything is being scaled and stretched
@@ -225,7 +225,7 @@ class Stopwatch extends Page {
             // console.log("Canvas dimensions: " + prefWidth + "x" + prefHeight);
             // console.log("scale: " + scale);
             // console.log("translate x: " + translate.x + " translate y: " + translate.y);
-        
+
             // apply the transformation
             this.ctx.setTransform(scale, 0, 0, scale, translate.x, translate.y);
 
@@ -236,10 +236,10 @@ class Stopwatch extends Page {
             this.ctx.font = this.clock.font;
             this.ctx.fillStyle = this.clock.fillStyle;
 
-            
+
             this.clock.centerX = Math.min(this.c.width / 2);
             this.clock.centerY = Math.min(this.c.height / 2);
-            
+
             this.clock.textHeight = this.measureTextHeight(0, 0, 50, 100);
 
 
@@ -286,7 +286,7 @@ class Stopwatch extends Page {
 
         $("#stopwatch_canvas").bind("dblclick", (e) => {
 
-            if(this.isSlideupTransitioning) {
+            if (this.isSlideupTransitioning) {
                 setTimeout(() => {
                     this.resetStopwatch();
                     this.resetSlideup();
@@ -483,55 +483,75 @@ class Stopwatch extends Page {
             <div class="toggle_box">
                 <div class="boys_box"><div>
                 <div class="girls_box"><div>
+                <div class="splits_box"><div>
             </div>
         `);
 
-        // clear selected events
-        let selectedEvents = {};
         let isSelectingMultipleEvents = false;
 
-        // select both genders by default
-        let isBoys = true;
-        let isGirls = true;
+        // callback for startSlideupForAthletes to start on event click
+        let onSlideDoneFunction = function () {
+            $(`${this.landingPageSelector} .slideup_top_bar`).remove();
+            callback(eventConfig);
+        }.bind(this);
+
+        let eventConfig = {
+            selectedEvents: {},
+            selectedSplits: {},
+            isGirls: true,
+            isBoys: true,
+            isSplits: false
+        }
 
         // Toggle boys
-        ButtonGenerator.generateToggle(`${this.landingPageSelector} #slideup_content .boys_box`, "Boys", () => {
-            isBoys = true;
+        ButtonGenerator.generateToggle(`${this.landingPageSelector} #slideup_content .boys_box`, "Boys", true, () => {
+            eventConfig.isBoys = true;
         }, () => {
-
-            isBoys = false;
+            eventConfig.isBoys = false;
         });
 
 
         // Toggle girls
-        ButtonGenerator.generateToggle(`${this.landingPageSelector} #slideup_content .girls_box`, "Girls", () => {
-            isGirls = true;
+        ButtonGenerator.generateToggle(`${this.landingPageSelector} #slideup_content .girls_box`, "Girls", true, () => {
+            eventConfig.isGirls = true;
         }, () => {
-            isGirls = false;
+            eventConfig.isGirls = false;
+        });
+
+        // Toggle splits
+        ButtonGenerator.generateToggle(`${this.landingPageSelector} #slideup_content .splits_box`, "Splits", false, () => {
+            eventConfig.isSplits = true;
+        }, () => {
+            eventConfig.isSplits = false;
         });
 
         dbConnection.selectValues(this.unsavedEventsQuery, ["second"]).then((record_definitions) => {
 
             if (record_definitions != false) {
+                // this callback will handle single click, and therefore single event functionality
                 ButtonGenerator.generateButtonsFromDatabase(`${this.landingPageSelector} #slideup_content`, record_definitions, (record_definition) => {
 
-                    let gender = this.getGender(isBoys, isGirls);
+                    let gender = this.getGender(eventConfig.isBoys, eventConfig.isGirls);
 
                     this.selectedRecordDefinitionGender = gender;
                     this.currentSlideupText = record_definition.record_identity
 
-                    // callback for startSlideupForAthletes to start on event click
-                    let onSlideDoneFunction = function () {
-                        $(`${this.landingPageSelector} .slideup_top_bar`).remove();
-                        callback(record_definition, gender);
-                    }.bind(this);
+                    eventConfig.selectedEvents[record_definition.rowid] = record_definition.record_identity;
 
-                    this.toggleSlideup(onSlideDoneFunction);
+                    // if the user selected splits, select them here
+                    if (eventConfig.isSplits) {
+                        this.selectSplits(eventConfig, () => {
+                            this.toggleSlideup(onSlideDoneFunction);
+                        });
+                    } else {
+                        this.toggleSlideup(onSlideDoneFunction);
+                    }
+
                 }, ["id_record_definition", "value", "is_split",
                     "id_relay", "id_relay_index", "last_updated", "unit"
                 ], Constant.eventColorConditionalAttributes, "class");
 
-                // longclick for event buttons
+                // longclick for selecting multiple events
                 $(`${this.landingPageSelector} #slideup_content *`).bind("longclick", (e) => {
 
                     if (!isSelectingMultipleEvents) {
@@ -545,21 +565,21 @@ class Stopwatch extends Page {
                             $(element).unbind("click");
 
                             $(element).addClass("available_button");
-                            
+
                             // new click event for buttons. Highlight or remove highlighting on click
                             $(element).click((e) => {
-                                
-                                if($(element).hasClass("selected_button")) {
+
+                                if ($(element).hasClass("selected_button")) {
                                     $(element).removeClass("selected_button");
-                                    delete selectedEvents[Number($(element).attr("rowid"))];
+                                    delete eventConfig.selectedEvents[Number($(element).attr("rowid"))];
                                 } else {
-                                    selectedEvents[Number($(element).attr("rowid"))] = $(element).attr("record_identity");
+                                    eventConfig.selectedEvents[Number($(element).attr("rowid"))] = $(element).attr("record_identity");
                                     $(element).addClass("selected_button");
                                 }
-                                
+
                                 navigator.vibrate(25);
-                                
-                                if($("#stopwatchPage .selected_button").length == 0) {
+
+                                if ($("#stopwatchPage .selected_button").length == 0) {
                                     $("#stopwatchPage .slideup_top_bar").remove();
                                     this.resetSlideup();
                                 }
@@ -576,17 +596,19 @@ class Stopwatch extends Page {
 
                             this.currentSlideupText = "Multi-Event";
 
-                            let gender = this.getGender(isBoys, isGirls);
+                            let gender = this.getGender(eventConfig.isBoys, eventConfig.isGirls);
 
                             this.selectedRecordDefinitionGender = gender;
 
-                            // callback for startSlideupForAthletes to start on event click
-                            let onSlideDoneFunction = function () {
-                                $(`${this.landingPageSelector} .slideup_top_bar`).remove();
-                                callback(selectedEvents, gender);
-                            }.bind(this);
-
-                            this.toggleSlideup(onSlideDoneFunction);
+                            // this will move to the next stage when the slideup is in the down position
+                            // if the user selected splits, select them here
+                            if (eventConfig.isSplits) {
+                                this.selectSplits(eventConfig, () => {
+                                    this.toggleSlideup(onSlideDoneFunction);
+                                });
+                            } else {
+                                this.toggleSlideup(onSlideDoneFunction);
+                            }
                         });
 
                         let id = $(e.target).attr("id");
@@ -637,29 +659,46 @@ class Stopwatch extends Page {
      * This function will populate the slideup for the given event.
      * This will also start the stopwatch.
      * 
-     * @param {Number | Object} record_definition this is the id of the event that will be loaded or list of ids
-     * @param {string} gender gender of athletes to load possible values: 'm' 'f' or ''
+     * @param {Object} eventConfig the configuration that gives information on the events being run and other metadata
      */
-    startSlideupForAthletes(record_definition, gender) {
+    startSlideupForAthletes(eventConfig) {
 
+        // begin generating the athletes to actually start the stopwatch
         let genderConditionalQuery;
         let eventConditionalQuery;
         let savedRecordsArray;
         let unsavedRecordsArray;
 
         let selectedEvent;
+        let gender = this.getGender(eventConfig.isBoys, eventConfig.isGirls);
 
         $(`${this.landingPageSelector} #slideup_content`).empty();
 
-        console.log(JSON.stringify(record_definition));
+        let splitEvents = eventConfig.selectedSplits.keys();
 
-        let ids = Object.keys(record_definition);
-        let eventNames = Object.values(record_definition);
+        //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+        // generate the select split boxes if they exist
+        // selectedSplit structure is as follows:
+        // {"41" -> rowid : ["400 Meters", "600 Meters"]}
+        // the rowid is the key, and corresponds to an array of measurements
+        //..................................................................................................
+        // if (splitEvents.length > 0) {
+        //     console.log("SPLITS > 0");
+
+        //     $(`${this.landingPageSelector} #slideup_content`).append(`
+        //         <table class="slideup_top_bar change_saved_event"></table>
+        //     `);
+
+            
+        // }
+
+
+        let ids = Object.keys(eventConfig.selectedEvents);
+        let eventNames = Object.values(eventConfig.selectedEvents);
 
         // if record_defininition is an array and isn't a record_definition object
-        if (typeof record_definition === 'object' && record_definition !== null && !ids.includes("rowid")) {
+        if (ids.length > 1) {
 
-            console.log("adding top bar thing");
             // add the selector box to the slideup
             $(`${this.landingPageSelector} #slideup_content`).append(`
                 <table class="slideup_top_bar change_saved_event"></table>
@@ -725,6 +764,8 @@ class Stopwatch extends Page {
 
             // only a single record definition is passed, configure normally
         } else {
+
+            let record_definition;
 
             // rewrite the array to a single value
             if (ids.length == 1) {
@@ -856,7 +897,7 @@ class Stopwatch extends Page {
                         this.toggleSlideup();
                         this.resetStopwatch();
 
-                        Popup.createConfirmationPopup("Time saved successfully!", ["Ok"], [() => {}]);
+                        Popup.createConfirmationPopup("Results saved successfully!", ["Ok"], [() => {}]);
 
                         // stop here
                     }
@@ -882,6 +923,87 @@ class Stopwatch extends Page {
 
             $(`${this.landingPageSelector} #slideup_content`).append("<br><br><br><br><br><br>");
         });
+    }
+
+    /**
+     * this method will ask the user where they wish to record their splits in the 
+     * slideup dialogue and will return an object containing all of the marks.
+     * @param {Object} eventConfig the event configuration
+     * @param {Function} callback the callback to be called when the user is done selecting their splits
+     */
+    selectSplits(eventConfig, callback) {
+
+        $(`${this.landingPageSelector} #slideup_content`).empty();
+
+        let ids = Object.keys(eventConfig.selectedEvents);
+        let eventNames = Object.values(eventConfig.selectedEvents);
+        let eventIds = Object.keys(eventConfig.selectedEvents);
+
+        $(`${this.landingPageSelector} #slideup_content`).prepend(`
+            <button id="confirm_selected_splits_button" class="generated_button" style="background-color: #68be9a;">Confirm Splits</button>
+        `);
+
+        $("#confirm_selected_splits_button").click(function (e) {
+            e.preventDefault();
+            console.log("CONFIRM SPLITS");
+            callback(eventConfig.selectedSplits);
+        });
+
+        for (let i = 0; i < ids.length; i++) {
+
+            let sectionId = `add_splits_section_${i}`;
+            let inputId = `splits_input_${i}`;
+
+            $(`${this.landingPageSelector} #slideup_content`).append(`
+                <div id="${sectionId}">
+                    <h1>${eventNames[i]}</h1>
+                    <hr>
+                    <button class="generated_button">Add Split to ${eventNames[i]} +</button>
+                </div>
+            `);
+
+            $(`#${sectionId}`).find("button:last").attr("nClicks", 0);
+
+            // button to add split to the event
+            $(`#${sectionId}`).find("button:last").click((e) => {
+                let clickNumber = Number($(`#${sectionId}`).find("button:last").attr("nClicks")) + 1;
+                $(`#${sectionId}`).find("button:last").attr("nClicks", clickNumber);
+
+                $(e.target).before(`
+                    <br>
+                    <div class="input_splits_box">
+                        <b>Split ${clickNumber}:</b> <input class="sw_text_input" type="number" id="${inputId}">Meters</input>
+                    </div>
+                `);
+                // TODO: restrict split range to less than max event length
+
+                // focus the input and change it to a div on onfocus
+                $(`#${inputId}`).focus();
+
+                let onInputFinish = function () {
+                    $(this).parent().find("b").after(`
+                        <span>${$(this).val()}</span>
+                    `);
+
+                    // create an array of split names for each event rowid so 800m : [400m split, 600m split, etc...]
+                    if (clickNumber == 1) {
+                        eventConfig.selectedSplits[eventIds[i]] = [`${$(this).val()} Meters`];
+                    } else {
+                        eventConfig.selectedSplits[eventIds[i]].push(`${$(this).val()} Meters`);
+                    }
+
+                    $(this).remove();
+                }
+
+                $(`#${inputId}`).focusout(onInputFinish);
+                $(`#${inputId}`).submit(onInputFinish);
+                $(`#${inputId}`).on('keypress', function (e) {
+                    if (e.which == 13) {
+                        onInputFinish();
+                    }
+                });
+            });
+        }
     }
 
     // generateCarousel(element, array, isRecordDefinitions) {
@@ -1173,7 +1295,7 @@ class Stopwatch extends Page {
      */
     saveTime(event, athlete) {
 
-        
+
         if (this.pageTransition.currentPage != "landingPage") {
             this.pageTransition.slideRight("landingPage");
         }
@@ -1236,7 +1358,7 @@ class Stopwatch extends Page {
             recordData["value"] = Number(this.clock.seconds);
             recordData["id_record_definition"] = Number(event);
             dbConnection.insertValuesFromObject("offline_record", recordData);
-            
+
             linkData["id_record"] = Number(this.offlineRecordRowid);
             dbConnection.insertValuesFromObject("offline_record_user_link", linkData);
 

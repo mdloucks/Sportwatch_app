@@ -12,7 +12,6 @@
     "dependencies": {
         "chart.js": "^2.9.3",
         "cordova": "^10.0.0",
-        "cordova-android": "^8.1.0",
         "cordova-browser": "^6.0.0",
         "cordova-plugin-appversion": "^1.0.0",
         "cordova-plugin-dialogs": "^2.0.2",
@@ -49,6 +48,7 @@
         ]
     },
     "devDependencies": {
+        "cordova-android": "^8.1.0",
         "cordova-ios": "^6.1.1",
         "cordova-plugin-app-exit": "0.0.2",
         "cordova-plugin-device": "^2.0.3",

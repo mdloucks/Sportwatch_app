@@ -133,12 +133,12 @@ class ButtonGenerator {
      * @param {function} checkCallback function to be called on check
      * @param {function} uncheckCallback function to be called on uncheck
      */
-    static generateToggle(element, prompt, checkCallback, uncheckCallback) {
+    static generateToggle(element, prompt, defaultState, checkCallback, uncheckCallback) {
         
         let container = $("<div>", {class: "switch_container"});
         let text = $("<div>", {html: prompt, class: "switch_text"});
         let label = $("<label>", {class: "switch noSelect", style: "float: right;"});
-        let input = $("<input>", {type: "checkbox", checked: true});
+        let input = $("<input>", {type: "checkbox", checked: defaultState});
         let span = $("<span>", {class: "slider round noSelect"});
 
         input.on("click", function(e) {

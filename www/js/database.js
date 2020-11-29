@@ -97,6 +97,7 @@ class DatabaseConnection {
             tx.executeSql("DROP TABLE IF EXISTS record_definition");
             tx.executeSql("DROP TABLE IF EXISTS record");
             tx.executeSql("DROP TABLE IF EXISTS record_user_link");
+            // tx.executeSql("DROP TABLE IF EXISTS record_definition_split");
 
             // offline
             tx.executeSql("DROP TABLE IF EXISTS offline_record");
@@ -110,6 +111,8 @@ class DatabaseConnection {
             tx.executeSql(`CREATE TABLE IF NOT EXISTS record (id_record, value, id_record_definition, is_practice, is_split, id_split, id_split_index, last_updated)`);
 
             tx.executeSql(`CREATE TABLE IF NOT EXISTS record_user_link (id_backend, id_record)`);
+            
+            // tx.executeSql(`CREATE TABLE IF NOT EXISTS record_definition_split (id_record_definition, id_split)`);
             
             // create duplicates of record and record_user_link to store offline data
             tx.executeSql(`CREATE TABLE IF NOT EXISTS offline_record (id_record, value, id_record_definition, is_practice, is_split, id_split, id_split_index, last_updated)`);

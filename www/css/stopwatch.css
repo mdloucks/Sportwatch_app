@@ -143,6 +143,12 @@
     padding: 0;
 }
 
+#stopwatchPage .slideup_top_bar.change_saved_split {
+    table-layout: auto;
+    background-color: white;
+    padding: 0;
+}
+
 #stopwatchPage .slideup_top_bar.change_saved_event td.selected_event {
     background-color: gold;
     font-weight: bold;
@@ -156,12 +162,24 @@
     margin: 2em;
 }
 
+#stopwatchPage #landingPage .splits_box {
+    margin: 2em;
+}
+
+#stopwatchPage #landingPage .input_splits_box {
+    font-size: 5vw;
+}
+
 #stopwatchPage #landingPage .boys_box input:checked+.slider {
     background-color: #6abce1;
 }
 
 #stopwatchPage #landingPage .girls_box input:checked+.slider {
     background-color: #fc99b6;
+}
+
+#stopwatchPage #landingPage .splits_box input:checked+.slider {
+    background-color: #dd5e33;
 }
 
 #stopwatchPage #landingPage .carousel_container {
