@@ -142,8 +142,10 @@ class Stats extends Page {
      * @param {function} callback the callback to be called when all of the buttons are done generating
      */
     startLandingPage(callback = () => {}) {
-
-        this.pageTransition.slideRight("landingPage");
+        
+        if(this.pageTransition.getCurrentPage() != "landingPage") {
+            this.pageTransition.slideRight("landingPage");
+        }
 
         $("#statsPage #landingPage .button_box").empty();
         $("#statsPage #landingPage #add_event_box").empty();

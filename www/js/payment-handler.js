@@ -57,8 +57,8 @@ class PaymentHandler {
         
         // Set up the logic for when a plan is ordered (i.e. initiated by button press)
         store.when(Constant.MONTHLY_ID).approved((product) => {
-            console.log("Monthly approved");
-            console.log(product);
+            // console.log("Monthly approved");
+            // console.log(product);
             product.verify();
         });
         store.when(Constant.ANNUALLY_ID).approved((product) => {

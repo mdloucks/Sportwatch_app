@@ -22,7 +22,6 @@ class ToolboxBackend {
      * the data sync has been completed.
      */
     static pullFromBackend() {
-        dbConnection = new DatabaseConnection();
         dbConnection.createNewTables();
         
         // Make sure the email is valid
@@ -205,7 +204,7 @@ class ToolboxBackend {
                         ajaxCalls.push(ToolboxBackend.pullAndInsertRecords(teamResponse.secondaryCoach.email));
                     }
                     
-                    // Add in athlete
+                    // Add in athletes
                     if("athletes" in teamResponse) {
                         let currentAthlete = { };
                         for(let a = 0; a < teamResponse.athletes.length; a++) {
