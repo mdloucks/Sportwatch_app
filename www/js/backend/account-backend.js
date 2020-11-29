@@ -88,7 +88,7 @@ class AccountBackend {
             // except email and password since they require the current password
             newValues = this.getLocalValues(["fname", "lname", "gender", "state", "dob", "id_school", "id_team", "cellNum"]);
         }
-        newValues = this.sanitizePostRequest(newValues, false);
+        newValues = this.sanitizePostRequest(newValues, true);
         
         // If sanitation failed, return an error
         if(newValues == false) {
@@ -263,32 +263,25 @@ class AccountBackend {
             if ((payload["gender"] == null) || (payload["gender"] == undefined)) {
                 payload["gender"] = "";
             } else {
-                if (payload["gender"] == "M") {
-                    payload["gender"] = "Male";
-                } else if (payload["gender"] == "F") {
-                    payload["gender"] = "Female";
-                } else {
-                    payload["gender"] = "Other";
-                }
+                payload["gender"] = payload["gender"].toUpperCase();
+                // if (payload["gender"] == "M") {
+                //     payload["gender"] = "Male";
+                // } else if (payload["gender"] == "F") {
+                //     payload["gender"] = "Female";
+                // } else {
+                //     payload["gender"] = "Other";
+                // }
             }
         }
         if ("state" in payload) {
             if ((payload["state"] == null) || (payload["state"] == undefined)) {
                 payload["state"] = "";
-            } else {
-                // TODO: Select state from dropdown menu
             }
         }
         // Date of Birth
         if ("dob" in payload) {
             if ((payload["dob"] == null) || (payload["dob"] == undefined)) {
-                payload["dob"] = "";
-            } else {
-                let year = payload["dob"].substr(0, 4);
-                let month = payload["dob"].substr(5, 2);
-                let day = payload["dob"].substr(8, 2);
-                payload["dob"] = month + "/" + day + "/" + year;
-                // TODO: Change this to a fancy, printed version (i.e. September, 27th, 2005)
+                payload["dob"] = "2000-01-01";
             }
         }
         // Phone number

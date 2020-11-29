@@ -71,11 +71,13 @@
 
 /* Setting -- Account */
 
-#settingsPage #editPage > #account_edit_inputs > p {
+#settingsPage #editPage > #account_edit_inputs > p,
+#settingsPage #editPage #account_edit_inputs .twoColWrapper p {
     margin-bottom: 5px;
 }
 
-#settingsPage #editPage > #account_edit_inputs > input {
+#settingsPage #editPage > #account_edit_inputs > input,
+#settingsPage #editPage .twoColWrapper input {
     padding: 10px;
     border-width: 2px;
     border-color: #dd3333;
@@ -83,6 +85,15 @@
     font-size: 1.5em;
     width: 60%;
     outline: none;
+}
+
+#settingsPage #editPage > #account_edit_inputs .twoColWrapper > * {
+    width: 30%;
+    display: inline-block;
+}
+#settingsPage #editPage .twoColWrapper > .leftColumn > *:not(p),
+#settingsPage #editPage .twoColWrapper > .rightColumn > *:not(p) {
+    width: fit-content;
 }
 
 #settingsPage #editPage > #account_edit_inputs > .generated_button {

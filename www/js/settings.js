@@ -10,7 +10,11 @@ class Settings extends Page {
         this.pageController = pageSetObj;
 
         this.currentPageId = "catagoryPage";
-
+        
+        // Define an array of states for the edit account page
+        this.stateNames = ["Alabama", "Alaska", "Arizona", "Arkansas", "California", "Colorado", "Connecticut", "Delaware", "District of Columbia", "Florida", "Georgia", "Hawaii", "Idaho", "Illinois", "Indiana", "Iowa", "Kansas", "Kentucky", "Louisiana", "Maine", "Maryland", "Massachusetts", "Michigan", "Minnesota", "Mississippi", "Missouri", "Montana", "Nebraska", "Nevada", "New Hampshire", "New Jersey", "New Mexico", "New York", "North Carolina", "North Dakota", "Ohio", "Oklahoma", "Oregon", "Pennsylvania", "Rhode Island", "South Carolina", "South Dakota", "Tennessee", "Texas", "Utah", "Vermont", "Virginia", "Washington", "West Virginia", "Wisconsin", "Wyoming"];
+        this.stateShort = ["AL", "AK", "AZ", "AR", "CA", "CO", "CT", "DE", "DC", "FL", "GA", "HI", "ID", "IL", "IN", "IA", "KS", "KY", "LA", "ME", "MD", "MA", "MI", "MN", "MS", "MO", "MT", "NE", "NV", "NH", "NJ", "NM", "NY", "NC", "ND", "OH", "OK", "OR", "PA", "RI", "SC", "SD", "TN", "TX", "UT", "VT", "VA", "WA", "WV", "WI", "WY"];
+        
         // ---- PAGES ---- //
 
         this.catagoryPage = (`
@@ -210,106 +214,146 @@ class Settings extends Page {
                 "password": "New Password",
                 "passwordConfirm": "Confirm New Password",
                 "passwordOld": "Current Password"
-            }; // TODO: Add account type change, and also possibly school change
+            }; // TODO: Add possibly school change
             // TODO: Make state change a dropdown instead of typing, sanitize to abbreviation
-
-            let ignoredValues = ["status", "substatus", "msg", "id_user", "accountType", "isAdmin",
-                "id_school", "id_team", "schoolName", "teamName", "email", "emailVerified",
-                "createDate", "lastUpdated", "lastLogin, isDeleted"
-            ];
-
+            
+            // Remove any variables that don't have a defined display name
+            for(let key in accountInfo) {
+                if((accountInfo.hasOwnProperty(key)) && (!displayNames.hasOwnProperty(key))) {
+                    delete accountInfo[key];
+                }
+            }
+            
             let sensitiveValues = {
                 "email": accountInfo["email"],
                 "password": "", // The new password
                 "passwordConfirm": "",
                 "passwordOld": ""
             };
-
+            
+            $(this.inputDivIdentifier).append(`
+                <button id="saveChanges" class="generated_button" style="background-color: rgb(64, 202, 0)">Save Changes</button>
+                <hr>
+                <p>Name</p>
+                <input type="text" name="fname" value="${accountInfo["fname"]}" placeholder="John" style="width: 30%">
+                <input type="text" name="lname" value="${accountInfo["lname"]}" placeholder="Witherspoon" style="width: 30%">
+                <br>
+                <div id="genderStateWrapper" class="twoColWrapper">
+                    <div class="leftColumn">
+                        <p>Competition Gender</p>
+                        <!-- Dropdown added here with createDropdown() -->
+                    </div>
+                    <div class="rightColumn">
+                        <p>State</p>
+                        <!-- Dropdown added here -->
+                    </div>
+                </div>
+                <br>
+                <div id="dobPhoneWrapper" class="twoColWrapper">
+                    <div class="leftColumn">
+                        <p>Date of Birth</p>
+                        <input type="date" name="dob" value="${accountInfo["dob"]}">
+                    </div>
+                    <div class="rightColumn">
+                        <p>Phone Number</p>
+                        <input type="text" name="dob" value="${accountInfo["cellNum"]}" placeholder="(989) 111-2223">
+                    </div>
+                </div>
+                <br>
+                
+            `);
+            
+            // Add the dropdowns now with the dedicated method
+            ValueEditor.createDropdown(this.inputDivIdentifier + " #genderStateWrapper .leftColumn", "gender",
+                                        ["Male", "Female"], ["M", "F"], accountInfo["gender"]);
+            ValueEditor.createDropdown(this.inputDivIdentifier + " #genderStateWrapper .rightColumn", "state",
+                                        this.stateNames, this.stateShort, accountInfo["state"]);
+            
             // Basic values (not requiring a password)
-            ValueEditor.editValues(this.inputDivIdentifier, accountInfo, (newValues) => {
-                AccountBackend.updateAccount(newValues, (response) => {
+        //     ValueEditor.editValues(this.inputDivIdentifier, accountInfo, (newValues) => {
+        //         AccountBackend.updateAccount(newValues, (response) => {
 
-                    if (response.status > 0) { // EDIT SUCCESS
-                        Popup.createConfirmationPopup("Successfully saved!", ["OK"], [() => {}]);
-                        if ("didSetPassword" in response) {
-                            if (response.didSetPassword == 0) {
-                                Popup.createConfirmationPopup("Warning: Password was not updated! Please try again", ["OK"], [() => {}]);
-                                return;
-                            }
-                        }
-                        response = AccountBackend.beautifyResponse(response);
-                        // Populate fields with the updated values
-                        $('#editPage input[name="First Name"]').val(response.fname);
-                        $('#editPage input[name="Last Name"]').val(response.lname);
-                        $('#editPage input[name="Gender"]').val(response.gender);
-                        $('#editPage input[name="Phone Number"]').val(response.cellNum);
-                        $('#editPage input[name="State"]').val(response.state);
-                        $('#editPage input[name="Date of Birth"]').val(response.dob);
+        //             if (response.status > 0) { // EDIT SUCCESS
+        //                 Popup.createConfirmationPopup("Successfully saved!", ["OK"], [() => {}]);
+        //                 if ("didSetPassword" in response) {
+        //                     if (response.didSetPassword == 0) {
+        //                         Popup.createConfirmationPopup("Warning: Password was not updated! Please try again", ["OK"], [() => {}]);
+        //                         return;
+        //                     }
+        //                 }
+        //                 response = AccountBackend.beautifyResponse(response);
+        //                 // Populate fields with the updated values
+        //                 $('#editPage input[name="First Name"]').val(response.fname);
+        //                 $('#editPage input[name="Last Name"]').val(response.lname);
+        //                 $('#editPage input[name="Gender"]').val(response.gender);
+        //                 $('#editPage input[name="Phone Number"]').val(response.cellNum);
+        //                 $('#editPage input[name="State"]').val(response.state);
+        //                 $('#editPage input[name="Date of Birth"]').val(response.dob);
 
-                    } else { // EDIT FAILED
-                        if (response.substatus == 5) {
+        //             } else { // EDIT FAILED
+        //                 if (response.substatus == 5) {
 
-                            // Was the response from the backend (contains list of invalid) or frontend
-                            if (response.msg.includes(":")) { // BACKEND
-                                // Isolate the invalid parameters
-                                let invalidParams = response.msg; // Formatted "some params invalid: fnameNew lnameNew ..."
-                                invalidParams = invalidParams.substring(invalidParams.indexOf(":") + 2, invalidParams.length);
-                                invalidParams = invalidParams.replace(/New/gm, ""); // Remove "New" from variable names
-                                invalidParams = invalidParams.replace(/ /gm, ", "); // Add commas for pretty formatting
+        //                     // Was the response from the backend (contains list of invalid) or frontend
+        //                     if (response.msg.includes(":")) { // BACKEND
+        //                         // Isolate the invalid parameters
+        //                         let invalidParams = response.msg; // Formatted "some params invalid: fnameNew lnameNew ..."
+        //                         invalidParams = invalidParams.substring(invalidParams.indexOf(":") + 2, invalidParams.length);
+        //                         invalidParams = invalidParams.replace(/New/gm, ""); // Remove "New" from variable names
+        //                         invalidParams = invalidParams.replace(/ /gm, ", "); // Add commas for pretty formatting
 
-                                // Convert variable names to human-readable named
-                                let keys = Object.keys(displayNames);
-                                for (let n = 0; n < keys.length; n++) {
-                                    // Replace the key with the display name
-                                    invalidParams = invalidParams.replace(keys[n], displayNames[keys[n]]);
-                                }
+        //                         // Convert variable names to human-readable named
+        //                         let keys = Object.keys(displayNames);
+        //                         for (let n = 0; n < keys.length; n++) {
+        //                             // Replace the key with the display name
+        //                             invalidParams = invalidParams.replace(keys[n], displayNames[keys[n]]);
+        //                         }
 
-                                Popup.createConfirmationPopup("The following were invalid, please correct to save: " + invalidParams,
-                                    ["OK"], [() => {}]);
-                            } else { // FRONTEND
-                                Popup.createConfirmationPopup("Some parameters were invalid, please try again", ["OK"], [() => {}]);
-                            }
+        //                         Popup.createConfirmationPopup("The following were invalid, please correct to save: " + invalidParams,
+        //                             ["OK"], [() => {}]);
+        //                     } else { // FRONTEND
+        //                         Popup.createConfirmationPopup("Some parameters were invalid, please try again", ["OK"], [() => {}]);
+        //                     }
 
-                        } else {
-                            Popup.createConfirmationPopup("An unknown error occured, please try again later", ["Close"], [() => {}]);
-                        }
-                    }
-                }); // End of Backend callback
+        //                 } else {
+        //                     Popup.createConfirmationPopup("An unknown error occured, please try again later", ["Close"], [() => {}]);
+        //                 }
+        //             }
+        //         }); // End of Backend callback
 
-            }, ignoredValues, displayNames);
+        //     }, [], displayNames);
 
-            // Email & Password (requires current password)
-            ValueEditor.editValues(this.inputDivIdentifier, sensitiveValues, (newValues) => {
+        //     // Email & Password (requires current password)
+        //     ValueEditor.editValues(this.inputDivIdentifier, sensitiveValues, (newValues) => {
 
-                if (newValues["passwordOld"].length == 0) {
-                    Popup.createConfirmationPopup("Please enter your current password", ["OK"], [() => {}]);
-                } else if (newValues["passwordNew"] != newValues["passwordNew2"]) {
-                    Popup.createConfirmationPopup("New passwords do not match", ["OK"], [() => {}]);
-                } else {
-                    let currentPassword = newValues["passwordOld"];
-                    delete newValues["passwordOld"];
-                    // Delete since backend doesn't need verification
-                    delete newValues["passwordConfirm"];
+        //         if (newValues["passwordOld"].length == 0) {
+        //             Popup.createConfirmationPopup("Please enter your current password", ["OK"], [() => {}]);
+        //         } else if (newValues["passwordNew"] != newValues["passwordNew2"]) {
+        //             Popup.createConfirmationPopup("New passwords do not match", ["OK"], [() => {}]);
+        //         } else {
+        //             let currentPassword = newValues["passwordOld"];
+        //             delete newValues["passwordOld"];
+        //             // Delete since backend doesn't need verification
+        //             delete newValues["passwordConfirm"];
 
-                    // Submit the backend request if frontend checks passed
-                    AccountBackend.updateAccount(newValues, (response) => {
-                        if (("didSetPassword" in response) && (response.didSetPassword == 1)) {
-                            Popup.createConfirmationPopup("Successfully updated!", ["OK"], [() => {}]);
+        //             // Submit the backend request if frontend checks passed
+        //             AccountBackend.updateAccount(newValues, (response) => {
+        //                 if (("didSetPassword" in response) && (response.didSetPassword == 1)) {
+        //                     Popup.createConfirmationPopup("Successfully updated!", ["OK"], [() => {}]);
 
-                        } else { // Failure
-                            if (response.substatus == 5) {
-                                Popup.createConfirmationPopup("Email or password were incorrectly formatted, please try again",
-                                    ["Close"], [() => {}]);
-                            } else if (response.substatus == 6) {
-                                Popup.createConfirmationPopup("Incorrect password, please try again", ["Close"], [() => {}]);
-                            } else {
-                                Popup.createConfirmationPopup("An unknown error occured, please try again later", ["Close"], [() => {}]);
-                            }
-                        }
-                    }, currentPassword);
-                } // End of edit handling if statement
+        //                 } else { // Failure
+        //                     if (response.substatus == 5) {
+        //                         Popup.createConfirmationPopup("Email or password were incorrectly formatted, please try again",
+        //                             ["Close"], [() => {}]);
+        //                     } else if (response.substatus == 6) {
+        //                         Popup.createConfirmationPopup("Incorrect password, please try again", ["Close"], [() => {}]);
+        //                     } else {
+        //                         Popup.createConfirmationPopup("An unknown error occured, please try again later", ["Close"], [() => {}]);
+        //                     }
+        //                 }
+        //             }, currentPassword);
+        //         } // End of edit handling if statement
 
-            }, [], displayNames);
+        //     }, [], displayNames);
         }); // End of population function
 
         this.pageTransition.slideLeft("editPage");
