@@ -154,6 +154,11 @@
     font-weight: bold;
 }
 
+#stopwatchPage .slideup_top_bar.change_saved_split td.selected_split {
+    background-color: #e1926a;
+    font-weight: bold;
+}
+
 #stopwatchPage .slideup_top_bar.change_saved_event td {
     border: 1px solid black;
 }
@@ -179,7 +184,7 @@
 }
 
 #stopwatchPage #landingPage .splits_box input:checked+.slider {
-    background-color: #dd5e33;
+    background-color: #e1926a;
 }
 
 #stopwatchPage #landingPage .carousel_container {
