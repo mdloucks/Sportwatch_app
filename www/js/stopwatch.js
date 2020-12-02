@@ -973,12 +973,14 @@ class Stopwatch extends Page {
                     nBoxes = eventConfig.selectedSplits[splitEvents[0]].length;
                 }
 
+                let isUsingSplits = (nBoxes != 1 ? true : false);
+
                 for (let i = 0; i < nBoxes; i++) {
                     // append the button box jquery object here, so then it may be controlled by the callback in the other function
                     
                     let buttonBoxSelector;
                     
-                    if(nBoxes > 1) {
+                    if(isUsingSplits) {
                         $(`${this.landingPageSelector} #slideup_content`).append(eventConfig.buttonBoxes[splitEvents[0]][i]);
                         buttonBoxSelector = `#split_button_box_${i + 1}`;
                     } else {
@@ -1009,9 +1011,9 @@ class Stopwatch extends Page {
                             this.selectedRecordDefinitionId = null;
                             this.selectedRecordDefinitionGender = null;
 
-                            if(nBoxes != 1) {
+                            if(isUsingSplits) {
                                 $(`${this.landingPageSelector} #slideup_content .selected_split`).remove();
-                                $(`${this.landingPageSelector} .change_saved_split:nth-child(1)`).addClass("selected_split");
+                                $(`${this.landingPageSelector} .slideup_top_bar.change_saved_split td:first-child`).trigger("click");
                             } 
 
                             $(`${this.landingPageSelector} ${buttonBoxSelector}`).remove();    
