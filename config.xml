@@ -1,7 +1,6 @@
 <?xml version="1.0" encoding="utf-8" ?>
 
-<widget android-packageName="com.sportwatch.app"
-    ios-CFBundleIdentifier="us.sportwatch.sportwatchapp" version="0.1.0"
+<widget android-packageName="com.sportwatch.app" ios-CFBundleIdentifier="us.sportwatch.sportwatchapp" version="0.1.0"
     xmlns="http://www.w3.org/ns/widgets"
     xmlns:cdv="http://cordova.apache.org/ns/1.0"
     xmlns:android="http://schemas.android.com/apk/res/android">
@@ -26,8 +25,10 @@
     <preference name="DisallowOverscroll" value="true" />
     <platform name="android">
 
-        <preference name="AndroidPersistentFileLocation" value="Compatibility" />
         <preference name="android-minSdkVersion" value="26" />
+        <preference name="android-targetSdkVersion" value="29" />
+
+        <preference name="AndroidPersistentFileLocation" value="Compatibility" />
         <resource-file src="res/values/colors.xml" target="/app/src/main/res/values/colors.xml" />
 
         <!--
@@ -41,6 +42,11 @@
 
         <edit-config file="app/src/main/AndroidManifest.xml" mode="merge" target="/manifest/application">
             <application android:icon="@mipmap/ic_launcher" android:roundIcon="@mipmap/ic_launcher_round" />
+        </edit-config>
+
+        <edit-config file="app/src/main/AndroidManifest.xml" mode="merge" target="/manifest/application"
+            xmlns:android="http://schemas.android.com/apk/res/android">
+            <uses-permission android:name="com.android.vending.BILLING" />
         </edit-config>
 
         <!-- <resource-file src="res/android/icon/drawable/ic_launcher_background.xml" target="app/src/main/res/drawable/ic_launcher_background.xml" />
@@ -70,18 +76,18 @@
         <resource-file src="res/icon/android/mipmap-xxxhdpi/ic_launcher_foreground.png" target="app/src/main/res/mipmap-xxxhdpi/ic_launcher_foreground.png" />
         <resource-file src="res/icon/android/mipmap-xxxhdpi/ic_launcher_background.png" target="app/src/main/res/mipmap-xxxhdpi/ic_launcher_background.png" />
         <resource-file src="res/icon/android/mipmap-xxxhdpi/ic_launcher_round.png" target="app/src/main/res/mipmap-xxxhdpi/ic_launcher_round.png" />
-	
-	<!-- Splash screens -->
-	<splash src="res/screen/android/screen-hdpi-landscape.png" density="land-hdpi"/>
-	<splash src="res/screen/android/screen-ldpi-landscape.png" density="land-ldpi"/>
-	<splash src="res/screen/android/screen-mdpi-landscape.png" density="land-mdpi"/>
-	<splash src="res/screen/android/screen-xhdpi-landscape.png" density="land-xhdpi"/>
-	
-	<splash src="res/screen/android/screen-hdpi-portrait.png" density="port-hdpi"/>
-	<splash src="res/screen/android/screen-ldpi-portrait.png" density="port-ldpi"/>
-	<splash src="res/screen/android/screen-mdpi-portrait.png" density="port-mdpi"/>
-	<splash src="res/screen/android/screen-xhdpi-portrait.png" density="port-xhdpi"/>
-	
+
+        <!-- Splash screens -->
+        <splash src="res/screen/android/screen-hdpi-landscape.png" density="land-hdpi"/>
+        <splash src="res/screen/android/screen-ldpi-landscape.png" density="land-ldpi"/>
+        <splash src="res/screen/android/screen-mdpi-landscape.png" density="land-mdpi"/>
+        <splash src="res/screen/android/screen-xhdpi-landscape.png" density="land-xhdpi"/>
+
+        <splash src="res/screen/android/screen-hdpi-portrait.png" density="port-hdpi"/>
+        <splash src="res/screen/android/screen-ldpi-portrait.png" density="port-ldpi"/>
+        <splash src="res/screen/android/screen-mdpi-portrait.png" density="port-mdpi"/>
+        <splash src="res/screen/android/screen-xhdpi-portrait.png" density="port-xhdpi"/>
+
     </platform>
 
     <platform name="ios">
@@ -126,15 +132,15 @@
         <icon src="res/icon/ios/icon-50@2x.png" width="100" height="100" />
         <!-- iPad Pro -->
         <icon src="res/icon/ios/icon-167.png" width="167" height="167" />
-	<!-- Other -->
-	<icon src="res/icon/ios/icon-20.png" width="20" height="20" />
-	<icon src="res/icon/ios/icon-24@2x.png" width="48" height="48" />
-	<icon src="res/icon/ios/icon-27.5@2x.png" width="55" height="55" />
-	<icon src="res/icon/ios/icon-44@2x.png" width="88" height="88" />
-	<icon src="res/icon/ios/icon-86@2x.png" width="172" height="172" />
-	<icon src="res/icon/ios/icon-98@2x.png" width="196" height="196" />
-	<icon src="res/icon/ios/icon-1024.png" width="1024" height="1024" />
-	
+        <!-- Other -->
+        <icon src="res/icon/ios/icon-20.png" width="20" height="20" />
+        <icon src="res/icon/ios/icon-24@2x.png" width="48" height="48" />
+        <icon src="res/icon/ios/icon-27.5@2x.png" width="55" height="55" />
+        <icon src="res/icon/ios/icon-44@2x.png" width="88" height="88" />
+        <icon src="res/icon/ios/icon-86@2x.png" width="172" height="172" />
+        <icon src="res/icon/ios/icon-98@2x.png" width="196" height="196" />
+        <icon src="res/icon/ios/icon-1024.png" width="1024" height="1024" />
+
         <!-- Splash screens -->
         <!-- Prepare manually when changing icons, otherwise Xcode build fails -->
         <!-- <splash src="res/screen/ios/screen-iphone-portrait.png" width="320" height="480"/>
@@ -149,7 +155,7 @@
         <splash src="res/screen/ios/screen-iphone-landscape-736h.png" width="2208" height="1242"/>
 	<splash src="res/screen/ios/screen-iphone-portrait-2436h" width="1125" height="2436"/>
         <splash src="res/screen/ios/screen-iphone-landscape-2436h" width="2436" height="1125"/> -->
-	
+
         <allow-intent href="itms:*" />
         <allow-intent href="itms-apps:*" />
     </platform>

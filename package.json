@@ -48,6 +48,7 @@
         ]
     },
     "devDependencies": {
+        "cc.fovea.cordova.purchase": "^10.1.1",
         "cordova-android": "^8.1.0",
         "cordova-ios": "^6.1.1",
         "cordova-plugin-app-exit": "0.0.2",
