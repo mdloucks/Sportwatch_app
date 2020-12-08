@@ -252,6 +252,10 @@ class ToolboxBackend {
                     console.log("[toolbox-backend.js:pullFromBackend()]: Unable to pull records!");
                 }
             } else {
+
+                let recordArray = [];
+                let linkDataArray = [];
+
                 // Make sure there is at least 1 record returned
                 if("result" in recordResponse) {
                     let pulledResult = { };
@@ -269,7 +273,8 @@ class ToolboxBackend {
                             "id_split_index": pulledResult.splitIndex,
                             "last_updated": pulledResult.lastUpdated
                         };
-                        dbConnection.insertValuesFromObject("record", recordData);
+
+                        recordArray.push(recordData);
                         
                         // Link any and all athletes to this record
                         let linkData = {
@@ -277,10 +282,15 @@ class ToolboxBackend {
                         };
                         for(let u = 0; u < pulledResult.users.length; u++) {
                             linkData.id_backend = pulledResult.users[u];
-                            dbConnection.insertValuesFromObject("record_user_link", linkData);
+
+                            linkDataArray.push(linkData);
                         }
                         
                     } // End of for loop for results
+
+                    dbConnection.insertValuesFromObject("record", recordArray);
+                    dbConnection.insertValuesFromObject("record_user_link", linkDataArray);
+
                 }
             } // End of status check
         });

@@ -367,18 +367,19 @@ class DatabaseConnection {
         let _this = this;
 
         this.db.transaction(function (tx) {
-            if (typeof (values) == "object") {
+            
+            if (!Array.isArray(values)) {
                 let nColumns = Object.keys(values).length;
                 let query = `INSERT INTO ${table} (${Object.keys(values).join(", ")}) VALUES ${_this.getQueryInsertString(nColumns)}`;
                 let dataArray = _this.getDataValuesAsArray(values);
 
                 tx.executeSql(query, dataArray);
 
-            } else if (typeof (values) == "array") {
+            } else if (Array.isArray(values)) {
 
                 for (let i = 0; i < values.length; i++) {
                     let valuesObject = values[i];
-                    let nColumns = Object.keys(valuesObject[0]).length;
+                    let nColumns = Object.keys(valuesObject).length;
                     let dataArray = _this.getDataValuesAsArray(valuesObject);
                     let query = (`INSERT INTO ${table} (${Object.keys(valuesObject).join(", ")}) VALUES ${_this.getQueryInsertString(nColumns)}`);
                     tx.executeSql(query, dataArray);
@@ -388,7 +389,7 @@ class DatabaseConnection {
                 console.log("[database.js]: incorrect type for query, type given is " + typeof (values));
             }
         }, function (error) {
-            console.log("[database.js]: " + error);
+            console.log("[database.js]: " + JSON.stringify(error));
         }, function () {});
     }
 
