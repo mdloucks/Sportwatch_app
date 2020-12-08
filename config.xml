@@ -27,8 +27,11 @@
 
         <preference name="android-minSdkVersion" value="26" />
         <preference name="android-targetSdkVersion" value="29" />
+        <preference name="android-compileSdkVersion" value="29" />
 
         <preference name="AndroidPersistentFileLocation" value="Compatibility" />
+        <preference name="AndroidXEnabled" value="true" />
+
         <resource-file src="res/values/colors.xml" target="/app/src/main/res/values/colors.xml" />
 
         <!--
@@ -44,10 +47,9 @@
             <application android:icon="@mipmap/ic_launcher" android:roundIcon="@mipmap/ic_launcher_round" />
         </edit-config>
 
-        <edit-config file="app/src/main/AndroidManifest.xml" mode="merge" target="/manifest/application"
-            xmlns:android="http://schemas.android.com/apk/res/android">
+        <!-- <edit-config file="app/src/main/AndroidManifest.xml" mode="merge" target="/manifest/application" xmlns:android="http://schemas.android.com/apk/res/android">
             <uses-permission android:name="com.android.vending.BILLING" />
-        </edit-config>
+        </edit-config> -->
 
         <!-- <resource-file src="res/android/icon/drawable/ic_launcher_background.xml" target="app/src/main/res/drawable/ic_launcher_background.xml" />
         <resource-file src="res/android/icon/drawable-v24/ic_launcher_foreground.xml" target="app/src/main/res/drawable-v24/ic_launcher_foreground.xml" />
