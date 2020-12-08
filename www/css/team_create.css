@@ -9,16 +9,15 @@
     padding: 5px;
     margin: auto;
     width: 80%;
-    border: 4px solid black;
     border-radius: 3vw;
-    background-color: crimson;
+    background-color: rgb(44, 44, 46);
 }
 
 #createteamPage #banner h1 {
     margin-top: 2%;
     color: white;
     font-size: 3vh;
-    font-family: Arial;
+    font-family: "Poppins", sans-serif;
 }
 
 #createteamPage .step {
@@ -33,7 +32,9 @@
 }
 
 #createteamPage .step_selected {
-    background-color: pink;
+    background-color: #dd3333;
+    font-weight: bold;
+
 }
 
 #createteamPage #step2 {
@@ -58,7 +59,7 @@
     max-width: 65px;
     max-height: 55px;
     vertical-align: top;
-    background-color: crimson;
+    background-color: #dd3333;
     background-image: url("../img/arrow.png");
     /* background-size: 15vw 12vw; */
     background-size: cover;
@@ -132,7 +133,7 @@
     width: 50px;
     height: 54px; /* 50 + 2px border on input */
     vertical-align: top;
-    background-color: crimson;
+    background-color: #dd3333;
     background-image: url("../img/arrow.png");
     background-size: 50px 54px;
     border-radius: 0 5px 5px 0;
@@ -191,7 +192,7 @@
 #createteamPage #button_createTeam {
     margin: 5px;
     padding: 15px;
-    background-color: crimson;
+    background-color: #dd3333;
     border-radius: 5px;
     font-size: 1.5em;
     font-weight: bold;
@@ -214,7 +215,7 @@
 #createteamPage #postCreatePage button {
     margin: 10px;
     padding: 10px;
-    background-color: crimson;
+    background-color: #dd3333;
     font-size: 2em;
     color: white;
     border: 1px solid black;
@@ -254,7 +255,7 @@
     padding: 10px;
     width: 85%;
     display: block;
-    border: 2px solid crimson;
+    border: 2px solid #dd3333;
     border-radius: 5px;
     text-align: center;
     font-size: 1.5em;
@@ -284,7 +285,7 @@
     margin: auto;
     width: 40vw;
     height: 8vh;
-    background-color: crimson;
+    background-color: #dd3333;
     border-radius: 5px;
 }
 

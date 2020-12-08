@@ -5,7 +5,7 @@ This is to limit the file size for our page specific styles
 
 
 .sw_button {
-    background: crimson;
+    background: #dd3333;
     border-radius: 20px;
     border: none;
     outline: none;
@@ -15,26 +15,29 @@ This is to limit the file size for our page specific styles
 .sw_big_button {
     margin: 10px;
     padding: 15px 25px;
-    font-size: 1.5em;
+    font-size: 5.5vw;
     font-weight: bold;
-    border-radius: 10px;
-    background-color: red;
+    border-radius: 12px;
+    background-color: #dd3333;
     color: white;
     -webkit-appearance: none;
     outline: none;
+    border: 1px solid black;
     -webkit-tap-highlight-color: rgba(0, 0, 0, 0);
+
 }
 
 .sw_text_input {
     padding: 10px;
     border-width: 2px;
-    border-color: crimson;
+    border-color: #dd3333;
     margin-bottom: 15px;
     font-size: 1.5em;
     width: 60%;
     outline: none;
     -webkit-appearance: none;;
     -webkit-tap-highlight-color: rgba(0, 0, 0, 0);
+    border: 1px solid black;
 }
 
 .sw_dropdown {
@@ -42,7 +45,7 @@ This is to limit the file size for our page specific styles
     width: 50vw;
     height: 40px;
     font-size: 1.8em;
-    border: 2px solid crimson;
+    border: 2px solid #dd3333;
     -webkit-appearance: none;
 }
 

@@ -42,7 +42,8 @@
 #loginPage #login_button {
     padding: 15px 35px;
     font-size: 2em;
-    background-color: red;
+    background-color: #dd3333;
+    border: 1px solid black;
     transition: all 1s;
 }
 #loginPage #login_button.pressed {
