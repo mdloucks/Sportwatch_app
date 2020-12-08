@@ -61,6 +61,10 @@ class MainSet extends PageSet {
                     }
                 });
             });
+            // the user is not on a team, hide the navbar and direct them to the team page
+        } else {
+            // $(".navbar").addClass("hidden");
+            // this.switchPage("TeamLanding");
         }
         
     }
