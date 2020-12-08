@@ -1009,8 +1009,6 @@ class Stopwatch extends Page {
 
                         navigator.vibrate(25);
 
-                        console.log("Selected INDEX " + Number(eventConfig.selectedSplit));
-
                         // do a final record save on finish
                         if (eventConfig.selectedSplitName == "Finish" && isUsingSplits) {
                             this.saveTime(eventConfig, athlete);
