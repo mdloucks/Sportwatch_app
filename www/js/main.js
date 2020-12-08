@@ -44,9 +44,6 @@ class App {
         }
 
         if (NetworkInfo.isOnline()) {
-
-            $(".loader_container > h1").text("Synchronizing results...");
-
             // Pull data from the backend, then start the app
             ToolboxBackend.pullFromBackend().then(() => {
                 this.initializeUI();
@@ -79,7 +76,6 @@ class App {
         
         // ---- PAGE SETS ---- //
         this.mainSet = new MainSet(this.swipeHandler, this.setActivePageSet, this, () => {
-            console.log("DONE CONSTRUCTING");
         });
 
         this.mainSet.constructPages();
