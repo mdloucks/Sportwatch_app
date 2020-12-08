@@ -72,10 +72,10 @@ class App {
     initializeUI() {
 
         setTimeout(() => {
-            $(".loader_container").fadeOut(1500, function () {
+            $(".loader_container").fadeOut(500, function () {
                 $(".loader_container").remove();
             });
-        }, 5000);
+        }, 1000);
         
         // ---- PAGE SETS ---- //
         this.mainSet = new MainSet(this.swipeHandler, this.setActivePageSet, this, () => {
