@@ -496,8 +496,13 @@ class Stopwatch extends Page {
         }.bind(this);
 
         let eventConfig = {
+            // if the user selected multiple events, they will be held here
             selectedEvents: {},
+            // eventRowid -> array full of split names. This is so you can potentiall run multiple events with splits
             selectedSplits: {},
+            // split times will be separated by event, then by athlete id_backend. Each split will correspond with its selectedSplitsIndex
+            // eventRowid : {id_backend : [selectedSplit1, selectedSplit2, ...]}
+            splitTimes: {},
             isGirls: true,
             isBoys: true,
             isSplits: false
@@ -751,7 +756,7 @@ class Stopwatch extends Page {
 
             // rewrite the array to a single value
             if (ids.length == 1) {
-                record_definition = ids[0]
+                record_definition = ids[0];
             }
 
             eventConfig.selectedEvent = Number(record_definition);
@@ -814,6 +819,11 @@ class Stopwatch extends Page {
                     tdObject["class"] = "selected_split";
                     eventConfig["buttonBoxes"] = {};
                     eventConfig["buttonBoxes"][rowid] = [buttonBox];
+
+                    // make sure that this is indicated as the first split selected
+                    eventConfig["selectedSplit"] = i + 1;
+                    eventConfig["selectedSplitName"] = selectedSplitsCopy[i];
+
                     buttonBox["class"] = "button_box";
                     // set every button box after the first to be hidden
                 } else {
@@ -831,7 +841,10 @@ class Stopwatch extends Page {
                     // hide every button box, then unhide the selected one
                     $("#stopwatchPage .button_box").addClass("hidden");
                     $(`#split_button_box_${i + 1}`).removeClass("hidden");
-                    console.log("Moving to split box:  " + (i + 1));
+
+                    // this will set the selected split to be a string in the selected splits, ex. "100" "200" etc
+                    eventConfig["selectedSplit"] = i + 1;
+                    eventConfig["selectedSplitName"] = selectedSplitsCopy[i];
 
                     $(e.target).addClass("selected_split");
                 });
@@ -886,7 +899,7 @@ class Stopwatch extends Page {
             // generate the split selection buttons for the first event by default
             generateSplitBoxes(splitEvents[0]);
         }
-        
+
 
         this.generateAthletes(eventConfig);
     }
@@ -945,6 +958,7 @@ class Stopwatch extends Page {
                 isUnsavedRecordsEmpty = true;
             }
 
+            // for the two sets of saved and unsaved athletes
             for (let i = 0; i < athletesArray.length; i++) {
                 const athletes = athletesArray[i];
 
@@ -968,7 +982,7 @@ class Stopwatch extends Page {
 
                 let nBoxes = 1;
 
-                if(splitEvents.length > 0) {
+                if (splitEvents.length > 0) {
                     // first and only event by default TODO: let them do multiple splits and events
                     nBoxes = eventConfig.selectedSplits[splitEvents[0]].length;
                 }
@@ -977,10 +991,10 @@ class Stopwatch extends Page {
 
                 for (let i = 0; i < nBoxes; i++) {
                     // append the button box jquery object here, so then it may be controlled by the callback in the other function
-                    
+
                     let buttonBoxSelector;
-                    
-                    if(isUsingSplits) {
+
+                    if (isUsingSplits) {
                         $(`${this.landingPageSelector} #slideup_content`).append(eventConfig.buttonBoxes[splitEvents[0]][i]);
                         buttonBoxSelector = `#split_button_box_${i + 1}`;
                     } else {
@@ -992,17 +1006,38 @@ class Stopwatch extends Page {
 
                     // populate the athletes and set the callback on click
                     ButtonGenerator.generateButtonsFromDatabase(`${this.landingPageSelector} #slideup_content ${buttonBoxSelector}`, athletes, (athlete) => {
-    
-                        navigator.vibrate(25);
-                        // TODO: make times save properly for split times
-                        this.saveTime(Number(eventConfig.selectedEvent), athlete);
 
-    
-                        // idk why the length is 1 longer, but it just works 
+                        navigator.vibrate(25);
+
+                        console.log("Selected INDEX " + Number(eventConfig.selectedSplit));
+
+                        // do a final record save on finish
+                        if (eventConfig.selectedSplitName == "Finish" && isUsingSplits) {
+                            this.saveTime(eventConfig, athlete);
+
+                            // save for a split
+                            // note "finish" should never be a split_name in the split_record table
+                        } else {
+                            let currentEventRowId = eventConfig.selectedEvent;
+
+                            // create object if it doesn't exist for the current event
+                            if (eventConfig["splitTimes"][currentEventRowId] === undefined) {
+                                eventConfig["splitTimes"][currentEventRowId] = {};
+                            }
+
+                            // create array otherwise append time to it
+                            if (eventConfig["splitTimes"][currentEventRowId][athlete.id_backend] === undefined) {
+                                eventConfig["splitTimes"][currentEventRowId][athlete.id_backend] = [this.clock.seconds];
+                            } else {
+                                // subtract 1 because selectedSplit is indexed starting at one, and js arrays are 0 indexed
+                                eventConfig["splitTimes"][currentEventRowId][athlete.id_backend][Number(eventConfig.selectedSplit) - 1] = this.clock.seconds
+                            }
+
+                        }
+
                         let nAthletesRemaining = $(`${this.landingPageSelector} #slideup_content ${buttonBoxSelector} > button`).length - 1;
-    
-                        console.log("ATHLETES REMAINING: " + nAthletesRemaining);
-                        
+
+
                         // Delete the specific button we are looking for
                         $(`${this.landingPageSelector} #slideup_content ${buttonBoxSelector} #${athlete.id}`).remove();
 
@@ -1011,29 +1046,26 @@ class Stopwatch extends Page {
                             this.selectedRecordDefinitionId = null;
                             this.selectedRecordDefinitionGender = null;
 
-                            if(isUsingSplits) {
+                            if (isUsingSplits) {
                                 $(`${this.landingPageSelector} #slideup_content .selected_split`).remove();
-                                $(`${this.landingPageSelector} .slideup_top_bar.change_saved_split td:first-child`).trigger("click");
-                            } 
+                                $(`${this.landingPageSelector} .slideup_top_bar.change_saved_split tr:first-child td:first-child`).trigger("click");
+                            }
 
-                            $(`${this.landingPageSelector} ${buttonBoxSelector}`).remove();    
-                            console.log("REMOVE " + `${this.landingPageSelector} ${buttonBoxSelector}`);
+                            $(`${this.landingPageSelector} ${buttonBoxSelector}`).remove();
                         }
 
 
                         let nButtonBoxesRemaining = $(`${this.landingPageSelector} #slideup_content > .button_box`).length;
-                        console.log("boxes REMAINING: " + nButtonBoxesRemaining);
-
 
                         // no more button boxes remaining, clear the clock and reset
-                        if(nButtonBoxesRemaining == 0) {
+                        if (nButtonBoxesRemaining == 0) {
                             this.currentSlideupText = this.defaultSlideupText;
                             this.toggleSlideup();
                             this.resetStopwatch();
-    
+
                             Popup.createConfirmationPopup("Results saved successfully!", ["Ok"], [() => {}]);
                         }
-    
+
                     }, ["gender", "unit", "is_relay", "timestamp", "id_backend"], Constant.genderColorConditionalAttributes);
                 }
 
@@ -1064,6 +1096,7 @@ class Stopwatch extends Page {
     /**
      * this method will ask the user where they wish to record their splits in the 
      * slideup dialogue and will return an object containing all of the marks.
+     * 
      * @param {Object} eventConfig the event configuration
      * @param {Function} callback the callback to be called when the user is done selecting their splits
      */
@@ -1071,7 +1104,6 @@ class Stopwatch extends Page {
 
         $(`${this.landingPageSelector} #slideup_content`).empty();
 
-        let ids = Object.keys(eventConfig.selectedEvents);
         let eventNames = Object.values(eventConfig.selectedEvents);
         let eventIds = Object.keys(eventConfig.selectedEvents);
 
@@ -1085,7 +1117,7 @@ class Stopwatch extends Page {
             callback(eventConfig.selectedSplits);
         });
 
-        for (let i = 0; i < ids.length; i++) {
+        for (let i = 0; i < eventIds.length; i++) {
 
             let sectionId = `add_splits_section_${i}`;
             let inputId = `splits_input_${i}`;
@@ -1141,100 +1173,6 @@ class Stopwatch extends Page {
             });
         }
     }
-
-    // generateCarousel(element, array, isRecordDefinitions) {
-
-    //     $(element).html(`
-    //         <div class="carousel_container">
-
-    //             <div class="carousel_arrow arrow_left">\<</div>
-    //             <div class="carousel_arrow arrow_right">\></div>
-
-    //             <div class="carousel_content" id="carousel_content">
-
-    //             </div>
-    //         </div>
-    //     `);
-
-    //     for (let i = 0; i < array.length; i++) {
-    //         // generate items for events 
-    //         if (isRecordDefinitions) {
-    //             $(`${this.landingPageSelector} #carousel_content`).append(`
-    //                 <div index="${i}" class="carousel_item ${array[i].class}">
-    //                     ${array[i].innerHTML}
-    //                 </div>
-    //             `);
-    //             // athletes
-    //         } else {
-    //             $(`${this.landingPageSelector} #carousel_content`).append(`
-    //                 <div index="${i}" class="carousel_item ${array[i].class}">
-    //                     ${array[i].fname} ${array[i].lname}
-    //                 </div>
-    //             `);
-    //         }
-    //     }
-
-    //     $(`${this.landingPageSelector} #carousel_content`).append(`
-    //         <div class="carousel_item_empty"></div>
-    //     `);
-
-    //     // set css for the left and right buttons
-    //     $(`${this.landingPageSelector} .carousel_content`).css("min-width", `calc(15em * ${array.length})`);
-    //     $(`${this.landingPageSelector} .carousel_content`).css("marginLeft", "15em");
-
-    //     let clickedIndex = -1;
-
-    //     $(`${this.landingPageSelector} .arrow_left`).click((e) => {
-    //         if (clickedIndex > -1) {
-    //             clickedIndex = clickedIndex - 1;
-    //             $(`${this.landingPageSelector} .carousel_content`).css("marginLeft", -15 * clickedIndex + "em");
-    //         }
-    //     });
-
-    //     $(`${this.landingPageSelector} .arrow_right`).click((e) => {
-    //         if (clickedIndex < array.length - 3) {
-    //             clickedIndex = clickedIndex + 1;
-    //             $(`${this.landingPageSelector} .carousel_content`).css("marginLeft", -15 * clickedIndex + "em");
-    //         }
-    //     });
-
-    //     let _this = this;
-
-    //     // user clicks on an event to lock, lower the slider!
-    //     $(`${this.landingPageSelector} .carousel_item`).click(function (e) {
-    //         // get the object corresponding to button in list
-    //         let arrayObject = array[Number($(this).attr("index"))];
-
-    //         // generate for events
-    //         if (isRecordDefinitions) {
-    //             _this.selectedRecordDefinitionId = arrayObject.id;
-    //             _this.currentSlideupText = arrayObject.innerHTML;
-    //             _this.selectedRecordDefinitionGender = arrayObject.gender
-    //             _this.toggleSlideup();
-    //             // generate for athlete
-    //         } else {
-
-    //             _this.saveTime(arrayObject, arrayObject); // Save before resetting stopwatch
-
-    //             // on last athlete save
-    //             if (Number($(this).parent().children().length) - 2 == 0) {
-    //                 _this.resetStopwatch();
-    //                 Popup.createConfirmationPopup(`Successfully saved times for the ${_this.currentSlideupText}!`, ["Ok"], [function () {
-    //                     _this.resetSlideup();
-    //                     _this.toggleSlideup();
-    //                 }]);
-    //             }
-
-    //             // if (clickedIndex < array.length - 3) {
-    //             //     clickedIndex = clickedIndex + 1;
-    //             //     $(`${_this.landingPageSelector} .carousel_content`).css("marginLeft", -5 * clickedIndex + "em");
-    //             // }
-
-    //             // _this.saveTime(arrayObject, arrayObject);
-    //             $(this).remove();
-    //         }
-    //     });
-    // }
 
     startStopwatch() {
 
@@ -1375,70 +1313,38 @@ class Stopwatch extends Page {
     }
 
     /**
-     * this function will start the select event page
-     */
-    // startSelectEventPage(athlete = undefined, callback = () => {}) {
-
-    //     this.pageTransition.slideLeft("selectEventPage");
-    //     // While transitioning, scroll to the top
-    //     $("#stopwatchPage").animate({
-    //         scrollTop: 0
-    //     }, 1000);
-    //     let headerWidth = $("#stopwatchPage #selectEventPage > .generic_header").height();
-    //     $("#stopwatchPage #selectEventPage > *:not(.generic_header)").first().css("margin-top", `calc(${headerWidth}px + 5vh)`);
-
-    //     // $("#stopwatchPage #selectEventPage #saved_events_box").empty();
-    //     $("#stopwatchPage #selectEventPage #new_events_box").empty();
-
-
-    //     // get any unique entries in record identity with values
-    //     // user selects an existing event
-    //     // dbConnection.selectValues(this.savedEventsQuery, [athlete.rowid]).then((events) => {
-    //     //     if ((events.length == 0) || (events == false)) {
-    //     //         return;
-    //     //     }
-
-    //     //     ButtonGenerator.generateButtonsFromDatabase("#stopwatchPage #selectEventPage #saved_events_box", events, (event) => {
-    //     //         callback(event, athlete);
-    //     //     }, ["id_record_definition", "value",
-    //     //         "is_split", "id_relay", "id_relay_index", "last_updated", "unit"
-    //     //     ], Constant.eventColorConditionalAttributes, "class");
-    //     // });
-
-    //     // get a list of every event definition and take away the ones with records already
-    //     // User selects a new event that the athlete is not already registered in
-    //     dbConnection.selectValues(this.unsavedEventsQuery, ["second"]).then((record_definitions) => {
-    //         if (record_definitions != false) {
-    //             ButtonGenerator.generateButtonsFromDatabase("#stopwatchPage #selectEventPage #new_events_box", record_definitions, (record_definition) => {
-    //                 callback(record_definition, athlete);
-    //             }, ["id_record_definition", "value", "is_split",
-    //                 "id_relay", "id_relay_index", "last_updated", "unit"
-    //             ], Constant.eventColorConditionalAttributes, "class");
-    //         } else {
-    //             if (DO_LOG) {
-    //                 console.log("record_definition table is empty");
-    //             }
-    //             Popup.createConfirmationPopup("Something went wrong, try saving your time again.", ["Ok"], () => {});
-    //         }
-    //     });
-    // }
-
-    /**
      * @description this function is called when the user chooses an event to save 
      * 
-     * @param {Object || Number} event the event to save
+     * the eventConfig object needs to have a few properties
+     * 
+     * selectedEvent: "32" -> a rowid
+     * 
+     * This function will also save any split times associated with an event if they are 
+     * present in the eventConfig. It will loop through all of them and save them for the particular athlete
+     * Keep in mind that the athlete is the only thing that should really differ. The configuration shouldn't change much
+     * 
+     * @param {Object} event the event configuration to save for
      * @param {Object} athlete the event to for
      */
-    saveTime(event, athlete) {
+    saveTime(eventConfig, athlete) {
 
 
         if (this.pageTransition.currentPage != "landingPage") {
             this.pageTransition.slideRight("landingPage");
         }
 
-        // pass either object with rowid or number
-        if (typeof event === "object" && event !== null) {
-            event = event.rowid;
+        console.log("EVENT: " + JSON.stringify(eventConfig));
+
+        let eventRowid = eventConfig.selectedEvent;
+
+        //record_split
+        let recordSplit = {
+            // we don't know what the record id is until we ask the server. 
+            "id_record": null,
+            "value": null,
+            "split_name": null,
+            "split_index": null,
+            "last_updated": null
         }
 
 
@@ -1460,7 +1366,7 @@ class Stopwatch extends Page {
 
         if (NetworkInfo.isOnline()) {
             // Save the record first so the frontend will have a matching id to the backend
-            RecordBackend.saveRecord(this.clock.seconds, event, athlete.id_backend, (response) => {
+            RecordBackend.saveRecord(this.clock.seconds, eventRowid, athlete.id_backend, (response) => {
 
                 console.log("RECORD SAVED " + JSON.stringify(response));
 
@@ -1469,7 +1375,6 @@ class Stopwatch extends Page {
                     let newRecord = {};
 
                     // Loop through each added record and save to local database
-                    // TODO: Change backend to link users with the record for relays... this will get messy
                     for (let r = 0; r < response.addedRecords.length; r++) {
                         newRecord = response.addedRecords[r];
 
@@ -1477,22 +1382,51 @@ class Stopwatch extends Page {
                         recordData["id_record"] = Number(newRecord.id_record);
                         recordData["value"] = Number(newRecord.value);
                         recordData["id_record_definition"] = Number(newRecord.id_recordDefinition);
+
                         dbConnection.insertValuesFromObject("record", recordData);
 
                         // record_user_link
                         linkData.id_record = Number(newRecord.id_record);
                         dbConnection.insertValuesFromObject("record_user_link", linkData);
+
+                        // check to see if there are any splits. If so save those with this record.
+                        let athleteSplits = eventConfig.splitTimes[eventRowid][athlete.id_backend];
+
+                        if (athleteSplits !== undefined && athleteSplits.length != 0) {
+                            // loop through every split for the athlete. n will be equal to the number of splits that were requested
+                            // for instance if the user wants a split at the 100 and the 200, n = 2
+                            for (let i = 0; i < athleteSplits.length; i++) {
+                                // this is the time in seconds for the split
+                                let athleteSplitTime = Number(athleteSplits[i]);
+                                console.log("athleteSplits index " + i + " value: " + athleteSplitTime);
+
+                                recordSplit.id_record = newRecord.id_record;
+                                recordSplit.value = athleteSplitTime;
+                                recordSplit.split_index = i + 1;
+                                
+                                recordSplit.split_name = eventConfig.selectedSplits[eventRowid][i];
+                                recordSplit.last_updated = Date.now();
+
+                                // TODO: Seth find a way to insert the recordSplit object into the 
+                                // sportwatch database, I trust you can do a fabulous job :) 
+                                
+                                // insert the record into the database
+                                dbConnection.insertValuesFromObject("record_split", recordSplit);
+                            }
+                        } else {
+                            console.log("No split times for " + athlete.fname + "; not saving times for them");
+                        }
                     }
                 } else {
                     console.log("Error while saving value to backend");
                 }
-            });
+            }); // end of saveRecord
             // the phone is offline, save it to the local database for later use.
         } else {
 
             recordData["id_record"] = Number(this.offlineRecordRowid);
             recordData["value"] = Number(this.clock.seconds);
-            recordData["id_record_definition"] = Number(event);
+            recordData["id_record_definition"] = Number(eventRowid);
             dbConnection.insertValuesFromObject("offline_record", recordData);
 
             linkData["id_record"] = Number(this.offlineRecordRowid);
@@ -1500,6 +1434,9 @@ class Stopwatch extends Page {
 
             this.offlineRecordRowid += 1;
         }
+
+        dbConnection.printTable("record_split");
+
     }
 
 
