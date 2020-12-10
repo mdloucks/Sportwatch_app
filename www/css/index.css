@@ -344,6 +344,11 @@ https://css-tricks.com/places-its-tempting-to-use-display-none-but-dont/ */
     }
 }
 
+@font-face {
+    font-family: 'Poppins';
+    src: url("../fonts/Poppins/Poppins-Regular.ttf");
+  }
+
 /* Disable copy action on long hold */
 * {
     -webkit-user-select: none;
