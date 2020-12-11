@@ -789,8 +789,6 @@ class Stopwatch extends Page {
             eventConfig.selectedSplits[rowid].push("Finish");
             let selectedSplitsCopy = eventConfig.selectedSplits[rowid].slice();
 
-            console.log("eventConfig " + JSON.stringify(eventConfig));
-
             // loop through the list of record definitions and add them to the slideup top bar
             for (let i = 0; i < selectedSplitsCopy.length; i++) {
 
@@ -852,8 +850,6 @@ class Stopwatch extends Page {
                 // append to the last row added, which occurs ever three elements
                 $(`${this.landingPageSelector} .slideup_top_bar.change_saved_split tr:last-child`).append(td);
             }
-
-            // append the finishing split manually
         }
 
         // add tooltip text and make it fade out
@@ -1002,7 +998,7 @@ class Stopwatch extends Page {
                         buttonBoxSelector = " .button_box";
                     }
 
-                    console.log("generating boxes to " + `${this.landingPageSelector} #slideup_content ${buttonBoxSelector}`);
+                    // console.log("generating boxes to " + `${this.landingPageSelector} #slideup_content ${buttonBoxSelector}`);
 
                     // populate the athletes and set the callback on click
                     ButtonGenerator.generateButtonsFromDatabase(`${this.landingPageSelector} #slideup_content ${buttonBoxSelector}`, athletes, (athlete) => {
@@ -1111,7 +1107,7 @@ class Stopwatch extends Page {
 
         $("#confirm_selected_splits_button").click(function (e) {
             e.preventDefault();
-            console.log("CONFIRM SPLITS");
+            // console.log("CONFIRM SPLITS");
             callback(eventConfig.selectedSplits);
         });
 
@@ -1335,16 +1331,6 @@ class Stopwatch extends Page {
 
         let eventRowid = eventConfig.selectedEvent;
 
-        //record_split
-        let recordSplit = {
-            // we don't know what the record id is until we ask the server. 
-            "id_record": null,
-            "value": null,
-            "split_name": null,
-            "split_index": null,
-            "last_updated": null
-        }
-
 
         // Define default fallback values, then use actual values in loop below
         let recordData = {
@@ -1366,7 +1352,7 @@ class Stopwatch extends Page {
             // Save the record first so the frontend will have a matching id to the backend
             RecordBackend.saveRecord(this.clock.seconds, eventRowid, athlete.id_backend, (response) => {
 
-                console.log("RECORD SAVED " + JSON.stringify(response));
+                // console.log("RECORD SAVED " + JSON.stringify(response));
 
                 if (response.status > 0) { // If success, insert into local database
 
@@ -1396,18 +1382,19 @@ class Stopwatch extends Page {
                             for (let i = 0; i < athleteSplits.length; i++) {
                                 // this is the time in seconds for the split
                                 let athleteSplitTime = Number(athleteSplits[i]);
-                                console.log("athleteSplits index " + i + " value: " + athleteSplitTime);
+                                // console.log("athleteSplits index " + i + " value: " + athleteSplitTime);
+                                let recordSplit = {};
 
-                                recordSplit.id_record = newRecord.id_record;
-                                recordSplit.value = athleteSplitTime;
-                                recordSplit.split_index = i + 1;
-                                
-                                recordSplit.split_name = eventConfig.selectedSplits[eventRowid][i];
-                                recordSplit.last_updated = Date.now();
+                                recordSplit["id_record"] = newRecord.id_record;
+                                recordSplit["value"] = athleteSplitTime;
+                                recordSplit["split_name"] = String(eventConfig.selectedSplits[eventRowid][i]);
+                                recordSplit["split_index"] = i + 1;
+                                recordSplit["last_updated"] = Date.now();
+
 
                                 // TODO: Seth find a way to insert the recordSplit object into the 
                                 // sportwatch database, I trust you can do a fabulous job :) 
-                                
+
                                 // insert the record into the database
                                 dbConnection.insertValuesFromObject("record_split", recordSplit);
                             }
@@ -1433,7 +1420,7 @@ class Stopwatch extends Page {
             this.offlineRecordRowid += 1;
         }
 
-        dbConnection.printTable("record_split");
+        // dbConnection.printTable("record_split");
 
     }
 
