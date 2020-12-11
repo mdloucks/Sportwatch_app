@@ -43,7 +43,7 @@ let json = {
         ["meter", "other"],
         ["foot", "other"],
         ["yard", "other"]
-    ], 
+    ]
     // "offline_record": [
     //     [1, 69, 1, false, false, 0, 0, Date.now()],
     //     [2, 69, 1, false, false, 0, 0, Date.now()],

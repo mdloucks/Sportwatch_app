@@ -21,8 +21,6 @@ class Clock {
         let dateTime = new Date(time * 1000);
         let formattedTime;
 
-
-
         // format for hours
         if(dateTime.getHours() - 19 >= 1) {
             formattedTime = dateTime.toISOString().substr(11, 12);
@@ -32,6 +30,10 @@ class Clock {
             // format for seconds
         } else if(dateTime.getSeconds() >= 1) {
             formattedTime = dateTime.toISOString().substr(17, 6);
+            // format for ms
+        } else if(dateTime.getSeconds() < 1) {
+            formattedTime = dateTime.toISOString().substr(17, 6);
+            // not sure, just display the whole thing
         } else {
             formattedTime = dateTime.toISOString().substr(11, 12);
         }

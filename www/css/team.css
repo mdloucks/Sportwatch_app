@@ -68,6 +68,12 @@
     border: 1px solid black;
 }
 
+#teamPage #athlete_stat_chart {
+    margin: 0 auto;
+    text-align: center;
+    height: auto;
+}
+
 #teamPage .alternating_table_shade tr:nth-child(odd) td {
     background-color: rgb(229, 229, 234);
 }
@@ -100,10 +106,6 @@
     border: none;
 }
 
-#teamPage canvas {
-    width: 400px;
-    height: 400px;
-}
 
 /* ---- MISC ---- */
 

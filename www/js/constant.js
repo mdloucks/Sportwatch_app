@@ -4,7 +4,7 @@
 class Constant {
     // Holds all of the constants
     // Defined below
-    
+
     // Use functions for backend calls to allow for versioning and backwards compatability
     static getSignupURL() {
         return Constant.HOSTNAME + Constant.BACKEND_PATH + Constant.FUNCTION.signup;
@@ -63,6 +63,7 @@ Constant.AJAX_CFG = {
 Constant.MONTHLY_ID = "sp_m_KXqzG";
 Constant.ANNUALLY_ID = "sRfafDxVzo";
 
+// animation durations
 Constant.fadeDuration = 300;
 Constant.fadeIncrement = 45;
 
@@ -73,9 +74,61 @@ Constant.longClickMinimumDuration = 1000;
 
 Constant.stopwatchSelectEventColumnCount = 3;
 
+// database queries
+
+// select all of the splits for a given athlete in a given event eg. John Smith for the 400m
+Constant.querySplitRecordsForAthleteEvent = (`
+    SELECT * FROM record_split
+    INNER JOIN record
+    ON record_split.id_record = record.id_record
+    INNER JOIN record_user_link
+    ON record_user_link.id_record = record.id_record
+    INNER JOIN athlete
+    ON athlete.id_backend = record_user_link.id_backend
+    WHERE record.id_record_definition = ? AND record_user_link.id_backend = ?
+`);
+
+// select values for given event and athlete
+Constant.queryRecordsForAthleteEvent = `
+    SELECT *, record.id_record from record
+    INNER JOIN record_user_link
+    ON record.id_record = record_user_link.id_record
+    WHERE record.id_record_definition = ? AND record_user_link.id_backend = ?
+`;
+
+
+// colors
+Constant.defaultGraphConfiguration = {
+    fill: true,
+    borderColor: "#rgb(245, 77, 77)",
+    backgroundColor: "#e755ba",
+    pointBackgroundColor: "#55bae7",
+    pointBorderColor: "#55bae7"
+};
+
+Constant.graphConfigurations = [{
+    fill: true,
+    borderColor: "#rgb(245, 77, 77)",
+    backgroundColor: "#e755ba",
+    pointBackgroundColor: "#55bae7",
+    pointBorderColor: "#55bae7"
+}, {
+    fill: true,
+    borderColor: "#dd3333",
+    backgroundColor: "#dd3333",
+    pointBackgroundColor: "#dd3333",
+    pointBorderColor: "#dd3333",
+}, {
+    fill: true,
+    borderColor: "#rgb(0, 200, 0)",
+    backgroundColor: "#00FF00",
+    pointBackgroundColor: "#00FF00",
+    pointBorderColor: "#00FF00",
+}];
+
+
 Constant.boysColor = "#6abce1";
 Constant.girlsColor = "#fc99b6";
-
 
 Constant.genderColorConditionalAttributes = {
     "gender": {
@@ -192,4 +245,3 @@ Constant.eventColorConditionalAttributes = {
         }
     }
 };
-

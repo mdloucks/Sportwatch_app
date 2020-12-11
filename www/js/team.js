@@ -117,12 +117,12 @@ class Team extends Page {
             this.hasStarted = true;
 
             let teamCode = "Unkown";
-            if(storage.getItem("inviteCode") != null) {
+            if (storage.getItem("inviteCode") != null) {
                 teamCode = storage.getItem("inviteCode");
             }
-    
-    
-            $("#teamPage #invite_athletes").click(function (e) { 
+
+
+            $("#teamPage #invite_athletes").click(function (e) {
                 Popup.createConfirmationPopup(`
                     <div id="inviteCode" class="subheading_text">
                         Invite Code: <span class="underline">${teamCode}</span>
@@ -275,7 +275,9 @@ class Team extends Page {
     }
 
     /**
-     * this function will display stats for the given athlete and event
+     * this function will obtain the appropriate data for the given athlete and event
+     * and initialize the page. It will also call "generateAthleteStatPageContent"
+     * 
      * @param {Object} athlete db athlete results
      * @param {Object} event db event results
      */
@@ -304,31 +306,18 @@ class Team extends Page {
             }, 1000);
         });
 
-        // select values for given event and athlete
-        let query = `
-            SELECT *, record.id_record from record
-            INNER JOIN record_user_link
-            ON record.id_record = record_user_link.id_record
-            WHERE record.id_record_definition = ? AND record_user_link.id_backend = ?
-        `;
+        let datasets = [];
 
-        let length;
-        let data = [];
+        let recordsPromise = dbConnection.selectValues(Constant.queryRecordsForAthleteEvent, [event.rowid, athlete.id_backend]);
+        let splitRecordsPromise = dbConnection.selectValues(Constant.querySplitRecordsForAthleteEvent, [event.rowid, athlete.id_backend]);
 
-        // generate the table and graph data for athlete
-        dbConnection.selectValues(query, [event.rowid, athlete.id_backend]).then((results) => {
+        Promise.all([recordsPromise, splitRecordsPromise]).then((records) => {
 
-            length = results.length | 0;
+            let results = records[0];
+            let splits = records[1];
 
-            for (let i = 0; i < results.length; i++) {
-                data.push({
-                    x: i + 1,
-                    y: results.item(i).value
-                });
-            }
-
-            // show different things if there is data or not
-            if (length == 0) {
+            // no records, don't show a graph or table.
+            if ((results == false || results.length == undefined)) {
                 $("#athlete_stat_chart").remove();
                 $("#athlete_stats_container").remove();
                 $("#edit_values_button").remove();
@@ -336,15 +325,79 @@ class Team extends Page {
 
                 this.createTable(athlete, results, event.rowid);
                 $("#teamPage #athleteStatPage").append(`<div class="missing_info_text">No times for this athlete's events. Add them here or at the stopwatch.</div>`);
-                // don't need to graph for a single point, only show table
-            } else if (length == 1) {
+
+                return;
+                // records exist, fill the data array
+            } else {
+                let length = results.length | 0;
+
+                // Graph.js takes an array of objects for datasets, and the "data" property for each object is an array of objects 
+                // with an x and y property
+                // this dataset will always be there
+                let recordData = {
+                    data: [],
+                    label: "Race Times"
+                };
+
+                for (let i = 0; i < length; i++) {
+                    recordData["data"].push({
+                        x: i + 1,
+                        y: results.item(i).value
+                    });
+                }
+
+
+                // only push results, no splits
+                if (splits != false || splits.length != undefined) {
+                    // create an object of objects that will go into the datasets property array.
+                    // this is so it's easy to map the split name to an object without having to track indices
+                    let splitObject = {};
+                    console.log("SPLITS LENGTH " + splits.length);
+
+                    for (let i = 0; i < splits.length; i++) {
+
+                        console.log("SPLIT " + JSON.stringify(splits.item(i)));
+                        let splitKey = splits.item(i).split_name;
+
+                        if (splitObject[splitKey] === undefined) {
+                            splitObject[splitKey] = {
+                                data: [],
+                                label: splitKey + " Meter Split"
+                            };
+                        }
+
+                        splitObject[splitKey]["data"].push({
+                            x: i + 1,
+                            y: splits.item(i).value
+                        });
+                    }
+
+                    let keys = Object.keys(splitObject);
+                    console.log("number of splits: " + keys.length);
+
+                    keys.forEach(key => {
+                        console.log("pushing for " + key);
+                        datasets.push(splitObject[key]);
+                    });
+                }
+
+                datasets.push(recordData);
+            }
+
+            console.log("DATASETS " + JSON.stringify(datasets));
+            console.log("datasets length " + datasets.length);
+
+            // don't show graph if there is only a single point
+            if (results.length == 1) {
                 $("#athlete_stat_chart").remove();
                 this.createTable(athlete, results, event.rowid);
                 // there is enough data, graph
-            } else {
-                this.createGraph(data);
+            } else if (results.length != 0) {
+                this.createGraph(datasets);
                 this.createTable(athlete, results, event.rowid);
             }
+
+
         });
     }
 
@@ -431,7 +484,7 @@ class Team extends Page {
      * 
      * @param {Array} data an xy array for the data to display
      */
-    createGraph(data) {
+    createGraph(datasets) {
         $("#athlete_stat_chart").remove();
         $("#teamPage #athleteStatPage").append(`<canvas id="athlete_stat_chart"></canvas>`);
 
@@ -440,17 +493,21 @@ class Team extends Page {
 
         ctx.clearRect(0, 0, canvas.width, canvas.height);
 
+        // set an alternating style for each dataset
+        for (let i = 0; i < datasets.length; i++) {
+            let dataCopy = JSON.parse(JSON.stringify(datasets[i]));
+
+            if (Constant.graphConfigurations[i] !== undefined) {
+                datasets[i] = Object.assign({}, dataCopy, Constant.graphConfigurations[i]);
+            } else {
+                datasets[i] = Object.assign({}, dataCopy, Constant.defaultGraphConfiguration);
+            }
+        }
+
         var scatterChart = new Chart(ctx, {
             type: 'line',
             data: {
-                datasets: [{
-                    data: data,
-                    fill: false,
-                    borderColor: "#rgb(245, 77, 77)",
-                    backgroundColor: "#e755ba",
-                    pointBackgroundColor: "#55bae7",
-                    pointBorderColor: "#55bae7",
-                }]
+                datasets: datasets
             },
             options: {
                 scales: {
@@ -460,13 +517,19 @@ class Team extends Page {
                     }]
                 },
                 legend: {
-                    display: false
+                    display: true,
                 },
                 tooltips: {
                     enabled: false
                 },
                 ticks: {
-                    precision:0
+                    precision: 0
+                },
+                animation: {
+                    duration: 1000,
+                    easing: 'linear',
+                    from: 1,
+                    to: 0,
                 }
             }
         });
@@ -492,17 +555,17 @@ class Team extends Page {
             if ((val == null) || (val.length == 0)) { // Inputs use .val()
                 val = $(this).find("td").text();
             }
-            
+
             // Skip the delete button
-            if(val.includes("X")) {
+            if (val.includes("X")) {
                 return;
             }
-            
+
             // Since the times are now being formatted as strings, make all fields editable
             if (_this.isEditing && $(this).is("input")) { // Editing to not editing change
                 $(this).parent().replaceWith(`<td>${val}</td>`);
 
-            } else if(!_this.isEditing && $(this).is("td")) { // Not editing --> Editing changes
+            } else if (!_this.isEditing && $(this).is("td")) { // Not editing --> Editing changes
                 $(this).replaceWith(`<td><input value="${val}"></td>`);
             }
         });
