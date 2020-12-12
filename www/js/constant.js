@@ -97,35 +97,29 @@ Constant.queryRecordsForAthleteEvent = `
 `;
 
 
-// colors
-Constant.defaultGraphConfiguration = {
-    fill: true,
-    borderColor: "#rgb(245, 77, 77)",
-    backgroundColor: "#e755ba",
-    pointBackgroundColor: "#55bae7",
-    pointBorderColor: "#55bae7"
-};
+Constant.graphColors = [
+    "#003f5c",
+    "#2f4b7c",
+    "#665191",
+    "#a05195",
+    "#d45087",
+    "#f95d6a",
+    "#ff7c43",
+    "#ffa600"
+];
 
-Constant.graphConfigurations = [{
-    fill: true,
-    borderColor: "#rgb(245, 77, 77)",
-    backgroundColor: "#e755ba",
-    pointBackgroundColor: "#55bae7",
-    pointBorderColor: "#55bae7"
-}, {
-    fill: true,
-    borderColor: "#dd3333",
-    backgroundColor: "#dd3333",
-    pointBackgroundColor: "#dd3333",
-    pointBorderColor: "#dd3333",
-}, {
-    fill: true,
-    borderColor: "#rgb(0, 200, 0)",
-    backgroundColor: "#00FF00",
-    pointBackgroundColor: "#00FF00",
-    pointBorderColor: "#00FF00",
-}];
+Constant.graphConfigurations = [];
 
+// populate graph configurations
+(function() {
+    Constant.graphColors.map((value, index) => {
+        Constant.graphConfigurations.push({
+            fill: true,
+            borderColor: value,
+            backgroundColor: value,
+        });
+    });
+})();
 
 Constant.boysColor = "#6abce1";
 Constant.girlsColor = "#fc99b6";

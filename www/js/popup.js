@@ -47,7 +47,7 @@ class Popup {
         
         for (let i = 0; i < buttons.length; i++) {
 
-            let button = ButtonGenerator.generateButton({ id: `popup_button_${i}`, class: "popup_button", html: buttons[i] }, function () {
+            let button = ButtonGenerator.generateButton({ id: `popup_button_${i}`, class: "sw_big_button", html: buttons[i] }, function () {
                 Popup.callbackCleanupWrapper("#popup_" + popupId, callbacks[i]);
             });
 

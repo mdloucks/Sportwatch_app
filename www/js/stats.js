@@ -611,7 +611,7 @@ class Stats extends Page {
                 },
                 {
                     data: "value",
-                    title: "Value"
+                    title: "Time"
                 },
                 {
                     data: "last_updated",

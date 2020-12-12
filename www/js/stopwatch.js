@@ -1057,7 +1057,10 @@ class Stopwatch extends Page {
                             this.toggleSlideup();
                             this.resetStopwatch();
 
-                            Popup.createConfirmationPopup("Results saved successfully!", ["Ok"], [() => {}]);
+                            Popup.createConfirmationPopup(`
+                                Results saved sucessfully!<br><br>
+                                <i>Go to the stats page and click on the event to see the results!</i>
+                            `, ["Ok"], [() => {}]);
                         }
 
                     }, ["gender", "unit", "is_relay", "timestamp", "id_backend"], Constant.genderColorConditionalAttributes);

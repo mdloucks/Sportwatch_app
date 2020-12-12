@@ -126,7 +126,7 @@ class Team extends Page {
                 Popup.createConfirmationPopup(`
                     <div id="inviteCode" class="subheading_text">
                         Invite Code: <span class="underline">${teamCode}</span>
-                        <br><br>Have your athletes download the app, and enter this code on the team page!
+                        <br><br>Have your athletes create an account and enter this code!
                     </div>
                 `, ["Ok"], [() => {}]);
             });
@@ -346,6 +346,7 @@ class Team extends Page {
                     });
                 }
 
+                datasets.push(recordData);
 
                 // only push results, no splits
                 if (splits != false || splits.length != undefined) {
@@ -380,8 +381,6 @@ class Team extends Page {
                         datasets.push(splitObject[key]);
                     });
                 }
-
-                datasets.push(recordData);
             }
 
             console.log("DATASETS " + JSON.stringify(datasets));
@@ -396,8 +395,6 @@ class Team extends Page {
                 this.createGraph(datasets);
                 this.createTable(athlete, results, event.rowid);
             }
-
-
         });
     }
 
