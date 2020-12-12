@@ -36,6 +36,7 @@ class App {
     startApp() {
         // Have to initialize database here after device is ready
         dbConnection = new DatabaseConnection();
+        $(".loader_container > h1").text("Starting Sportwatch...");
 
         this.swipeHandler = new SwipeHolder("#app");
         PaymentHandler.initPlans();
@@ -47,7 +48,6 @@ class App {
             // Pull data from the backend, then start the app
             ToolboxBackend.pullFromBackend().then(() => {
                 this.initializeUI();
-                $(".loader_container > h1").text("Starting Sportwatch...");
 
                 if (DO_LOG) {
                     console.log("[main.js:startApp()]: Backend sync finished!");
