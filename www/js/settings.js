@@ -924,6 +924,10 @@ class Settings extends Page {
             this.pageController.transitionObj.forceHaltSlide();
             this.pageController.onChangePageSet(0); // 0 for Welcome
 
+            // trying to manually reset variables on signout is annoying.
+            // so we're just gonna restart the whole app lmao but it works
+            location.reload(); 
+
         }, () => {
             // Do nothing since they didn't want to sign out
             $("#settingsPage .cat_button").removeClass("cat_button_selected");
