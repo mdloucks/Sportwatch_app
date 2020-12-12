@@ -99,13 +99,13 @@ Constant.queryRecordsForAthleteEvent = `
 
 Constant.graphColors = [
     "#003f5c",
-    "#2f4b7c",
-    "#665191",
     "#a05195",
     "#d45087",
-    "#f95d6a",
     "#ff7c43",
-    "#ffa600"
+    "#665191",
+    "#ffa600",
+    "#f95d6a",
+    "#2f4b7c"
 ];
 
 Constant.graphConfigurations = [];
@@ -114,7 +114,7 @@ Constant.graphConfigurations = [];
 (function() {
     Constant.graphColors.map((value, index) => {
         Constant.graphConfigurations.push({
-            fill: true,
+            fill: false,
             borderColor: value,
             backgroundColor: value,
         });
