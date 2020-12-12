@@ -604,14 +604,15 @@ class Stats extends Page {
                     data: "fname",
                     title: "Name",
                     render: function (data, type, row) {
-                        // console.log(JSON.stringify(row));
-                        // console.log("data " + JSON.stringify(data));
                         return `${row["fname"]} ${row["lname"]}`
                     }
                 },
                 {
                     data: "value",
-                    title: "Value"
+                    title: "Time",
+                    render: function(data, type, row) {
+                        return Clock.secondsToTimeString(row["value"]);
+                    }
                 },
                 {
                     data: "last_updated",
