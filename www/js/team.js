@@ -510,8 +510,21 @@ class Team extends Page {
                 scales: {
                     xAxes: [{
                         type: 'linear',
-                        position: 'bottom'
+                        position: 'bottom',
                     }]
+
+                    // use this for a chronological graph with dates! replace x with t in data
+                    // xAxes: [{
+                    //     type: 'time',
+                    //     position: 'bottom',
+                    //     distribution: 'linear',
+                    //     time: {
+                    //         unit: 'day',
+                    //         displayFormats: {
+                    //             quarter: 'MMM D'
+                    //         }
+                    //     }
+                    // }]
                 },
                 legend: {
                     display: true,
