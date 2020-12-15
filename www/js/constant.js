@@ -127,10 +127,10 @@ Constant.girlsColor = "#fc99b6";
 Constant.genderColorConditionalAttributes = {
     "gender": {
         "m": {
-            style: `background-color: ${Constant.boysColor}; color: black; border: 1px solid black;`
+            style: `background-color: ${Constant.boysColor};`
         },
         "f": {
-            style: `background-color: ${Constant.girlsColor}; color: black; border: 1px solid black;`
+            style: `background-color: ${Constant.girlsColor};`
         }
     }
 }
