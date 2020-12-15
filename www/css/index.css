@@ -188,10 +188,16 @@ https://css-tricks.com/places-its-tempting-to-use-display-none-but-dont/ */
     display: block;
 }
 
+.generated_button.coaches_button {
+    margin-top: 1em;
+    background-color: rgb(44, 44, 46) !important;
+    color: white;
+}
+
 /* CSS FOR GENERATED BUTTONS */
 .generated_button {
     font-family: Impact, Haettenschweiler, 'Arial Narrow Bold', sans-serif;
-    font-size: 2em;
+    font-size: 2.5vh;
     font-weight: bold;
     text-align: center;
     margin: 0.5em;

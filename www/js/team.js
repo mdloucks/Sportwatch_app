@@ -161,7 +161,36 @@ class Team extends Page {
                 let array = []
 
                 for (let i = 0; i < athletes.length; i++) {
-                    array.push(athletes.item(i));
+                    if (athletes.item(i).id_backend != localStorage.id_coachPrimary) {
+                        array.push(athletes.item(i));
+                    } else {
+                        // generate custom button for the coach
+                        let coach = athletes.item(i);
+
+                        let coachButton = $("<div>", {
+                            html: "Coach " + " " + coach.lname,
+                            class: "generated_button coaches_button"
+                        });
+
+                        coachButton.click(() => {
+                            Popup.createConfirmationPopup(`
+                                Coach ${coach.lname}<br><br>
+
+                                ${localStorage.getItem("schoolName") === null ? "" : ("Head coach for " + localStorage.getItem("schoolName"))}<br><br>
+
+                                `, ["View Profile", "Close"], [() => {
+                                // consider having the coach's contact information here
+                                // Email: ${localStorage.getItem("coachEmail") | "N/A"}<br>
+                                // Phone: ${localStorage.getItem("coachPhoneNumber") | "N/A"}
+                                this.startAthletePage(athletes.item(i));
+                            }, () => {
+                                // close
+                            }])
+                        });
+
+                        $(this.athleteBoxSelector).append(coachButton);
+                        console.log("coach is " + JSON.stringify(athletes.item(i)));
+                    }
                 }
 
                 $("#teamPage #landingPage .left_text").html(teamName);

@@ -5,7 +5,7 @@
  */
 class ToolboxBackend {
     // Docs: https://www.sportwatch.us/mobile/docs/
-    
+
     /**
      * Pulls any and all of the information stored on the backend
      * that is vital for the logged in user (specified by the local storage
@@ -23,18 +23,18 @@ class ToolboxBackend {
      */
     static pullFromBackend() {
         dbConnection.createNewTables();
-        
+
         // Make sure the email is valid
         let email = localStorage.getItem("email");
-        if((email == null) || (email == undefined)) {
+        if ((email == null) || (email == undefined)) {
             // TODO: Either log them out or attempt to find the email
             return new Promise((resolve, reject) => {
                 reject();
             })
         }
-        
+
         let pullState = $.Deferred();
-        
+
         // As of right now, these calls must happen sequentially in a synchronous
         // fashion. If not, it causes the stats and team page to initialize
         // before the database is fully populated
@@ -52,10 +52,10 @@ class ToolboxBackend {
         // }).catch(() => {
         //     pullState.reject();
         // });
-        
+
         return pullState.promise(); // Return the promise to allow for .then() and .catch()
     }
-    
+
     /**
      * Submits the necessary backend requests to populate all of the
      * available local storage variables. This function NEEDS to be run
@@ -67,26 +67,26 @@ class ToolboxBackend {
      * A promise and will resolve() when all requests have completed.
      */
     static pullForStorage() {
-        
+
         // First, check to see if a valid email is defined (duplicate check, but better safe than sorry)
         let storage = window.localStorage;
         let email = storage.getItem("email");
-        if((email == null) || (email == undefined)) {
+        if ((email == null) || (email == undefined)) {
             // TODO: Either log them out or attempt to find the email
             return new Promise((resolve, reject) => {
                 reject();
             })
         }
-        
+
         // Then, start submitting ajax requests
         let ajaxRequest = -1; // Ajax object pushed into the array
         let ajaxArray = []; // Used to resolve the promise to signal completion
-        
+
         // USER //
         ajaxRequest = AccountBackend.getAccount((userInfo) => {
-            if(userInfo.status > 0) {
+            if (userInfo.status > 0) {
                 // Update team ID
-                if(userInfo.id_team > 0) {
+                if (userInfo.id_team > 0) {
                     storage.setItem("id_team", userInfo.id_team);
                     storage.setItem("user", userInfo);
                 } else {
@@ -95,20 +95,25 @@ class ToolboxBackend {
             }
         });
         ajaxArray.push(ajaxRequest);
-        
+
         // TEAM //
         ajaxRequest.promise().then(() => { // Need the promise since account pull defined id_team
-            if(storage.getItem("id_team") != null) {
+            if (storage.getItem("id_team") != null) {
                 // Update team info (like team name)
                 ajaxRequest = TeamBackend.getTeamInfo((teamInfo) => {
-                    if(teamInfo.status > 0) {
+                    if (teamInfo.status > 0) {
                         localStorage.setItem("id_team", teamInfo.id_team);
                         localStorage.setItem("teamName", teamInfo.teamName);
                         localStorage.setItem("school", teamInfo.schoolName);
                         localStorage.setItem("id_school", teamInfo.id_school);
+                        localStorage.setItem("id_coachPrimary", teamInfo.id_coachPrimary);
+                        localStorage.setItem("id_coachSecondary", teamInfo.id_coachSecondary);
                         localStorage.setItem("inviteCode", teamInfo.inviteCode);
+
+                        // get the contact info of the coach
+
                     } else {
-                        if(teamInfo.substatus == 7) {
+                        if (teamInfo.substatus == 7) {
                             // This is the code for an invalid team ID
                             // If this occurs, the team was likely deleted, so update the frontend as well
                             storage.removeItem("id_team");
@@ -121,22 +126,39 @@ class ToolboxBackend {
                 });
                 ajaxArray.push(ajaxRequest);
             } else {
-                if(DO_LOG) {
+                if (DO_LOG) {
                     console.log("[toolbox-backend.js:pullForStorage()] teamId was null");
                 }
             }
         });
-        
+
+        ajaxRequest = TeamBackend.getTeamRoster("fname lname gender id_user email cellNum", (teamResponse) => {
+            if (teamResponse.status > 0) {
+
+                for (let i = 0; i < teamResponse.athletes.length; i++) {
+                    const element = teamResponse.athletes[i];
+
+                    if (element.id_user == localStorage.getItem("id_coachPrimary")) {
+                        localStorage.setItem("coachEmail", element.email);
+                        localStorage.setItem("coachPhoneNumber", element.cellNum);
+                    }
+                }
+
+
+                console.log("RESPONSE!!!!!!!!!!!!!!!! " + JSON.stringify(teamResponse));
+            }
+        });
+
         // RECORDS //
         // No local storage integration for records at this time
-        
+
         // Call a function (likely pullForDatabase()) when the pull finishes
         return new Promise((resolve, reject) => {
             $.when(...ajaxArray).then(resolve);
         });
-        
+
     }
-    
+
     /**
      * Pulls of the information needed to populate the DATABASE (and ONLY
      * the database, not local storage). It is necessary to split these up
@@ -147,43 +169,43 @@ class ToolboxBackend {
      * A promise and will resolve() when all requests have completed.
      */
     static pullForDatabase() {
-        
+
         let storage = window.localStorage;
         let email = storage.getItem("email");
         let ajaxRequest = -1; // Ajax object pushed into the array
         let ajaxCalls = []; // Used to resolve the promise to signal completion
-        
+
         // For safety, check email
-        if((email == null) || (email == undefined)) {
+        if ((email == null) || (email == undefined)) {
             // TODO: Either log them out or attempt to find the email
             return new Promise((resolve, reject) => {
                 reject();
             })
         }
-        
+
         // USER //
         ajaxRequest = AccountBackend.getAccount((userInfo) => {
-            if(userInfo.status > 0) {
+            if (userInfo.status > 0) {
                 // Add in any database operations here
             }
         });
         ajaxCalls.push(ajaxRequest);
-        
+
         // TEAM //
-        if((storage.getItem("id_team") != null) && (storage.getItem("id_team") != undefined)) {
+        if ((storage.getItem("id_team") != null) && (storage.getItem("id_team") != undefined)) {
             // Update team info (like team name)
             ajaxRequest = TeamBackend.getTeamInfo((teamInfo) => {
-                if(teamInfo.status > 0) {
+                if (teamInfo.status > 0) {
                     // Put any database insertion here (BUT NOT local storage)
                 }
             });
             ajaxCalls.push(ajaxRequest);
-            
+
             // Update athletes database table
             ajaxRequest = TeamBackend.getTeamRoster("fname lname gender id_user email", (teamResponse) => {
-                if(teamResponse.status > 0) {
-                    // Add in coaches TODO: Add in preference to omit them
-                    if("primaryCoach" in teamResponse) {
+                if (teamResponse.status > 0) {
+
+                    if ("primaryCoach" in teamResponse) {
                         dbConnection.insertValues("athlete", [
                             teamResponse.primaryCoach.fname,
                             teamResponse.primaryCoach.lname,
@@ -193,7 +215,7 @@ class ToolboxBackend {
                         // Pull the records for them and insert
                         ajaxCalls.push(ToolboxBackend.pullAndInsertRecords(teamResponse.primaryCoach.email));
                     }
-                    if("secondaryCoach" in teamResponse) {
+                    if ("secondaryCoach" in teamResponse) {
                         dbConnection.insertValues("athlete", [
                             teamResponse.secondaryCoach.fname,
                             teamResponse.secondaryCoach.lname,
@@ -203,11 +225,11 @@ class ToolboxBackend {
                         // Pull their records and insert
                         ajaxCalls.push(ToolboxBackend.pullAndInsertRecords(teamResponse.secondaryCoach.email));
                     }
-                    
+
                     // Add in athletes
-                    if("athletes" in teamResponse) {
-                        let currentAthlete = { };
-                        for(let a = 0; a < teamResponse.athletes.length; a++) {
+                    if ("athletes" in teamResponse) {
+                        let currentAthlete = {};
+                        for (let a = 0; a < teamResponse.athletes.length; a++) {
                             currentAthlete = teamResponse.athletes[a];
                             dbConnection.insertValues("athlete", [
                                 currentAthlete.fname,
@@ -223,16 +245,16 @@ class ToolboxBackend {
             });
             ajaxCalls.push(ajaxRequest);
         } // End of team sync
-        
+
         // RECORDS //
         // Moved to pullAndInsertRecords() method and used above when grabbing team /\
-        
+
         // Call a function (likely app.init) when the pull finishes
         return new Promise((resolve) => {
             $.when(...ajaxCalls).then(resolve);
         });
     }
-    
+
     /**
      * Works in connection with pullFromBackend() to pull and insert
      * all of the records of a given user identified by an email
@@ -245,10 +267,14 @@ class ToolboxBackend {
      * Ajax object
      */
     static pullAndInsertRecords(email) {
-        return RecordBackend.getRecord({"accountIdentity": {"email": email}}, (recordResponse) => {
+        return RecordBackend.getRecord({
+            "accountIdentity": {
+                "email": email
+            }
+        }, (recordResponse) => {
             // Check status
-            if(recordResponse.status < 0) {
-                if(DO_LOG) {
+            if (recordResponse.status < 0) {
+                if (DO_LOG) {
                     console.log("[toolbox-backend.js:pullFromBackend()]: Unable to pull records!");
                 }
             } else {
@@ -257,9 +283,9 @@ class ToolboxBackend {
                 let linkDataArray = [];
 
                 // Make sure there is at least 1 record returned
-                if("result" in recordResponse) {
-                    let pulledResult = { };
-                    for(let r = 0; r < recordResponse.result.length; r++) {
+                if ("result" in recordResponse) {
+                    let pulledResult = {};
+                    for (let r = 0; r < recordResponse.result.length; r++) {
                         pulledResult = recordResponse.result[r]; // Hehe, pulled pork
 
                         // the next time you need to add a column, add it as an object key:pair
@@ -275,17 +301,17 @@ class ToolboxBackend {
                         };
 
                         recordArray.push(recordData);
-                        
+
                         // Link any and all athletes to this record
                         let linkData = {
                             "id_record": pulledResult.id_record
                         };
-                        for(let u = 0; u < pulledResult.users.length; u++) {
+                        for (let u = 0; u < pulledResult.users.length; u++) {
                             linkData.id_backend = pulledResult.users[u];
 
                             linkDataArray.push(linkData);
                         }
-                        
+
                     } // End of for loop for results
 
                     dbConnection.insertValuesFromObject("record", recordArray);
@@ -295,7 +321,7 @@ class ToolboxBackend {
             } // End of status check
         });
     }
-    
+
     /**
      * Updates the URL endpoints that the app uses to connect to the server.
      * Since we aren't forcing users to update the app every time we push an
@@ -303,12 +329,12 @@ class ToolboxBackend {
      * specifying where to make requests to in case we update or change it in the future.
      */
     static setBackendPathConstant() {
-        
+
         // Prepare the request
         let postArray = {};
         postArray.SID = localStorage.getItem("SID");
         postArray.appVersion = AppVersion.version;
-        
+
         // Submit the request and call the callback
         return $.ajax({
             type: "POST",
@@ -316,12 +342,12 @@ class ToolboxBackend {
             timeout: Constant.AJAX_CFG.timeout,
             data: postArray,
             success: (response) => {
-                if(DO_LOG) {
+                if (DO_LOG) {
                     console.log("[toolbox-backend.js:setBackendPathConstant()] " + response);
                 }
                 try {
                     response = JSON.parse(response);
-                    if(response.path != null) {
+                    if (response.path != null) {
                         Constant.BACKEND_PATH = response.path;
                     }
                 } catch (e) {
@@ -329,13 +355,13 @@ class ToolboxBackend {
                 }
             },
             error: (error) => {
-                if(DO_LOG) {
+                if (DO_LOG) {
                     console.log("[toolbox-backend.js:setBackendPathConstant()] ERROR: " + error);
                 }
             }
         });
     }
-    
+
     /**
      * Pulls all of the user information (id, name, cellNum, etc.) for each
      * athlete registered in the given school ID.
@@ -346,15 +372,17 @@ class ToolboxBackend {
      * @param {Function} callback function to handle the callback info
      */
     static getUsersInSchool(schoolId, callback) {
-        
+
         let storage = window.localStorage;
-        
+
         // Prepare the request
         let postArray = {};
         postArray.SID = storage.getItem("SID");
         postArray.searchIn = "user";
-        postArray.criteria = {"id_school": schoolId};
-        
+        postArray.criteria = {
+            "id_school": schoolId
+        };
+
         // Submit the request and call the callback
         return $.ajax({
             type: "POST",
@@ -362,7 +390,7 @@ class ToolboxBackend {
             timeout: Constant.AJAX_CFG.timeout,
             data: postArray,
             success: (response) => {
-                if(DO_LOG) {
+                if (DO_LOG) {
                     console.log("[toolbox-backend.js:getUSersInSchool()] " + response);
                 }
                 try {
@@ -373,14 +401,14 @@ class ToolboxBackend {
                 callback(response);
             },
             error: (error) => {
-                if(DO_LOG) {
+                if (DO_LOG) {
                     console.log("[toolbox-backend.js:getUSersInSchool()] " + error);
                 }
                 callback(error);
             }
         });
     }
-    
+
     /**
      * Searches for the user's information based on the session ID. This is
      * particularly helpful after loggin in, when only the session ID is known.
@@ -391,19 +419,21 @@ class ToolboxBackend {
      * @param {String} SID [defaults to stored SID] the session ID to use for lookup
      */
     static getUserBySID(cb, SID = "") {
-        
+
         let storage = window.localStorage;
         let sessionId = SID;
-        if(sessionId.length == 0) {
+        if (sessionId.length == 0) {
             sessionId = storage.getItem("SID");
         }
-        
+
         // Prepare the array
         let postArray = {};
         postArray.SID = storage.getItem("SID"); // Kind of silly, but still needed
         postArray.searchIn = "user_session_data";
-        postArray.criteria = {"SID": sessionId};
-        
+        postArray.criteria = {
+            "SID": sessionId
+        };
+
         // Submit the request and call the callback
         return $.ajax({
             type: "POST",
@@ -411,7 +441,7 @@ class ToolboxBackend {
             timeout: Constant.AJAX_CFG.timeout,
             data: postArray,
             success: (response) => {
-                if(DO_LOG) {
+                if (DO_LOG) {
                     console.log("[toolbox-backend.js:getUserBySID()] " + response);
                 }
                 try {
@@ -422,14 +452,14 @@ class ToolboxBackend {
                 cb(response);
             },
             error: (error) => {
-                if(DO_LOG) {
+                if (DO_LOG) {
                     console.log("[toolbox-backend.js:getUserBySID()] " + error);
                 }
                 cb(error);
             }
         });
     }
-    
+
     /**
      * Searches for a school whose name contains or is similar to
      * the given search string.
@@ -442,16 +472,18 @@ class ToolboxBackend {
      * @param {Function} cb function to handle the callback info
      */
     static searchForSchool(searchName, resultLimit, cb) {
-        
+
         let storage = window.localStorage;
-        
+
         // Prepare the array
         let postArray = {};
         postArray.SID = storage.getItem("SID");
         postArray.searchIn = "school";
         postArray.limitTo = resultLimit;
-        postArray.criteria = {"name": searchName};
-        
+        postArray.criteria = {
+            "name": searchName
+        };
+
         // Submit the request and call the callback
         return $.ajax({
             type: "POST",
@@ -459,7 +491,7 @@ class ToolboxBackend {
             timeout: Constant.AJAX_CFG.timeout,
             data: postArray,
             success: (response) => {
-                if(DO_LOG) {
+                if (DO_LOG) {
                     console.log("[toolbox-backend.js:searchForSchool()] " + response);
                 }
                 try {
@@ -470,16 +502,16 @@ class ToolboxBackend {
                 cb(response);
             },
             error: (error) => {
-                if(DO_LOG) {
+                if (DO_LOG) {
                     console.log("[toolbox-backend.js:searchForSchool()] " + error);
                 }
                 cb(error);
             }
         });
     }
-    
+
     // ---- UTIL FUNCTIONs ---- //
-    
+
     /**
      * Used to recall values from local storage and will check to make sure
      * they aren't null or empty. It will also perform a basic sanitize on
@@ -492,29 +524,29 @@ class ToolboxBackend {
      * Associative Array of the requests keys (if they weren't null) and the value
      */
     static getLocalValues(valueKeys) {
-        
+
         // Associative array (aka object) with key: value (if exists)
         let returnArray = {}; // Not using an object fails
         let storage = window.localStorage;
-        
-        for(let k = 0; k < valueKeys.length; k++) {
+
+        for (let k = 0; k < valueKeys.length; k++) {
             let key = valueKeys[k];
-            
-            if((storage.getItem(key) != undefined) && (storage.getItem(key) != null)) {
+
+            if ((storage.getItem(key) != undefined) && (storage.getItem(key) != null)) {
                 let value = storage.getItem(key);
-                if((typeof value == "string") && (value.length > 0)) {
+                if ((typeof value == "string") && (value.length > 0)) {
                     // Filter with a generic regex (replace most special characters)
                     returnArray[key] = value.replace(/[^A-Za-z0-9@\-_\. ]/gm, "");
-                    
+
                 } else {
                     returnArray[key] = value; // Not much filtering to be done
                 }
             }
         };
-        
+
         return returnArray;
     }
-    
+
     /**
      * Returns easy-to-read, human-readable values for certain fields. It will also
      * remove server variables (status, substatus, msg) and handle null values.
@@ -597,7 +629,7 @@ class ToolboxBackend {
 
         return payload;
     }
-    
+
     /**
      * Will cleanse and attempt to sanitize the post array values. If a value
      * is undefined, it will be deleted from the array.
@@ -615,27 +647,27 @@ class ToolboxBackend {
      * A cleaned postArray. False, if an invalid variable was found and removeInvalid was set to false
      */
     static sanitizePostRequest(postArray, removeInvalid = true) {
-        
+
         // -- ACCOUNT -- //
         // Name
-        if("fname" in postArray) {
+        if ("fname" in postArray) {
             let cleanedInput = this.getValidInput(postArray["fname"], /[^A-Za-z. ]/gm, 0, 60);
-            if(cleanedInput !== false) {
+            if (cleanedInput !== false) {
                 postArray["fname"] = cleanedInput;
             } else {
-                if(removeInvalid) {
+                if (removeInvalid) {
                     delete postArray["fname"];
                 } else {
                     return false;
                 }
             }
         }
-        if("lname" in postArray) {
+        if ("lname" in postArray) {
             let cleanedInput = this.getValidInput(postArray["lname"], /[^A-Za-z. ]/gm, 0, 60);
-            if(cleanedInput !== false) {
+            if (cleanedInput !== false) {
                 postArray["lname"] = cleanedInput;
             } else {
-                if(removeInvalid) {
+                if (removeInvalid) {
                     delete postArray["lname"];
                 } else {
                     return false;
@@ -643,19 +675,19 @@ class ToolboxBackend {
             }
         }
         // Gender
-        if("gender" in postArray) {
+        if ("gender" in postArray) {
             let cleanedInput = this.getValidInput(postArray["gender"], /[^A-Za-z]/gm, 0, 15);
-            if(cleanedInput !== false) {
+            if (cleanedInput !== false) {
                 cleanedInput = cleanedInput.toLowerCase();
-                if((cleanedInput == "male") || (cleanedInput == "m")) {
+                if ((cleanedInput == "male") || (cleanedInput == "m")) {
                     postArray["gender"] = "M";
-                } else if((cleanedInput == "female") || (cleanedInput == "f")) {
+                } else if ((cleanedInput == "female") || (cleanedInput == "f")) {
                     postArray["gender"] = "F";
                 } else {
                     postArray["gender"] = "O";
                 }
             } else {
-                if(removeInvalid) {
+                if (removeInvalid) {
                     delete postArray["gender"];
                 } else {
                     return false;
@@ -663,12 +695,12 @@ class ToolboxBackend {
             }
         }
         // State
-        if("state" in postArray) {
+        if ("state" in postArray) {
             let cleanedInput = this.getValidInput(postArray["state"], /[^A-Za-z]/gm, 0, 2);
-            if(cleanedInput !== false) {
+            if (cleanedInput !== false) {
                 postArray["state"] = cleanedInput.toUpperCase();
             } else {
-                if(removeInvalid) {
+                if (removeInvalid) {
                     delete postArray["state"];
                 } else {
                     return false;
@@ -676,12 +708,12 @@ class ToolboxBackend {
             }
         }
         // Email
-        if("email" in postArray) {
+        if ("email" in postArray) {
             let cleanedInput = this.getValidInput(postArray["email"], /[^A-Za-z0-9.@\-_]/gm, 5, 128);
-            if(cleanedInput !== false) {
+            if (cleanedInput !== false) {
                 postArray["email"] = cleanedInput;
             } else {
-                if(removeInvalid) {
+                if (removeInvalid) {
                     delete postArray["email"];
                 } else {
                     return false;
@@ -689,12 +721,12 @@ class ToolboxBackend {
             }
         }
         // Password
-        if("password" in postArray) {
+        if ("password" in postArray) {
             let cleanedInput = this.getValidInput(postArray["password"], /[ ;\"\'\/]/gm, 7, 128);
-            if(cleanedInput !== false) {
+            if (cleanedInput !== false) {
                 postArray["password"] = cleanedInput;
             } else {
-                if(removeInvalid) {
+                if (removeInvalid) {
                     delete postArray["password"];
                 } else {
                     return false;
@@ -702,17 +734,17 @@ class ToolboxBackend {
             }
         }
         // Account Type
-        if("accountType" in postArray) {
+        if ("accountType" in postArray) {
             let cleanedInput = this.getValidInput(postArray["accountType"], /[^A-Za-z]/gm, 3, 30);
-            if(cleanedInput !== false) {
+            if (cleanedInput !== false) {
                 cleanedInput = cleanedInput.toLowerCase();
-                if(cleanedInput == "coach") {
+                if (cleanedInput == "coach") {
                     postArray["accountType"] = "Coach";
                 } else {
                     postArray["accountType"] = "Athlete";
                 }
             } else {
-                if(removeInvalid) {
+                if (removeInvalid) {
                     delete postArray["accountType"];
                 } else {
                     return false;
@@ -720,15 +752,15 @@ class ToolboxBackend {
             }
         }
         // Date of Birth (should be formatted: mm/dd/year)
-        if("dob" in postArray) {
+        if ("dob" in postArray) {
             let cleanedInput = this.getValidInput(postArray["dob"], /[^0-9]/gm, 5, 10);
-            if(cleanedInput !== false) {
+            if (cleanedInput !== false) {
                 let month = cleanedInput.substr(0, 2);
                 let day = cleanedInput.substr(2, 2);
                 let year = cleanedInput.substr(4, 4);
                 postArray["dob"] = year + "-" + month + "-" + day;
             } else {
-                if(removeInvalid) {
+                if (removeInvalid) {
                     delete postArray["dob"];
                 } else {
                     return false;
@@ -748,10 +780,10 @@ class ToolboxBackend {
                 }
             }
         }
-        
+
         return postArray;
     }
-    
+
     /**
      * Validates a user input before sending to the server (or storing internally).
      * It will return the cleaned value if the sanitized input is within the length bounds (assuming
@@ -790,34 +822,34 @@ class ToolboxBackend {
     static inviteAthleteWithFeedback(email) {
         // Validate again just to be safe
         let emailMatch = email.match(/[A-Za-z0-9\-_.]*@[A-Za-z0-9\-_.]*\.(com|net|org|us|website|io)/gm);
-        if(emailMatch == null) {
-            Popup.createConfirmationPopup("Invalid email, please try again", ["OK"], [() => { }]);
+        if (emailMatch == null) {
+            Popup.createConfirmationPopup("Invalid email, please try again", ["OK"], [() => {}]);
             return;
-        } else if(emailMatch[0].length != email.length) {
-            Popup.createConfirmationPopup("Invalid email, please try again", ["OK"], [() => { }]);
+        } else if (emailMatch[0].length != email.length) {
+            Popup.createConfirmationPopup("Invalid email, please try again", ["OK"], [() => {}]);
             return;
         }
-        
+
         TeamBackend.inviteToTeam(email, (response) => {
-            if(response.status > 0) {
-                if(response.substatus == 2) {
-                    Popup.createConfirmationPopup("Athlete is already apart of this team", ["OK"], [() => { }]);
+            if (response.status > 0) {
+                if (response.substatus == 2) {
+                    Popup.createConfirmationPopup("Athlete is already apart of this team", ["OK"], [() => {}]);
                 } else {
-                    Popup.createConfirmationPopup("Successfully invited!", ["OK"], [() => { }]);
+                    Popup.createConfirmationPopup("Successfully invited!", ["OK"], [() => {}]);
                 }
             } else {
-                if(response.substatus == 3) {
+                if (response.substatus == 3) {
                     Popup.createConfirmationPopup("Team is locked! Please unlock to invite athletes", ["Unlock Now", "Unlock Later"],
-                    [() => {
-                        // TODO: Unlock the team
-                    }, () => { }]); // End of Popup callbacks
-                } else if(response.substatus == 4) {
-                    Popup.createConfirmationPopup("Invalid email, please try again", ["OK"], [() => { }]);
+                        [() => {
+                            // TODO: Unlock the team
+                        }, () => {}]); // End of Popup callbacks
+                } else if (response.substatus == 4) {
+                    Popup.createConfirmationPopup("Invalid email, please try again", ["OK"], [() => {}]);
                 } else {
-                    Popup.createConfirmationPopup("We're sorry, an error occured. Please try again later", ["OK"], [() => { }]);
+                    Popup.createConfirmationPopup("We're sorry, an error occured. Please try again later", ["OK"], [() => {}]);
                 }
             }
         });
     }
-    
+
 }
