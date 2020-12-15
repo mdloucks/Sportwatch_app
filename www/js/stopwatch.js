@@ -268,7 +268,7 @@ class Stopwatch extends Page {
                 }
 
                 let clockText = this.generateClockText(this.clock);
-                this.ctx.clearRect(0, 0, this.c.width, this.c.height);
+                this.ctx.clearRect(-this.c.width, -this.c.width, this.c.width * 5, this.c.height * 5);
                 this.ctx.strokeStyle = this.clock.circleColor;
                 this.drawCircle();
                 this.ctx.strokeStyle = this.clock.dotColor;
