@@ -143,9 +143,6 @@ class ToolboxBackend {
                         localStorage.setItem("coachPhoneNumber", element.cellNum);
                     }
                 }
-
-
-                console.log("RESPONSE!!!!!!!!!!!!!!!! " + JSON.stringify(teamResponse));
             }
         });
 
