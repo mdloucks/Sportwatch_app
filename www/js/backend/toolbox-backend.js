@@ -5,7 +5,114 @@
  */
 class ToolboxBackend {
     // Docs: https://www.sportwatch.us/mobile/docs/
+    
+    static syncFrontendDatabase() {
+        
+        // Add any tables that need to be synchronized here
+        // maybe push all of the insertBackendTable promises to array
+        // then loop through that array and execute sequentialyoy
+    }
+    
+    /**
+     * Pulls all of the records from a specific table from the backend and inserts
+     * them into the corresponding frontend table. Since some of the column names
+     * differ between the databases, an optional (and recommended) backToFrontKeyPairs object
+     * can be used to link the backend names with the frontend to help with insertion.
+     * 
+     * @example Coming soon to Theatres
+     * 
+     * @param {String} backendTableName name of the table on the backend to pull from
+     * @param {String} frontendTableName name of the table on the frontend to insert into
+     * @param {Object} criteria object with key and values to narrow results (e.g. id_user: 4)
+     * @param {Array | Object} backToFrontKeyPairs object linking the frontend database indices to the backend column names;
+     * can also be used as a 1D array to specify column names if they match the backend
+     */
+    static insertBackendTable(backendTableName, frontendTableName, criteria, backToFrontKeyPairs) {
+        
+        let storage = window.localStorage;
 
+        // Prepare the array
+        let postArray = {};
+        postArray.SID = storage.getItem("SID");
+        postArray.searchIn = backendTableName;
+        postArray.isStrict = true;
+        postArray.criteria = criteria;
+
+        // Submit the request and call the callback
+        return $.ajax({
+            type: "POST",
+            url: Constant.getToolboxURL() + "?intent=0",
+            timeout: Constant.AJAX_CFG.timeout,
+            data: postArray,
+            success: (response) => {
+                if (DO_LOG) {
+                    console.log("[toolbox-backend.js:insertBackendTable()] " + response);
+                }
+                try {
+                    response = JSON.parse(response);
+                } catch (e) {
+                    // Couldn't parse, so we can't insert
+                    if (DO_LOG) {
+                        console.log("[toolbox-backend.js:insertBackendTable()] UNABLE TO PULL BACKEND TABLE " + backendTableName);
+                        return false; // TODO: Change this to a resolved promise or something
+                    }
+                }
+                
+                // Don't continue if there was an error (or no results)
+                if(response.status <= 0) {
+                    console.log("[toolbox-backend.js:insertBackendTable()] UNABLE TO PULL " + backendTableName + "(" + response.msg + ")");
+                    return false; // TODO: Change this to a resolved promise or something
+                }
+                if(response.matches.length == 0) {
+                    console.log("[toolbox-backend.js:insertBackendTable()] No results for " + backendTableName);
+                    return false; // TODO: Change this to a resolved promise or something
+                }
+                
+                // If backToFrontKeyPairs is a 1-D array, convert it to an object to standardize the process
+                if(Array.isArray(backToFrontKeyPairs)) {
+                    let newObj = { };
+                    let currentValue = "";
+                    // Basically, make the key and its value equal. The loop below is assuming
+                    // that the key is the backend name and the value is the frontend name, so setting
+                    // them equal in this object means they're the same on the front and backend
+                    for(let c = 0; c < backToFrontKeyPairs.length; c++) {
+                        currentValue = backToFrontKeyPairs[c];
+                        newObj[currentValue] = currentValue;
+                    }
+                    backToFrontKeyPairs = newObj;
+                }
+                
+                // -- INSERT INTO FRONTEND DATABASE -- //
+                // Create an object to pipe the backend data in to
+                let insertObj = [];
+                let currentEntry = { };
+                let backendKeys = Object.keys(backToFrontKeyPairs);
+                let dataValue = "";
+                for(let m = 0; m < response.matches.length; m++) { // Loop through all matches
+                    for(let k = 0; k < backendKeys.length; k++) { // Loop through all specified keys
+                        // Get data for this match (m) with the key from backendKeys (k)
+                        dataValue = response.matches[m][backendKeys[k]];
+                        // Get the frontend column name \/ and set equal to value
+                        currentEntry[backToFrontKeyPairs[backendKeys[k]]] = dataValue;
+                    }
+                    insertObj.push(currentEntry);
+                }
+                
+                dbConnection.insertValuesFromObject(frontendTableName, insertObj);
+                
+            },
+            error: (error) => {
+                if (DO_LOG) {
+                    console.log("[toolbox-backend.js:insertBackendTable()] " + error);
+                }
+                return false; // TODO: Change this to a resolved promise or something
+            }
+        });
+        
+    }
+    
+    
+    
     /**
      * Pulls any and all of the information stored on the backend
      * that is vital for the logged in user (specified by the local storage
