@@ -1006,12 +1006,12 @@ class Stopwatch extends Page {
                         navigator.vibrate(25);
 
                         // do a final record save on finish
-                        if (eventConfig.selectedSplitName == "Finish" && isUsingSplits) {
+                        if ((eventConfig.selectedSplitName == "Finish" && isUsingSplits) || !isUsingSplits) {
                             this.saveTime(eventConfig, athlete);
 
                             // save for a split
                             // note "finish" should never be a split_name in the split_record table
-                        } else {
+                        } else if(isUsingSplits) {
                             let currentEventRowId = eventConfig.selectedEvent;
 
                             // create object if it doesn't exist for the current event
@@ -1355,7 +1355,7 @@ class Stopwatch extends Page {
             // Save the record first so the frontend will have a matching id to the backend
             RecordBackend.saveRecord(this.clock.seconds, eventRowid, athlete.id_backend, (response) => {
 
-                // console.log("RECORD SAVED " + JSON.stringify(response));
+                console.log("RECORD SAVED " + JSON.stringify(response));
 
                 if (response.status > 0) { // If success, insert into local database
 
@@ -1377,9 +1377,11 @@ class Stopwatch extends Page {
                         dbConnection.insertValuesFromObject("record_user_link", linkData);
 
                         // check to see if there are any splits. If so save those with this record.
-                        let athleteSplits = eventConfig.splitTimes[eventRowid][athlete.id_backend];
+                        
+                        if (Object.keys(eventConfig.splitTimes) != 0) {
+                            console.log("there are splits!");
+                            let athleteSplits = eventConfig.splitTimes[eventRowid][athlete.id_backend];
 
-                        if (athleteSplits !== undefined && athleteSplits.length != 0) {
                             // loop through every split for the athlete. n will be equal to the number of splits that were requested
                             // for instance if the user wants a split at the 100 and the 200, n = 2
                             for (let i = 0; i < athleteSplits.length; i++) {
