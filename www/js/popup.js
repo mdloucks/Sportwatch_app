@@ -166,6 +166,7 @@ class Popup {
             $(".popup #planOptions").append(`
                 <button id="${plans[p].id}" class="premium_purchase_button">${plans[p].title} - ${plans[p].price}</button>
             `);
+            break; // TODO: Remove after Apple approves the first in app purchase
         }
         
         // -- BUTTON CLICK -- //
