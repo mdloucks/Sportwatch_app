@@ -93,6 +93,7 @@ class PaymentHandler {
                 // After clicking the button, remove the premium popup too
                 $("#premiumPopup").fadeOut(1500, function() {
                     $("#premiumPopup").remove();
+                    $(".navbar").removeClass("hidden");
                 });
             }]);
             
