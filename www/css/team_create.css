@@ -131,7 +131,7 @@
 #createteamPage #button_submitName {
     padding: 5px;
     width: 50px;
-    height: 54px; /* 50 + 2px border on input */
+    height: 52px; /* 50 + 1px border on input */
     vertical-align: top;
     background-color: #dd3333;
     background-image: url("../img/arrow.png");
