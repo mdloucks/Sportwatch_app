@@ -40,7 +40,7 @@ class Navbar {
 
             $(id).click((e) => {
                 e.preventDefault();
-                this.focusButton(id);
+                // this.focusButton(id);
                 cb(this.pageNames[i]);
             });
         }
