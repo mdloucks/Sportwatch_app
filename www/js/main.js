@@ -74,6 +74,10 @@ class App {
             });
         }, 1000);
         
+        setTimeout(() => {
+            // ToolboxBackend.syncFrontendDatabase();
+        }, 5000);
+        
         // ---- PAGE SETS ---- //
         this.mainSet = new MainSet(this.swipeHandler, this.setActivePageSet, this, () => {
         });
