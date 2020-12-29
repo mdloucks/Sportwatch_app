@@ -378,7 +378,26 @@ class ToolboxBackend {
 
         // RECORDS //
         // No local storage integration for records at this time
-
+        
+        // PLAN //
+        ajaxRequest = PlanBackend.getMembershipStatus(email, (membership) => {
+            
+            if(membership.status > 0) {
+                
+                if(membership.canUseApp) {
+                    storage.setItem("validMembership", true);
+                } else {
+                    storage.setItem("validMembership", false);
+                }
+                
+            } else {
+                if (DO_LOG) {
+                    console.log("[toolbox-backend.js:pullForStorage()] Unable to get Membership status");
+                }
+            }
+        });
+        ajaxArray.push(ajaxRequest);
+        
         // Call a function (likely pullForDatabase()) when the pull finishes
         return new Promise((resolve, reject) => {
             $.when(...ajaxArray).then(resolve);
