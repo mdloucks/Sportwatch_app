@@ -32,6 +32,7 @@ class PaymentHandler {
         // Log the error
         store.error(function (error) {
             console.log("THERE WAS AN ERROR #" + error.code + ": " + error.message);
+            console.log(error);
         });
 
         // Update the status of each subscription when updated

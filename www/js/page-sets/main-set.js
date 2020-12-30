@@ -46,9 +46,6 @@ class MainSet extends PageSet {
         
         $(".navbar").css("display", "table");
         
-        console.log(localStorage.getItem("id_team"));
-        console.log(localStorage.getItem("validMembership"));
-        
         // Find out what page the user should start on
         if(localStorage.getItem("id_team") == undefined) {
              // The user isn't on a team, so display the team page

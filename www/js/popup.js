@@ -169,6 +169,14 @@ class Popup {
             break; // TODO: Remove after Apple approves the first in app purchase
         }
         
+        // There is a rather annoying bug where the plans sometimes don't load
+        if(plans.length == 0) {
+            Popup.createConfirmationPopup("An error occured while fetching the available plans. Please restart the app and try again. " +
+                                          "If the issue persists, please contact support@sportwatch.us", ["Restart App"], [() => {
+                                              location.reload();
+                                          }]);
+        }
+        
         // -- BUTTON CLICK -- //
         // Prevent the user from spamming a button
         $(".premium_purchase_button").click(function (e) {
