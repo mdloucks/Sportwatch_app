@@ -166,6 +166,22 @@
     background-color: lightgray;
 }
 
+/* Setting -- Membership */
+
+#settingsPage #membershipGraphic {
+    width: 15vw;
+}
+
+#settingsPage h1.membershipHeader {
+    font-size: 2.5em;
+}
+
+#settingsPage #restartMembership {
+    margin-bottom: 4vh;
+}
+
+
+
 /* .act_drop_wrapper {
     margin: 20px;
     margin-left: 7%;
