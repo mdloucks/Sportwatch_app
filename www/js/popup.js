@@ -104,13 +104,13 @@ class Popup {
                 in your iTunes account settings. Any unused portion of a free trial will be
                 forfeited if you purchase a subscription. For more information, view our
                 <a href="https://sportwatch.us/privacy-policy">Privacy Policy</a> and
-                <a href="https://sportwatch.us/terms-and-conditions/">Terms of Service</a>.
+                <a href="https://sportwatch.us/terms-of-use/">Terms of Use</a>.
             `);
         } else {
             paymentInfo = (`
                 Subscription renews every month. <a href="https://support.google.com/googleplay/answer/7018481?co=GENIE.Platform%3DAndroid&hl=en">Cancel at any time</a>.
                 For more information, view our <a href="https://sportwatch.us/privacy-policy">Privacy Policy</a> and
-                <a href="https://sportwatch.us/terms-and-conditions/">Terms of Service</a>.
+                <a href="https://sportwatch.us/terms-of-use/">Terms of Use</a>.
             `);
         }
         
@@ -176,7 +176,7 @@ class Popup {
             
             let planId = $(e.target).prop("id");
             store.order(planId).then((param) => {
-                // $(".loader_container").css("display", "unset"); // Let user know we're working on it
+                // $("#app").append(`<img src="vid/loading_logo_25_FPS_GIF.gif" style="width: 100%">`);
             }).error(() => {
                 Popup.createConfirmationPopup("Sorry, an unknown error occured. Please try again later", ["OK"]);
             });
