@@ -65,6 +65,20 @@ class Team extends Page {
                 <table class="alternating_table_shade" id="athlete_stats_container"></table>
             </div>
         `);
+        
+        this.membershipRequired = (`
+            <div id="membershipPage" class="div_page">
+                <img id="sorryImg" src="img/logo-sad.png" alt="">
+                <br>
+                <h1>Membership Required</h1>
+                <p id="statusText">The team that you're on no longer has a membership.
+                </p>
+                <p>You can still edit your account or team preferences in the Settings
+                    tab at any time.
+                </p>
+                <button id="openPremiumPopup" class="sw_big_button">Continue Improving</button>
+            </div>
+        `);
     }
 
     getHtml() {
@@ -85,6 +99,7 @@ class Team extends Page {
             this.pageTransition.addPage("landingPage", this.landingPage, true);
             this.pageTransition.addPage("athletePage", this.athletePage, false);
             this.pageTransition.addPage("athleteStatPage", this.athleteStatPage, false);
+            this.pageTransition.addPage("membershipPage", this.membershipRequired, false);
         } else {
             // Hide all and show (needed for new team-landing.js)
             this.pageTransition.hidePages();
@@ -110,9 +125,13 @@ class Team extends Page {
         $(`${this.landingPageSelector} #team_name`).html(teamName);
         // $(`${this.landingPageSelector} #team_name`).slideUp(1000);
         // $(`${this.landingPageSelector} #team_name`).fadeIn(1000);
-
-
-
+        
+        // If the membership has expired, show the Membership page and setup logic
+        if(storage.getItem("validMembership") == "false") {
+            this.startMembershipPage();
+            return;
+        }
+        
         if (!this.hasStarted) {
             this.hasStarted = true;
 
@@ -424,6 +443,48 @@ class Team extends Page {
                 this.createGraph(datasets);
                 this.createTable(athlete, results, event.rowid);
             }
+        });
+    }
+    
+    
+    startMembershipPage() {
+        this.pageTransition.setCurrentPage("membershipPage");
+        this.pageTransition.showCurrentPage();
+        let storage = window.localStorage;
+        
+        // Customize content to reflect the user (are they a coach, user, etc.)
+        let statusText = "The team that you're on no longer has a membership. ";
+        let customizedContent = ``;
+        if((storage.getItem("id_user") == storage.getItem("id_coachPrimary")) || 
+            (storage.getItem("id_user") == storage.getItem("id_coachSecondary"))) {
+            customizedContent = `You currently have <u>a few days to reactivate</u> your membership.
+                                After that, any athlete can purchase a membership for the team.`;
+            $("#teamPage #membershipPage #openPremiumPopup").css("display", "inline-block");
+        } else {
+            customizedContent = `Your coach has a few days to renew their membership. After that,
+                                you'll be able to purchase a membership for the team.`;
+            $("#teamPage #membershipPage #openPremiumPopup").css("display", "none");
+        }
+        
+        // Submit a backend request to get the number of days left
+        PlanBackend.getMembershipStatus(storage.getItem("email"), (response) => {
+            if(response.status > 0) {
+                let daysLeft = 7 - response.daysSinceExpire;
+                if(daysLeft <= 0) {
+                    customizedContent = `It has been over one week since the team membership expired.
+                                        Any athlete can now purchase a membership for the team.`;
+                } else {
+                    customizedContent = customizedContent.replace("a few", daysLeft);
+                }
+            }
+            statusText = statusText + customizedContent;
+            $("#teamPage #membershipPage #statusText").text(statusText);
+        });
+        
+        // Define click handler
+        $("#teamPage #membershipPage #openPremiumPopup").off(); // Remove any old click handlers
+        $("#teamPage #membershipPage #openPremiumPopup").click((e) => {
+            Popup.createPremiumPopup();
         });
     }
 
