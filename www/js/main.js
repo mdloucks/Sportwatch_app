@@ -46,7 +46,7 @@ class App {
 
         if (NetworkInfo.isOnline()) {
             // Pull data from the backend, then start the app
-            ToolboxBackend.pullFromBackend().then(() => {
+            ToolboxBackend.syncFrontendDatabase().then(() => {
                 this.initializeUI();
 
                 if (DO_LOG) {
@@ -73,10 +73,6 @@ class App {
                 $(".loader_container").remove();
             });
         }, 1000);
-        
-        setTimeout(() => {
-            // ToolboxBackend.syncFrontendDatabase();
-        }, 5000);
         
         // ---- PAGE SETS ---- //
         this.mainSet = new MainSet(this.swipeHandler, this.setActivePageSet, this, () => {

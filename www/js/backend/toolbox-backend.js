@@ -12,19 +12,19 @@ class ToolboxBackend {
         
         // Create a new Deferred object for each request to the backend (i.e. for each table)
         let localAccountData = $.Deferred();
+        let localPlanData = $.Deferred();
         let localTeamData = $.Deferred();
         let athleteSync = $.Deferred();
         let recordSync = $.Deferred();
-        let postResolve = $.Deferred();
+        let returnPromise = $.Deferred();
         
         // -- Execute backend calls -- //
         
         // User local storage
         localAccountData.promise().then(() => {
-            console.log("Account data start");
-            
             AccountBackend.getAccount((userInfo) => {
                 if (userInfo.status > 0) {
+                    storage.setItem("id_user", userInfo.id_user);
                     // Update team ID
                     if (userInfo.id_team > 0) {
                         storage.setItem("id_team", userInfo.id_team);
@@ -35,6 +35,7 @@ class ToolboxBackend {
                 }
             })
             .then(() => {
+                localPlanData.resolve();
                 if(storage.getItem("id_team") != null) {
                     localTeamData.resolve();
                 } else {
@@ -43,10 +44,28 @@ class ToolboxBackend {
             });
         });
         
+        // Plan local storage
+        localPlanData.promise().then(() => {
+            PlanBackend.getMembershipStatus(storage.getItem("email"), (planInfo) => {
+                if(planInfo.status > 0) {
+                    if(planInfo.canUseApp) {
+                        storage.setItem("validMembership", "true");
+                    } else {
+                        storage.setItem("validMembership", "false");
+                    }
+                }
+            })
+            .then(() => {
+                if(storage.getItem("id_team") != null) {
+                    localTeamData.resolve();
+                } else {
+                    returnPromise.resolve();
+                }
+            });
+        });
+        
         // Team local storage
         localTeamData.promise().then(() => {
-            console.log("Team data");
-            
             // Update team info (like team name)
             TeamBackend.getTeamInfo((teamInfo) => {
                 if (teamInfo.status > 0) {
@@ -100,6 +119,7 @@ class ToolboxBackend {
                 
                 // Grab records for each athlete
                 for (let i = 0; i < athletes.length; i++) {
+                    // Record table
                     requests.push(ToolboxBackend.insertBackendTable("record", "record", {
                         "record_user_link.id_user": athletes.item(i)["id_backend"]
                     }, {
@@ -108,31 +128,28 @@ class ToolboxBackend {
                         "id_recordDefinition": "id_record_definition",
                         "isPractice": "is_practice"
                     }));
+                    
+                    // Split table
+                    requests.push(ToolboxBackend.insertBackendTable("split", "record_split", {
+                        "id_user": athletes.item(i)["id_backend"]
+                    }, {
+                        "id_record": "id_record",
+                        "value": "value",
+                        "name": "split_name",
+                        "splitIndex": "splitIndex",
+                        "lastUpdated": "lastUpdated"
+                    }));
                 }
                 
                 $.when(...requests).then(() => {
-                    postResolve.resolve();
+                    returnPromise.resolve();
                 });
-                
             });
         });
         
-        postResolve.promise().then(() => {
-            console.log("Finished Backend Pull");
-        });
-        
-        
-        
-        
-        // start function chain
+        // Start promise chain here
         localAccountData.resolve();
-        
-        // ToolboxBackend.insertBackendTable("record", "record", { "record_user_link.id_user": 37 }, {
-        //     "id_record": "id_record",
-        //     "value": "value",
-        //     "id_recordDefinition": "id_record_definition"
-        // });
-        
+        return returnPromise.promise();
     }
     
     /**
@@ -185,7 +202,7 @@ class ToolboxBackend {
                     console.log("[toolbox-backend.js:insertBackendTable()] UNABLE TO PULL " + backendTableName + " (" + response.msg + ")");
                     return false; // TODO: Change this to a resolved promise or something
                 }
-                if(response.matches.length == 0) {
+                if(response.substatus == 2) {
                     console.log("[toolbox-backend.js:insertBackendTable()] No results for " + backendTableName);
                     return false; // TODO: Change this to a resolved promise or something
                 }
@@ -250,6 +267,8 @@ class ToolboxBackend {
      * @returns
      * A promise that will indicate when an operation fails or when
      * the data sync has been completed.
+     * 
+     * @deprecated Replaced by syncFrontendDatabase do to cleaner code
      */
     static pullFromBackend() {
         dbConnection.createNewTables();
@@ -295,6 +314,8 @@ class ToolboxBackend {
      * 
      * @returns
      * A promise and will resolve() when all requests have completed.
+     * 
+     * @deprecated Replaced by syncFrontendDatabase do to cleaner code
      */
     static pullForStorage() {
 
@@ -385,9 +406,9 @@ class ToolboxBackend {
             if(membership.status > 0) {
                 
                 if(membership.canUseApp) {
-                    storage.setItem("validMembership", true);
+                    storage.setItem("validMembership", "true");
                 } else {
-                    storage.setItem("validMembership", false);
+                    storage.setItem("validMembership", "false");
                 }
                 
             } else {
@@ -413,6 +434,8 @@ class ToolboxBackend {
      * 
      * @returns
      * A promise and will resolve() when all requests have completed.
+     * 
+     * @deprecated Replaced by syncFrontendDatabase do to cleaner code
      */
     static pullForDatabase() {
 
@@ -511,6 +534,8 @@ class ToolboxBackend {
      * 
      * @returns
      * Ajax object
+     * 
+     * @deprecated Replaced by syncFrontendDatabase do to cleaner code
      */
     static pullAndInsertRecords(email) {
         return RecordBackend.getRecord({
