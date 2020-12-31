@@ -82,7 +82,7 @@ class Settings extends Page {
             "My Account": this.startMyAccount,
             "Team Preferences": this.startTeamPreferences,
             // "Notifications": this.startNotifications,
-            "Premium": this.startPremium,
+            "Membership": this.startMembership,
             "Sign Out": this.startSignOut
             // "Delete Account": this.startDeleteAccount
         };
@@ -110,6 +110,8 @@ class Settings extends Page {
                 this.startMyAccount();
             } else if(activeEditPage.includes("Team")) {
                 this.startTeamPreferences();
+            } else if(activeEditPage.includes("Membership")) {
+                this.startMembership();
             }
         }
         
@@ -896,11 +898,79 @@ class Settings extends Page {
         $("#settingsPage #editPage > *:not(.generic_header)").first().css("margin-top", `calc(${headerWidth}px + 10vh)`);
     }
     
-    startPremium() {
-        this.setupSettingsPage("Premium");
+    startMembership() {
+        this.setupSettingsPage("Membership");
         
-        Popup.createPremiumPopup();
-
+        // Popup.createPremiumPopup();
+        
+        let pageContent = (`
+            <br>
+            <img id="membershipGraphic" src="img/invalidSymbol.png" alt="EXPIRED">
+            <h1 class="membershipHeader">Membership Status: <span id="membershipStatus">Expired</span></h1>
+            <br>
+            <button id="restartMembership" class="sw_big_button">Start Your Membership</button>
+            <hr>
+            <h1 class="membershipHeader"><u>Details</u></h1>
+            <p>Plan: <span id="planType">Monthly</span></p>
+            <p><span id="statusHistoryWording">Last Active</span>: <span id="statusDate">1/1/2001</span></p>
+            <p id="cancelMembership" class="hidden"><i>To cancel, go to your device's settings to manage your subscriptions</i></p>
+        `);
+        $(this.inputDivIdentifier).append(pageContent);
+        
+        // Set up button handler
+        $(`#settingsPage #editPage #restartMembership`).click((e) => {
+            Popup.createPremiumPopup();
+            this.pageTransition.slideRight("catagoryPage");
+        });
+        
+        // Grab information
+        PlanBackend.getActivePlan(localStorage.getItem("email"), (response) => {
+            if(response.status > 0) {
+                
+                // Set plan name
+                let planName = response.planName;
+                // planName = planName.split(" - ")[1]; // Ignore "Sportwatch Membership"
+                $(`#settingsPage #editPage #planType`).text(planName);
+                
+                // Set date that plan ended / will end
+                let endsDate = response.endsOn.split("-");
+                if (parseInt(endsDate[1]) < 10) { // Remove leading 0 from month
+                    endsDate[1] = endsDate[1].substr(1, 1);
+                }
+                if (parseInt(endsDate[2] < 10)) { // Remove leading 0 from day
+                    endsDate[2] = endsDate[2].substr(1, 1);
+                }
+                endsDate = endsDate[1] + "/" + endsDate[2] + "/" + endsDate[0];
+                $(`#settingsPage #editPage #statusDate`).text(endsDate);
+                
+                // Change wording
+                if(response.isActive == true) {
+                    // Set the elements to reflect an active membership
+                    $(`#settingsPage #editPage #restartMembership`).addClass("hidden");
+                    $(`#settingsPage #editPage #membershipGraphic`).prop("src", "img/validSymbol.png");
+                    $(`#settingsPage #editPage #membershipGraphic`).prop("alt", "ACTIVE");
+                    $(`#settingsPage #editPage #membershipStatus`).text("Active");
+                    $(`#settingsPage #editPage #cancelMembership`).removeClass("hidden");
+                    
+                    $(`#settingsPage #editPage #statusHistoryWording`).text("Next Renewal");
+                    let endsDate = response.endsOn.split("-");
+                    if(parseInt(endsDate[1]) < 10) { // Remove leading 0 from month
+                        endsDate[1] = endsDate[1].substr(1, 1);
+                    }
+                    if(parseInt(endsDate[2] < 10)) { // Remove leading 0 from day
+                        endsDate[2] = endsDate[2].substr(1, 1);
+                    }
+                    endsDate = endsDate[1] + "/" + endsDate[2] + "/" + endsDate[0];
+                    $(`#settingsPage #editPage #statusDate`).text(endsDate);
+                    
+                }
+                
+            } else {
+                Popup.createConfirmationPopup("Sorry, an unknown error occured. Please contact support or try again later.", ["OK"]);
+                return; // Don't let the page slide
+            }
+        });
+        
         this.pageTransition.slideLeft("editPage");
         let headerWidth = $("#settingsPage #editPage > .generic_header").height();
         $("#settingsPage #editPage > *:not(.generic_header)").first().css("margin-top", `calc(${headerWidth}px + 10vh)`);

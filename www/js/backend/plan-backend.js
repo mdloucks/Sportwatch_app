@@ -28,6 +28,60 @@ class PlanBackend {
     }
     
     /**
+     * Checks to see if the user (or any of their teammates) has a membership.
+     * If so, then it will return a true boolean for canUseApp key, indicating
+     * that the user should have access to the app.
+     * 
+     * @example getMembershipStatus("loucks@sportwatch.us", (response) => { // Open app })
+     * 
+     * @param {AssociativeArray} targetEmailOrId email or ID of the user
+     * @param {Function} callback callback to handle the response (JSON or String on failure)
+     */
+    static getMembershipStatus(targetEmailOrId, callback) {
+
+        let storage = window.localStorage;
+        let identityKey = "email"; // "email" if targetEmailOrId is a string, "id_user" if it's a number
+
+        if (typeof targetEmailOrId == "number") {
+            identityKey = "id_user";
+        } else { // Assume it was an email
+            if (targetEmailOrId.length == 0) {
+                targetEmailOrId = storage.getItem("email");
+            }
+        }
+
+        // Prepare the array
+        let requestArray = {};
+        requestArray.SID = storage.getItem("SID");
+        requestArray.accountIdentity = { [identityKey]: targetEmailOrId };
+
+        // Submit the request and call the callback
+        return $.ajax({
+            type: "POST",
+            url: Constant.getPlanURL() + "?intent=0",
+            timeout: Constant.AJAX_CFG.timeout,
+            data: requestArray,
+            success: (response) => {
+                if (DO_LOG) {
+                    console.log("[plan-backend.js:getMembershipStatus()] " + response);
+                }
+                try {
+                    response = JSON.parse(response);
+                } catch (e) {
+                    // Couldn't parse, so just use string
+                }
+                callback(response);
+            },
+            error: (error) => {
+                if (DO_LOG) {
+                    console.log("[plan-backend.js:getMembershipStatus()] " + error);
+                }
+                callback(error);
+            }
+        });
+    }
+    
+    /**
      * Submits a request to the backend to retrieve the user's active subscription
      * plan. The email address or numerical ID of the user can be given in the first
      * parameter. The response will be an object with properties / keys of
@@ -61,7 +115,7 @@ class PlanBackend {
         // Submit the request and call the callback
         return $.ajax({
             type: "POST",
-            url: Constant.getPlanURL() + "?intent=0",
+            url: Constant.getPlanURL() + "?intent=1",
             timeout: Constant.AJAX_CFG.timeout,
             data: requestArray,
             success: (response) => {
@@ -119,7 +173,7 @@ class PlanBackend {
         // Submit the request and call the callback
         return $.ajax({
             type: "POST",
-            url: Constant.getPlanURL() + "?intent=1",
+            url: Constant.getPlanURL() + "?intent=2",
             timeout: Constant.AJAX_CFG.timeout,
             data: requestArray,
             success: (response) => {
@@ -180,7 +234,7 @@ class PlanBackend {
         // Submit the request and call the callback
         return $.ajax({
             type: "POST",
-            url: Constant.getPlanURL() + "?intent=2",
+            url: Constant.getPlanURL() + "?intent=3",
             timeout: Constant.AJAX_CFG.timeout,
             data: requestArray,
             success: (response) => {
@@ -238,7 +292,7 @@ class PlanBackend {
         // Submit the request and call the callback
         return $.ajax({
             type: "POST",
-            url: Constant.getPlanURL() + "?intent=3",
+            url: Constant.getPlanURL() + "?intent=4",
             timeout: Constant.AJAX_CFG.timeout,
             data: requestArray,
             success: (response) => {
@@ -293,7 +347,7 @@ class PlanBackend {
         // Submit the request and call the callback
         return $.ajax({
             type: "POST",
-            url: Constant.getPlanURL() + "?intent=4",
+            url: Constant.getPlanURL() + "?intent=5",
             timeout: Constant.AJAX_CFG.timeout,
             data: requestArray,
             success: (response) => {

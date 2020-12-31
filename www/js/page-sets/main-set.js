@@ -46,26 +46,15 @@ class MainSet extends PageSet {
         
         $(".navbar").css("display", "table");
         
-        // If they don't have an active subscription, display the premium popup
-        if(localStorage.getItem("id_team") != undefined) {
-            TeamBackend.getTeamInfo((teamInfo) => {
-                
-                // See if the primary coach holds a subscription
-                PlanBackend.isPremiumMember(teamInfo.id_coachPrimary, (isPremium) => {
-                    if(!isPremium) {
-                        // Have to wait to load the premium plans
-                        setTimeout(() => {
-                            // UNCOMMENT FOR PRODUCTION
-                            // Popup.createPremiumPopup();
-                        }, 5000);
-                    }
-                });
-            });
-            // the user is not on a team, hide the navbar and direct them to the team page
-        } else {
-            // $(".navbar").addClass("hidden");
-            // this.switchPage("TeamLanding");
-        }
+        // Find out what page the user should start on
+        if(localStorage.getItem("id_team") == undefined) {
+             // The user isn't on a team, so display the team page
+            this.switchPage("TeamLanding");
+            
+        } else if(localStorage.getItem("validMembership") == "false") {
+           
+            Popup.createPremiumPopup();
+        } // Else proceed as normal
         
     }
     
@@ -87,6 +76,14 @@ class MainSet extends PageSet {
                 console.log("[main-set.js:switchPage()]: In the middle of a transition, ignore the request");
             }
             return;
+        }
+        
+        // If they don't have a team, don't let them use Stopwatch or Stats
+        if((localStorage.getItem("id_team") == undefined)) {
+            if((pageName == "Stopwatch") || (pageName == "Stats")) {
+                Popup.createConfirmationPopup("To use view the " + pageName + " page, you must have a team.", ["OK"]);
+                return;
+            }
         }
         
         if(DO_LOG) {

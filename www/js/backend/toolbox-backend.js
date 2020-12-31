@@ -5,7 +5,237 @@
  */
 class ToolboxBackend {
     // Docs: https://www.sportwatch.us/mobile/docs/
+    
+    static syncFrontendDatabase() {
+        
+        let storage = window.localStorage;
+        
+        // Create a new Deferred object for each request to the backend (i.e. for each table)
+        let localAccountData = $.Deferred();
+        let localTeamData = $.Deferred();
+        let athleteSync = $.Deferred();
+        let recordSync = $.Deferred();
+        let postResolve = $.Deferred();
+        
+        // -- Execute backend calls -- //
+        
+        // User local storage
+        localAccountData.promise().then(() => {
+            console.log("Account data start");
+            
+            AccountBackend.getAccount((userInfo) => {
+                if (userInfo.status > 0) {
+                    // Update team ID
+                    if (userInfo.id_team > 0) {
+                        storage.setItem("id_team", userInfo.id_team);
+                        storage.setItem("user", userInfo);
+                    } else {
+                        storage.removeItem("id_team");
+                    }
+                }
+            })
+            .then(() => {
+                if(storage.getItem("id_team") != null) {
+                    localTeamData.resolve();
+                } else {
+                    postResolve.resolve();
+                }
+            });
+        });
+        
+        // Team local storage
+        localTeamData.promise().then(() => {
+            console.log("Team data");
+            
+            // Update team info (like team name)
+            TeamBackend.getTeamInfo((teamInfo) => {
+                if (teamInfo.status > 0) {
+                    storage.setItem("id_team", teamInfo.id_team);
+                    storage.setItem("teamName", teamInfo.teamName);
+                    storage.setItem("school", teamInfo.schoolName);
+                    storage.setItem("id_school", teamInfo.id_school);
+                    storage.setItem("id_coachPrimary", teamInfo.id_coachPrimary);
+                    storage.setItem("id_coachSecondary", teamInfo.id_coachSecondary);
+                    storage.setItem("inviteCode", teamInfo.inviteCode);
 
+                    // get the contact info of the coach
+
+                } else {
+                    if (teamInfo.substatus == 7) {
+                        // This is the code for an invalid team ID
+                        // If this occurs, the team was likely deleted, so update the frontend as well
+                        storage.removeItem("id_team");
+                        storage.removeItem("teamName");
+                        storage.removeItem("school");
+                        storage.removeItem("id_school");
+                        storage.removeItem("inviteCode");
+                    }
+                }
+            })
+            .then(() => {
+                athleteSync.resolve();
+            });
+        });
+        
+        // Pull from backend user to frontend athlete
+        athleteSync.promise().then(() => {
+            
+            ToolboxBackend.insertBackendTable("user", "athlete", { "id_team": storage.getItem("id_team")}, {
+                "fname": "fname",
+                "lname": "lname",
+                "gender": "gender",
+                "id_user": "id_backend"
+            })
+            .then(() => {
+                recordSync.resolve();
+            });
+        });
+        
+        // Pull from backend to frontend record for each athlete
+        recordSync.promise().then(() => {
+            
+            let requests = []; // Array of backend requests
+            
+            dbConnection.selectValues("SELECT * FROM athlete").then((athletes) => {
+                
+                // Grab records for each athlete
+                for (let i = 0; i < athletes.length; i++) {
+                    requests.push(ToolboxBackend.insertBackendTable("record", "record", {
+                        "record_user_link.id_user": athletes.item(i)["id_backend"]
+                    }, {
+                        "id_record": "id_record",
+                        "value": "value",
+                        "id_recordDefinition": "id_record_definition",
+                        "isPractice": "is_practice"
+                    }));
+                }
+                
+                $.when(...requests).then(() => {
+                    postResolve.resolve();
+                });
+                
+            });
+        });
+        
+        postResolve.promise().then(() => {
+            console.log("Finished Backend Pull");
+        });
+        
+        
+        
+        
+        // start function chain
+        localAccountData.resolve();
+        
+        // ToolboxBackend.insertBackendTable("record", "record", { "record_user_link.id_user": 37 }, {
+        //     "id_record": "id_record",
+        //     "value": "value",
+        //     "id_recordDefinition": "id_record_definition"
+        // });
+        
+    }
+    
+    /**
+     * Pulls all of the records from a specific table from the backend and inserts
+     * them into the corresponding frontend table. Since some of the column names
+     * differ between the databases, an optional (and recommended) backToFrontKeyPairs object
+     * can be used to link the backend names with the frontend to help with insertion.
+     * 
+     * @example Coming soon to Theatres
+     * 
+     * @param {String} backendTableName name of the table on the backend to pull from
+     * @param {String} frontendTableName name of the table on the frontend to insert into
+     * @param {Object} criteria object with key and values to narrow results (e.g. id_user: 4)
+     * @param {Array | Object} backToFrontKeyPairs object linking the frontend database indices to the backend column names;
+     * can also be used as a 1D array to specify column names if they match the backend
+     */
+    static insertBackendTable(backendTableName, frontendTableName, criteria, backToFrontKeyPairs) {
+        
+        let storage = window.localStorage;
+
+        // Prepare the array
+        let postArray = {};
+        postArray.SID = storage.getItem("SID");
+        postArray.searchIn = backendTableName;
+        postArray.isStrict = true;
+        postArray.criteria = criteria;
+
+        // Submit the request and call the callback
+        return $.ajax({
+            type: "POST",
+            url: Constant.getToolboxURL() + "?intent=0",
+            timeout: Constant.AJAX_CFG.timeout,
+            data: postArray,
+            success: (response) => {
+                if (DO_LOG) {
+                    console.log("[toolbox-backend.js:insertBackendTable()] " + response);
+                }
+                try {
+                    response = JSON.parse(response);
+                } catch (e) {
+                    // Couldn't parse, so we can't insert
+                    if (DO_LOG) {
+                        console.log("[toolbox-backend.js:insertBackendTable()] UNABLE TO PULL BACKEND TABLE " + backendTableName);
+                        return false; // TODO: Change this to a resolved promise or something
+                    }
+                }
+                
+                // Don't continue if there was an error (or no results)
+                if(response.status <= 0) {
+                    console.log("[toolbox-backend.js:insertBackendTable()] UNABLE TO PULL " + backendTableName + " (" + response.msg + ")");
+                    return false; // TODO: Change this to a resolved promise or something
+                }
+                if(response.matches.length == 0) {
+                    console.log("[toolbox-backend.js:insertBackendTable()] No results for " + backendTableName);
+                    return false; // TODO: Change this to a resolved promise or something
+                }
+                
+                // If backToFrontKeyPairs is a 1-D array, convert it to an object to standardize the process
+                if(Array.isArray(backToFrontKeyPairs)) {
+                    let newObj = { };
+                    let currentValue = "";
+                    // Basically, make the key and its value equal. The loop below is assuming
+                    // that the key is the backend name and the value is the frontend name, so setting
+                    // them equal in this object means they're the same on the front and backend
+                    for(let c = 0; c < backToFrontKeyPairs.length; c++) {
+                        currentValue = backToFrontKeyPairs[c];
+                        newObj[currentValue] = currentValue;
+                    }
+                    backToFrontKeyPairs = newObj;
+                }
+                
+                // -- INSERT INTO FRONTEND DATABASE -- //
+                // Create an object to pipe the backend data in to
+                let insertObj = [];
+                let backendKeys = Object.keys(backToFrontKeyPairs);
+                let dataValue = "";
+                for(let m = 0; m < response.matches.length; m++) { // Loop through all matches
+                    let currentEntry = { };
+                    for(let k = 0; k < backendKeys.length; k++) { // Loop through all specified keys
+                        // Get data for this match (m) with the key from backendKeys (k)
+                        dataValue = response.matches[m][backendKeys[k]];
+                        // Get the frontend column name \/ and set equal to value
+                        currentEntry[backToFrontKeyPairs[backendKeys[k]]] = dataValue;
+                    }
+                    insertObj.push(currentEntry);
+                }
+                
+                dbConnection.insertValuesFromObject(frontendTableName, insertObj);
+                console.log("Inserting into " + frontendTableName + ":");
+                console.log(insertObj);
+            },
+            error: (error) => {
+                if (DO_LOG) {
+                    console.log("[toolbox-backend.js:insertBackendTable()] " + error);
+                }
+                return false; // TODO: Change this to a resolved promise or something
+            }
+        });
+        
+    }
+    
+    
+    
     /**
      * Pulls any and all of the information stored on the backend
      * that is vital for the logged in user (specified by the local storage
@@ -148,7 +378,26 @@ class ToolboxBackend {
 
         // RECORDS //
         // No local storage integration for records at this time
-
+        
+        // PLAN //
+        ajaxRequest = PlanBackend.getMembershipStatus(email, (membership) => {
+            
+            if(membership.status > 0) {
+                
+                if(membership.canUseApp) {
+                    storage.setItem("validMembership", true);
+                } else {
+                    storage.setItem("validMembership", false);
+                }
+                
+            } else {
+                if (DO_LOG) {
+                    console.log("[toolbox-backend.js:pullForStorage()] Unable to get Membership status");
+                }
+            }
+        });
+        ajaxArray.push(ajaxRequest);
+        
         // Call a function (likely pullForDatabase()) when the pull finishes
         return new Promise((resolve, reject) => {
             $.when(...ajaxArray).then(resolve);
