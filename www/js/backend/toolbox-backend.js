@@ -9,6 +9,7 @@ class ToolboxBackend {
     static syncFrontendDatabase() {
         
         let storage = window.localStorage;
+        dbConnection.createNewTables();
         
         // Create a new Deferred object for each request to the backend (i.e. for each table)
         let localAccountData = $.Deferred();
@@ -129,6 +130,14 @@ class ToolboxBackend {
                         "isPractice": "is_practice"
                     }));
                     
+                    // Record User Link table
+                    requests.push(ToolboxBackend.insertBackendTable("record_user_link", "record_user_link", {
+                        "id_user": athletes.item(i)["id_backend"]
+                    }, {
+                        "id_user": "id_backend",
+                        "id_record": "id_record"
+                    }));
+                    
                     // Split table
                     requests.push(ToolboxBackend.insertBackendTable("split", "record_split", {
                         "id_user": athletes.item(i)["id_backend"]
@@ -240,6 +249,7 @@ class ToolboxBackend {
                 dbConnection.insertValuesFromObject(frontendTableName, insertObj);
                 console.log("Inserting into " + frontendTableName + ":");
                 console.log(insertObj);
+                console.log(response.matches.length);
             },
             error: (error) => {
                 if (DO_LOG) {
