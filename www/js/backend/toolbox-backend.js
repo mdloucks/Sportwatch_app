@@ -127,7 +127,8 @@ class ToolboxBackend {
                         "id_record": "id_record",
                         "value": "value",
                         "id_recordDefinition": "id_record_definition",
-                        "isPractice": "is_practice"
+                        "isPractice": "is_practice",
+                        "lastUpdated": "last_updated"
                     }));
                     
                     // Record User Link table
