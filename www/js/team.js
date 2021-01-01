@@ -45,7 +45,7 @@ class Team extends Page {
                     <h1 id="athleteName"></h1>
                     <div></div>
                 </div>
-
+                <div id="paddingDiv"></div>
                 <div id="athlete_events_registered"></div>
                 <div id="athlete_events_remaining"></div>
             </div>
@@ -307,10 +307,12 @@ class Team extends Page {
         $("#teamPage").animate({
             scrollTop: 0
         }, 1000);
+        
         // Add top padding to avoid header overlap (iOS issue)
         // TODO: I removed this. Tell me if it's an issue for iOS (probably sorry)
-        // let headerWidth = $("#teamPage #athletePage > .generic_header").height();
-        // $("#teamPage #athletePage > *:not(.generic_header)").first().css("margin-top", `calc(${headerWidth}px + 5vh)`);
+        // ^ Yeah, it was hiding the "Events with saved times" text without the below snippet
+        let headerWidth = $("#teamPage #athletePage > .generic_header").height();
+        $("#teamPage #athletePage > #paddingDiv").first().css("margin-top", `calc(${headerWidth}px + 5vh)`);
 
         // Slide back; athlete page will be overwritten next select
         $("#back_button_athlete").bind("click", (e) => {
@@ -473,19 +475,40 @@ class Team extends Page {
                 if(daysLeft <= 0) {
                     customizedContent = `It has been over one week since the team membership expired.
                                         Any athlete can now purchase a membership for the team.`;
+                    $("#teamPage #membershipPage #openPremiumPopup").css("display", "inline-block");
                 } else {
-                    customizedContent = customizedContent.replace("a few", daysLeft);
+                    let dayWord = "days";
+                    if(daysLeft == 1) { // Define here so it doesn't say "1 days"
+                        dayWord = "day"
+                    }
+                    customizedContent = customizedContent.replace("a few days", daysLeft + " " + dayWord);
                 }
             }
             statusText = statusText + customizedContent;
-            $("#teamPage #membershipPage #statusText").text(statusText);
+            $("#teamPage #membershipPage #statusText").html(statusText);
         });
         
         // Define click handler
-        $("#teamPage #membershipPage #openPremiumPopup").off(); // Remove any old click handlers
+        $("#teamPage #membershipPage #openPremiumPopup").off(); // Remove any old handlers
         $("#teamPage #membershipPage #openPremiumPopup").click((e) => {
             Popup.createPremiumPopup();
         });
+        
+        $("#premiumPopup").bind("didPurchase", () => {
+            console.log("Yup!");
+            this.pageTransition.slideLeft("landingPage");
+        });
+        
+        console.log("EVENTS");
+        console.log($._data($("#premiumPopup")[0], "events"));
+        
+        // Set up a loop so that when they unlock the app, we switch to the landing page
+        // let membershipCheckLoop = setInterval(() => {
+        //     if(storage.getItem("validMembership") == "true") {
+        //         this.pageTransition.slideLeft("landingPage");
+        //         clearInterval(membershipCheckLoop);
+        //     }
+        // }, 5000);
     }
 
     /**
