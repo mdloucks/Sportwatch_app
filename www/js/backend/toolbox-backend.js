@@ -247,9 +247,6 @@ class ToolboxBackend {
                 }
                 
                 dbConnection.insertValuesFromObject(frontendTableName, insertObj);
-                console.log("Inserting into " + frontendTableName + ":");
-                console.log(insertObj);
-                console.log(response.matches.length);
             },
             error: (error) => {
                 if (DO_LOG) {
