@@ -195,7 +195,8 @@ class ToolboxBackend {
             data: postArray,
             success: (response) => {
                 if (DO_LOG) {
-                    console.log("[toolbox-backend.js:insertBackendTable()] " + response);
+                    console.log("[toolbox-backend.js:insertBackendTable()]");
+                    console.log(response);
                 }
                 try {
                     response = JSON.parse(response);

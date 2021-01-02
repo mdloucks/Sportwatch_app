@@ -55,7 +55,7 @@ class App {
             }).catch(() => {
                 // Likely a corrupted / lost local storage, so they'll be signed out anyway
                 if (DO_LOG) {
-                    console.log("[main.js:onReady]: Failed to pull from backend, localStorage email: " + localStorage.getItem("email"));
+                    console.log("[main.js:startApp]: Failed to pull from backend, localStorage email: " + localStorage.getItem("email"));
                 }
                 this.initializeUI();
             });
