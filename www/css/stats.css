@@ -56,6 +56,22 @@
     border: 3px solid black;
 }
 
+/* Override table library sorting images */
+#statsPage #event_results_wrapper thead th {
+    background-size: 1em;
+    background-position-x: 90%;
+}
+#statsPage #event_results_wrapper .sorting {
+    background-image: url("../img/stat-table/unsorted.png"); /* Use ../ to navigate out of /css/ folder */
+}
+#statsPage #event_results_wrapper .sorting_desc {
+    background-image: url("../img/stat-table/high-to-low.png");
+}
+#statsPage #event_results_wrapper .sorting_asc {
+    background-image: url("../img/stat-table/low-to-high.png");
+}
+
+
 #statsPage #save_csv {
     background-color: rgb(64, 202, 0);
     transition: background-color 0.5s;
