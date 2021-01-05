@@ -52,8 +52,7 @@ class Stats extends Page {
 
                 <button id="save_csv" class="generated_button">Save to CSV file</button><br><br>
 
-                <table id="event_results" class="display striped compact">
-                </table>
+                <table id="event_results" class="display striped compact"></table>
             </div>
         `);
 
@@ -142,8 +141,8 @@ class Stats extends Page {
      * @param {function} callback the callback to be called when all of the buttons are done generating
      */
     startLandingPage(callback = () => {}) {
-        
-        if(this.pageTransition.getCurrentPage() != "landingPage") {
+
+        if (this.pageTransition.getCurrentPage() != "landingPage") {
             this.pageTransition.slideRight("landingPage");
         }
 
@@ -157,6 +156,24 @@ class Stats extends Page {
             ON record_definition.rowid = record.id_record_definition
         `);
 
+
+
+        let joinAthletesQuery = (`
+        `);
+
+        let todaysRecordsPromise = dbConnection.selectValues(Constant.queryTodaysRecordsQuery);
+        let otherRecordsPromise = dbConnection.selectValues(Constant.queryAllRecords + "EXCEPT " + Constant.queryTodaysRecordsQuery);
+
+        Promise.all([todaysRecordsPromise, otherRecordsPromise]).then((results) => {
+            if (results[0].length == 0 || results[0].length == undefined ||
+                results[1].length == 0 || results[1].length == undefined) {
+                return;
+            }
+
+
+            this.generateTodaysStatsPopup(results[0], results[1]);
+        });
+
         dbConnection.selectValues(query).then((events) => {
             // if records exist for any event
             if (events != false) {
@@ -169,7 +186,6 @@ class Stats extends Page {
                 for (let i = 0; i < events.length; i++) {
                     array.push(events.item(i));
                 }
-
 
                 ButtonGenerator.generateButtonsFromDatabase("#statsPage #landingPage .button_box", array, (event) => {
                     this.startEventPage(event);
@@ -194,6 +210,220 @@ class Stats extends Page {
 
             }
         });
+    }
+
+    /**
+     * this object will take two database objects and generate the popup from them
+     * 
+     * @param {Object} newResults the results from the past day
+     * @param {Object} previousResults the results from every other day besides today
+     */
+    generateTodaysStatsPopup(newResults, previousResults) {
+
+        // let athleteTimes = this.constructAthleteTimeArray(oldResults);
+        let previousEventTimeObject = this.constructEventTimeObject(previousResults);
+        let newEventTimeObject = this.constructEventTimeObject(newResults);
+
+
+        let newEventKeys = Object.keys(newEventTimeObject);
+        let average = (array) => array.reduce((a, b) => a + b) / array.length;
+        // the html to be appended to the popup for each chart; "record_identity": {html: `<canvas html>`, "improved": 10, worsened: "2"}
+        let canvasDataObject = {};
+        let canvasHtmlArray = [];
+
+
+        // loop through each event and athlete to extract values
+        newEventKeys.forEach(newEventRecordDefinition => {
+
+            // check first to see if there are any previous times to compare this event to.
+            // if there are none, skip this event.
+            if (!previousEventTimeObject.hasOwnProperty(newEventRecordDefinition)) {
+                return;
+            }
+
+            // this represents all previous times for this event obj {id_backend: {values: [], dates: []}}
+            let previousEventAthletes = previousEventTimeObject[newEventRecordDefinition];
+            // this represents all times for today for this event 
+            let newEventAthletes = newEventTimeObject[newEventRecordDefinition];
+
+            let newAthleteIdBackends = Object.keys(newEventAthletes);
+
+            // for each athlete in every event
+            newAthleteIdBackends.forEach(newAthleteIdBackend => {
+
+                // check to see if the new time athlete has something to compare to the old one
+                // if there isn't any old times for them, ignore it.
+                if (!previousEventAthletes.hasOwnProperty(newAthleteIdBackend)) {
+                    return;
+                }
+
+                let previousAthlete = previousEventAthletes[newAthleteIdBackend];
+                let newAthlete = newEventAthletes[newAthleteIdBackend];
+
+                let previousAverage;
+                let newAverage;
+
+                if (previousAthlete.values.length == 1) {
+                    previousAverage = previousAthlete.values[0];
+                } else {
+                    previousAverage = average(previousAthlete.values);
+                }
+
+                if (newAthlete.values.length == 1) {
+                    newAverage = newAthlete.values[0];
+                } else {
+                    newAverage = average(newAthlete.values);
+                }
+
+                if (!canvasDataObject.hasOwnProperty(newEventRecordDefinition)) {
+                    canvasDataObject[newEventRecordDefinition] = {
+                        html: `<canvas id="todays_times_canvas_${newEventRecordDefinition}"></canvas>`,
+                        improved: 0,
+                        worsened: 0,
+                        worsenedAthletes: [],
+                        improvedAthletes: [],
+                        NA: 0
+                    };
+
+                    canvasHtmlArray.push(`<b>${newAthlete.record_identity}</b>`);
+                    canvasHtmlArray.push(`<canvas id="todays_times_canvas_${newEventRecordDefinition}"></canvas>`);
+                }
+
+                if (newAverage < previousAverage) {
+                    canvasDataObject[newEventRecordDefinition].improved += 1;
+                    canvasDataObject[newEventRecordDefinition].improvedAthletes.push(`${newAthlete.fname} ${newAthlete.lname}`)
+                } else if (newAverage > previousAverage) {
+                    canvasDataObject[newEventRecordDefinition].worsened += 1;
+                    canvasDataObject[newEventRecordDefinition].worsenedAthletes.push(`${newAthlete.fname} ${newAthlete.lname}`)
+                } else {
+                    canvasDataObject[newEventRecordDefinition].NA += 1
+                }
+
+                // console.log(`Name ${newAthlete.fname} ${newAthlete.lname} old average ${previousAverage} new ${newAverage} for the ${newAthlete.record_identity}`);
+            });
+        });
+
+        let todaysTimesButton = $("<div>", {
+            html: "Today's Times",
+            class: "generated_button coaches_button",
+        });
+
+        todaysTimesButton.click(() => {
+
+            // loop through all of the canvases
+            Popup.createConfirmationPopup(`
+                <b>Here's today's stats:</b><br>
+                <small><i>How your athlete's performance today compares to their average time</i></small><br><br>
+                ${canvasHtmlArray.join('<br>')}
+            `, ["Ok"], [() => {}]);
+
+
+            Object.keys(canvasDataObject).forEach(newEventRecordDefinition => {
+                let canvas = document.getElementById(`todays_times_canvas_${newEventRecordDefinition}`);
+                let ctx = canvas.getContext('2d');
+
+
+                let improved = canvasDataObject[newEventRecordDefinition].improved;
+                let worsened = canvasDataObject[newEventRecordDefinition].worsened;
+                let NA = canvasDataObject[newEventRecordDefinition].NA;
+
+                let averagesData = [];
+                let labels = [];
+                let backgroundColors = [];
+
+                if (improved > 0) {
+                    averagesData.push(improved);
+                    labels.push("Improved");
+                    backgroundColors.push("rgb(48, 208, 88)");
+                }
+
+                if (worsened > 0) {
+                    averagesData.push(worsened);
+                    labels.push("Worsened");
+                    backgroundColors.push("brown");
+                }
+
+                if (NA > 0) {
+                    averagesData.push(NA);
+                    labels.push("N/A");
+                    backgroundColors.push("lightgray");
+                }
+
+                let data = {
+                    datasets: [{
+                        data: averagesData,
+                        backgroundColor: backgroundColors,
+                    }],
+
+                    // These labels appear in the legend and in the tooltips when hovering different arcs
+                    labels: labels,
+                };
+
+                // And for a doughnut chart
+                var myDoughnutChart = new Chart(ctx, {
+                    type: 'doughnut',
+                    data: data,
+                    options: {
+                        responsive: true,
+                        legend: {
+                            position: 'top',
+                        },
+                        title: {
+                            display: false,
+                        },
+                        animation: {
+                            animateScale: true,
+                            animateRotate: true
+                        }
+
+                    }
+                });
+
+                $(`#todays_times_canvas_${newEventRecordDefinition}`).after(`
+                    <br>
+                    ${canvasDataObject[newEventRecordDefinition].worsenedAthletes.length > 0 ? "<div>Worsened Athletes:</div>" : ""}
+                    <div style="color: brown;">${canvasDataObject[newEventRecordDefinition].worsenedAthletes.join('<br>')}</div>
+                    ${canvasDataObject[newEventRecordDefinition].improvedAthletes.length > 0 ? "<div>Improved Athletes:</div>" : ""}
+                    <div style="color: rgb(64, 202, 0);">${canvasDataObject[newEventRecordDefinition].improvedAthletes.join('<br>')}</div>
+                `);
+
+                // add a table after the canvas
+                // $(`#todays_times_canvas_${newEventRecordDefinition}`).after(`
+                // TESTTEST123
+                //     <table id="todays_times_table_${newEventRecordDefinition}" class="display striped compact">
+                    
+                //     </table>
+                // `);
+                
+                // let tabulator = new Tabulator();
+                // tabulator.generateTable(`#todays_times_table_${newEventRecordDefinition}`, newResults, [{
+                //         data: "fname",
+                //         title: "Name",
+                //         render: function (data, type, row) {
+                //             return `${row["fname"]} ${row["lname"]}`
+                //         }
+                //     },
+                //     {
+                //         data: "value",
+                //         title: "Time",
+                //         render: function (data, type, row) {
+                //             return Clock.secondsToTimeString(row["value"]);
+                //         }
+                //     },
+                //     {
+                //         data: "last_updated",
+                //         title: "Date",
+                //         render: function (data, type, row) {
+                //             return data.substring(0, 10);
+                //         }
+                //     }
+                // ]);
+
+            });
+        });
+
+
+        $("#statsPage #landingPage .button_box").append(todaysTimesButton);
     }
 
     updateStatsSummary(interval) {
@@ -469,7 +699,7 @@ class Stats extends Page {
             let teamPercentChange = 0;
             let teamPercentChangeString = "";
 
-            if(percentChangeAverages.length != 0) {
+            if (percentChangeAverages.length != 0) {
                 teamPercentChange = average(percentChangeAverages).toFixed(2);
                 teamPercentChangeString = "";
             }
@@ -479,9 +709,9 @@ class Stats extends Page {
                 teamPercentChangeString = `Your team improved in this event by <b><span style="color: rgb(48, 208, 88);">${Math.abs(teamPercentChange)}%</span></b>`;
             } else if (teamPercentChange > 0) {
                 teamPercentChangeString = `Your team worsened in this event by <b><span style="color: darkred;">${Math.abs(teamPercentChange)}%</span></b>`;
-            } else if(teamPercentChange == 0) {
+            } else if (teamPercentChange == 0) {
                 teamPercentChangeString = `Your team's performance has not changed in the given period of time`;
-            } else if(!isFinite(teamPercentChange) || isNaN(teamPercentChange)) {
+            } else if (!isFinite(teamPercentChange) || isNaN(teamPercentChange)) {
                 teamPercentChangeString = `Your team's improvements in this event cannot be determined. (are there any results with a time of zero?)`;
             } else {
                 teamPercentChangeString = `Your team's improvements in this event cannot be determined.`;
@@ -610,7 +840,7 @@ class Stats extends Page {
                 {
                     data: "value",
                     title: "Time",
-                    render: function(data, type, row) {
+                    render: function (data, type, row) {
                         return Clock.secondsToTimeString(row["value"]);
                     }
                 },
@@ -653,6 +883,7 @@ class Stats extends Page {
                 array[rows.item(i).id_backend].values = [rows.item(i).value];
             }
 
+            // add date and order them
             dates.push(rows.item(i).last_updated);
 
             let orderedDates = dates.sort(function (a, b) {
@@ -672,6 +903,44 @@ class Stats extends Page {
         }
 
         return array;
+    }
+
+    constructEventTimeObject(rows) {
+
+        // this object will hold id_record_definitions as ids and another object for each athlete
+        let eventTimes = {};
+
+        for (let i = 0; i < rows.length; i++) {
+            const element = rows.item(i);
+
+            if (element === null || element === undefined) {
+                continue;
+            }
+
+            // add key
+            if (!eventTimes.hasOwnProperty(element.id_record_definition)) {
+                // console.log("creating property for " + JSON.stringify(element));
+                // event definition as first key
+                eventTimes[element.id_record_definition] = {};
+            }
+
+            // add key for athlete inside each id_record_definition object
+            if (!eventTimes[element.id_record_definition].hasOwnProperty(element.id_backend)) {
+                eventTimes[element.id_record_definition][element.id_backend] = {
+                    values: [element.value],
+                    dates: [element.last_updated],
+                    fname: element.fname,
+                    lname: element.lname,
+                    record_identity: element.record_identity,
+                }
+            } else {
+                eventTimes[element.id_record_definition][element.id_backend].values.push(element.value);
+                eventTimes[element.id_record_definition][element.id_backend].dates.push(element.last_updated);
+            }
+
+        }
+
+        return eventTimes;
     }
 
     /**
