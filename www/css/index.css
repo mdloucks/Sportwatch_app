@@ -128,6 +128,7 @@ https://css-tricks.com/places-its-tempting-to-use-display-none-but-dont/ */
     text-align: center;
     width: 100%;
     overflow-x: hidden;
+    z-index: 2;
 
     /* pain-in-the-neck ihpone... has to have non-rectangular screens */
     padding-top: constant(safe-area-inset-top);
@@ -193,6 +194,7 @@ https://css-tricks.com/places-its-tempting-to-use-display-none-but-dont/ */
     background-color: rgb(44, 44, 46) !important;
     color: white;
 }
+
 
 /* CSS FOR GENERATED BUTTONS */
 .generated_button {
