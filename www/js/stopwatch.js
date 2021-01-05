@@ -55,7 +55,7 @@ class Stopwatch extends Page {
         `);
 
         this.clock = {
-            radius: 125,
+            radius: 120,
             pointSize: 10,
             centerX: 0,
             centerY: 0,
@@ -525,6 +525,14 @@ class Stopwatch extends Page {
 
         // Toggle splits
         ButtonGenerator.generateToggle(`${this.landingPageSelector} #slideup_content .splits_box`, "Splits", false, () => {
+            if (isSelectingMultipleEvents) {
+                Popup.createConfirmationPopup(`
+                We currently do not support running splits with multiple events.
+                Let us know if you would like this feature by emailing support@sportwatch.us
+                `, ["OK"], [() => {}]);
+                this.resetSlideup();
+                this.resetStopwatch();
+            }
             eventConfig.isSplits = true;
         }, () => {
             eventConfig.isSplits = false;
@@ -557,7 +565,15 @@ class Stopwatch extends Page {
                 ], Constant.eventColorConditionalAttributes, "class");
 
                 // longclick for selecting multiple events
-                $(`${this.landingPageSelector} #slideup_content *`).bind("longclick", (e) => {
+                $(`${this.landingPageSelector} #slideup_content button`).bind("longclick", (e) => {
+
+                    // TODO: be default prevent multiple events from being used with splits
+                    if (eventConfig.isSplits) {
+                        Popup.createConfirmationPopup("We currently do not support running splits with multiple events.", ["OK"], [() => {}]);
+                        this.resetSlideup();
+                        this.resetStopwatch();
+                        return;
+                    }
 
                     if (!isSelectingMultipleEvents) {
                         $(`${this.landingPageSelector} #slideup_content`).prepend(`
@@ -1011,7 +1027,7 @@ class Stopwatch extends Page {
 
                             // save for a split
                             // note "finish" should never be a split_name in the split_record table
-                        } else if(isUsingSplits) {
+                        } else if (isUsingSplits) {
                             let currentEventRowId = eventConfig.selectedEvent;
 
                             // create object if it doesn't exist for the current event
@@ -1059,7 +1075,8 @@ class Stopwatch extends Page {
 
                             Popup.createConfirmationPopup(`
                                 Results saved sucessfully!<br><br>
-                                <i>Go to the stats page and click on the event to see the results!</i>
+                                <i>Go to the stats page to see the results!</i><br>
+                                <i>A graph of the athlete's progress can be found on the team page</i>
                             `, ["Ok"], [() => {}]);
                         }
 
@@ -1377,7 +1394,7 @@ class Stopwatch extends Page {
                         dbConnection.insertValuesFromObject("record_user_link", linkData);
 
                         // check to see if there are any splits. If so save those with this record.
-                        
+
                         if (Object.keys(eventConfig.splitTimes) != 0) {
                             console.log("there are splits!");
                             let athleteSplits = eventConfig.splitTimes[eventRowid][athlete.id_backend];
@@ -1404,7 +1421,7 @@ class Stopwatch extends Page {
                                 dbConnection.insertValuesFromObject("record_split", recordSplit);
                             }
                         } else {
-                            console.log("No split times for " + athlete.fname + "; not saving times for them");
+                            // console.log("No split times for " + athlete.fname + "; not saving times for them");
                         }
                     }
                 } else {
