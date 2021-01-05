@@ -117,7 +117,7 @@ class Popup {
         $("#app").append(`
             <div id="premiumPopup" class="popup white_background">
 
-                <img width=45% src="img/logo.png" alt=""></img>
+                <img id="logoImg" width=45% src="img/logo.png" alt=""></img>
 
                 <div class="premium_popup_description">
                     <b>Your free trial has expired.</b><br><br>
@@ -185,6 +185,7 @@ class Popup {
             let planId = $(e.target).prop("id");
             store.order(planId).then((param) => {
                 // $("#app").append(`<img src="vid/loading_logo_25_FPS_GIF.gif" style="width: 100%">`);
+                $("#premiumPopup #logoImg").prop("src", "vid/loading_logo_25_FPS_GIF.gif");
             }).error(() => {
                 Popup.createConfirmationPopup("Sorry, an unknown error occured. Please try again later", ["OK"]);
             });

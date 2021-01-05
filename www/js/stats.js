@@ -848,7 +848,13 @@ class Stats extends Page {
                     data: "last_updated",
                     title: "Date",
                     render: function (data, type, row) {
-                        return data.substring(0, 10);
+                        // Check to see if it's a UNIX stamp or date from server
+                        if(typeof data == "string") {
+                            return data.substring(0, 10);
+                        } else if (typeof data == "number") {
+                            let stringDate = new Date(data).toISOString();
+                            return stringDate.substring(0, stringDate.indexOf("T"));
+                        }
                     }
                 }
             ]);

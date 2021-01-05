@@ -46,7 +46,7 @@ class App {
 
         if (NetworkInfo.isOnline()) {
             // Pull data from the backend, then start the app
-            ToolboxBackend.pullFromBackend().then(() => {
+            ToolboxBackend.syncFrontendDatabase().then(() => {
                 this.initializeUI();
 
                 if (DO_LOG) {
@@ -55,7 +55,7 @@ class App {
             }).catch(() => {
                 // Likely a corrupted / lost local storage, so they'll be signed out anyway
                 if (DO_LOG) {
-                    console.log("[main.js:onReady]: Failed to pull from backend, localStorage email: " + localStorage.getItem("email"));
+                    console.log("[main.js:startApp]: Failed to pull from backend, localStorage email: " + localStorage.getItem("email"));
                 }
                 this.initializeUI();
             });
@@ -73,10 +73,6 @@ class App {
                 $(".loader_container").remove();
             });
         }, 1000);
-        
-        setTimeout(() => {
-            // ToolboxBackend.syncFrontendDatabase();
-        }, 5000);
         
         // ---- PAGE SETS ---- //
         this.mainSet = new MainSet(this.swipeHandler, this.setActivePageSet, this, () => {

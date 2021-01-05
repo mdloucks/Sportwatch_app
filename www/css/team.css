@@ -105,6 +105,26 @@
     border: none;
 }
 
+/*^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ 
+// Membership Required Page
+.......................................................................................................*/
+
+#teamPage #membershipPage #sorryImg {
+    margin-top: 5vh;
+    padding-top: constant(safe-area-inset-top);
+    padding-top: env(safe-area-inset-top);
+    width: 25vw;
+}
+
+#teamPage #membershipPage h1 {
+    font-size: 3em;
+}
+
+#teamPage #membershipPage p {
+    padding: 1vh 5vw;
+    font-size: 2em;
+}
+
 
 /* ---- MISC ---- */
 

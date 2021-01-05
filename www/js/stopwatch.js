@@ -1042,7 +1042,7 @@ class Stopwatch extends Page {
                                 // subtract 1 because selectedSplit is indexed starting at one, and js arrays are 0 indexed
                                 eventConfig["splitTimes"][currentEventRowId][athlete.id_backend][Number(eventConfig.selectedSplit) - 1] = this.clock.seconds
                             }
-
+                            this.saveTime(eventConfig, athlete);
                         }
 
                         let nAthletesRemaining = $(`${this.landingPageSelector} #slideup_content ${buttonBoxSelector} > button`).length - 1;
@@ -1392,7 +1392,13 @@ class Stopwatch extends Page {
                         // record_user_link
                         linkData.id_record = Number(newRecord.id_record);
                         dbConnection.insertValuesFromObject("record_user_link", linkData);
-
+                        
+                        // If it's a single record, return from this function since no more
+                        // processing needs to be done
+                        if(!eventConfig.isSplits) {
+                            return;
+                        }
+                        
                         // check to see if there are any splits. If so save those with this record.
 
                         if (Object.keys(eventConfig.splitTimes) != 0) {

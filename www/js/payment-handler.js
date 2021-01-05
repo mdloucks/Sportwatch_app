@@ -32,7 +32,6 @@ class PaymentHandler {
         // Log the error
         store.error(function (error) {
             console.log("THERE WAS AN ERROR #" + error.code + ": " + error.message);
-            console.log(error);
         });
 
         // Update the status of each subscription when updated
@@ -90,6 +89,7 @@ class PaymentHandler {
         // Make sure it's ONLY the premium popup; don't want to thank the user twice
         if(($("#premiumPopup").length != 0) && ($(".popup:not(#premiumPopup)").length == 0)) {
             
+            localStorage.setItem("validMembership", "true");
             Popup.createConfirmationPopup("Welcome to Sportwatch Premium! Thank you for your purchase!", ["Start Tracking!"], [function() {
                 // After clicking the button, remove the premium popup too
                 $("#premiumPopup").fadeOut(1500, function() {

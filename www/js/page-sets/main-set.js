@@ -52,8 +52,8 @@ class MainSet extends PageSet {
             this.switchPage("TeamLanding");
             
         } else if(localStorage.getItem("validMembership") == "false") {
-           
-            Popup.createPremiumPopup();
+            this.switchPage("TeamLanding");
+            // Popup.createPremiumPopup();
         } // Else proceed as normal
         
     }
@@ -79,9 +79,15 @@ class MainSet extends PageSet {
         }
         
         // If they don't have a team, don't let them use Stopwatch or Stats
-        if((localStorage.getItem("id_team") == undefined)) {
+        let missing = "";
+        if(localStorage.getItem("id_team") == undefined) {
+            missing = "team";
+        } else if(localStorage.getItem("validMembership") == "false") {
+            missing = "membership";
+        }
+        if(missing.length > 0) {
             if((pageName == "Stopwatch") || (pageName == "Stats")) {
-                Popup.createConfirmationPopup("To use view the " + pageName + " page, you must have a team.", ["OK"]);
+                Popup.createConfirmationPopup("To use view the " + pageName + " page, you must have a " + missing + ".", ["OK"]);
                 return;
             }
         }

@@ -45,7 +45,7 @@ class Team extends Page {
                     <h1 id="athleteName"></h1>
                     <div></div>
                 </div>
-
+                <div id="paddingDiv"></div>
                 <div id="athlete_events_registered"></div>
                 <div id="athlete_events_remaining"></div>
             </div>
@@ -63,6 +63,20 @@ class Team extends Page {
                 <div id="paddingDiv"></div>
                 <canvas id="athlete_stat_chart"></canvas>
                 <table class="alternating_table_shade" id="athlete_stats_container"></table>
+            </div>
+        `);
+        
+        this.membershipRequired = (`
+            <div id="membershipPage" class="div_page">
+                <img id="sorryImg" src="img/logo-sad.png" alt="">
+                <br>
+                <h1>Membership Required</h1>
+                <p id="statusText">The team that you're on no longer has a membership.
+                </p>
+                <p>You can still edit your account or team preferences in the Settings
+                    tab at any time.
+                </p>
+                <button id="openPremiumPopup" class="sw_big_button">Continue Improving</button>
             </div>
         `);
     }
@@ -85,6 +99,7 @@ class Team extends Page {
             this.pageTransition.addPage("landingPage", this.landingPage, true);
             this.pageTransition.addPage("athletePage", this.athletePage, false);
             this.pageTransition.addPage("athleteStatPage", this.athleteStatPage, false);
+            this.pageTransition.addPage("membershipPage", this.membershipRequired, false);
         } else {
             // Hide all and show (needed for new team-landing.js)
             this.pageTransition.hidePages();
@@ -110,9 +125,13 @@ class Team extends Page {
         $(`${this.landingPageSelector} #team_name`).html(teamName);
         // $(`${this.landingPageSelector} #team_name`).slideUp(1000);
         // $(`${this.landingPageSelector} #team_name`).fadeIn(1000);
-
-
-
+        
+        // If the membership has expired, show the Membership page and setup logic
+        if(storage.getItem("validMembership") == "false") {
+            this.startMembershipPage();
+            return;
+        }
+        
         if (!this.hasStarted) {
             this.hasStarted = true;
 
@@ -288,10 +307,12 @@ class Team extends Page {
         $("#teamPage").animate({
             scrollTop: 0
         }, 1000);
+        
         // Add top padding to avoid header overlap (iOS issue)
         // TODO: I removed this. Tell me if it's an issue for iOS (probably sorry)
-        // let headerWidth = $("#teamPage #athletePage > .generic_header").height();
-        // $("#teamPage #athletePage > *:not(.generic_header)").first().css("margin-top", `calc(${headerWidth}px + 5vh)`);
+        // ^ Yeah, it was hiding the "Events with saved times" text without the below snippet
+        let headerWidth = $("#teamPage #athletePage > .generic_header").height();
+        $("#teamPage #athletePage > #paddingDiv").first().css("margin-top", `calc(${headerWidth}px + 5vh)`);
 
         // Slide back; athlete page will be overwritten next select
         $("#back_button_athlete").bind("click", (e) => {
@@ -425,6 +446,69 @@ class Team extends Page {
                 this.createTable(athlete, results, event.rowid);
             }
         });
+    }
+    
+    
+    startMembershipPage() {
+        this.pageTransition.setCurrentPage("membershipPage");
+        this.pageTransition.showCurrentPage();
+        let storage = window.localStorage;
+        
+        // Customize content to reflect the user (are they a coach, user, etc.)
+        let statusText = "The team that you're on no longer has a membership. ";
+        let customizedContent = ``;
+        if((storage.getItem("id_user") == storage.getItem("id_coachPrimary")) || 
+            (storage.getItem("id_user") == storage.getItem("id_coachSecondary"))) {
+            customizedContent = `You currently have <u>a few days to reactivate</u> your membership.
+                                After that, any athlete can purchase a membership for the team.`;
+            $("#teamPage #membershipPage #openPremiumPopup").css("display", "inline-block");
+        } else {
+            customizedContent = `Your coach has a few days to renew their membership. After that,
+                                you'll be able to purchase a membership for the team.`;
+            $("#teamPage #membershipPage #openPremiumPopup").css("display", "none");
+        }
+        
+        // Submit a backend request to get the number of days left
+        PlanBackend.getMembershipStatus(storage.getItem("email"), (response) => {
+            if(response.status > 0) {
+                let daysLeft = 7 - response.daysSinceExpire;
+                if(daysLeft <= 0) {
+                    customizedContent = `It has been over one week since the team membership expired.
+                                        Any athlete can now purchase a membership for the team.`;
+                    $("#teamPage #membershipPage #openPremiumPopup").css("display", "inline-block");
+                } else {
+                    let dayWord = "days";
+                    if(daysLeft == 1) { // Define here so it doesn't say "1 days"
+                        dayWord = "day"
+                    }
+                    customizedContent = customizedContent.replace("a few days", daysLeft + " " + dayWord);
+                }
+            }
+            statusText = statusText + customizedContent;
+            $("#teamPage #membershipPage #statusText").html(statusText);
+        });
+        
+        // Define click handler
+        $("#teamPage #membershipPage #openPremiumPopup").off(); // Remove any old handlers
+        $("#teamPage #membershipPage #openPremiumPopup").click((e) => {
+            Popup.createPremiumPopup();
+        });
+        
+        $("#premiumPopup").bind("didPurchase", () => {
+            console.log("Yup!");
+            this.pageTransition.slideLeft("landingPage");
+        });
+        
+        console.log("EVENTS");
+        console.log($._data($("#premiumPopup")[0], "events"));
+        
+        // Set up a loop so that when they unlock the app, we switch to the landing page
+        // let membershipCheckLoop = setInterval(() => {
+        //     if(storage.getItem("validMembership") == "true") {
+        //         this.pageTransition.slideLeft("landingPage");
+        //         clearInterval(membershipCheckLoop);
+        //     }
+        // }, 5000);
     }
 
     /**
