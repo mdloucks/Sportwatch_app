@@ -1410,21 +1410,24 @@ class Stopwatch extends Page {
                             for (let i = 0; i < athleteSplits.length; i++) {
                                 // this is the time in seconds for the split
                                 let athleteSplitTime = Number(athleteSplits[i]);
-                                // console.log("athleteSplits index " + i + " value: " + athleteSplitTime);
-                                let recordSplit = {};
-
-                                recordSplit["id_record"] = newRecord.id_record;
-                                recordSplit["value"] = athleteSplitTime;
-                                recordSplit["split_name"] = String(eventConfig.selectedSplits[eventRowid][i]);
-                                recordSplit["split_index"] = i + 1;
-                                recordSplit["last_updated"] = Date.now();
-
-
-                                // TODO: Seth find a way to insert the recordSplit object into the 
-                                // sportwatch database, I trust you can do a fabulous job :) 
-
+                                let splitName = String(eventConfig.selectedSplits[eventRowid][i]);
+                                
+                                // Add the split to the backend, then store the id_split in frontend
+                                RecordBackend.addSplit(newRecord.id_record, athleteSplitTime, splitName, -1, -1, (response) => {
+                                    if(response.status > 0) {
+                                        let splitObject = response.addedSplit;
+                                        splitObject["split_name"] = splitObject["name"];
+                                        splitObject["split_index"] = splitObject["splitIndex"];
+                                        delete splitObject["name"];
+                                        delete splitObject["splitIndex"];
+                                        recordSplit["last_updated"] = Date.now();
+                                        // insert the record into the database
+                                        dbConnection.insertValuesFromObject("record_split", recordSplit);
+                                    }
+                                });
+                                
                                 // insert the record into the database
-                                dbConnection.insertValuesFromObject("record_split", recordSplit);
+                                // dbConnection.insertValuesFromObject("record_split", recordSplit);
                             }
                         } else {
                             // console.log("No split times for " + athlete.fname + "; not saving times for them");

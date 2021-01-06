@@ -127,6 +127,89 @@ class RecordBackend {
         });
 
     }
+    
+    /**
+     * Adds a split to the given record. The only required parameters are
+     * parentRecordId and value. The other parameters can be ommitted and will be computed
+     * automatically on the backend. An existing record must exist to add a split.
+     * 
+     * @example addSplit(4, 17.034, "", -1, -1, (r) => { // Check r.status });
+     *          --> Adds split to record #4 named "Split" (default) and index computed automatically
+     * @example addSplit(4, 17.034, "100m", 37, 1, (r) => { // Check r.status });
+     *          --> Adds split to record #4 named "100m", attached to user #37 with index 1
+     * 
+     * @param {Integer} parentRecordId backend ID of the record this split belongs to
+     * @param {Float} value timestamp of this split
+     * @param {String} splitName [default = ""] name for this split; if empty, backend will name is "Split"
+     * @param {Integer | String} emailOrId [default = -1] the user email or ID for this split; will default
+     * to the id user of the record it's being attached to if left as -1
+     * @param {Integer} splitIndex [default = -1] index of the split; if left, it will be computed on the backend
+     * @param {Function} cb callback to handle the response from the server
+     */
+    static addSplit(parentRecordId, value, splitName = "", emailOrId = -1, splitIndex = -1, cb = function() { }) {
+
+        // Do some basic checks
+        let storage = window.localStorage;
+        let identityKey = "email"; // "email" if emailOrId is a string, "id_user" if it's a number
+        
+        if(emailOrId != -1) {
+            if (typeof emailOrId == "number") {
+                identityKey = "id_user";
+            } else { // Assume it was an email
+                if (emailOrId.length == 0) {
+                    emailOrId = storage.getItem("email");
+                }
+            }
+        }
+        if (value < 0) {
+            if (DO_LOG) {
+                console.log("[record-backend.js:addSplit()] Value cannot be negative");
+            }
+            return false;
+        }
+
+        // Add to the post array
+        let postArray = {};
+        postArray.SID = storage.getItem("SID");
+        postArray.id_record = parentRecordId;
+        postArray.value = value;
+        if(splitName.length > 0) {
+            postArray.splitName = splitName;
+        }
+        if(emailOrId != -1) {
+            postArray.accountIdentity = {};
+            postArray.accountIdentity[identityKey] = emailOrId;
+        }
+        if(splitIndex != -1) {
+            postArray.splitIndex = splitIndex;
+        }
+        
+
+        // Submit the request and call the callback
+        return $.ajax({
+            type: "POST",
+            url: Constant.getRecordURL() + "?intent=1",
+            timeout: Constant.AJAX_CFG.timeout,
+            data: postArray,
+            success: (response) => {
+                if (DO_LOG) {
+                    console.log("[record-backend.js:addSplit()] " + response);
+                }
+                try {
+                    response = JSON.parse(response);
+                } catch (e) {
+                    // Couldn't parse, so just use string
+                }
+                cb(response);
+            },
+            error: (error) => {
+                if (DO_LOG) {
+                    console.log("[record-backend.js:addSplit()] " + error);
+                }
+                cb(error);
+            }
+        });
+    }
 
     /**
      * Grabs all of the records (up to 100 at a time) matching the given
@@ -156,7 +239,7 @@ class RecordBackend {
         // Submit the request and call the callback
         return $.ajax({
             type: "POST",
-            url: Constant.getRecordURL() + "?intent=1",
+            url: Constant.getRecordURL() + "?intent=2",
             timeout: Constant.AJAX_CFG.timeout,
             data: criteria,
             success: (response) => {
@@ -206,7 +289,7 @@ class RecordBackend {
         // Submit the request and call the callback
         return $.ajax({
             type: "POST",
-            url: Constant.getRecordURL() + "?intent=2",
+            url: Constant.getRecordURL() + "?intent=3",
             timeout: Constant.AJAX_CFG.timeout,
             data: newData,
             success: (response) => {
@@ -266,7 +349,7 @@ class RecordBackend {
         // Submit the request and call the callback
         return $.ajax({
             type: "POST",
-            url: Constant.getRecordURL() + "?intent=4",
+            url: Constant.getRecordURL() + "?intent=5",
             timeout: Constant.AJAX_CFG.timeout,
             data: postData,
             success: (response) => {
@@ -328,7 +411,7 @@ class RecordBackend {
         // Submit the request and call the callback
         return $.ajax({
             type: "POST",
-            url: Constant.getRecordURL() + "?intent=5",
+            url: Constant.getRecordURL() + "?intent=6",
             timeout: Constant.AJAX_CFG.timeout,
             data: postData,
             success: (response) => {
@@ -350,7 +433,52 @@ class RecordBackend {
             }
         });
     }
+    
+    /**
+     * Will PERMANENTLY delete the split from the backend. It will also detatch the user
+     * if there are other attached athletes
+     * 
+     * @example deleteSplit(22, (response) => { // response.substatus > 0 means splits deleted })
+     *          --> Purges split 22 from the server database
+     * 
+     * @param {AssociativeArray} splitId the backend ID of the split to delete
+     * @param {Function} callback callback to handle the response (JSON or String on failure)
+     */
+    static deleteSplit(splitId, callback) {
 
+        let storage = window.localStorage;
+
+        // Add them to an array for post data
+        let postData = {};
+        postData.SID = storage.getItem("SID");
+        postData.id_record = recordId;
+
+        // Submit the request and call the callback
+        return $.ajax({
+            type: "POST",
+            url: Constant.getRecordURL() + "?intent=7",
+            timeout: Constant.AJAX_CFG.timeout,
+            data: postData,
+            success: (response) => {
+                if (DO_LOG) {
+                    console.log("[record-backend.js:deleteSplit()] " + response);
+                }
+                try {
+                    response = JSON.parse(response);
+                } catch (e) {
+                    // Couldn't parse, so just use string
+                }
+                callback(response);
+            },
+            error: (error) => {
+                if (DO_LOG) {
+                    console.log("[record-backend.js:deleteSplit()] " + error);
+                }
+                callback(error);
+            }
+        });
+    }
+    
     /**
      * Will PERMANENTLY delete the record from the backend (frontend not handled).
      * Note: There are no restrictions on record deletion from the backend,
@@ -374,7 +502,7 @@ class RecordBackend {
         // Submit the request and call the callback
         return $.ajax({
             type: "POST",
-            url: Constant.getRecordURL() + "?intent=6",
+            url: Constant.getRecordURL() + "?intent=8",
             timeout: Constant.AJAX_CFG.timeout,
             data: postData,
             success: (response) => {

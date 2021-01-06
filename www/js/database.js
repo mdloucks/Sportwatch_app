@@ -111,7 +111,7 @@ class DatabaseConnection {
 
             tx.executeSql(`CREATE TABLE IF NOT EXISTS record (id_record, value, id_record_definition, is_practice, is_split, id_split, id_split_index, last_updated)`);
 
-            tx.executeSql(`CREATE TABLE IF NOT EXISTS record_split (id_record, value, split_name, split_index, last_updated)`);
+            tx.executeSql(`CREATE TABLE IF NOT EXISTS record_split (id_split, id_record, value, split_name, split_index, last_updated)`);
 
             tx.executeSql(`CREATE TABLE IF NOT EXISTS record_user_link (id_backend, id_record)`);
             
