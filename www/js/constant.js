@@ -96,6 +96,29 @@ Constant.queryRecordsForAthleteEvent = `
     WHERE record.id_record_definition = ? AND record_user_link.id_backend = ?
 `;
 
+// get all records and the users linked to them today
+Constant.queryTodaysRecordsQuery = (`
+    SELECT * FROM record
+    INNER JOIN record_user_link
+    ON record_user_link.id_record = record.id_record
+    INNER JOIN athlete
+    ON record_user_link.id_backend = athlete.id_backend
+    INNER JOIN record_definition
+    ON record.id_record_definition = record_definition.rowid
+    WHERE date(datetime(record.last_updated / 1000 , 'unixepoch')) = date('now')
+`);
+
+// get all records and the users linked to them
+Constant.queryAllRecords = (`
+    SELECT * from record
+    INNER JOIN record_user_link
+    ON record.id_record = record_user_link.id_record
+    INNER JOIN athlete
+    ON record_user_link.id_backend = athlete.id_backend
+    INNER JOIN record_definition
+    ON record.id_record_definition = record_definition.rowid
+`);
+
 
 Constant.graphColors = [
     "#003f5c",

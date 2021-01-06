@@ -22,6 +22,7 @@
     font-weight: bold;
 }
 
+
 #statsPage #eventPage #event_results thead {
     font-size: 1.1em;
     font-weight: bolder;
@@ -29,6 +30,9 @@
 
 .dataTables_wrapper {
     font-size: 4vw;
+    z-index: 0;
+    padding-left: 0.5vw;
+    padding-right: 0.5vw;
 }
 
 #statsPage #stats_summary {
