@@ -90,6 +90,8 @@ class PaymentHandler {
         if(($("#premiumPopup").length != 0) && ($(".popup:not(#premiumPopup)").length == 0)) {
             
             localStorage.setItem("validMembership", "true");
+            $("#app").trigger("didPurchase");
+            $("#premiumPopup #logoImg").prop("src", "img/logo.png");
             Popup.createConfirmationPopup("Welcome to Sportwatch Premium! Thank you for your purchase!", ["Start Tracking!"], [function() {
                 // After clicking the button, remove the premium popup too
                 $("#premiumPopup").fadeOut(1500, function() {

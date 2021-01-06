@@ -93,7 +93,7 @@ class Team extends Page {
     }
 
     start() {
-
+        console.log("starting...");
         // Only link them to pageTransition once
         if (this.pageTransition.getPageCount() == 0) {
             this.pageTransition.addPage("landingPage", this.landingPage, true);
@@ -131,7 +131,8 @@ class Team extends Page {
             this.startMembershipPage();
             return;
         }
-        
+        console.log("Made it past membership");
+        console.log(this.hasStarted);
         if (!this.hasStarted) {
             this.hasStarted = true;
 
@@ -494,13 +495,13 @@ class Team extends Page {
             Popup.createPremiumPopup();
         });
         
-        $("#premiumPopup").bind("didPurchase", () => {
+        $("#app").off("didPurchase"); // Remove old event to prevent duplicates
+        $("#app").on("didPurchase", () => {
             console.log("Yup!");
-            this.pageTransition.slideLeft("landingPage");
+            console.log(this.pageTransition.getCurrentPage());
+            this.pageTransition.setCurrentPage("landingPage");
+            this.start();
         });
-        
-        console.log("EVENTS");
-        console.log($._data($("#premiumPopup")[0], "events"));
         
         // Set up a loop so that when they unlock the app, we switch to the landing page
         // let membershipCheckLoop = setInterval(() => {
