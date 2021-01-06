@@ -40,7 +40,7 @@ class ToolboxBackend {
                 if(storage.getItem("id_team") != null) {
                     localTeamData.resolve();
                 } else {
-                    postResolve.resolve();
+                    returnPromise.resolve();
                 }
             });
         });
