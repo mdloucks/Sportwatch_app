@@ -77,6 +77,10 @@ class MainSet extends PageSet {
             }
             return;
         }
+        // Make sure we aren't already on that page
+        if(this.transitionObj.getCurrentPage() == pageName.toLowerCase() + "Page") {
+            return;
+        }
         
         // If they don't have a team, don't let them use Stopwatch or Stats
         let missing = "";
