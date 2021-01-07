@@ -885,6 +885,7 @@ class Settings extends Page {
         $(`#settingsPage #editPage #restartMembership`).click((e) => {
             Popup.createPremiumPopup();
             this.pageTransition.slideRight("catagoryPage");
+            $("#settingsPage .cat_button").removeClass("cat_button_selected");
         });
         
         // Grab information
