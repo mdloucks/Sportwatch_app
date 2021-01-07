@@ -93,7 +93,7 @@ class Team extends Page {
     }
 
     start() {
-        console.log("starting...");
+        
         // Only link them to pageTransition once
         if (this.pageTransition.getPageCount() == 0) {
             this.pageTransition.addPage("landingPage", this.landingPage, true);
@@ -127,12 +127,11 @@ class Team extends Page {
         // $(`${this.landingPageSelector} #team_name`).fadeIn(1000);
         
         // If the membership has expired, show the Membership page and setup logic
-        if(storage.getItem("validMembership") == "false") {
+        if (storage.getItem("validMembership") == "false") {
             this.startMembershipPage();
             return;
         }
-        console.log("Made it past membership");
-        console.log(this.hasStarted);
+        
         if (!this.hasStarted) {
             this.hasStarted = true;
 
@@ -150,11 +149,12 @@ class Team extends Page {
                     </div>
                 `, ["Ok"], [() => {}]);
             });
-        } else {
-            this.startLandingPage(() => {
-                Animations.fadeInChildren(this.athleteBoxSelector, Constant.fadeDuration, Constant.fadeIncrement);
-            });
         }
+        
+        // Show the icons
+        this.startLandingPage(() => {
+            Animations.fadeInChildren(this.athleteBoxSelector, Constant.fadeDuration, Constant.fadeIncrement);
+        });
     }
 
 
@@ -451,6 +451,8 @@ class Team extends Page {
     
     
     startMembershipPage() {
+        this.pageTransition.forceHaltSlide();
+        this.pageTransition.hidePages();
         this.pageTransition.setCurrentPage("membershipPage");
         this.pageTransition.showCurrentPage();
         let storage = window.localStorage;
