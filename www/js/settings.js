@@ -504,7 +504,7 @@ class Settings extends Page {
         let baseContent = (`
             <button class="generated_button" style="background-color: #dd3333" id="leave_team_button">Leave Team</button>
             <hr>
-            <div id="coachControlsWrapper">
+            <div id="coachControlsWrapper" style="display: none">
                 <div id="editTeamWrapper"></div>
                 <br><hr>
                 
@@ -522,7 +522,7 @@ class Settings extends Page {
                 <div id="lockWrapper"></div>
                 <br><hr>
                 <!-- Hidden for secondary coach -->
-                <div id="deleteWrapper">
+                <div id="deleteWrapper" style="display: none">
                     <h1 class="subheading_text">Delete Team</h1>
                     <p>If you wish to delete this team, you will <b>permanently</b>
                     erase all associated settings. Athlete data (such as
@@ -794,15 +794,27 @@ class Settings extends Page {
                     // Call setting.js deleteTeam function
                     this.deleteTeam(controlObject).then(() => {
                         // Called after the team has been deleted
-                        $(this.inputDivIdentifier + " #deleteWrapper #postDeleteWrapper").fadeTo(250, 0);
                         Popup.createConfirmationPopup("Team successfully deleted", ["OK"], [() => {
                             location.reload(); // Restart the app
                         }]);
-                        
+                    }, () => {
+                        Popup.createConfirmationPopup("Sorry, an unknown error occured. Please try again later.", ["OK"]);
                     });
+                    
                 }
             ]);
         });
+        
+        // Show control elements if the user is a coach
+        if((storage.getItem("id_user") == storage.getItem("id_coachPrimary")) || 
+            (storage.getItem("id_user") == storage.getItem("id_coachSecondary"))) {
+            $(this.inputDivIdentifier + " #coachControlsWrapper").css("display", "block");
+            
+            // Only show delete option to primary coach
+            if(storage.getItem("id_user") == storage.getItem("id_coachPrimary")) {
+                $(this.inputDivIdentifier + " #coachControlsWrapper #deleteWrapper").css("display", "block");
+            }
+        }
         
         // Slide the page, we're ready to show the user
         this.pageTransition.slideLeft("editPage");
@@ -1101,7 +1113,7 @@ class Settings extends Page {
                         } // End of error processing
                     });
                 } else {
-                    Popup.createConfirmationPopup("Sorry, we were unable to kick that athlete. Please try again later"), ["OK"];
+                    Popup.createConfirmationPopup("Sorry, we were unable to kick that athlete. Please try again later", ["OK"]);
                 }
             }, id_backend);
         }, () => {
@@ -1154,14 +1166,20 @@ class Settings extends Page {
                 $(this.inputDivIdentifier + " #deleteWrapper #stopDelete").fadeTo(250, 0);
                 
                 TeamBackend.deleteTeam((response) => {
+                    // Clean up wrapper for next press / action
+                    $(this.inputDivIdentifier + " #deleteWrapper #stopDelete").css("opacity", "1");
+                    $(this.inputDivIdentifier + " #deleteWrapper #stopDelete").prop("disabled", false);
+                    $(this.inputDivIdentifier + " #deleteWrapper #postDeleteWrapper").fadeTo(250, 0);
+                    
                     if(response.status > 0) {
                         // Return to the calling function
                         hasDeleted.resolve();
-                        // Clean up delete wrapper
-                        $(this.inputDivIdentifier + " #deleteWrapper #stopDelete").css("opacity", "1");
-                        $(this.inputDivIdentifier + " #deleteWrapper #stopDelete").prop("disabled", false);
                     } else {
-                        hasDeleted.reject();
+                        if(response.substatus == 3) {
+                            Popup.createConfirmationPopup("Only the primary coach can delete the team.", ["OK"]);
+                        } else {
+                            hasDeleted.reject();
+                        }
                     }
                 });
             }
