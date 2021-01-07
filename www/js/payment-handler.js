@@ -11,16 +11,38 @@ class PaymentHandler {
      * app information once a subscription is purchased.
      */
     static initPlans() {
+
+        let monthlyID;
+        let annuallyID;
+
+        if (device.platform == "iOS" || device.platform == "iPhone" || device.platform == "iPad") {
+            console.log("[payment-handler.js]: User is running on iOS");
+            monthlyID = Constant.IOS_MONTHLY_ID;
+            annuallyID = Constant.IOS_ANNUALLY_ID;
+        } else if(device.platform == "Android") {
+            console.log("[payment-handler.js]: User is running on Android");
+            monthlyID = Constant.ANDROID_MONTHLY_ID;
+            annuallyID = Constant.ANDROID_ANNUALLY_ID;
+        } else {
+            console.log("[payment-handler.js]: No supported platform identified. Exiting...");
+            Popup.createConfirmationPopup(`
+                You are running on an unsupported operating system "${device.platform}"
+                If you are on iOS or Android, please contact us at support@sportwatch.us about the issue.
+            `, ["OK"], [() => {
+                navigator.app.exitApp();
+            }]);
+            return;
+        }
         
         // Add plans (annual, seasonal) here \/
         store.register([{
                 // Sportwatch Monthly
-                id: Constant.MONTHLY_ID,
+                id: monthlyID,
                 type: store.PAID_SUBSCRIPTION,
             },
             {
                 // Sportwatch annually
-                id: Constant.ANNUALLY_ID,
+                id: annuallyID,
                 type: store.PAID_SUBSCRIPTION,
             }
         ]);
@@ -37,40 +59,40 @@ class PaymentHandler {
         // Update the status of each subscription when updated
         store.when("subscription").updated(() => {
             PaymentHandler.PLANS = []; // Clear the array to re-register the plans
-            PaymentHandler.PLANS.push(store.get(Constant.MONTHLY_ID));
-            PaymentHandler.PLANS.push(store.get(Constant.ANNUALLY_ID));
+            PaymentHandler.PLANS.push(store.get(monthlyID));
+            PaymentHandler.PLANS.push(store.get(annuallyID));
         });
         
         // Good docs: https://github.com/j3k0/cordova-plugin-purchase/blob/master/doc/api.md#order
         
         // Check to see if they own any of the plans
-        store.when(Constant.MONTHLY_ID).updated((product) => {
+        store.when(monthlyID).updated((product) => {
             if((product.owned) && (product.state == "owned") && (!product.isExpired)) {
                 this.handlePremiumSetup();
             }
         });
-         store.when(Constant.ANNUALLY_ID).updated((product) => {
+         store.when(annuallyID).updated((product) => {
             if((product.owned) && (product.state == "owned") && (!product.isExpired)) {
                 this.handlePremiumSetup();
             }
         });
         
         // Set up the logic for when a plan is ordered (i.e. initiated by button press)
-        store.when(Constant.MONTHLY_ID).approved((product) => {
+        store.when(monthlyID).approved((product) => {
             // console.log("Monthly approved");
             // console.log(product);
             product.verify();
         });
-        store.when(Constant.ANNUALLY_ID).approved((product) => {
+        store.when(annuallyID).approved((product) => {
             
         });
         
-        store.when(Constant.MONTHLY_ID).verified((product) => {
+        store.when(monthlyID).verified((product) => {
             product.finish();
             // console.log("Is verified");
             // this.handlePremiumSetup();
         });
-        store.when(Constant.ANNUALLY_ID).verified((product) => {
+        store.when(annuallyID).verified((product) => {
         });
         
         // Load informations about products and purchases

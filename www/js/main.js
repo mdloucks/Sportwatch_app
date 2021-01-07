@@ -9,6 +9,7 @@ class App {
         // Page Sets
         this.mainSet;
         this.welcomeSet;
+        this.isStalling = true;
     }
 
     initialize(params) {
@@ -37,36 +38,53 @@ class App {
         // Have to initialize database here after device is ready
         dbConnection = new DatabaseConnection();
         $(".loader_container > h1").text("Starting Sportwatch...");
+        
+        // clear the localstorage and have the user login again if it's taking too long
+        // this helps us avoid any tricky issues with a bad localstorage item causing the app to 
+        // either hang or crash
+        setTimeout(() => {
+            if(this.isStalling) {
+                localStorage.clear();
+                location.reload();                
+            }
+        }, Constant.minimumStallDuration);
 
-        this.swipeHandler = new SwipeHolder("#app");
-        PaymentHandler.initPlans();
-        if (device.platform != "iOS") {
-            FastClick.attach(document.body); // iOS double clicks don't work with this plugin
+        try {
+            this.swipeHandler = new SwipeHolder("#app");
+            PaymentHandler.initPlans();
+            if (device.platform != "iOS") {
+                FastClick.attach(document.body); // iOS double clicks don't work with this plugin
+            }
+            
+            if (NetworkInfo.isOnline()) {
+                // Pull data from the backend, then start the app
+                ToolboxBackend.syncFrontendDatabase().then(() => {
+                    this.initializeUI();
+    
+                    if (DO_LOG) {
+                        console.log("[main.js:startApp()]: Backend sync finished!");
+                    }
+                }).catch(() => {
+                    // Likely a corrupted / lost local storage, so they'll be signed out anyway
+                    if (DO_LOG) {
+                        console.log("[main.js:startApp]: Failed to pull from backend, localStorage email: " + localStorage.getItem("email"));
+                    }
+                    this.initializeUI();
+                });
+            } else {
+                NetworkInfo.onOffline();
+    
+                this.initializeUI();
+            }
+        } catch (error) {
+            console.log("THERE WAS AN ERROR " + JSON.stringify(error));
         }
 
-        if (NetworkInfo.isOnline()) {
-            // Pull data from the backend, then start the app
-            ToolboxBackend.syncFrontendDatabase().then(() => {
-                this.initializeUI();
-
-                if (DO_LOG) {
-                    console.log("[main.js:startApp()]: Backend sync finished!");
-                }
-            }).catch(() => {
-                // Likely a corrupted / lost local storage, so they'll be signed out anyway
-                if (DO_LOG) {
-                    console.log("[main.js:startApp]: Failed to pull from backend, localStorage email: " + localStorage.getItem("email"));
-                }
-                this.initializeUI();
-            });
-        } else {
-            NetworkInfo.onOffline();
-
-            this.initializeUI();
-        }
     }
 
     initializeUI() {
+        console.log("start UI");
+        this.isStalling = false;
 
         setTimeout(() => {
             $(".loader_container").fadeOut(500, function () {

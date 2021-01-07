@@ -60,8 +60,11 @@ Constant.AJAX_CFG = {
 };
 
 // Subscription information
-Constant.MONTHLY_ID = "sp_m_KXqzG";
-Constant.ANNUALLY_ID = "sRfafDxVzo";
+Constant.IOS_MONTHLY_ID = "sp_m_KXqzG";
+Constant.IOS_ANNUALLY_ID = "sRfafDxVzo";
+
+Constant.ANDROID_MONTHLY_ID = "3zn1dw9nzzsxgng4v9yio6q2wv3eel3g";
+Constant.ANDROID_ANNUALLY_ID = "4wv74w2raq0maotxdmjvzwzicol4wyna";
 
 // animation durations
 Constant.fadeDuration = 300;
@@ -73,6 +76,9 @@ Constant.popupFadeoutDuration = 1500;
 Constant.longClickMinimumDuration = 1000;
 
 Constant.stopwatchSelectEventColumnCount = 3;
+
+// the amount of time we wait before invalidating localstorage and restarting
+Constant.minimumStallDuration = 8000;
 
 // database queries
 
