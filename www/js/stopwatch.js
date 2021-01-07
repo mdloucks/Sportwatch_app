@@ -1042,7 +1042,6 @@ class Stopwatch extends Page {
                                 // subtract 1 because selectedSplit is indexed starting at one, and js arrays are 0 indexed
                                 eventConfig["splitTimes"][currentEventRowId][athlete.id_backend][Number(eventConfig.selectedSplit) - 1] = this.clock.seconds
                             }
-                            this.saveTime(eventConfig, athlete);
                         }
 
                         let nAthletesRemaining = $(`${this.landingPageSelector} #slideup_content ${buttonBoxSelector} > button`).length - 1;
@@ -1137,11 +1136,12 @@ class Stopwatch extends Page {
             let inputId = `splits_input_${i}`;
 
             $(`${this.landingPageSelector} #slideup_content`).append(`
+                <br><br>    
                 <div id="${sectionId}">
                     <h1>${eventNames[i]}</h1>
                     <hr>
                     <button class="generated_button">Add Split to ${eventNames[i]} +</button>
-                </div>
+                </div><br><br><br><br>
             `);
 
             $(`#${sectionId}`).find("button:last").attr("nClicks", 0);
@@ -1418,11 +1418,15 @@ class Stopwatch extends Page {
                                         let splitObject = response.addedSplit;
                                         splitObject["split_name"] = splitObject["name"];
                                         splitObject["split_index"] = splitObject["splitIndex"];
+                                        splitObject["last_updated"] = Date.now();
                                         delete splitObject["name"];
                                         delete splitObject["splitIndex"];
-                                        recordSplit["last_updated"] = Date.now();
+                                        delete splitObject["id_user"];
+
+                                        // id_split, id_record, value, split_name, split_index, last_updated
+                                        console.log("inserting " + JSON.stringify(splitObject));
                                         // insert the record into the database
-                                        dbConnection.insertValuesFromObject("record_split", recordSplit);
+                                        dbConnection.insertValuesFromObject("record_split", splitObject);
                                     }
                                 });
                                 
@@ -1451,7 +1455,6 @@ class Stopwatch extends Page {
             this.offlineRecordRowid += 1;
         }
 
-        // dbConnection.printTable("record_split");
 
     }
 
