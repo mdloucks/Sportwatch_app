@@ -160,7 +160,7 @@ class PageTransition {
     
     /**
      * Halts any sliding timeouts. This function should be used with EXTREME CARE,
-     * as mis-use can cause pages to remain visible enough after they have moved
+     * as mis-use can cause pages to remain visible even after they have moved
      * off the viewport. This function's main purpose is to prevent a TAP Gesture
      * from triggering slidePageX(), and consequently hiding the page after a
      * 200 millisecond delay.
