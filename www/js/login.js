@@ -123,7 +123,7 @@ class Login extends Page {
             Authentication.login(email, password).then(function (response) {
                 localStorage.setItem("email", email); // Set the email
                 // Then pull data to update the frontend
-                ToolboxBackend.pullFromBackend().then(() => {
+                ToolboxBackend.syncFrontendDatabase().then(() => {
                     console.log("[login.js]: Backend sync finished!");
                     
                     this.pageController.transitionObj.forceHaltSlide(); // See settings.js for explanation
