@@ -166,6 +166,36 @@
     background-color: lightgray;
 }
 
+#settingsPage #deleteWrapper h1 {
+    padding-bottom: 0;
+}
+#settingsPage #deleteWrapper p {
+    margin: 0 3vw 2vh 3vw;
+    font-weight: unset;
+}
+#settingsPage #deleteWrapper #deleteTeam {
+    background-color: #dd3333;
+    transition: all 0.5s;
+}
+#settingsPage #deleteWrapper #deleteTeam:disabled {
+    background-color: gray;
+}
+
+#settingsPage #deleteWrapper #postDeleteWrapper {
+    padding-top: 15px;
+    height: 200px;
+}
+#settingsPage #deleteWrapper #postDeleteWrapper #statusText {
+    font-size: 1.8em;
+    font-weight: unset;
+}
+#settingsPage #deleteWrapper #postDeleteWrapper #stopDelete {
+    padding: 10px 15px;
+    font-size: 2em;
+    background-color: lightgray;
+    border: 2px solid black;
+}
+
 /* Setting -- Membership */
 
 #settingsPage #membershipGraphic {

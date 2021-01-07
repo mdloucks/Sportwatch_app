@@ -480,93 +480,6 @@ class Settings extends Page {
                 }
                 
             });
-            
-            
-            // Basic values (not requiring a password)
-        //     ValueEditor.editValues(this.inputDivIdentifier, accountInfo, (newValues) => {
-        //         AccountBackend.updateAccount(newValues, (response) => {
-
-        //             if (response.status > 0) { // EDIT SUCCESS
-        //                 Popup.createConfirmationPopup("Successfully saved!", ["OK"], [() => {}]);
-        //                 if ("didSetPassword" in response) {
-        //                     if (response.didSetPassword == 0) {
-        //                         Popup.createConfirmationPopup("Warning: Password was not updated! Please try again", ["OK"], [() => {}]);
-        //                         return;
-        //                     }
-        //                 }
-        //                 response = AccountBackend.beautifyResponse(response);
-        //                 // Populate fields with the updated values
-        //                 $('#editPage input[name="First Name"]').val(response.fname);
-        //                 $('#editPage input[name="Last Name"]').val(response.lname);
-        //                 $('#editPage input[name="Gender"]').val(response.gender);
-        //                 $('#editPage input[name="Phone Number"]').val(response.cellNum);
-        //                 $('#editPage input[name="State"]').val(response.state);
-        //                 $('#editPage input[name="Date of Birth"]').val(response.dob);
-
-        //             } else { // EDIT FAILED
-        //                 if (response.substatus == 5) {
-
-        //                     // Was the response from the backend (contains list of invalid) or frontend
-        //                     if (response.msg.includes(":")) { // BACKEND
-        //                         // Isolate the invalid parameters
-        //                         let invalidParams = response.msg; // Formatted "some params invalid: fnameNew lnameNew ..."
-        //                         invalidParams = invalidParams.substring(invalidParams.indexOf(":") + 2, invalidParams.length);
-        //                         invalidParams = invalidParams.replace(/New/gm, ""); // Remove "New" from variable names
-        //                         invalidParams = invalidParams.replace(/ /gm, ", "); // Add commas for pretty formatting
-
-        //                         // Convert variable names to human-readable named
-        //                         let keys = Object.keys(displayNames);
-        //                         for (let n = 0; n < keys.length; n++) {
-        //                             // Replace the key with the display name
-        //                             invalidParams = invalidParams.replace(keys[n], displayNames[keys[n]]);
-        //                         }
-
-        //                         Popup.createConfirmationPopup("The following were invalid, please correct to save: " + invalidParams,
-        //                             ["OK"], [() => {}]);
-        //                     } else { // FRONTEND
-        //                         Popup.createConfirmationPopup("Some parameters were invalid, please try again", ["OK"], [() => {}]);
-        //                     }
-
-        //                 } else {
-        //                     Popup.createConfirmationPopup("An unknown error occured, please try again later", ["Close"], [() => {}]);
-        //                 }
-        //             }
-        //         }); // End of Backend callback
-
-        //     }, [], displayNames);
-
-        //     // Email & Password (requires current password)
-        //     ValueEditor.editValues(this.inputDivIdentifier, sensitiveValues, (newValues) => {
-
-        //         if (newValues["passwordOld"].length == 0) {
-        //             Popup.createConfirmationPopup("Please enter your current password", ["OK"], [() => {}]);
-        //         } else if (newValues["passwordNew"] != newValues["passwordNew2"]) {
-        //             Popup.createConfirmationPopup("New passwords do not match", ["OK"], [() => {}]);
-        //         } else {
-        //             let currentPassword = newValues["passwordOld"];
-        //             delete newValues["passwordOld"];
-        //             // Delete since backend doesn't need verification
-        //             delete newValues["passwordConfirm"];
-
-        //             // Submit the backend request if frontend checks passed
-        //             AccountBackend.updateAccount(newValues, (response) => {
-        //                 if (("didSetPassword" in response) && (response.didSetPassword == 1)) {
-        //                     Popup.createConfirmationPopup("Successfully updated!", ["OK"], [() => {}]);
-
-        //                 } else { // Failure
-        //                     if (response.substatus == 5) {
-        //                         Popup.createConfirmationPopup("Email or password were incorrectly formatted, please try again",
-        //                             ["Close"], [() => {}]);
-        //                     } else if (response.substatus == 6) {
-        //                         Popup.createConfirmationPopup("Incorrect password, please try again", ["Close"], [() => {}]);
-        //                     } else {
-        //                         Popup.createConfirmationPopup("An unknown error occured, please try again later", ["Close"], [() => {}]);
-        //                     }
-        //                 }
-        //             }, currentPassword);
-        //         } // End of edit handling if statement
-
-        //     }, [], displayNames);
         }); // End of population function
 
         this.pageTransition.slideLeft("editPage");
@@ -587,14 +500,45 @@ class Settings extends Page {
         
         // ---- BUTTONS / INTERFACE SETUP ---- //
         
-        // LEAVE TEAM BUTTON (only setting given to non-coaches)
-        $(this.inputDivIdentifier).append(`
-            <br><button class="generated_button" style="background-color: #dd3333" id="leave_team_button">Leave Team</button>
+        // Have to use so many wrappers since many elements are added dynamically
+        let baseContent = (`
+            <button class="generated_button" style="background-color: #dd3333" id="leave_team_button">Leave Team</button>
             <hr>
+            <div id="coachControlsWrapper">
+                <div id="editTeamWrapper"></div>
+                <br><hr>
+                
+                <div id="inviteCode" class="subheading_text">Invite Code: <span class="underline">Unknown<span></div>
+                <div class="sectionWrapper">
+                    <h1 id="h1_emailInvite">Invite via Email</h1>
+                    <input id="input_athleteEmail" class="sw_text_input" type="text" placeholder="randy@sportwatch.us"></input>
+                    <br>
+                    <button id="button_sendInvite" class="sw_button" disabled>Invite</button>
+                </div>
+                <br><hr>
+                
+                <div id="kickWrapper"></div>
+                <br><br>
+                <div id="lockWrapper"></div>
+                <br><hr>
+                <!-- Hidden for secondary coach -->
+                <div id="deleteWrapper">
+                    <h1 class="subheading_text">Delete Team</h1>
+                    <p>If you wish to delete this team, you will <b>permanently</b>
+                    erase all associated settings. Athlete data (such as
+                    records and times) will still be saved.</p>
+                    <button id="deleteTeam" class="generated_button">Delete Team</button>
+                    
+                    <div id="postDeleteWrapper" style="opacity: 0;">
+                        <p id="statusText"><i>Removing team data...</i></p>
+                        <button id="stopDelete" class="sw_button">Cancel</button>
+                    </div>
+                </div>
+            </div>
         `);
+        $(this.inputDivIdentifier).append(baseContent);
         
         // BASIC INFO
-        // TODO: add more fields here
         let valuesToEdit = {
             "Team Name": storage.getItem("teamName"),
             "School": storage.getItem("school"),
@@ -609,7 +553,7 @@ class Settings extends Page {
         let isNameValid = true;
         let schoolId = storage.getItem("id_school");
         
-        ValueEditor.editValues(this.inputDivIdentifier, valuesToEdit, (newValues) => {
+        ValueEditor.editValues(this.inputDivIdentifier + " #editTeamWrapper", valuesToEdit, (newValues) => {
             $("#settingsPage #editPage #changeTeamButton").prop("disabled", true);
             
             // Pre-backend filtering
@@ -673,30 +617,16 @@ class Settings extends Page {
             
         });
         // Add the school search results in this div \/
-        $('#settingsPage #editPage input[name="School"]').after(`<div id="searchList" class="noResults"></div>`);
-        $("#settingsPage #editPage .generated_button:last").prop("id", "changeTeamButton");
-        $("#settingsPage #editPage #changeTeamButton").prop("disabled", true); // Disable until edited
-        $(this.inputDivIdentifier).append(`<hr>`);
+        $('#settingsPage #editPage #editTeamWrapper input[name="School"]').after(`<div id="searchList" class="noResults"></div>`);
+        $("#settingsPage #editPage #editTeamWrapper .generated_button").prop("id", "changeTeamButton");
+        $("#settingsPage #editPage #editTeamWrapper #changeTeamButton").prop("disabled", true); // Disable until edited
         
         // INVITE CODE
         let teamCode = "Unkown";
         if(storage.getItem("inviteCode") != null) {
             teamCode = storage.getItem("inviteCode");
+            $(this.inputDivIdentifier + "#inviteCode").text(teamCode);
         }
-        $(`${this.inputDivIdentifier}`).append(`
-            <div id="inviteCode" class="subheading_text">Invite Code: <span class="underline">${teamCode}<span></div>
-        `)
-        
-        // INVITE VIA EMAIL
-        $(`${this.inputDivIdentifier}`).append(`
-            <div class="sectionWrapper">
-                <h1 id="h1_emailInvite">Invite via Email</h1>
-                <input id="input_athleteEmail" class="sw_text_input" type="text" placeholder="randy@sportwatch.us"></input>
-                <br>
-                <button id="button_sendInvite" class="sw_button" disabled>Invite</button>
-            </div><br><br><br><br>
-            <hr>
-        `);
         
         // ---- LOGIC ---- //
         
@@ -829,16 +759,50 @@ class Settings extends Page {
         
         // KICK ATHLETE
         // Generate a list of athletes that can be kicked
-        this.generateKickableAthletes(this.inputDivIdentifier);
+        this.generateKickableAthletes(this.inputDivIdentifier + " #kickWrapper");
         
-        // TODO: check to see if the team is locked or not then set the default here to true or false
-        ButtonGenerator.generateToggle(`${this.inputDivIdentifier}`, "Lock Team", false, function () {
+        // LOCK TEAM
+        ButtonGenerator.generateToggle(this.inputDivIdentifier + " #lockWrapper", "Lock Team", false, function () {
             this.toggleLockWithFeedback();
         }.bind(this), function() {
             this.toggleLockWithFeedback();
         }.bind(this));
         $("#settingsPage #editPage .switch_container:last").prop("id", "lockTeamToggle"); // Add ID
         $("#settingsPage #editPage #lockTeamToggle").find(".switch").css("float", ""); // Clear float
+        
+        // DELETE TEAM
+        $(this.inputDivIdentifier + " #deleteWrapper #deleteTeam").click((e) => {
+            $(this.inputDivIdentifier + " #deleteWrapper #deleteTeam").prop("disabled", true);
+            
+            Popup.createConfirmationPopup("Are you sure you want to permanently delete your team?", ["No", "Yes"], [
+                () => {
+                    $(this.inputDivIdentifier + " #deleteWrapper #deleteTeam").prop("disabled", false);
+                },
+                () => {
+                    $(this.inputDivIdentifier + " #deleteWrapper #postDeleteWrapper").fadeTo(250, 1);
+                    
+                    // Since objects are mutable in javascript, we can "remotely" control if
+                    // the delete process finishes (there is a built in delay like gmail's "Undo send")
+                    let controlObject = {"didCancel": false};
+                    $(this.inputDivIdentifier + " #deleteWrapper #stopDelete").click((e) => {
+                        controlObject.didCancel = true;
+                        $(this.inputDivIdentifier + " #deleteWrapper #postDeleteWrapper").fadeTo(250, 0);
+                        $(this.inputDivIdentifier + " #deleteWrapper #deleteTeam").prop("disabled", false);
+                        $(this.inputDivIdentifier + " #deleteWrapper #stopDelete").off(); // Remove click handler
+                    });
+                    
+                    // Call setting.js deleteTeam function
+                    this.deleteTeam(controlObject).then(() => {
+                        // Called after the team has been deleted
+                        $(this.inputDivIdentifier + " #deleteWrapper #postDeleteWrapper").fadeTo(250, 0);
+                        Popup.createConfirmationPopup("Team successfully deleted", ["OK"], [() => {
+                            location.reload(); // Restart the app
+                        }]);
+                        
+                    });
+                }
+            ]);
+        });
         
         // Slide the page, we're ready to show the user
         this.pageTransition.slideLeft("editPage");
@@ -1142,6 +1106,67 @@ class Settings extends Page {
         }, () => {
             // no action
         }]);
+    }
+    
+    /**
+     * Puts on a small "show" or animation for the user when they delete the team.
+     * This enables them to cancel the delete function, similar to Gmail's Undo Send.
+     * After 2.5 seconds, the cancel button will be disabled and the team will actually
+     * deleted. To stop the process, set didCancel = true in the mutable controlObject.
+     * 
+     * @example let controlObj = {didCancel: false}
+     *          deleteTeam(controlObj).then(() => { // Success }).error(() => { // Failure });
+     * 
+     * @param {Object} controlObject should contain "didCancel" boolean property used to stop team deletion
+     * 
+     * @returns
+     * A promise, used to clean up the app after the team has been deleted.
+     */
+    deleteTeam(controlObject) {
+        
+        let hasDeleted = $.Deferred();
+        let textArray = ["Kicking athletes...", "Demoting coaches...", "Erasing team structure...", "Finalizing..."];
+        
+        // First, change the "status" text a few times to make it seem real and give user a change to cancel
+        $(this.inputDivIdentifier + " #deleteWrapper #statusText").html(`<i>Removing team data...</i>`);
+        setTimeout(() => {
+            if(!controlObject.didCancel) {
+                $(this.inputDivIdentifier + " #deleteWrapper #statusText").html(`<i>${textArray[0]}</i>`);
+            }
+        }, 500);
+        setTimeout(() => {
+            if(!controlObject.didCancel) {
+                $(this.inputDivIdentifier + " #deleteWrapper #statusText").html(`<i>${textArray[1]}</i>`);
+            }
+        }, 1500);
+        setTimeout(() => {
+            if(!controlObject.didCancel) {
+                $(this.inputDivIdentifier + " #deleteWrapper #statusText").html(`<i>${textArray[2]}</i>`);
+            }
+        }, 2000);
+        
+        // Actually submit the delete call to the backendnow
+        setTimeout(() => {
+            if(!controlObject.didCancel) {
+                $(this.inputDivIdentifier + " #deleteWrapper #statusText").html(`<i>${textArray[3]}</i>`);
+                $(this.inputDivIdentifier + " #deleteWrapper #stopDelete").prop("disabled", true);
+                $(this.inputDivIdentifier + " #deleteWrapper #stopDelete").fadeTo(250, 0);
+                
+                TeamBackend.deleteTeam((response) => {
+                    if(response.status > 0) {
+                        // Return to the calling function
+                        hasDeleted.resolve();
+                        // Clean up delete wrapper
+                        $(this.inputDivIdentifier + " #deleteWrapper #stopDelete").css("opacity", "1");
+                        $(this.inputDivIdentifier + " #deleteWrapper #stopDelete").prop("disabled", false);
+                    } else {
+                        hasDeleted.reject();
+                    }
+                });
+            }
+        }, 2500);
+        
+        return hasDeleted.promise();
     }
     
     /**
