@@ -163,8 +163,12 @@ class CreateTeam extends Page {
                     console.log(response);
                 }
             } else {
-                this.getPageElement("#input_school").val(response.schoolName);
-                this.getPageElement("#schoolPage .button_next").prop("disabled", false);
+                if(response.id_school != undefined) {
+                    this.schoolName = response.schoolName;
+                    this.schoolId = response.id_school;
+                    this.getPageElement("#input_school").val(response.schoolName);
+                    this.getPageElement("#schoolPage .button_next").prop("disabled", false);
+                }
             }
         });
 
@@ -356,9 +360,6 @@ class CreateTeam extends Page {
 
         // School name checking
         this.addInputCheck("#input_school", 5, 65, /[A-Za-z0-9. ]/gm, false, (schoolValid) => {
-            // Use the NOT (!) operator since we want it disabled=false with valid=true
-            // this.getPageElement("#schoolPage .button_next").prop("disabled", !schoolValid);
-
             // Disable the input by default until a school is clicked
             this.getPageElement("#schoolPage .button_next").prop("disabled", true);
 
@@ -373,7 +374,9 @@ class CreateTeam extends Page {
                 }
             });
 
-        }, () => {}); // Don't worry about Enter press for this input
+        }, () => { // Blur upon enter press
+            document.activeElement.blur();
+        });
         this.getPageElement("#schoolPage #noSchool").click((e) => {
             // Simulate selecting a school, but don't show the user
             // Unfocus input, select the school, and clear search results
