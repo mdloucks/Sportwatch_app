@@ -126,10 +126,14 @@ class JoinTeam extends Page {
                             storage.setItem("inviteCode", inviteCode);
                             
                             // Update the team info
-                            ToolboxBackend.pullFromBackend().then(() => {
+                            ToolboxBackend.syncFrontendDatabase().then(() => {
                                 if(DO_LOG) {
                                     console.log("[team-join.js]: Backend sync finished!");
                                 }
+                                // Move to main team page
+                                this.teamLandingCopy.transitionObj.slideLeft("teamPage", 500);
+                                this.teamLandingCopy.mainTeam.start(); // Have to start it to display teammate buttons
+                                this.stop();
                             }).catch(function() {
                                 if(DO_LOG) {
                                     console.log("[signup.js]: Failed to pull from backend, localStorage email: " + localStorage.getItem("email"));
@@ -138,10 +142,7 @@ class JoinTeam extends Page {
                             
                             // Show confirmation to user and show team.js page
                             Popup.createConfirmationPopup("You have successfully joined the team!", ["OK"], [() => {
-                                this.pageController.switchPage("TeamLanding");
-                                // Which should now switch to the team.js view
-                                
-                                // And finally, clear the inputs
+                                // Clear the inputs
                                 this.getPageElement("input").not("#button_join").val("");
                                 this.getPageElement("#button_join").prop("disabled", true);
                             }]);
@@ -159,7 +160,7 @@ class JoinTeam extends Page {
                     this.getPageElement("#button_join").prop("disabled", true);
                     
                     if(response.substatus == 6) {
-                        Popup.createConfirmationPopup("That invite code is invalid", ["OK"], [() => { }]);
+                        Popup.createConfirmationPopup("The invite code was invalid. Please try again", ["OK"], [() => { }]);
                     } else {
                         Popup.createConfirmationPopup("Sorry, an unknown error occured. Please try again later", ["OK"], [() => { }]);
                     }
