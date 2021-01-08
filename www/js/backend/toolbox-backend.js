@@ -279,7 +279,7 @@ class ToolboxBackend {
      * 
      * @deprecated Replaced by syncFrontendDatabase do to cleaner code
      */
-    static pullFromBackend() {
+    static pullFromBackendOld() {
         dbConnection.createNewTables();
 
         // Make sure the email is valid

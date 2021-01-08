@@ -644,7 +644,7 @@ class Settings extends Page {
                         localStorage.setItem("email", email);
                         localStorage.setItem("SID", sessionId);
 
-                        ToolboxBackend.pullFromBackend().then(() => {
+                        ToolboxBackend.syncFrontendDatabase().then(() => {
                             if (DO_LOG) {
                                 console.log("[settings.js]: Backend sync finished!");
                             }
@@ -881,8 +881,8 @@ class Settings extends Page {
         
         let pageContent = (`
             <br>
-            <img id="membershipGraphic" src="img/invalidSymbol.png" alt="EXPIRED">
-            <h1 class="membershipHeader">Membership Status: <span id="membershipStatus">Expired</span></h1>
+            <img id="membershipGraphic" src="img/invalidSymbol.png" alt="INACTIVE">
+            <h1 class="membershipHeader">Membership Status: <span id="membershipStatus">Inactive</span></h1>
             <br>
             <button id="restartMembership" class="sw_big_button">Start Your Membership</button>
             <hr>
