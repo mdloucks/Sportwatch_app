@@ -223,7 +223,7 @@ class CreateTeam extends Page {
         this.getPageElement("#button_goToInvite").click((e) => {
             // Try getting a list of athletes from the school's team
             ToolboxBackend.getUsersInSchool(this.schoolId, (response) => {
-                if (response.status > 0) {
+                if((response.status > 0) && (this.schoolId != 2)) { // Ignore if they skipped school (id=2)
                     this.generateAthleteButtons(response);
                 } else {
                     if (DO_LOG) {

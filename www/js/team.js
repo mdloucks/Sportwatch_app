@@ -499,7 +499,6 @@ class Team extends Page {
         
         $("#app").off("didPurchase"); // Remove old event to prevent duplicates
         $("#app").on("didPurchase", () => {
-            console.log("Yup!");
             console.log(this.pageTransition.getCurrentPage());
             this.pageTransition.setCurrentPage("landingPage");
             this.start();

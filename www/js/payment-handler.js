@@ -63,6 +63,15 @@ class PaymentHandler {
             PaymentHandler.PLANS.push(store.get(annuallyID));
         });
         
+        // There is a weird behavior that sometimes renews a membership
+        // when store.when().approved is called. To be safe, if the user
+        // has a membership, refresh the store now and exit
+        if(localStorage.getItem("validMembership") == "true") {
+            store.refresh();
+            console.log("Valid membership, so we're leaving");
+            return;
+        }
+        
         // Good docs: https://github.com/j3k0/cordova-plugin-purchase/blob/master/doc/api.md#order
         
         // Check to see if they own any of the plans
@@ -114,7 +123,7 @@ class PaymentHandler {
             localStorage.setItem("validMembership", "true");
             $("#app").trigger("didPurchase");
             $("#premiumPopup #logoImg").prop("src", "img/logo.png");
-            Popup.createConfirmationPopup("Welcome to Sportwatch Premium! Thank you for your purchase!", ["Start Tracking!"], [function() {
+            Popup.createConfirmationPopup("Welcome to your Sportwatch Membership! Thank you for your purchase!", ["Start Tracking!"], [function() {
                 // After clicking the button, remove the premium popup too
                 $("#premiumPopup").fadeOut(1500, function() {
                     $("#premiumPopup").remove();

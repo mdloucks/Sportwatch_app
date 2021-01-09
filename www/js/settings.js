@@ -644,7 +644,7 @@ class Settings extends Page {
                         localStorage.setItem("email", email);
                         localStorage.setItem("SID", sessionId);
 
-                        ToolboxBackend.pullFromBackend().then(() => {
+                        ToolboxBackend.syncFrontendDatabase().then(() => {
                             if (DO_LOG) {
                                 console.log("[settings.js]: Backend sync finished!");
                             }
@@ -881,10 +881,10 @@ class Settings extends Page {
         
         let pageContent = (`
             <br>
-            <img id="membershipGraphic" src="img/invalidSymbol.png" alt="EXPIRED">
+            <img id="membershipGraphic" src="img/invalidSymbol.png" alt="INACTIVE">
             <h1 class="membershipHeader">
                 Membership Status: 
-                <span id="membershipStatus">Expired</span>
+                <span id="membershipStatus">Inactive</span>
             </h1>
             <br>
             <button id="restartMembership" class="sw_big_button">Start Your Membership</button>
@@ -914,16 +914,24 @@ class Settings extends Page {
                 // planName = planName.split(" - ")[1]; // Ignore "Sportwatch Membership"
                 $(`#settingsPage #editPage #planType`).text(planName);
                 
-                // Set date that plan ended / will end
-                let endsDate = response.endsOn.split("-");
-                if (parseInt(endsDate[1]) < 10) { // Remove leading 0 from month
-                    endsDate[1] = endsDate[1].substr(1, 1);
+                // In case they've never had a plan before
+                if((response.endsOn == undefined) || (response.endsOn == "2001-01-01")) {
+                    // Define a fallback date in case isActive is true for some reason
+                    response.endsOn = new Date().toISOString().substr(0, 10);
+                    $(`#settingsPage #editPage #statusDate`).text("NA");
+                    
+                } else {
+                    // Set date that plan ended / will end
+                    let endsDate = response.endsOn.split("-");
+                    if (parseInt(endsDate[1]) < 10) { // Remove leading 0 from month
+                        endsDate[1] = endsDate[1].substr(1, 1);
+                    }
+                    if (parseInt(endsDate[2] < 10)) { // Remove leading 0 from day
+                        endsDate[2] = endsDate[2].substr(1, 1);
+                    }
+                    endsDate = endsDate[1] + "/" + endsDate[2] + "/" + endsDate[0];
+                    $(`#settingsPage #editPage #statusDate`).text(endsDate);
                 }
-                if (parseInt(endsDate[2] < 10)) { // Remove leading 0 from day
-                    endsDate[2] = endsDate[2].substr(1, 1);
-                }
-                endsDate = endsDate[1] + "/" + endsDate[2] + "/" + endsDate[0];
-                $(`#settingsPage #editPage #statusDate`).text(endsDate);
                 
                 // Change wording
                 if(response.isActive == true) {

@@ -51,7 +51,6 @@ class App {
 
         try {
             this.swipeHandler = new SwipeHolder("#app");
-            PaymentHandler.initPlans();
             if (device.platform != "iOS") {
                 FastClick.attach(document.body); // iOS double clicks don't work with this plugin
             }
@@ -59,6 +58,7 @@ class App {
             if (NetworkInfo.isOnline()) {
                 // Pull data from the backend, then start the app
                 ToolboxBackend.syncFrontendDatabase().then(() => {
+                    PaymentHandler.initPlans();
                     this.initializeUI();
     
                     if (DO_LOG) {
