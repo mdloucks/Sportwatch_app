@@ -165,7 +165,6 @@ class Popup {
         // -- PURCHASE SETUP -- //
         // Add a title and button for each plan (since Apple doesn't allow hard-coding)
         let plans = PaymentHandler.PLANS;
-        
         // There is a rather annoying bug where the plans sometimes don't load
         if (plans.length == 0) {
             Popup.createConfirmationPopup("An error occured while fetching the available plans. Please restart the app and try again. " +

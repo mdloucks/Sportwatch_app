@@ -882,7 +882,10 @@ class Settings extends Page {
         let pageContent = (`
             <br>
             <img id="membershipGraphic" src="img/invalidSymbol.png" alt="INACTIVE">
-            <h1 class="membershipHeader">Membership Status: <span id="membershipStatus">Inactive</span></h1>
+            <h1 class="membershipHeader">
+                Membership Status: 
+                <span id="membershipStatus">Inactive</span>
+            </h1>
             <br>
             <button id="restartMembership" class="sw_big_button">Start Your Membership</button>
             <hr>
@@ -890,7 +893,9 @@ class Settings extends Page {
             <div id="individualOwner" style="display: inline-block">
                 <p>Plan: <span id="planType">Monthly</span></p>
                 <p><span id="statusHistoryWording">Last Active</span>: <span id="statusDate">1/1/2001</span></p>
-                <p id="cancelMembership" class="infoText hidden"><i>To cancel, go to your device's settings to manage your subscriptions</i></p>
+                <p id="cancelMembership" class="infoText hidden">
+                    <i>To cancel, go to your device's settings to manage your subscriptions. Subscription take around a minute to update.</i>
+                </p>
             </div>
             <div id="teamOwner" style="display: none">
                 <p>Inherited from Team</p>

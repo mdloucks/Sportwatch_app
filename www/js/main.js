@@ -87,8 +87,9 @@ class App {
         this.isStalling = false;
 
         setTimeout(() => {
-            $(".loader_container").fadeOut(500, function () {
+            $(".loader_container").fadeOut(500, () => {
                 $(".loader_container").remove();
+                // this.checkFreeTrial();
             });
         }, 1000);
         
@@ -200,6 +201,35 @@ class App {
         } else {
             throw new Error(`Incorrect datatype entered for getPage, expected integer or string, you entered ${typeof identifier}`);
         }
+    }
+
+    /**
+     * This method will show a popup if the user still has a free trial
+     * to remind them that their trial will expire
+     */
+    checkFreeTrial() {
+        PlanBackend.getActivePlan(localStorage.getItem("email"), (response) => {
+            if(response.status > 0) {
+                
+                // Set date that plan ended / will end
+                let endsDate = response.endsOn.split("-");
+                if (parseInt(endsDate[1]) < 10) { // Remove leading 0 from month
+                    endsDate[1] = endsDate[1].substr(1, 1);
+                }
+                if (parseInt(endsDate[2] < 10)) { // Remove leading 0 from day
+                    endsDate[2] = endsDate[2].substr(1, 1);
+                }
+                console.log("ENDSDATE " + JSON.stringify(endsDate));                
+                endsDate = endsDate[1] + "/" + endsDate[2] + "/" + endsDate[0];
+                
+                Popup.createConfirmationPopup(`
+                    Your free trial expires on ${endsDate}<br>
+                    Become a member to keep using Sportwatch after that date.
+                `, ["Become a Member"], [() => {
+                    Popup.createPremiumPopup(() => {});
+                }]);
+            }
+        });
     }
 
     onPause() {

@@ -63,8 +63,8 @@ Constant.AJAX_CFG = {
 Constant.IOS_MONTHLY_ID = "sp_m_KXqzG";
 Constant.IOS_ANNUALLY_ID = "sRfafDxVzo";
 
-Constant.ANDROID_MONTHLY_ID = "3zn1dw9nzzsxgng4v9yio6q2wv3eel3g";
-Constant.ANDROID_ANNUALLY_ID = "4wv74w2raq0maotxdmjvzwzicol4wyna";
+Constant.ANDROID_MONTHLY_ID = "sp_m_kxqzg";
+Constant.ANDROID_ANNUALLY_ID = "srfafdxvzo";
 
 // animation durations
 Constant.fadeDuration = 300;
