@@ -754,7 +754,6 @@ class Settings extends Page {
             
             let invitedEmail = $(`${this.inputDivIdentifier} #input_athleteEmail`).val();
             ToolboxBackend.inviteAthleteWithFeedback(invitedEmail);
-            console.log("sent invite to " + invitedEmail);
         });
         
         // KICK ATHLETE
