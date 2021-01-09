@@ -63,6 +63,11 @@ li span {
     background-color: gray;
 }
 
+#premiumPopup {
+    padding-top: constant(safe-area-inset-top);
+    padding-top: env(safe-area-inset-top);
+}
+
 .payment_footer {
     margin: auto;
     color: #222;
@@ -71,6 +76,11 @@ li span {
     text-align: center;
     bottom: 0.5em;
     padding: 16px;
+}
+.payment_footer #legalText {
+    /* iPhone weird screen issues here */
+    padding-bottom: calc(constant(safe-area-inset-bottom) + 2vh);
+    padding-bottom: calc(env(safe-area-inset-bottom) + 2vh);
 }
 
 .premium_deny_text {
