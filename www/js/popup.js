@@ -125,7 +125,7 @@ class Popup {
                 <img id="logoImg" width=45% src="img/logo.png" alt=""></img>
 
                 <div class="premium_popup_description">
-                    <b>Your free trial has expired.</b><br><br>
+                    <b>Your membership is no longer active.</b><br><br>
                     Continue to improve with Sportwatch Premium.<br><br><br>
                 </div>
             
@@ -138,7 +138,7 @@ class Popup {
                         No Thanks
                     </div><br>
 
-                    <div>
+                    <div id="legalText">
                         ${paymentInfo}
                     </div>
 
@@ -153,7 +153,12 @@ class Popup {
                     return;
                 }, function () {
                     // TODO: open a link that prompts the user for a reason why they don't want to keep using the app.
-                    navigator.app.exitApp();
+                    // navigator.app.exitApp();
+                    // Disabled for now since there are other things the user can do
+                    $("#premiumPopup").fadeOut(Constant.popupFadeoutDuration, () => {
+                        $("#premiumPopup").remove();
+                        $(".navbar").removeClass("hidden");
+                    });
                 }])
         });
 
