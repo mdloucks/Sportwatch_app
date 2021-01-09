@@ -37,7 +37,10 @@
             "cordova-plugin-network-information": {},
             "cordova-plugin-appversion": {},
             "cordova-plugin-app-exit": {},
-            "cc.fovea.cordova.purchase": {}
+            "cc.fovea.cordova.purchase": {},
+            "cordova-plugin-purchase": {
+                "BILLING_KEY": "MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEAzIXYCv1pbe05HNhVytK8PdyfAA9W/wtoCmuiH7xZ8GA9IV9Kfz+SMWhMR3HPHDuFuS4i90OkjMsPLlO9Fo6i2uwpki5cU8QfBm2fAFEb/IwpgjP28j4T+UVrjuR+Yvo1R7svsDrHXLzaOpS81VCEwWNo1wJSP0Mh4kAECMEilCD+N5FBrnR3t7jRncEXoqojB6tYdIJF/A8LSa0Bz2YxY3OB0ceIhqJRNOfeYjBQ3PA8hk52/k1JO0h+GPtp7Jt4S4HYfq3mkr41v1e298+7zVzyB9+QdR52ZzmsMJGh9fH+GcAHSXjpD0UsyBPcJ34HIQ2eAYP0Ubwgst11sdRB+wIDAQAB"
+            }
         },
         "platforms": [
             "browser",
@@ -50,6 +53,7 @@
         "cordova-ios": "^6.1.1",
         "cordova-plugin-app-exit": "0.0.2",
         "cordova-plugin-device": "^2.0.3",
+        "cordova-plugin-purchase": "^10.5.1",
         "cordova-plugin-x-socialsharing": "^6.0.1",
         "es6-promise-plugin": "^4.2.2"
     }
