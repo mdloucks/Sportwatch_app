@@ -71,7 +71,7 @@ class Team extends Page {
                 <img id="sorryImg" src="img/logo-sad.png" alt="">
                 <br>
                 <h1>Membership Required</h1>
-                <p id="statusText">The team that you're on no longer has a membership.
+                <p id="statusText">The team you're on no longer has a membership.
                 </p>
                 <p>You can still edit your account or team preferences in the Settings
                     tab at any time.
@@ -198,13 +198,11 @@ class Team extends Page {
 
                                 ${localStorage.getItem("schoolName") === null ? "" : ("Head coach for " + localStorage.getItem("schoolName"))}<br><br>
 
-                                `, ["View Profile", "Close"], [() => {
+                                `, ["View Profile"], [() => {
                                 // consider having the coach's contact information here
                                 // Email: ${localStorage.getItem("coachEmail") | "N/A"}<br>
                                 // Phone: ${localStorage.getItem("coachPhoneNumber") | "N/A"}
                                 this.startAthletePage(athletes.item(i));
-                            }, () => {
-                                // close
                             }])
                         });
 
@@ -290,7 +288,7 @@ class Team extends Page {
             `);
 
             $("#teamPage #athletePage #athlete_events_registered").prepend(`
-                <div class="subheading_text">Events With Saved Times.</div>
+                <div class="subheading_text">Events With Saved Times</div>
             `);
 
             // generate remaining events
