@@ -882,14 +882,19 @@ class Settings extends Page {
         let pageContent = (`
             <br>
             <img id="membershipGraphic" src="img/invalidSymbol.png" alt="EXPIRED">
-            <h1 class="membershipHeader">Membership Status: <span id="membershipStatus">Expired</span></h1>
+            <h1 class="membershipHeader">
+                Membership Status: 
+                <span id="membershipStatus">Expired</span>
+            </h1>
             <br>
             <button id="restartMembership" class="sw_big_button">Start Your Membership</button>
             <hr>
             <h1 class="membershipHeader"><u>Details</u></h1>
             <p>Plan: <span id="planType">Monthly</span></p>
-            <p><span id="statusHistoryWording">Last Active</span>: <span id="statusDate">1/1/2001</span></p>
-            <p id="cancelMembership" class="hidden"><i>To cancel, go to your device's settings to manage your subscriptions</i></p>
+            <p><span id="statusHistoryWording">Last Active</span>: <span id="statusDate">N/A</span></p>
+            <p id="cancelMembership" class="hidden">
+                <i>To cancel, go to your device's settings to manage your subscriptions. Subscription take around a minute to update.</i>
+            </p>
         `);
         $(this.inputDivIdentifier).append(pageContent);
         

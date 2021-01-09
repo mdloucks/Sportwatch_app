@@ -204,10 +204,15 @@
 
 #settingsPage h1.membershipHeader {
     font-size: 2.5em;
+    padding: 5px;
 }
 
 #settingsPage #restartMembership {
     margin-bottom: 4vh;
+}
+
+#settingsPage #membershipStatus {
+    font-weight: normal;
 }
 
 
