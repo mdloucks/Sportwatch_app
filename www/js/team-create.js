@@ -160,7 +160,6 @@ class CreateTeam extends Page {
             if (response.status < 0) {
                 if (DO_LOG) {
                     console.log("[team-create.js:start()]: Requesting account info failed");
-                    console.log(response);
                 }
             } else {
                 if(response.id_school != undefined) {
@@ -494,7 +493,7 @@ class CreateTeam extends Page {
         this.getPageElement(".step").not(".step_selected").addClass("step_selected");
 
         // Pull data from the backend to insert new team into local db
-        ToolboxBackend.pullFromBackend().then(() => {
+        ToolboxBackend.syncFrontendDatabase().then(() => {
             if (DO_LOG) {
                 console.log("[team-create.js]: Backend sync finished!");
             }

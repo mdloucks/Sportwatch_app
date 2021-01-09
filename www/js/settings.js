@@ -1061,11 +1061,12 @@ class Settings extends Page {
                 values[`${athletes.item(i).fname} ${athletes.item(i).lname}`] = athletes.item(i).rowid;
             }
 
-            ButtonGenerator.generateSelectForm(appendToElement, "Remove athlete from team", "Remove Selected Athlete", values, (form) => {
-                dbConnection.selectValues("SELECT id_backend FROM athlete WHERE rowid = ?", [$(form).val()]).then((athlete) => {
-                    this.kickAthleteWithFeedback($(form).val(), athlete.item(0).id_backend);
+            ButtonGenerator.generateSelectForm(appendToElement, "Remove Athlete from Team", "Remove Selected Athlete", values, (form) => {
+                dbConnection.selectValues("SELECT id_backend, fname FROM athlete WHERE rowid = ?", [$(form).val()]).then((athlete) => {
+                    this.kickAthleteWithFeedback($(form).val(), athlete.item(0).id_backend, athlete.item(0).fname);
                 });
             });
+            $(".generic_select").addClass("sw_dropdown").removeClass("generic_select");
         });
     }
     
@@ -1076,43 +1077,36 @@ class Settings extends Page {
      * 
      * @param {Integer} rowid local database id of the athlete
      * @param {Integer} id_backend backend database id of the athlete
+     * @param {String} firstName first name of the athlete to kick; used to confirm kick
      */
-    kickAthleteWithFeedback(rowid, id_backend) {
+    kickAthleteWithFeedback(rowid, id_backend, firstName) {
         
         Popup.createConfirmationPopup("Are you sure you want to delete this athlete?", ["Yes", "No"], [() => {
             
-            // Since we aren't storing the user's email on the frontend, grab it
-            //  then kick the athlete via email
-            AccountBackend.getAccount((kickedInfo) => {
-                if(kickedInfo.status > 0) {
-                    TeamBackend.kickAthlete(kickedInfo.email, (result) => {
-                        if(result.status > 0) {
-                            dbConnection.deleteValues("athlete", "WHERE rowid = ?", [rowid]);
-                            $(this.inputDivIdentifier).find("form").remove();
-                            this.generateKickableAthletes(this.inputDivIdentifier);
-                            
-                            Popup.createConfirmationPopup(kickedInfo.fname + " " + kickedInfo.lname + " has been kicked from the team",
-                                                            ["OK"]);
-                        } else {
-                            if(result.substatus == 3) {
-                                if(result.msg.includes("not in team")) {
-                                    Popup.createConfirmationPopup("That user is no longer in the team", ["OK"]);
-                                } else if(result.msg.includes("primary")) {
-                                    Popup.createConfirmationPopup("The primary coach cannot be kicked", ["OK"]);
-                                } else {
-                                    Popup.createConfirmationPopup("Only coaches can kick an athlete", ["OK"]);
-                                }
-                            } else {
-                                Popup.createConfirmationPopup("Sorry, an error occured. Please try again later"), ["OK"];
-                            }
-                        } // End of error processing
-                    });
+            // Kick the athlete with the given ID
+            TeamBackend.kickAthlete(id_backend, (result) => {
+                if(result.status > 0) {
+                    dbConnection.deleteValues("athlete", "WHERE rowid = ?", [rowid]);
+                    $(this.inputDivIdentifier).find("form").remove();
+                    this.generateKickableAthletes(this.inputDivIdentifier + " #kickWrapper");
+                    
+                    Popup.createConfirmationPopup(firstName + " has been kicked from the team", ["OK"]);
                 } else {
-                    Popup.createConfirmationPopup("Sorry, we were unable to kick that athlete. Please try again later", ["OK"]);
-                }
-            }, id_backend);
+                    if(result.substatus == 3) {
+                        if(result.msg.includes("not in team")) {
+                            Popup.createConfirmationPopup("That user is no longer in the team", ["OK"]);
+                        } else if(result.msg.includes("primary")) {
+                            Popup.createConfirmationPopup("The primary coach cannot be kicked", ["OK"]);
+                        } else {
+                            Popup.createConfirmationPopup("Only coaches can kick an athlete", ["OK"]);
+                        }
+                    } else {
+                        Popup.createConfirmationPopup("Sorry, an error occured. Please try again later"), ["OK"];
+                    }
+                } // End of error processing
+            });
         }, () => {
-            // no action
+            // no action, user clicked No
         }]);
     }
     

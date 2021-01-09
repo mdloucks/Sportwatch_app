@@ -360,10 +360,10 @@ class TeamBackend {
      * @example kickAthlete("trouble@mail.com", (data) => { // Handle response } )
      *          --> Kicks "trouble@mail.com" from the team in local storage
      * 
-     * @param {String} kickedEmail the email address of the user being kicked
+     * @param {String} kickedEmailOrId the email address of the user being kicked
      * @param {Function} cb callback function that takes in response JSON (or string on error)
      */
-    static kickAthlete(kickedEmail, cb) {
+    static kickAthlete(kickedEmailOrId, cb) {
         
         let requestArray = { };
         let storage = window.localStorage;
@@ -372,7 +372,11 @@ class TeamBackend {
         requestArray.SID = storage.getItem("SID");
         requestArray.accountEmail = storage.getItem("email");
         requestArray.teamIdentity = { "id_team" : storage.getItem("id_team") };
-        requestArray.kickedEmail = kickedEmail;
+        if (typeof kickedEmailOrId == "number") {
+            requestArray.kickedId = kickedEmailOrId;
+        } else { // Assume it was an email
+            requestArray.kickedEmail = kickedEmailOrId;
+        }
         
         // Submit the request and call the callback
         return $.ajax({
@@ -410,10 +414,10 @@ class TeamBackend {
      * @example appointPrimaryCoach("clark@hemlock.com", (data) => { // Handle response } )
      *          --> Makes Coach Clark the primary coach of the team
      * 
-     * @param {String} newCoachEmail the email of the new primary coach to promote
+     * @param {String} newCoachEmailOrId the email of the new primary coach to promote
      * @param {Function} cb callback function that takes in response JSON (or string on error)
      */
-    static appointPrimaryCoach(newCoachEmail, cb) {
+    static appointPrimaryCoach(newCoachEmailOrId, cb) {
         
         let requestArray = { };
         let storage = window.localStorage;
@@ -422,7 +426,11 @@ class TeamBackend {
         requestArray.SID = storage.getItem("SID");
         requestArray.accountEmail = storage.getItem("email");
         requestArray.teamIdentity = { "id_team" : storage.getItem("id_team") };
-        requestArray.promotedEmail = newCoachEmail;
+        if (typeof newCoachEmailOrId == "number") {
+            requestArray.promotedId = newCoachEmailOrId;
+        } else {
+            requestArray.promotedEmail = newCoachEmailOrId;
+        }
         
         // Submit the request and call the callback
         return $.ajax({
@@ -459,10 +467,10 @@ class TeamBackend {
      * @example appointSecondaryCoach("assist@hemlock.com", (data) => { // Handle response } )
      *          --> Makes Coach Assist the secondary coach of the team
      * 
-     * @param {String} newCoachEmail the email of the new secondary coach to promote
+     * @param {String} newCoachEmailOrId the email of the new secondary coach to promote
      * @param {Function} cb callback function that takes in response JSON (or string on error)
      */
-    static appointSecondaryCoach(newCoachEmail, cb) {
+    static appointSecondaryCoach(newCoachEmailOrId, cb) {
         
         let requestArray = { };
         let storage = window.localStorage;
@@ -471,7 +479,11 @@ class TeamBackend {
         requestArray.SID = storage.getItem("SID");
         requestArray.accountEmail = storage.getItem("email");
         requestArray.teamIdentity = { "id_team" : storage.getItem("id_team") };
-        requestArray.promotedEmail = newCoachEmail;
+        if (typeof newCoachEmailOrId == "number") {
+            requestArray.promotedId = newCoachEmailOrId;
+        } else {
+            requestArray.promotedEmail = newCoachEmailOrId;
+        }
         
         // Submit the request and call the callback
         return $.ajax({
@@ -508,10 +520,10 @@ class TeamBackend {
      * @example demoteCoach("badGuy@mail.com", (data) => { // Handle response } )
      *          --> Removes Bad Guy from his position as a coach
      * 
-     * @param {String} removedCoach the email of the coach being demoted
+     * @param {String} removedCoachEmailOrId the email of the coach being demoted
      * @param {Function} cb callback function that takes in response JSON (or string on error)
      */
-    static demoteCoach(removedCoach, cb) {
+    static demoteCoach(removedCoachEmailOrId, cb) {
         
         let requestArray = { };
         let storage = window.localStorage;
@@ -520,7 +532,11 @@ class TeamBackend {
         requestArray.SID = storage.getItem("SID");
         requestArray.accountEmail = storage.getItem("email");
         requestArray.teamIdentity = { "id_team" : storage.getItem("id_team") };
-        requestArray.demotedEmail = removedCoach;
+        if(typeof removedCoachEmailOrId == "number") {
+            requestArray.demotedId = removedCoachEmailOrId;
+        } else {
+            requestArray.demotedEmail = removedCoachEmailOrId;
+        }
         
         // Submit the request and call the callback
         return $.ajax({
