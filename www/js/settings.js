@@ -887,9 +887,18 @@ class Settings extends Page {
             <button id="restartMembership" class="sw_big_button">Start Your Membership</button>
             <hr>
             <h1 class="membershipHeader"><u>Details</u></h1>
-            <p>Plan: <span id="planType">Monthly</span></p>
-            <p><span id="statusHistoryWording">Last Active</span>: <span id="statusDate">1/1/2001</span></p>
-            <p id="cancelMembership" class="hidden"><i>To cancel, go to your device's settings to manage your subscriptions</i></p>
+            <div id="individualOwner" style="display: inline-block">
+                <p>Plan: <span id="planType">Monthly</span></p>
+                <p><span id="statusHistoryWording">Last Active</span>: <span id="statusDate">1/1/2001</span></p>
+                <p id="cancelMembership" class="infoText hidden"><i>To cancel, go to your device's settings to manage your subscriptions</i></p>
+            </div>
+            <div id="teamOwner" style="display: none">
+                <p>Inherited from Team</p>
+                <p class="infoText"><i>A user on your team has an active Sportwatch Membership, which qualifies
+                    the entire team for Membership benefits. If you leave this team, you
+                    may have to purchase your own membership.
+                </i></p>
+            </div>
         `);
         $(this.inputDivIdentifier).append(pageContent);
         
@@ -900,61 +909,34 @@ class Settings extends Page {
             $("#settingsPage .cat_button").removeClass("cat_button_selected");
         });
         
-        // Grab information
-        PlanBackend.getActivePlan(localStorage.getItem("email"), (response) => {
+        // Check to see who owns the plan (team or this user)
+        PlanBackend.getMembershipStatus(localStorage.getItem("email"), (response) => {
             if(response.status > 0) {
                 
-                // Set plan name
-                let planName = response.planName;
-                // planName = planName.split(" - ")[1]; // Ignore "Sportwatch Membership"
-                $(`#settingsPage #editPage #planType`).text(planName);
-                
-                // In case they've never had a plan before
-                if((response.endsOn == undefined) || (response.endsOn == "2001-01-01")) {
-                    // Define a fallback date in case isActive is true for some reason
-                    response.endsOn = new Date().toISOString().substr(0, 10);
-                    $(`#settingsPage #editPage #statusDate`).text("NA");
-                    
-                } else {
-                    // Set date that plan ended / will end
-                    let endsDate = response.endsOn.split("-");
-                    if (parseInt(endsDate[1]) < 10) { // Remove leading 0 from month
-                        endsDate[1] = endsDate[1].substr(1, 1);
-                    }
-                    if (parseInt(endsDate[2] < 10)) { // Remove leading 0 from day
-                        endsDate[2] = endsDate[2].substr(1, 1);
-                    }
-                    endsDate = endsDate[1] + "/" + endsDate[2] + "/" + endsDate[0];
-                    $(`#settingsPage #editPage #statusDate`).text(endsDate);
-                }
-                
-                // Change wording
-                if(response.isActive == true) {
-                    // Set the elements to reflect an active membership
+                // Set the general info (icon, status header, etc)
+                if(response.canUseApp) {
                     $(`#settingsPage #editPage #restartMembership`).addClass("hidden");
                     $(`#settingsPage #editPage #membershipGraphic`).prop("src", "img/validSymbol.png");
                     $(`#settingsPage #editPage #membershipGraphic`).prop("alt", "ACTIVE");
                     $(`#settingsPage #editPage #membershipStatus`).text("Active");
-                    $(`#settingsPage #editPage #cancelMembership`).removeClass("hidden");
-                    
-                    $(`#settingsPage #editPage #statusHistoryWording`).text("Next Renewal");
-                    let endsDate = response.endsOn.split("-");
-                    if(parseInt(endsDate[1]) < 10) { // Remove leading 0 from month
-                        endsDate[1] = endsDate[1].substr(1, 1);
-                    }
-                    if(parseInt(endsDate[2] < 10)) { // Remove leading 0 from day
-                        endsDate[2] = endsDate[2].substr(1, 1);
-                    }
-                    endsDate = endsDate[1] + "/" + endsDate[2] + "/" + endsDate[0];
-                    $(`#settingsPage #editPage #statusDate`).text(endsDate);
-                    
                 }
                 
+                // Set up the details (dependent on if the membership is user or team owned)
+                if(response.teamHasMembership) {
+                    // Hide individual, show team (nothing else to do to protect privacy)
+                    $("#settingsPage #editPage #individualOwner").css("display", "none");
+                    $("#settingsPage #editPage #teamOwner").css("display", "inline-block");
+                } else {
+                    this.populatePlanIndividual(localStorage.getItem("email"));
+                }
             } else {
-                Popup.createConfirmationPopup("Sorry, an unknown error occured. Please contact support or try again later.", ["OK"]);
-                return; // Don't let the page slide
+                Popup.createConfirmationPopup("Sorry, an unknown error occured while fetching your Membership details.", ["OK"], [
+                    () => {
+                        this.pageTransition.slideRight("catagoryPage");
+                }]);
             }
         });
+        
         
         this.pageTransition.slideLeft("editPage");
         let headerWidth = $("#settingsPage #editPage > .generic_header").height();
@@ -1194,6 +1176,68 @@ class Settings extends Page {
         }, 2500);
         
         return hasDeleted.promise();
+    }
+    
+    /**
+     * Gets the plan details for the individual specified. It will then
+     * populate the Membership page's Details portion, defining
+     * how long the membership is valid for and how to cancel.
+     * 
+     * @param {String} userEmail email of the logged in user to fetch the plan for
+     */
+    populatePlanIndividual(userEmail) {
+        
+        // Get the user's individual plan
+        PlanBackend.getActivePlan(userEmail, (response) => {
+            if (response.status > 0) {
+
+                // Set plan name
+                let planName = response.planName;
+                $(`#settingsPage #editPage #planType`).text(planName);
+
+                // In case they've never had a plan before
+                if ((response.endsOn == undefined) || (response.endsOn == "2001-01-01")) {
+                    // Define a fallback date in case isActive is true for some reason
+                    response.endsOn = new Date().toISOString().substr(0, 10);
+                    $(`#settingsPage #editPage #statusDate`).text("NA");
+
+                } else {
+                    // Set date that plan ended / will end
+                    let endsDate = response.endsOn.split("-");
+                    if (parseInt(endsDate[1]) < 10) { // Remove leading 0 from month
+                        endsDate[1] = endsDate[1].substr(1, 1);
+                    }
+                    if (parseInt(endsDate[2] < 10)) { // Remove leading 0 from day
+                        endsDate[2] = endsDate[2].substr(1, 1);
+                    }
+                    endsDate = endsDate[1] + "/" + endsDate[2] + "/" + endsDate[0];
+                    $(`#settingsPage #editPage #statusDate`).text(endsDate);
+                }
+
+                // Change wording
+                if (response.isActive == true) {
+                    // Set the elements to reflect an active membership
+                    $(`#settingsPage #editPage #cancelMembership`).removeClass("hidden");
+
+                    $(`#settingsPage #editPage #statusHistoryWording`).text("Next Renewal");
+                    let endsDate = response.endsOn.split("-");
+                    if (parseInt(endsDate[1]) < 10) { // Remove leading 0 from month
+                        endsDate[1] = endsDate[1].substr(1, 1);
+                    }
+                    if (parseInt(endsDate[2] < 10)) { // Remove leading 0 from day
+                        endsDate[2] = endsDate[2].substr(1, 1);
+                    }
+                    endsDate = endsDate[1] + "/" + endsDate[2] + "/" + endsDate[0];
+                    $(`#settingsPage #editPage #statusDate`).text(endsDate);
+
+                }
+
+            } else {
+                Popup.createConfirmationPopup("Sorry, an unknown error occured. Please contact support or try again later.", ["OK"]);
+                return; // Don't let the page slide
+            }
+        });
+        
     }
     
     /**
