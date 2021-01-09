@@ -203,6 +203,7 @@
 }
 
 #settingsPage h1.membershipHeader {
+    margin-bottom: 0;
     font-size: 2.5em;
     padding: 5px;
 }
@@ -211,6 +212,11 @@
     margin-bottom: 4vh;
 }
 
+#settingsPage #editPage .infoText {
+    margin-top: 0;
+    padding: 0 5vw;
+    font-weight: normal;
+}
 #settingsPage #membershipStatus {
     font-weight: normal;
 }

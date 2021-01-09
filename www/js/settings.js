@@ -754,7 +754,6 @@ class Settings extends Page {
             
             let invitedEmail = $(`${this.inputDivIdentifier} #input_athleteEmail`).val();
             ToolboxBackend.inviteAthleteWithFeedback(invitedEmail);
-            console.log("sent invite to " + invitedEmail);
         });
         
         // KICK ATHLETE
@@ -890,11 +889,20 @@ class Settings extends Page {
             <button id="restartMembership" class="sw_big_button">Start Your Membership</button>
             <hr>
             <h1 class="membershipHeader"><u>Details</u></h1>
-            <p>Plan: <span id="planType">Monthly</span></p>
-            <p><span id="statusHistoryWording">Last Active</span>: <span id="statusDate">N/A</span></p>
-            <p id="cancelMembership" class="hidden">
-                <i>To cancel, go to your device's settings to manage your subscriptions. Subscription take around a minute to update.</i>
-            </p>
+            <div id="individualOwner" style="display: inline-block">
+                <p>Plan: <span id="planType">Monthly</span></p>
+                <p><span id="statusHistoryWording">Last Active</span>: <span id="statusDate">1/1/2001</span></p>
+                <p id="cancelMembership" class="infoText hidden">
+                    <i>To cancel, go to your device's settings to manage your subscriptions. Subscription take around a minute to update.</i>
+                </p>
+            </div>
+            <div id="teamOwner" style="display: none">
+                <p>Inherited from Team</p>
+                <p class="infoText"><i>A user on your team has an active Sportwatch Membership, which qualifies
+                    the entire team for Membership benefits. If you leave this team, you
+                    may have to purchase your own membership.
+                </i></p>
+            </div>
         `);
         $(this.inputDivIdentifier).append(pageContent);
         
@@ -905,61 +913,34 @@ class Settings extends Page {
             $("#settingsPage .cat_button").removeClass("cat_button_selected");
         });
         
-        // Grab information
-        PlanBackend.getActivePlan(localStorage.getItem("email"), (response) => {
+        // Check to see who owns the plan (team or this user)
+        PlanBackend.getMembershipStatus(localStorage.getItem("email"), (response) => {
             if(response.status > 0) {
                 
-                // Set plan name
-                let planName = response.planName;
-                // planName = planName.split(" - ")[1]; // Ignore "Sportwatch Membership"
-                $(`#settingsPage #editPage #planType`).text(planName);
-                
-                // In case they've never had a plan before
-                if((response.endsOn == undefined) || (response.endsOn == "2001-01-01")) {
-                    // Define a fallback date in case isActive is true for some reason
-                    response.endsOn = new Date().toISOString().substr(0, 10);
-                    $(`#settingsPage #editPage #statusDate`).text("NA");
-                    
-                } else {
-                    // Set date that plan ended / will end
-                    let endsDate = response.endsOn.split("-");
-                    if (parseInt(endsDate[1]) < 10) { // Remove leading 0 from month
-                        endsDate[1] = endsDate[1].substr(1, 1);
-                    }
-                    if (parseInt(endsDate[2] < 10)) { // Remove leading 0 from day
-                        endsDate[2] = endsDate[2].substr(1, 1);
-                    }
-                    endsDate = endsDate[1] + "/" + endsDate[2] + "/" + endsDate[0];
-                    $(`#settingsPage #editPage #statusDate`).text(endsDate);
-                }
-                
-                // Change wording
-                if(response.isActive == true) {
-                    // Set the elements to reflect an active membership
+                // Set the general info (icon, status header, etc)
+                if(response.canUseApp) {
                     $(`#settingsPage #editPage #restartMembership`).addClass("hidden");
                     $(`#settingsPage #editPage #membershipGraphic`).prop("src", "img/validSymbol.png");
                     $(`#settingsPage #editPage #membershipGraphic`).prop("alt", "ACTIVE");
                     $(`#settingsPage #editPage #membershipStatus`).text("Active");
-                    $(`#settingsPage #editPage #cancelMembership`).removeClass("hidden");
-                    
-                    $(`#settingsPage #editPage #statusHistoryWording`).text("Next Renewal");
-                    let endsDate = response.endsOn.split("-");
-                    if(parseInt(endsDate[1]) < 10) { // Remove leading 0 from month
-                        endsDate[1] = endsDate[1].substr(1, 1);
-                    }
-                    if(parseInt(endsDate[2] < 10)) { // Remove leading 0 from day
-                        endsDate[2] = endsDate[2].substr(1, 1);
-                    }
-                    endsDate = endsDate[1] + "/" + endsDate[2] + "/" + endsDate[0];
-                    $(`#settingsPage #editPage #statusDate`).text(endsDate);
-                    
                 }
                 
+                // Set up the details (dependent on if the membership is user or team owned)
+                if(response.teamHasMembership) {
+                    // Hide individual, show team (nothing else to do to protect privacy)
+                    $("#settingsPage #editPage #individualOwner").css("display", "none");
+                    $("#settingsPage #editPage #teamOwner").css("display", "inline-block");
+                } else {
+                    this.populatePlanIndividual(localStorage.getItem("email"));
+                }
             } else {
-                Popup.createConfirmationPopup("Sorry, an unknown error occured. Please contact support or try again later.", ["OK"]);
-                return; // Don't let the page slide
+                Popup.createConfirmationPopup("Sorry, an unknown error occured while fetching your Membership details.", ["OK"], [
+                    () => {
+                        this.pageTransition.slideRight("catagoryPage");
+                }]);
             }
         });
+        
         
         this.pageTransition.slideLeft("editPage");
         let headerWidth = $("#settingsPage #editPage > .generic_header").height();
@@ -1079,11 +1060,12 @@ class Settings extends Page {
                 values[`${athletes.item(i).fname} ${athletes.item(i).lname}`] = athletes.item(i).rowid;
             }
 
-            ButtonGenerator.generateSelectForm(appendToElement, "Remove athlete from team", "Remove Selected Athlete", values, (form) => {
-                dbConnection.selectValues("SELECT id_backend FROM athlete WHERE rowid = ?", [$(form).val()]).then((athlete) => {
-                    this.kickAthleteWithFeedback($(form).val(), athlete.item(0).id_backend);
+            ButtonGenerator.generateSelectForm(appendToElement, "Remove Athlete from Team", "Remove Selected Athlete", values, (form) => {
+                dbConnection.selectValues("SELECT id_backend, fname FROM athlete WHERE rowid = ?", [$(form).val()]).then((athlete) => {
+                    this.kickAthleteWithFeedback($(form).val(), athlete.item(0).id_backend, athlete.item(0).fname);
                 });
             });
+            $(".generic_select").addClass("sw_dropdown").removeClass("generic_select");
         });
     }
     
@@ -1094,43 +1076,36 @@ class Settings extends Page {
      * 
      * @param {Integer} rowid local database id of the athlete
      * @param {Integer} id_backend backend database id of the athlete
+     * @param {String} firstName first name of the athlete to kick; used to confirm kick
      */
-    kickAthleteWithFeedback(rowid, id_backend) {
+    kickAthleteWithFeedback(rowid, id_backend, firstName) {
         
         Popup.createConfirmationPopup("Are you sure you want to delete this athlete?", ["Yes", "No"], [() => {
             
-            // Since we aren't storing the user's email on the frontend, grab it
-            //  then kick the athlete via email
-            AccountBackend.getAccount((kickedInfo) => {
-                if(kickedInfo.status > 0) {
-                    TeamBackend.kickAthlete(kickedInfo.email, (result) => {
-                        if(result.status > 0) {
-                            dbConnection.deleteValues("athlete", "WHERE rowid = ?", [rowid]);
-                            $(this.inputDivIdentifier).find("form").remove();
-                            this.generateKickableAthletes(this.inputDivIdentifier);
-                            
-                            Popup.createConfirmationPopup(kickedInfo.fname + " " + kickedInfo.lname + " has been kicked from the team",
-                                                            ["OK"]);
-                        } else {
-                            if(result.substatus == 3) {
-                                if(result.msg.includes("not in team")) {
-                                    Popup.createConfirmationPopup("That user is no longer in the team", ["OK"]);
-                                } else if(result.msg.includes("primary")) {
-                                    Popup.createConfirmationPopup("The primary coach cannot be kicked", ["OK"]);
-                                } else {
-                                    Popup.createConfirmationPopup("Only coaches can kick an athlete", ["OK"]);
-                                }
-                            } else {
-                                Popup.createConfirmationPopup("Sorry, an error occured. Please try again later"), ["OK"];
-                            }
-                        } // End of error processing
-                    });
+            // Kick the athlete with the given ID
+            TeamBackend.kickAthlete(id_backend, (result) => {
+                if(result.status > 0) {
+                    dbConnection.deleteValues("athlete", "WHERE rowid = ?", [rowid]);
+                    $(this.inputDivIdentifier).find("form").remove();
+                    this.generateKickableAthletes(this.inputDivIdentifier + " #kickWrapper");
+                    
+                    Popup.createConfirmationPopup(firstName + " has been kicked from the team", ["OK"]);
                 } else {
-                    Popup.createConfirmationPopup("Sorry, we were unable to kick that athlete. Please try again later", ["OK"]);
-                }
-            }, id_backend);
+                    if(result.substatus == 3) {
+                        if(result.msg.includes("not in team")) {
+                            Popup.createConfirmationPopup("That user is no longer in the team", ["OK"]);
+                        } else if(result.msg.includes("primary")) {
+                            Popup.createConfirmationPopup("The primary coach cannot be kicked", ["OK"]);
+                        } else {
+                            Popup.createConfirmationPopup("Only coaches can kick an athlete", ["OK"]);
+                        }
+                    } else {
+                        Popup.createConfirmationPopup("Sorry, an error occured. Please try again later"), ["OK"];
+                    }
+                } // End of error processing
+            });
         }, () => {
-            // no action
+            // no action, user clicked No
         }]);
     }
     
@@ -1199,6 +1174,68 @@ class Settings extends Page {
         }, 2500);
         
         return hasDeleted.promise();
+    }
+    
+    /**
+     * Gets the plan details for the individual specified. It will then
+     * populate the Membership page's Details portion, defining
+     * how long the membership is valid for and how to cancel.
+     * 
+     * @param {String} userEmail email of the logged in user to fetch the plan for
+     */
+    populatePlanIndividual(userEmail) {
+        
+        // Get the user's individual plan
+        PlanBackend.getActivePlan(userEmail, (response) => {
+            if (response.status > 0) {
+
+                // Set plan name
+                let planName = response.planName;
+                $(`#settingsPage #editPage #planType`).text(planName);
+
+                // In case they've never had a plan before
+                if ((response.endsOn == undefined) || (response.endsOn == "2001-01-01")) {
+                    // Define a fallback date in case isActive is true for some reason
+                    response.endsOn = new Date().toISOString().substr(0, 10);
+                    $(`#settingsPage #editPage #statusDate`).text("NA");
+
+                } else {
+                    // Set date that plan ended / will end
+                    let endsDate = response.endsOn.split("-");
+                    if (parseInt(endsDate[1]) < 10) { // Remove leading 0 from month
+                        endsDate[1] = endsDate[1].substr(1, 1);
+                    }
+                    if (parseInt(endsDate[2] < 10)) { // Remove leading 0 from day
+                        endsDate[2] = endsDate[2].substr(1, 1);
+                    }
+                    endsDate = endsDate[1] + "/" + endsDate[2] + "/" + endsDate[0];
+                    $(`#settingsPage #editPage #statusDate`).text(endsDate);
+                }
+
+                // Change wording
+                if (response.isActive == true) {
+                    // Set the elements to reflect an active membership
+                    $(`#settingsPage #editPage #cancelMembership`).removeClass("hidden");
+
+                    $(`#settingsPage #editPage #statusHistoryWording`).text("Next Renewal");
+                    let endsDate = response.endsOn.split("-");
+                    if (parseInt(endsDate[1]) < 10) { // Remove leading 0 from month
+                        endsDate[1] = endsDate[1].substr(1, 1);
+                    }
+                    if (parseInt(endsDate[2] < 10)) { // Remove leading 0 from day
+                        endsDate[2] = endsDate[2].substr(1, 1);
+                    }
+                    endsDate = endsDate[1] + "/" + endsDate[2] + "/" + endsDate[0];
+                    $(`#settingsPage #editPage #statusDate`).text(endsDate);
+
+                }
+
+            } else {
+                Popup.createConfirmationPopup("Sorry, an unknown error occured. Please contact support or try again later.", ["OK"]);
+                return; // Don't let the page slide
+            }
+        });
+        
     }
     
     /**
