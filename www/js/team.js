@@ -308,8 +308,6 @@ class Team extends Page {
         }, 1000);
         
         // Add top padding to avoid header overlap (iOS issue)
-        // TODO: I removed this. Tell me if it's an issue for iOS (probably sorry)
-        // ^ Yeah, it was hiding the "Events with saved times" text without the below snippet
         let headerWidth = $("#teamPage #athletePage > .generic_header").height();
         $("#teamPage #athletePage > #paddingDiv").first().css("margin-top", `calc(${headerWidth}px + 5vh)`);
 
@@ -348,13 +346,17 @@ class Team extends Page {
         $("#teamPage #athleteStatPage #back_button_athlete_stats").bind("click", () => {
             // stop editing so columns don't delete
             this.isEditing = false;
-            this.pageTransition.slideRight("landingPage");
+            this.pageTransition.slideRight("athletePage");
             // Scroll to the top
             $("#teamPage").animate({
                 scrollTop: 0
             }, 1000);
         });
-
+        
+        // Add padding for iOS's weird screens (10vh to account for missing graph if there's only the table)
+        let headerWidth = $("#teamPage #athleteStatPage > .generic_header").height();
+        $("#teamPage #athleteStatPage #paddingDiv").first().css("margin-top", `calc(${headerWidth}px + 7.5vh)`);
+        
         let datasets = [];
 
         let recordsPromise = dbConnection.selectValues(Constant.queryRecordsForAthleteEvent, [event.rowid, athlete.id_backend]);
@@ -584,9 +586,6 @@ class Team extends Page {
             $("#teamPage #athleteStatPage #athlete_stats_container").append(row);
         }
 
-        // Add the padding now that the table has been created
-        let headerWidth = $("#teamPage #athleteStatPage > .generic_header").height();
-        $("#teamPage #athleteStatPage #paddingDiv").first().css("margin-top", `calc(${headerWidth}px + 5vh)`);
     }
 
     /**

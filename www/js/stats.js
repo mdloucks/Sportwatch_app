@@ -9,6 +9,7 @@ class Stats extends Page {
         this.pageController = pageSetObject;
         this.pageTransition = new PageTransition("#statsPage");
         this.hasStarted = false;
+        this.shouldFade = true; // Only fade in upon first time page is opened
         this.isEditing = false;
 
         this.eventButtonsBoxSelector = "#statsPage #landingPage .button_box";
@@ -108,10 +109,16 @@ class Stats extends Page {
 
 
         } else {
-            this.startLandingPage(() => {
-                Animations.fadeInChildren(this.eventButtonsBoxSelector, Constant.fadeDuration, Constant.fadeIncrement);
-            });
-
+            // Start the current page
+            if(this.pageTransition.getCurrentPage() == "eventPage") {
+                this.startEventPage();
+            } else {
+                this.startLandingPage(() => {
+                    Animations.fadeInChildren(this.eventButtonsBoxSelector, Constant.fadeDuration, Constant.fadeIncrement);
+                    this.shouldFade = false;
+                });
+            }
+            
             // show the user the number of offline entries
             if (!NetworkInfo.isOnline()) {
 
@@ -142,13 +149,9 @@ class Stats extends Page {
      */
     startLandingPage(callback = () => {}) {
 
-        if (this.pageTransition.getCurrentPage() != "landingPage") {
-            this.pageTransition.slideRight("landingPage");
-        }
-
         $("#statsPage #landingPage .button_box").empty();
         $("#statsPage #landingPage #add_event_box").empty();
-
+        
         // get any unique entries in record identity
         let query = (`
             SELECT DISTINCT record_definition.record_identity, record_definition.rowid FROM record
@@ -190,8 +193,10 @@ class Stats extends Page {
                 ButtonGenerator.generateButtonsFromDatabase("#statsPage #landingPage .button_box", array, (event) => {
                     this.startEventPage(event);
                 }, [], Constant.eventColorConditionalAttributes, "class");
-
-                Animations.hideChildElements(this.eventButtonsBoxSelector);
+                
+                if(this.shouldFade) {
+                    Animations.hideChildElements(this.eventButtonsBoxSelector);
+                }
 
                 callback();
                 // there are no events that have any records 
@@ -511,7 +516,13 @@ class Stats extends Page {
      * @param {row} event the event to display results for
      */
     startEventPage(event) {
-
+        
+        // Don't set this page up again if it's still being viewed
+        //  Also, event variable won't be defined in some instances
+        if(this.pageTransition.getCurrentPage() == "eventPage") {
+            return;
+        }
+        
         this.pageTransition.slideLeft("eventPage");
         // While transitioning, scroll to the top
         $("#statsPage").animate({
@@ -530,6 +541,7 @@ class Stats extends Page {
 
         $("#statsPage #eventPage #back_button_event").bind("click", (e) => {
             this.pageTransition.slideRight("landingPage");
+            this.startLandingPage();
             $("#event_results").empty();
             // Reset the scroll
             $("#stopwatchPage").animate({
