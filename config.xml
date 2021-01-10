@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8" ?>
 
-<widget android-packageName="com.sportwatch.app" ios-CFBundleIdentifier="us.sportwatch.sportwatchapp" version="1.2.1"
+<widget android-packageName="com.sportwatch.app" ios-CFBundleIdentifier="us.sportwatch.sportwatchapp" version="1.3.0"
     xmlns="http://www.w3.org/ns/widgets"
     xmlns:cdv="http://cordova.apache.org/ns/1.0"
     xmlns:android="http://schemas.android.com/apk/res/android">
