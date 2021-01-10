@@ -193,6 +193,9 @@ Constant.eventColorConditionalAttributes = {
         "1600m": {
             class: "generated_button long_event"
         },
+        "3200m": {
+            class: "generated_button long_event"
+        },
         "3k": {
             class: "generated_button long_event"
         },

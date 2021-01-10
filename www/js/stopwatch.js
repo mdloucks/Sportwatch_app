@@ -37,7 +37,16 @@ class Stopwatch extends Page {
         this.carouselContainerSelector = `${this.landingPageSelector} #slideup_content`;
 
         this.defaultStopwatchToggleFunction = () => {
-            this.toggleStopwatch();
+            // this.toggleStopwatch();
+
+            if (!this.isSlideupActive) {
+                this.toggleSlideup();
+            } else if(this.isSlideupActive) {
+                Popup.createConfirmationPopup(`
+                Select an event from the list below to get started. 
+                Click on the athlete's name when they finish to record a time!
+                `, ["OK"], [() => {}]);
+            }
         };
 
         this.unsavedEventsQuery = (`
@@ -908,7 +917,7 @@ class Stopwatch extends Page {
         // the rowid is the key, and corresponds to an array of measurements
         //..................................................................................................
         if (splitEvents.length > 0) {
-            console.log("generating split boxes");
+            // console.log("generating split boxes");
             $(`${this.landingPageSelector} #slideup_content`).append(`
                 <table class="slideup_top_bar change_saved_split"></table>
             `);
@@ -1004,21 +1013,20 @@ class Stopwatch extends Page {
                 }
 
                 let isUsingSplits = (nBoxes != 1 ? true : false);
+                let buttonBoxSelector = ".button_box";
 
-                for (let i = 0; i < nBoxes; i++) {
+                for (let j = 0; j < nBoxes; j++) {
                     // append the button box jquery object here, so then it may be controlled by the callback in the other function
 
-                    let buttonBoxSelector;
 
                     if (isUsingSplits) {
                         $(`${this.landingPageSelector} #slideup_content`).append(eventConfig.buttonBoxes[splitEvents[0]][i]);
-                        buttonBoxSelector = `#split_button_box_${i + 1}`;
-                    } else {
+                        buttonBoxSelector = `#split_button_box_${j + 1}`;
+                        // add only 1 button box for a single split event
+                    } else if(i == 0 || (i == 1 && isSavedRecordsEmpty)) {
                         $(`${this.landingPageSelector} #slideup_content`).append(`<div class="button_box"></div>`);
                         buttonBoxSelector = " .button_box";
                     }
-
-                    // console.log("generating boxes to " + `${this.landingPageSelector} #slideup_content ${buttonBoxSelector}`);
 
                     // populate the athletes and set the callback on click
                     ButtonGenerator.generateButtonsFromDatabase(`${this.landingPageSelector} #slideup_content ${buttonBoxSelector}`, athletes, (athlete) => {
@@ -1084,13 +1092,15 @@ class Stopwatch extends Page {
                         }
 
                     }, ["gender", "unit", "is_relay", "timestamp", "id_backend"], Constant.genderColorConditionalAttributes);
+
+
                 }
 
-
-
-
-                if (i == 0 && (!isUnsavedRecordsEmpty && !isSavedRecordsEmpty)) {
-                    $(`${this.landingPageSelector} #slideup_content`).append(`<br><br><br><hr style="height: 8px;">`);
+                if (i == 0 && (!isUnsavedRecordsEmpty)) {
+                    $(`${this.landingPageSelector} #slideup_content ${buttonBoxSelector}`).append(`
+                    <br><br><br><hr style="height: 8px;">
+                    <h2 style="text-align: center">Athletes without times in this event</h2>
+                    `);
                 }
             }
 
