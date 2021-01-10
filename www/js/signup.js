@@ -123,9 +123,9 @@ class Signup extends Page {
         this.getPageElement("input[name=password]").on("input", () => {
             let input = this.getPageElement("input[name=password]").val();
 
-            if ((input.match(/[`"';<>{} ]/gm) != null) || (input.length < 10) || (input.length > 250)) {
+            if ((input.match(/[`"';<>{} ]/gm) != null) || (input.length < 8) || (input.length > 250)) {
                 this.setupInvalidSymbol("#i_password", false,
-                    "Password must be at least 10 characters long and cannot contain spaces or: \";\'<>{}");
+                    "Password must be at least 8 characters long and cannot contain spaces or: \";\'<>{}");
             } else if ((input.match(/[A-Z]/gm) == null) || (input.match(/[0-9]/gm) == null)) {
                 this.setupInvalidSymbol("#i_password", false, "Please strengthen your password (must include uppercase, and numbers)");
             } else {
@@ -204,8 +204,8 @@ class Signup extends Page {
                 this.setupInvalidSymbol("#i_email", false, "Please enter a valid email");
                 return;
             }
-            if (password.length < 10) {
-                this.setupInvalidSymbol("#i_password", false, "Password must be at least 10 characters");
+            if (password.length < 8) {
+                this.setupInvalidSymbol("#i_password", false, "Password must be at least 8 characters");
                 return;
             }
 
