@@ -55,7 +55,7 @@ class Stopwatch extends Page {
         `);
 
         this.clock = {
-            radius: 120,
+            radius: 125,
             pointSize: 10,
             centerX: 0,
             centerY: 0,
@@ -157,6 +157,7 @@ class Stopwatch extends Page {
      * @returns {function} a function that will stop the this.clock interval
      */
     start() {
+        dbConnection.printTable("athlete");
 
         this.resetSlideup();
 
@@ -450,9 +451,9 @@ class Stopwatch extends Page {
 
                 if (_this.selectedRecordDefinitionGender) {
 
-                    if (_this.selectedRecordDefinitionGender == 'm') {
+                    if (_this.selectedRecordDefinitionGender == 'M') {
                         $("#slideup").addClass('male_color');
-                    } else if (_this.selectedRecordDefinitionGender == 'f') {
+                    } else if (_this.selectedRecordDefinitionGender == 'F') {
                         $("#slideup").addClass('female_color');
                     }
                     // on both genders selected
@@ -656,7 +657,7 @@ class Stopwatch extends Page {
     }
 
     /**
-     * generate a string 'm' or 'f' depending on the boolean. 
+     * generate a string 'M' or 'F' depending on the boolean. 
      * it will be blank if both or neither are present
      * 
      * @param {Boolean} isBoys are the boys selected
@@ -666,9 +667,9 @@ class Stopwatch extends Page {
         let gender = '';
 
         if (isBoys && !isGirls) {
-            gender = 'm';
+            gender = 'M';
         } else if (!isBoys && isGirls) {
-            gender = 'f';
+            gender = 'F';
         } else {
             gender = '';
         }
@@ -709,7 +710,7 @@ class Stopwatch extends Page {
 
             // loop through the list of record definitions and add them to the slideup top bar
             for (let i = 0; i < ids.length; i++) {
-
+                
                 if (i == 0 || i % Constant.stopwatchSelectEventColumnCount == 0) {
                     $(`${this.landingPageSelector} .slideup_top_bar.change_saved_event`).append(`<tr></tr>`);
                 }
@@ -745,7 +746,7 @@ class Stopwatch extends Page {
             // configure WHERE condition
             if (gender != undefined || gender != null) {
                 // alter the condition based on presence of gender
-                if (gender == 'm' || gender == 'f') {
+                if (gender == 'M' || gender == 'F') {
                     genderConditionalQuery = "WHERE athlete.gender = ?";
                     eventConditionalQuery = `AND (record.id_record_definition = ? 
                         ${"OR record.id_record_definition = ?".repeat(ids.length - 1)})`;
@@ -774,7 +775,6 @@ class Stopwatch extends Page {
             if (ids.length == 1) {
                 record_definition = ids[0];
             }
-
             eventConfig.selectedEvent = Number(record_definition);
 
             genderConditionalQuery = "";
@@ -786,16 +786,16 @@ class Stopwatch extends Page {
             // configure WHERE condition
             if (gender != undefined || gender != null) {
                 // alter the condition based on presence of gender
-                if (gender == 'm' || gender == 'f') {
-                    genderConditionalQuery = "WHERE athlete.gender = ?";
-                    eventConditionalQuery = "AND record.id_record_definition = ?";
+                if (gender == 'M' || gender == 'F') {
+                    genderConditionalQuery = "WHERE (athlete.gender = ?)";
+                    eventConditionalQuery = "AND (record.id_record_definition = ?)";
 
-                    savedRecordsArray = [gender, record_definition.rowid];
-                    unsavedRecordsArray = [gender, gender, record_definition.rowid];
+                    savedRecordsArray = [gender, Number(record_definition)];
+                    unsavedRecordsArray = [gender, gender, Number(record_definition)];
                     // gender not selected, only use record definition to select
                 } else {
-                    savedRecordsArray = [record_definition.rowid];
-                    unsavedRecordsArray = [record_definition.rowid];
+                    savedRecordsArray = [Number(record_definition)];
+                    unsavedRecordsArray = [Number(record_definition)];
                 }
             }
         }
@@ -826,7 +826,7 @@ class Stopwatch extends Page {
                 // since we have access to the element here, we can define the toggle behavior
                 let buttonBox = $("<div>", buttonBoxObject);
 
-                console.log("splits " + JSON.stringify(tdObject));
+                // console.log("splits " + JSON.stringify(tdObject));
 
                 // first element highlighted
                 if (i == 0) {
@@ -1347,7 +1347,7 @@ class Stopwatch extends Page {
             this.pageTransition.slideRight("landingPage");
         }
 
-        console.log("EVENT: " + JSON.stringify(eventConfig));
+        // console.log("EVENT: " + JSON.stringify(eventConfig));
 
         let eventRowid = eventConfig.selectedEvent;
 
@@ -1402,7 +1402,7 @@ class Stopwatch extends Page {
                         // check to see if there are any splits. If so save those with this record.
 
                         if (Object.keys(eventConfig.splitTimes) != 0) {
-                            console.log("there are splits!");
+                            // console.log("there are splits!");
                             let athleteSplits = eventConfig.splitTimes[eventRowid][athlete.id_backend];
 
                             // loop through every split for the athlete. n will be equal to the number of splits that were requested

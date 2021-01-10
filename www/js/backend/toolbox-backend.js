@@ -156,11 +156,12 @@ class ToolboxBackend {
                     requests.push(ToolboxBackend.insertBackendTable("split", "record_split", {
                         "id_user": athletes.item(i)["id_backend"]
                     }, {
+                        "id_split": "id_split",
                         "id_record": "id_record",
                         "value": "value",
                         "name": "split_name",
-                        "splitIndex": "splitIndex",
-                        "lastUpdated": "lastUpdated"
+                        "splitIndex": "split_index",
+                        "lastUpdated": "last_updated"
                     }));
                 }
                 
