@@ -74,7 +74,7 @@ class Stopwatch extends Page {
             start: 0,
             hours: 0,
             minutes: 0,
-            seconds: 11.41,
+            seconds: 0,
             epoch: 0,
         };
 
