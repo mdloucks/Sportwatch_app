@@ -263,7 +263,9 @@ class SwipeHolder {
         if (this.gestureHistory.length > this.MAX_HISTORY) {
             this.gestureHistory.pop();
         }
-
+        
+        console.log("Recent gesture: " + this.gestureHistory[0]);
+        
         // Execute callback for gesture
         this.callbacks[this.gestureHistory[0]]();
         return this.gestureHistory[0]; // Return gesture

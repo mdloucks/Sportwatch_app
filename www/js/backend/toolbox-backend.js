@@ -44,7 +44,7 @@ class ToolboxBackend {
                 }
             });
         });
-        console.log("FRONTEND SYNC");
+        
         // Plan local storage
         localPlanData.promise().then(() => {
             PlanBackend.getMembershipStatus(storage.getItem("email"), (planInfo) => {
