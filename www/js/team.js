@@ -564,7 +564,7 @@ class Team extends Page {
         $("#teamPage #athleteStatPage #athlete_stats_container").append(`
             <tr>
                 <th>Date</th>
-                <th>Value</th>
+                <th>Time</th>
             </tr>
         `);
 
