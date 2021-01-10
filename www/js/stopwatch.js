@@ -1013,26 +1013,35 @@ class Stopwatch extends Page {
                 }
 
                 let isUsingSplits = (nBoxes != 1 ? true : false);
-                let buttonBoxSelector = ".button_box";
-
+                
                 for (let j = 0; j < nBoxes; j++) {
                     // append the button box jquery object here, so then it may be controlled by the callback in the other function
-
+                    
+                    let buttonBoxSelector;
 
                     if (isUsingSplits) {
-                        $(`${this.landingPageSelector} #slideup_content`).append(eventConfig.buttonBoxes[splitEvents[0]][i]);
+                        // console.log("using splits, making button box " + JSON.stringify(eventConfig.buttonBoxes[splitEvents[0]][j]));
+                        $(`${this.landingPageSelector} #slideup_content`).append(eventConfig.buttonBoxes[splitEvents[0]][j]);
                         buttonBoxSelector = `#split_button_box_${j + 1}`;
+                        // console.log($(`${this.landingPageSelector} #slideup_content`).html());
                         // add only 1 button box for a single split event
                     } else if(i == 0 || (i == 1 && isSavedRecordsEmpty)) {
                         $(`${this.landingPageSelector} #slideup_content`).append(`<div class="button_box"></div>`);
                         buttonBoxSelector = " .button_box";
+                    } else {
+                        buttonBoxSelector = ".button_box";
                     }
+
+                    console.log("SPLIT BOX SELECTOR IS " + buttonBoxSelector);
 
                     // populate the athletes and set the callback on click
                     ButtonGenerator.generateButtonsFromDatabase(`${this.landingPageSelector} #slideup_content ${buttonBoxSelector}`, athletes, (athlete) => {
 
                         navigator.vibrate(25);
 
+                        // console.log($(`${this.landingPageSelector} #slideup_content ${buttonBoxSelector}`).html());
+                        // console.log($(`${this.landingPageSelector} #slideup_content ${buttonBoxSelector}`).parent().html());
+                        
                         // do a final record save on finish
                         if ((eventConfig.selectedSplitName == "Finish" && isUsingSplits) || !isUsingSplits) {
                             this.saveTime(eventConfig, athlete);
@@ -1058,6 +1067,7 @@ class Stopwatch extends Page {
 
                         let nAthletesRemaining = $(`${this.landingPageSelector} #slideup_content ${buttonBoxSelector} > button`).length - 1;
 
+                        console.log("athletes left: " + nAthletesRemaining);
 
                         // Delete the specific button we are looking for
                         $(`${this.landingPageSelector} #slideup_content ${buttonBoxSelector} #${athlete.id}`).remove();
@@ -1094,13 +1104,12 @@ class Stopwatch extends Page {
                     }, ["gender", "unit", "is_relay", "timestamp", "id_backend"], Constant.genderColorConditionalAttributes);
 
 
-                }
-
-                if (i == 0 && (!isUnsavedRecordsEmpty)) {
-                    $(`${this.landingPageSelector} #slideup_content ${buttonBoxSelector}`).append(`
-                    <br><br><br><hr style="height: 8px;">
-                    <h2 style="text-align: center">Athletes without times in this event</h2>
-                    `);
+                    if (i == 0 && (!isUnsavedRecordsEmpty)) {
+                        $(`${this.landingPageSelector} #slideup_content ${buttonBoxSelector}`).append(`
+                        <br><br><br><hr style="height: 8px;">
+                        <h2 style="text-align: center">Athletes without times in this event</h2>
+                        `);
+                    }
                 }
             }
 
@@ -1135,7 +1144,10 @@ class Stopwatch extends Page {
         let eventIds = Object.keys(eventConfig.selectedEvents);
 
         $(`${this.landingPageSelector} #slideup_content`).prepend(`
-            <button id="confirm_selected_splits_button" class="generated_button" style="background-color: #68be9a;">Confirm Splits</button>
+            <br><button id="confirm_selected_splits_button" class="generated_button" style="background-color: #68be9a;">Confirm Splits</button><br>
+            <h2 style="text-align: center; padding-left: 5px; padding-right: 5px;">
+            Click the "Add Split" button and enter a number representing the distance
+            </h2>
         `);
 
         $("#confirm_selected_splits_button").click(function (e) {
@@ -1176,16 +1188,26 @@ class Stopwatch extends Page {
                 // focus the input and change it to a div on onfocus
                 $(`#${inputId}`).focus();
 
+
                 let onInputFinish = function () {
+                    
+                    let splitDistance = Number($(this).val());
+
+                    if(isNaN(splitDistance)) {
+                        Popup.createConfirmationPopup("Please enter a number for the split distance eg. 100", ["OK"], [() => {}]);
+                        return;
+                    }
+
                     $(this).parent().find("b").after(`
-                        <span>${$(this).val()}</span>
+                        <span>${splitDistance}</span>
                     `);
+
 
                     // create an array of split names for each event rowid so 800m : [400m split, 600m split, etc...]
                     if (clickNumber == 1) {
-                        eventConfig.selectedSplits[eventIds[i]] = [`${$(this).val()}`];
+                        eventConfig.selectedSplits[eventIds[i]] = [`${splitDistance}`];
                     } else {
-                        eventConfig.selectedSplits[eventIds[i]].push(`${$(this).val()}`);
+                        eventConfig.selectedSplits[eventIds[i]].push(`${splitDistance}`);
                     }
 
                     $(this).remove();
@@ -1193,13 +1215,18 @@ class Stopwatch extends Page {
 
                 $(`#${inputId}`).focusout(onInputFinish);
                 $(`#${inputId}`).submit(onInputFinish);
-                $(`#${inputId}`).on('keypress', function (e) {
-                    if (e.which == 13) {
-                        onInputFinish();
+                $(`#${inputId}`).on('keydown', (e) => {
+                    if (Number(e.which) == 13) {
+                        $(`#${inputId}`).trigger("blur");
                     }
                 });
             });
+
+            
         }
+
+        // scroll to top of the slideup
+        $(`${this.landingPageSelector} #slideup_content`).scrollTop(0);
     }
 
     startStopwatch() {
