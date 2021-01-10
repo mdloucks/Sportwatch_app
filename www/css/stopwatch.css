@@ -60,6 +60,7 @@
 #stopwatchPage #landingPage .slideup_contracted {
     background-color: rgb(229, 229, 234);
     border-top: 0.5vw solid black;
+    color: black;
 }
 
 #stopwatchPage #landingPage .slideup_both_genders {

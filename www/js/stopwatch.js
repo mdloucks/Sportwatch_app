@@ -157,8 +157,7 @@ class Stopwatch extends Page {
      * @returns {function} a function that will stop the this.clock interval
      */
     start() {
-        dbConnection.printTable("athlete");
-
+        
         this.resetSlideup();
 
         if (this.pageTransition.getPageCount() == 0) {
@@ -167,11 +166,16 @@ class Stopwatch extends Page {
             this.pageTransition.addPage("selectEventPage", this.selectEventPage);
         }
         $("html").scrollTop(0); // Fixes bug on iOS that shows scrollbar after login
+        
+        $("#slideup").addClass('slideup_contracted');
+        $("#slideup").addClass('slideup_expanded');
+
 
         this.setupStopwatch(this.defaultStopwatchToggleFunction);
 
         this.setupSlideup();
 
+        
         // $(`${this.landingPageSelector} .table_container`).addClass("hidden");
     }
 
