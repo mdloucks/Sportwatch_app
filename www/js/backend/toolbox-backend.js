@@ -48,19 +48,24 @@ class ToolboxBackend {
         // Plan local storage
         localPlanData.promise().then(() => {
             PlanBackend.getMembershipStatus(storage.getItem("email"), (planInfo) => {
-
-                if(Number(planInfo.daysToExpire) <= 4 && Number(planInfo.daysToExpire) != 0) {
-                    setTimeout(() => {
-                        Popup.createConfirmationPopup(`
-                            Your free trial will expire in <b>${Number(planInfo.daysToExpire)} days</b><br><br>
-                            Keep improving your team by investing in a Sportwatch Membership.
-                        `, ["Become a Member"], [() => {
-                            Popup.createPremiumPopup(() => {});
-                        }]);
-                    }, 2500);
-                }
-
+                
                 if(planInfo.status > 0) {
+                    
+                    // Make sure the user's membership isn't from the team
+                    // TODO: Make sure they're on the free trial and NOT a paid renewal plan
+                    if(planInfo.userHasMembership) {
+                        if(Number(planInfo.daysToExpire) <= 4 && Number(planInfo.daysToExpire) != 0 && planInfo.userHasMembership) {
+                            setTimeout(() => {
+                                Popup.createConfirmationPopup(`
+                                Your free trial will expire in <b>${Number(planInfo.daysToExpire)} days</b><br><br>
+                                Keep improving your team by investing in a Sportwatch Membership.
+                            `, ["Become a Member"], [() => {
+                                    Popup.createPremiumPopup(() => { });
+                                }]);
+                            }, 2500);
+                        }
+                    }
+                    
                     if(planInfo.canUseApp) {
                         //  planInfo.daysToExpire
                         storage.setItem("validMembership", "true");
