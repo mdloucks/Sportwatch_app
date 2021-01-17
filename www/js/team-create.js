@@ -69,7 +69,12 @@ class CreateTeam extends Page {
                 <input id="input_secondaryCoach" class="sw_text_input" type="text" placeholder="assistant@sportwatch.us"></input>
                 <br> -->
                 <h1 id="h1_inviteCode">Invite Code (Optional)</h1>
-                <input id="input_inviteCode" class="sw_text_input" type="text" placeholder="6e3bs36"></input>
+                <input id="input_inviteCode" class="sw_text_input" type="text" placeholder="7 character code (lclcm3y)"></input>
+                <br><br>
+                <p id="p_trialInfo">
+                    Once you create the team, you will have <b>15 days</b> of free unrestricted
+                    access. After that, you will be required to purchase a Sportwatch Membership.
+                </p>
                 <br><br>
                 
                 <!-- Progression Buttons -->
@@ -168,6 +173,26 @@ class CreateTeam extends Page {
                     this.getPageElement("#input_school").val(response.schoolName);
                     this.getPageElement("#schoolPage .button_next").prop("disabled", false);
                 }
+            }
+        });
+        
+        // Get Plan info to see if the free trial has been used
+        PlanBackend.getActivePlan(localStorage.getItem("email"), (planInfo) => {
+            console.log(planInfo);
+            if(planInfo.status > 0) {
+                if(planInfo.isActive) {
+                    // Remove the free trial text since they already have a subscription
+                    $("#createteamPage #p_trialInfo").html(``);
+                } else if(planInfo.usedFreeTrial) {
+                    $("#createteamPage #p_trialInfo").html(`You will be required to <b>purchase a Sportwatch Membership to use your
+                                                            team</b> since you've already used your 15-day free trial.`);
+                } else {
+                    // Reset it here in case they buy a membership in the middle of creating a team
+                    $("#createteamPage #p_trialInfo").html(`Once you create the team, you will have <b>15 days</b> of free unrestricted
+                                                            access. After that, you will be required to purchase a Sportwatch Membership.`);
+                }
+            } else {
+                $("#createteamPage #p_trialInfo").html(`You may be required to purchase a Sportwatch Membership after creating your team.`);;
             }
         });
 

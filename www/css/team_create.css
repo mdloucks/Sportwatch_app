@@ -201,6 +201,12 @@
     transition: background-color 0.5s;
 }
 
+#createteamPage #p_trialInfo {
+    margin-left: 5%;
+    margin-right: 5%;
+    font-size: 2em;
+}
+
 
 /* ---- POST CREATE ---- */
 
