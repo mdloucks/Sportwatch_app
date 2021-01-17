@@ -99,6 +99,10 @@ class PlanBackend {
         let storage = window.localStorage;
         let identityKey = "email"; // "email" if targetEmailOrId is a string, "id_user" if it's a number
         
+        if(targetEmailOrId == undefined) {
+            callback({"status": -10});
+            return false;
+        }
         if(typeof targetEmailOrId == "number") {
             identityKey = "id_user";
         } else { // Assume it was an email
