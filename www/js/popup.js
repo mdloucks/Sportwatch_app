@@ -126,7 +126,7 @@ class Popup {
 
                 <div class="premium_popup_description">
                     <b>Your membership is no longer active.</b><br><br>
-                    Continue to improve with Sportwatch Premium.<br><br><br>
+                    Continue to improve with a Sportwatch Membership.<br><br><br>
                 </div>
             
                 <div id="planOptions">
@@ -148,18 +148,22 @@ class Popup {
 
         // close the app if the user does not make a purchase
         $(".premium_deny_text").click(function (e) {
-            Popup.createConfirmationPopup("Sportwatch requires a premium membership in order to use. Do you want to go back to using a clipboard?",
-                ["No, take me back!", "Yes"], [function () {
-                    return;
-                }, function () {
-                    // TODO: open a link that prompts the user for a reason why they don't want to keep using the app.
-                    // navigator.app.exitApp();
-                    // Disabled for now since there are other things the user can do
-                    $("#premiumPopup").fadeOut(Constant.popupFadeoutDuration, () => {
-                        $("#premiumPopup").remove();
-                        $(".navbar").removeClass("hidden");
-                    });
-                }])
+            $("#premiumPopup").fadeOut(Constant.popupFadeoutDuration, () => {
+                $("#premiumPopup").remove();
+                $(".navbar").removeClass("hidden");
+            });
+            // Popup.createConfirmationPopup("Sportwatch requires a premium membership in order to use. Do you want to go back to using a clipboard?",
+            //     ["No, take me back!", "Yes"], [function () {
+            //         return;
+            //     }, function () {
+            //         // TODO: open a link that prompts the user for a reason why they don't want to keep using the app.
+            //         // navigator.app.exitApp();
+            //         // Disabled for now since there are other things the user can do
+            //         $("#premiumPopup").fadeOut(Constant.popupFadeoutDuration, () => {
+            //             $("#premiumPopup").remove();
+            //             $(".navbar").removeClass("hidden");
+            //         });
+            //     }]);
         });
 
         // -- PURCHASE SETUP -- //
@@ -183,7 +187,9 @@ class Popup {
 
             // Append the content
             $(".popup #planOptions").append(`
-                <button id="${plans[p].id}" class="premium_purchase_button">${plans[p].title} - ${plans[p].price}</button>
+                <button id="${plans[p].id}" class="premium_purchase_button">
+                    ${plans[p].title}<br>${plans[p].price}/${plans[p].billingPeriodUnit}
+                </button>
             `);
             break; // TODO: Remove after Apple approves the first in app purchase
         }
