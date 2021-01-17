@@ -51,7 +51,7 @@
         "cordova-ios": "^6.1.1",
         "cordova-plugin-app-exit": "0.0.2",
         "cordova-plugin-device": "^2.0.3",
-        "cordova-plugin-purchase": "^10.5.1",
+        "cordova-plugin-purchase": "git+https://github.com/j3k0/cordova-plugin-purchase.git",
         "cordova-plugin-x-socialsharing": "^6.0.1",
         "es6-promise-plugin": "^4.2.2"
     }
