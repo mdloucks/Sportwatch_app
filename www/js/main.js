@@ -124,7 +124,7 @@ class App {
                 this.setActivePageSet(1); // Bring to main screen
                 return;
 
-            }).catch((error) => {
+            }, (error) => {
                 if (DO_LOG) {
                     console.log("[main.js:determinePageSet()] Invalid SID, logging out");
                 }
