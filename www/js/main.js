@@ -26,7 +26,7 @@ class App {
         // Update the API path in case the backend version changed
         ToolboxBackend.setBackendPathConstant().then(() => {
             this.startApp();
-        }).catch(() => {
+        }, () => {
             if (DO_LOG) {
                 console.log("[main.js:onReady]: Failed to load backend API path, errors likely!");
                 this.startApp();
@@ -64,7 +64,7 @@ class App {
                     if (DO_LOG) {
                         console.log("[main.js:startApp()]: Backend sync finished!");
                     }
-                }).catch(() => {
+                }, () => {
                     // Likely a corrupted / lost local storage, so they'll be signed out anyway
                     if (DO_LOG) {
                         console.log("[main.js:startApp]: Failed to pull from backend, localStorage email: " + localStorage.getItem("email"));
