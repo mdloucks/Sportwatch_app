@@ -231,6 +231,23 @@
     border-radius: 5px;
 }
 
+/* Setting -- Membership */
+
+#settingsPage #supportWrapper > p {
+    margin: 10px 15px;
+    font-size: 2em;
+}
+#settingsPage #supportWrapper a {
+    color: black;
+}
+
+#settingsPage #supportWrapper .contactPoint {
+    margin-top: 0;
+}
+
+#settingsPage #appVersion {
+    color: gray;
+}
 
 
 /* .act_drop_wrapper {

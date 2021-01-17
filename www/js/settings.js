@@ -83,6 +83,7 @@ class Settings extends Page {
             "Team Preferences": this.startTeamPreferences,
             // "Notifications": this.startNotifications,
             "Membership": this.startMembership,
+            "Support": this.startSupport,
             "Sign Out": this.startSignOut
             // "Delete Account": this.startDeleteAccount
         };
@@ -112,6 +113,8 @@ class Settings extends Page {
                 this.startTeamPreferences();
             } else if(activeEditPage.includes("Membership")) {
                 this.startMembership();
+            } else if(activeEditPage.includes("Support")) {
+                this.startSupport();
             }
         }
         
@@ -487,7 +490,7 @@ class Settings extends Page {
             scrollTop: 0
         }, 1000);
         let headerWidth = $("#settingsPage #editPage > .generic_header").height();
-        $("#settingsPage #editPage > *:not(.generic_header)").first().css("margin-top", `calc(${headerWidth}px + 10vh)`);
+        $("#settingsPage #editPage > *:not(.generic_header)").first().css("margin-top", `calc(${headerWidth}px + 7vh)`);
     }
 
     startTeamPreferences() {
@@ -821,7 +824,7 @@ class Settings extends Page {
             scrollTop: 0
         }, 1000);
         let headerWidth = $("#settingsPage #editPage > .generic_header").height();
-        $("#settingsPage #editPage > *:not(.generic_header)").first().css("margin-top", `calc(${headerWidth}px + 10vh)`);
+        $("#settingsPage #editPage > *:not(.generic_header)").first().css("margin-top", `calc(${headerWidth}px + 7vh)`);
         
         // ---- BACKEND PULL ---- //
         
@@ -870,7 +873,7 @@ class Settings extends Page {
 
         this.pageTransition.slideLeft("editPage");
         let headerWidth = $("#settingsPage #editPage > .generic_header").height();
-        $("#settingsPage #editPage > *:not(.generic_header)").first().css("margin-top", `calc(${headerWidth}px + 10vh)`);
+        $("#settingsPage #editPage > *:not(.generic_header)").first().css("margin-top", `calc(${headerWidth}px + 7vh)`);
     }
     
     startMembership() {
@@ -971,7 +974,7 @@ class Settings extends Page {
         
         this.pageTransition.slideLeft("editPage");
         let headerWidth = $("#settingsPage #editPage > .generic_header").height();
-        $("#settingsPage #editPage > *:not(.generic_header)").first().css("margin-top", `calc(${headerWidth}px + 10vh)`);
+        $("#settingsPage #editPage > *:not(.generic_header)").first().css("margin-top", `calc(${headerWidth}px + 7vh)`);
     }
     
     startSignOut() {
@@ -1002,7 +1005,37 @@ class Settings extends Page {
         }]);
 
     }
-
+    
+    startSupport() {
+        this.setupSettingsPage("Support");
+        
+        let pageContent = (`
+            <br>
+            <div id="supportWrapper">
+                <p><b><i>Have a question? Need help?</i> You can contact us by:</b></p>
+                <p class="contactPoint" style="font-weight: 500">
+                    Email: <a href="mailto:support@sportwatch.us">support@sportwatch.us</a>
+                </p>
+                <br><br>
+                <hr>
+                <br><br>
+                <p id="policiesText" style="font-weight: 500">
+                    View our <a href="https://sportwatch.us/terms-of-use/">Terms of Use</a> and our
+                    <a href="https://sportwatch.us/privacy-policy/">Privacy Policy</a> by tapping to view them on our website!
+                </p>
+                <br><br>
+                <hr>
+                <p id="appVersion">${device.platform} - v${AppVersion.version}</p>
+            </div>
+        `);
+        $(this.inputDivIdentifier).append(pageContent);
+        
+        // Slide the page since it's set up
+        this.pageTransition.slideLeft("editPage");
+        let headerWidth = $("#settingsPage #editPage > .generic_header").height();
+        $("#settingsPage #editPage > *:not(.generic_header)").first().css("margin-top", `calc(${headerWidth}px + 7vh)`);
+    }
+    
     startDeleteAccount() {
         this.setupSettingsPage("Delete Account");
 
@@ -1031,7 +1064,7 @@ class Settings extends Page {
 
         this.pageTransition.slideLeft("editPage");
         let headerWidth = $("#settingsPage #editPage > .generic_header").height();
-        $("#settingsPage #editPage > *:not(.generic_header)").first().css("margin-top", `calc(${headerWidth}px + 10vh)`);
+        $("#settingsPage #editPage > *:not(.generic_header)").first().css("margin-top", `calc(${headerWidth}px + 7vh)`);
     }
     
     // MISC FUNCTIONS //
