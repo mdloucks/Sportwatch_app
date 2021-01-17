@@ -889,29 +889,56 @@ class Settings extends Page {
             <button id="restartMembership" class="sw_big_button">Start Your Membership</button>
             <hr>
             <h1 class="membershipHeader"><u>Details</u></h1>
-            <div id="individualOwner" style="display: inline-block">
+            <div id="individualOwner" class="stateWrapper" style="display: inline-block">
                 <p>Plan: <span id="planType">Monthly</span></p>
                 <p><span id="statusHistoryWording">Last Active</span>: <span id="statusDate">1/1/2001</span></p>
                 <p id="cancelMembership" class="infoText hidden">
                     <i>To cancel, go to your device's settings to manage your subscriptions. Subscription take around a minute to update.</i>
                 </p>
+                <br>
+                <hr>
+                <p>Click the button below to open your device's subscription settings.</p><br>
+                <button id="goToSettings" class="subAction sw_button">Subscription Settings</button>
+                <br><br>
+                <hr>
+                <br><br><br><br>
+                <!-- <button id="refreshPurchases" class="subAction sw_button">Refresh Purchases</button> -->
             </div>
-            <div id="teamOwner" style="display: none">
+            <div id="teamOwner" class="stateWrapper" style="display: none">
                 <p>Inherited from Team</p>
                 <p class="infoText"><i>A user on your team has an active Sportwatch Membership, which qualifies
                     the entire team for Membership benefits. If you leave this team, you
                     may have to purchase your own membership.
                 </i></p>
             </div>
+            <br><br>
         `);
         $(this.inputDivIdentifier).append(pageContent);
         
-        // Set up button handler
+        // Set up button handlers
         $(`#settingsPage #editPage #restartMembership`).click((e) => {
             Popup.createPremiumPopup();
             this.pageTransition.slideRight("catagoryPage");
             $("#settingsPage .cat_button").removeClass("cat_button_selected");
         });
+        $(`#settingsPage #editPage #goToSettings`).click((e) => {
+            store.manageSubscriptions();
+        });
+        // $(`#settingsPage #editPage #refreshPurchases`).click((e) => {
+        //     Popup.createConfirmationPopup("Restoration in progress. Please wait...", ["OK"]);
+        //     store.register([{
+        //             // Sportwatch Monthly
+        //             id: Constant.IOS_MONTHLY_ID,
+        //             type: store.PAID_SUBSCRIPTION,
+        //         }
+        //     ]);
+        //     store.refresh().finished(() => {
+        //         console.log("Finished");
+        //         $(".popup").fadeOut(Constant.popupFadeoutDuration, () => {
+        //             $(".popup").remove();
+        //         });
+        //     });
+        // });
         
         // Check to see who owns the plan (team or this user)
         PlanBackend.getMembershipStatus(localStorage.getItem("email"), (response) => {

@@ -221,6 +221,16 @@
     font-weight: normal;
 }
 
+#settingsPage div.stateWrapper {
+    width: 100%;
+}
+
+#settingsPage .subAction.sw_button {
+    padding: 10px 15px;
+    font-size: 2em;
+    border-radius: 5px;
+}
+
 
 
 /* .act_drop_wrapper {
