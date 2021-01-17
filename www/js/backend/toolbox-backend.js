@@ -42,6 +42,8 @@ class ToolboxBackend {
                 } else {
                     returnPromise.resolve();
                 }
+            }, () => {
+                returnPromise.reject();
             });
         });
         
@@ -656,6 +658,7 @@ class ToolboxBackend {
             error: (error) => {
                 if (DO_LOG) {
                     console.log("[toolbox-backend.js:setBackendPathConstant()] ERROR: " + error);
+                    console.log(error);
                 }
             }
         });
