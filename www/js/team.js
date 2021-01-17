@@ -130,6 +130,8 @@ class Team extends Page {
         if (storage.getItem("validMembership") == "false") {
             this.startMembershipPage();
             return;
+        } else if(this.pageTransition.getCurrentPage() == "membershipPage") {
+            this.pageTransition.slideLeft("landingPage");
         }
         
         if (!this.hasStarted) {
