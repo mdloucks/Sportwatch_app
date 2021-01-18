@@ -115,7 +115,7 @@ class CreateTeam extends Page {
                 
                 <!-- Progression Buttons -->
                 <button id="inviteBack" class="button_progression button_back"></button>
-                <br><br>
+                <br><br><br><br><br><br>
             </div>
         `);
     }
