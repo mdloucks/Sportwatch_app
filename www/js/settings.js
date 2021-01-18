@@ -794,7 +794,7 @@ class Settings extends Page {
                     });
                     
                     // Call setting.js deleteTeam function
-                    this.deleteTeam(controlObject).then(() => {
+                    this.deleteTeamWithFeedback(controlObject).then(() => {
                         // Called after the team has been deleted
                         Popup.createConfirmationPopup("Team successfully deleted", ["OK"], [() => {
                             location.reload(); // Restart the app
@@ -1183,57 +1183,156 @@ class Settings extends Page {
      * @returns
      * A promise, used to clean up the app after the team has been deleted.
      */
-    deleteTeam(controlObject) {
+    deleteTeamWithFeedback(controlObject) {
         
         let hasDeleted = $.Deferred();
         let textArray = ["Kicking athletes...", "Demoting coaches...", "Erasing team structure...", "Finalizing..."];
+        let delayArray = [500, 1000, 1000, 500];
         
         // First, change the "status" text a few times to make it seem real and give user a change to cancel
-        $(this.inputDivIdentifier + " #deleteWrapper #statusText").html(`<i>Removing team data...</i>`);
-        setTimeout(() => {
-            if(!controlObject.didCancel) {
-                $(this.inputDivIdentifier + " #deleteWrapper #statusText").html(`<i>${textArray[0]}</i>`);
+        this.delayedDelete(controlObject, this.inputDivIdentifier + " #deleteWrapper", textArray, delayArray, (shouldDelete) => {
+            
+            // Don't reject since it's used to handle errors from the backend process
+            if(!shouldDelete) {
+                return;
             }
-        }, 500);
-        setTimeout(() => {
-            if(!controlObject.didCancel) {
-                $(this.inputDivIdentifier + " #deleteWrapper #statusText").html(`<i>${textArray[1]}</i>`);
-            }
-        }, 1500);
-        setTimeout(() => {
-            if(!controlObject.didCancel) {
-                $(this.inputDivIdentifier + " #deleteWrapper #statusText").html(`<i>${textArray[2]}</i>`);
-            }
-        }, 2000);
-        
-        // Actually submit the delete call to the backendnow
-        setTimeout(() => {
-            if(!controlObject.didCancel) {
-                $(this.inputDivIdentifier + " #deleteWrapper #statusText").html(`<i>${textArray[3]}</i>`);
-                $(this.inputDivIdentifier + " #deleteWrapper #stopDelete").prop("disabled", true);
-                $(this.inputDivIdentifier + " #deleteWrapper #stopDelete").fadeTo(250, 0);
-                
-                TeamBackend.deleteTeam((response) => {
-                    // Clean up wrapper for next press / action
-                    $(this.inputDivIdentifier + " #deleteWrapper #stopDelete").css("opacity", "1");
-                    $(this.inputDivIdentifier + " #deleteWrapper #stopDelete").prop("disabled", false);
-                    $(this.inputDivIdentifier + " #deleteWrapper #postDeleteWrapper").fadeTo(250, 0);
-                    
-                    if(response.status > 0) {
-                        // Return to the calling function
-                        hasDeleted.resolve();
+            
+            TeamBackend.deleteTeam((response) => {
+                // Clean up wrapper for next press / action
+                $(this.inputDivIdentifier + " #deleteWrapper #stopDelete").css("opacity", "1");
+                $(this.inputDivIdentifier + " #deleteWrapper #stopDelete").prop("disabled", false);
+                $(this.inputDivIdentifier + " #deleteWrapper #postDeleteWrapper").fadeTo(250, 0);
+
+                if(response.status > 0) {
+                    // Return to the calling function
+                    hasDeleted.resolve();
+                } else {
+                    if(response.substatus == 3) {
+                        Popup.createConfirmationPopup("Only the primary coach can delete the team.", ["OK"]);
                     } else {
-                        if(response.substatus == 3) {
-                            Popup.createConfirmationPopup("Only the primary coach can delete the team.", ["OK"]);
-                        } else {
-                            hasDeleted.reject();
-                        }
+                        hasDeleted.reject();
                     }
-                });
-            }
-        }, 2500);
+                }
+            });
+        });
         
         return hasDeleted.promise();
+        
+        // $(this.inputDivIdentifier + " #deleteWrapper #statusText").html(`<i>Removing team data...</i>`);
+        // setTimeout(() => {
+        //     if(!controlObject.didCancel) {
+        //         $(this.inputDivIdentifier + " #deleteWrapper #statusText").html(`<i>${textArray[0]}</i>`);
+        //     }
+        // }, 500);
+        // setTimeout(() => {
+        //     if(!controlObject.didCancel) {
+        //         $(this.inputDivIdentifier + " #deleteWrapper #statusText").html(`<i>${textArray[1]}</i>`);
+        //     }
+        // }, 1500);
+        // setTimeout(() => {
+        //     if(!controlObject.didCancel) {
+        //         $(this.inputDivIdentifier + " #deleteWrapper #statusText").html(`<i>${textArray[2]}</i>`);
+        //     }
+        // }, 2000);
+        
+        // // Actually submit the delete call to the backendnow
+        // setTimeout(() => {
+        //     if(!controlObject.didCancel) {
+        //         $(this.inputDivIdentifier + " #deleteWrapper #statusText").html(`<i>${textArray[3]}</i>`);
+        //         $(this.inputDivIdentifier + " #deleteWrapper #stopDelete").prop("disabled", true);
+        //         $(this.inputDivIdentifier + " #deleteWrapper #stopDelete").fadeTo(250, 0);
+                
+        //         TeamBackend.deleteTeam((response) => {
+        //             // Clean up wrapper for next press / action
+        //             $(this.inputDivIdentifier + " #deleteWrapper #stopDelete").css("opacity", "1");
+        //             $(this.inputDivIdentifier + " #deleteWrapper #stopDelete").prop("disabled", false);
+        //             $(this.inputDivIdentifier + " #deleteWrapper #postDeleteWrapper").fadeTo(250, 0);
+                    
+        //             if(response.status > 0) {
+        //                 // Return to the calling function
+        //                 hasDeleted.resolve();
+        //             } else {
+        //                 if(response.substatus == 3) {
+        //                     Popup.createConfirmationPopup("Only the primary coach can delete the team.", ["OK"]);
+        //                 } else {
+        //                     hasDeleted.reject();
+        //                 }
+        //             }
+        //         });
+        //     }
+        // }, 2500);
+        
+        // return hasDeleted.promise();
+    }
+    
+    /**
+     * Inspired by Gmail's Undo Send feature, this function will delay an action
+     * (like deleting) while showing messages to the user to make them believe it's
+     * actually being done. The user can then cancel, which should set controlObject.didCancel = true,
+     * which will prevent the action from firing. The wrapper should have elements with
+     * the following IDs: statusText, stopDelete
+     * 
+     * @example delayedDelete({didCancel: false}, "#mainPage #deleteWrapper", ["Removing Account", "Purging data"], [1000, 1000],
+     *                        (shouldProceed) => { // Delete account if shouldProceed = true });
+     *          --> Waits 2 seconds before deleting the account
+     * 
+     * @param {Object} controlObject object containing a boolean didCancel; used to stop the action from occuring
+     * @param {String} deleteSelector jQuery selection string of the div containing delete elements
+     * @param {Array} deleteMessages array of strings to display during the delay
+     * @param {Array} messageDelays array of integers representing the delay between messages
+     * @param {Function} cb function to call after the delay accepting a boolean shouldProceed
+     */
+    delayedDelete(controlObject, deleteSelector, deleteMessages, messageDelays, cb) {
+        
+        // Do some parameter checks
+        if($(deleteSelector).length == 0) {
+            if(DO_LOG) {
+                console.log("[settings.js]: Unable to locate \"" + deleteSelector + "\" in DOM");
+                cb(false);
+            }
+        }
+        if(deleteMessages.length == 0) {
+            if(DO_LOG) {
+                console.log("[settings.js]: No message to display while deleting");
+                cb(true); // Go forth with the action anyways
+            }
+        }
+        while(deleteMessages.length > messageDelays.length) {
+            messageDelays.push(500);
+        }
+        while(messageDelays.length > deleteMessages.length) {
+            messageDelays.splice(0, 1); // Remove elements until the size is equal
+        }
+        
+        // Create the timeouts to display the messages
+        let durationSum = 0;
+        for(let m = 0; m < deleteMessages.length; m++) {
+            
+            // This is what will be done in setTimeout
+            // Use a variable to define, so it can be changed if it's the last message (call the callback)
+            let actionFunction = () => {
+                if(!controlObject.didCancel) {
+                    $(deleteSelector + " #statusText").html(`<i>${deleteMessages[m]}</i>`);
+                }
+            }
+            
+            // If it's the last message, call the callback here
+            if(m == (deleteMessages.length - 1)) {
+                console.log("defining...");
+                actionFunction = () => {
+                    $(deleteSelector + " #statusText").html(`<i>${deleteMessages[m]}</i>`);
+                    $(deleteSelector + " #stopDelete").prop("disabled", true);
+                    $(deleteSelector + " #stopDelete").fadeTo(250, 0);
+                    
+                    // Invert didCancel since the callback accepts a shouldProceed boolean
+                    // (if they cancelled, didCancel = true, but shouldProceed needs to be false)
+                    cb(!controlObject.didCancel);
+                }
+            }
+            
+            setTimeout(actionFunction, durationSum);
+            durationSum = durationSum + messageDelays[m];
+        }
     }
     
     /**
