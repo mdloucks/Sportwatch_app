@@ -136,7 +136,7 @@ class JoinTeam extends Page {
                                 this.stop();
                             }).catch(function() {
                                 if(DO_LOG) {
-                                    console.log("[signup.js]: Failed to pull from backend, localStorage email: " + localStorage.getItem("email"));
+                                    console.log("[team-join.js]: Failed to pull from backend, localStorage email: " + localStorage.getItem("email"));
                                 }
                             });
                             
