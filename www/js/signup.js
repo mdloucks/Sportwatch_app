@@ -212,7 +212,7 @@ class Signup extends Page {
             Authentication.signup(firstName, lastName, gender, email, password).then(function (response) {
                 localStorage.setItem("email", email);
                 // Then pull data (probably not much, but just do it!)
-                ToolboxBackend.pullFromBackend().then(() => {
+                ToolboxBackend.syncFrontendDatabase().then(() => {
                     if(DO_LOG) {
                         console.log("[signup.js]: Backend sync finished!");
                     }
