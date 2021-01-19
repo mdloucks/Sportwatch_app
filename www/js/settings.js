@@ -255,6 +255,33 @@ class Settings extends Page {
                 <br>
                 <p>Change Password</p>
                 <input type="password" name="newPassword" placeholder="●●●●●●●●">
+                <br><br><hr>
+                
+                <div id="deleteWrapper">
+                    <h1 class="subheading_text">Delete Account</h1>
+                    <p style="margin: 15px 25px">
+                        Deleting your account will <b>permanently remove</b> times, records, team data, and
+                        sensitive account information. You will <b>not be refunded</b> for any active Sportwatch
+                        Membership. We will <b>retain the following</b> as outlined in our
+                        <a href="https://sportwatch.us/privacy-policy/">Privacy Policy</a>:
+                        account creation date, deletion timestamp, and transactional data.
+                    </p>
+                    <p style="margin: 15px 25px">
+                        If needed, you may contact us via email (<a href="mailto:support@sportwatch.us">support@sportwatch.us</a>)
+                        to remove the retained information.
+                    </p>
+                    <br>
+                    <input type="text" name="email" placeholder="Enter Account Email">
+                    <br>
+                    <input type="password" name="password" placeholder="Enter Account Password">
+                    <br>
+                    <button id="deleteAccount" class="generated_button" disabled>Delete Account</button>
+                    
+                    <div id="postDeleteWrapper" style="opacity: 0;">
+                        <p id="statusText"><i>Starting deletion...</i></p>
+                        <button id="stopDelete" class="sw_button">Cancel</button>
+                    </div>
+                </div>
             `);
             
             // Add the dropdowns now with the dedicated method
@@ -341,7 +368,7 @@ class Settings extends Page {
                 let input = $(e.target).val();
                 if($(e.target).prop("name") == "email") {
                     
-                    if(input == accountInfo["email"]) {
+                    if(input.toLowerCase() == accountInfo["email"]) {
                         emailValid = true;
                     } else {
                         emailValid = false;
@@ -482,6 +509,98 @@ class Settings extends Page {
                     }
                 }
                 
+            });
+            
+            // Delete Account input checks
+            let matchingEmail = false;
+            let validPassword = false;
+            $("#settingsPage #editPage #deleteWrapper input").on("input", (e) => {
+                let input = $(e.target).val();
+                
+                // Do input checks
+                if($(e.target).prop("name") == "email") {
+                    let emailRegex = input.match(/[A-Za-z0-9\-_.]*@[A-Za-z0-9\-_.]*\.(com|net|org|us|website|io)/gm);
+                    if((emailRegex != null) && (emailRegex[0].length == input.length) && (input.length <= 250)) {
+                        matchingEmail = true;
+                    }
+
+                    if(input.toLowerCase() == accountInfo["email"].toLowerCase()) {
+                        matchingEmail = true;
+                    } else {
+                        matchingEmail = false;
+                    }
+                } else if($(e.target).prop("name") == "password") {
+                    if((input.match(/[`"';<>{} ]/gm) == null) && (input.length > 3) && (input.length < 250)) {
+                        validPassword = true;
+                    } else {
+                        validPassword = false;
+                    }
+                }
+
+                // Change button status
+                if ((matchingEmail) && (validPassword)) {
+                    $("#settingsPage #editPage #deleteWrapper #deleteAccount").prop("disabled", false);
+                } else {
+                    $("#settingsPage #editPage #deleteWrapper #deleteAccount").prop("disabled", true);
+                }
+            });
+
+            // Delete Account button
+            $("#settingsPage #editPage #deleteWrapper #deleteAccount").click((e) => {
+                $("#settingsPage #editPage #deleteWrapper #deleteAccount").prop("disabled", true);
+
+                Popup.createConfirmationPopup("Are you sure you want to permanently delete your account?", ["No", "Yes"], [
+                    () => {
+                        $("#settingsPage #editPage #deleteWrapper #deleteAccount").prop("disabled", false);
+                    },
+                    () => {
+                        // Prepare styling for delete wrapper
+                        $("#settingsPage #editPage #deleteWrapper #postDeleteWrapper").fadeTo(250, 1);
+                        $("#settingsPage #editPage #deleteWrapper #stopDelete").css("opacity", "1");
+                        $("#settingsPage #editPage #deleteWrapper #stopDelete").prop("disabled", false);
+                        
+                        // Objects are mutable, so we can "remotely" cancel deletion with this object
+                        let cancelObject = { didCancel: false };
+
+                        // In order to check if the username / password is right, update the account
+                        let credentials = {};
+                        credentials["email"] = $(`#settingsPage #editPage #deleteWrapper input[name="email"]`).val();
+                        credentials["password"] = $(`#settingsPage #editPage #deleteWrapper input[name="password"]`).val();
+                        AccountBackend.updateAccount(credentials, (response) => {
+                            if ((response.status < 0) && (response.substatus == 6)) { // Error code for bad password
+                                Popup.createConfirmationPopup("Your email or password was incorrect. Please try again", ["OK"]);
+                                
+                                cancelObject.didCancel = true;
+                                $("#settingsPage #editPage #deleteWrapper #postDeleteWrapper").fadeTo(250, 0);
+                                $("#settingsPage #editPage #deleteWrapper #deleteAccount").prop("disabled", false);
+                                $("#settingsPage #editPage #deleteWrapper #stopDelete").off(); // Remove click handler
+                            }
+                        }, credentials["password"]);
+
+                        $("#settingsPage #editPage #deleteWrapper #stopDelete").click((e) => {
+                            cancelObject.didCancel = true;
+                            $("#settingsPage #editPage #deleteWrapper #postDeleteWrapper").fadeTo(250, 0);
+                            $("#settingsPage #editPage #deleteWrapper #deleteAccount").prop("disabled", false);
+                            $("#settingsPage #editPage #deleteWrapper #stopDelete").off(); // Remove click handler
+                        });
+
+                        // Start account deletion routine
+                        this.deleteAccountWithFeedback(cancelObject).then(() => {
+                            // Called after the account has been deleted
+                            Popup.createConfirmationPopup("Account successfully deleted. You will now be signed out.", ["OK"], [() => {
+                                // Reset app data and restart
+                                localStorage.clear();
+                                dbConnection.deleteDatabase();
+                                this.pageController.transitionObj.forceHaltSlide();
+                                this.pageController.onChangePageSet(0); // 0 for Welcome
+                                location.reload(); 
+                            }]);
+                        }, () => {
+                            Popup.createConfirmationPopup("Sorry, an unknown error occured. Please contact support@sportwatch.us", ["OK"]);
+                        });
+                    }
+
+                ]);
             });
         }); // End of population function
 
@@ -781,7 +900,10 @@ class Settings extends Page {
                     $(this.inputDivIdentifier + " #deleteWrapper #deleteTeam").prop("disabled", false);
                 },
                 () => {
+                    // Set up postDeleteWrapper styling
                     $(this.inputDivIdentifier + " #deleteWrapper #postDeleteWrapper").fadeTo(250, 1);
+                    $(this.inputDivIdentifier + " #deleteWrapper #stopDelete").css("opacity", "1");
+                    $(this.inputDivIdentifier + " #deleteWrapper #stopDelete").prop("disabled", false);
                     
                     // Since objects are mutable in javascript, we can "remotely" control if
                     // the delete process finishes (there is a built in delay like gmail's "Undo send")
@@ -1036,37 +1158,6 @@ class Settings extends Page {
         $("#settingsPage #editPage > *:not(.generic_header)").first().css("margin-top", `calc(${headerWidth}px + 7vh)`);
     }
     
-    startDeleteAccount() {
-        this.setupSettingsPage("Delete Account");
-
-        $(this.inputDivIdentifier).append("<br><br>");
-
-        let button = ButtonGenerator.generateButton({
-            html: "Delete Account",
-            class: "generated_button"
-        }, () => {
-            Popup.createConfirmationPopup("Are you sure you want to delete your account?", ["Yes", "No"], [() => {
-                // TODO: delete account here (needs password)
-                console.log("DELETING ACCOUNT");
-            }, () => {
-                // do nothing
-                console.log("CANCEL");
-            }]);
-        });
-
-        $(this.inputDivIdentifier).append(button);
-
-        // TODO: Remove later
-        Popup.createConfirmationPopup("This feature is still in development. Please come back later", ["OK"], [() => {
-            this.pageTransition.slideRight("catagoryPage");
-            $("#settingsPage .cat_button").removeClass("cat_button_selected");
-        }]);
-
-        this.pageTransition.slideLeft("editPage");
-        let headerWidth = $("#settingsPage #editPage > .generic_header").height();
-        $("#settingsPage #editPage > *:not(.generic_header)").first().css("margin-top", `calc(${headerWidth}px + 7vh)`);
-    }
-    
     // MISC FUNCTIONS //
     
     /**
@@ -1170,13 +1261,57 @@ class Settings extends Page {
     }
     
     /**
-     * Puts on a small "show" or animation for the user when they delete the team.
-     * This enables them to cancel the delete function, similar to Gmail's Undo Send.
-     * After 2.5 seconds, the cancel button will be disabled and the team will actually
-     * deleted. To stop the process, set didCancel = true in the mutable controlObject.
+     * Puts on a small "show" or animation for 4 seconds for the user when they delete their account.
+     * To stop the process, set didCancel = true in the mutable controlObject.
      * 
      * @example let controlObj = {didCancel: false}
-     *          deleteTeam(controlObj).then(() => { // Success }).error(() => { // Failure });
+     *          deleteAccountWithFeedback(controlObj).then(() => { // Success }).error(() => { // Failure });
+     * 
+     * @param {Object} controlObject should contain "didCancel" boolean property used to stop team deletion
+     * 
+     * @returns
+     * A promise, used to clean up the app after the user's account has been deleted.
+     */
+    deleteAccountWithFeedback(controlObject) {
+
+        let hasDeleted = $.Deferred();
+        let textArray = ["Leaving team...", "Finding records...", "Deleting records...", "Revoking login data...", "Purging account..."];
+        let delayArray = [500, 500, 1500, 1000, 1500];
+
+        // First, change the "status" text a few times to make it seem real and give user a change to cancel
+        this.delayedDelete(controlObject, this.inputDivIdentifier + " #deleteWrapper", textArray, delayArray, (shouldDelete) => {
+
+            // Don't reject since it's used to handle errors from the backend process
+            if (!shouldDelete) {
+                return;
+            }
+            $(this.inputDivIdentifier + " #deleteWrapper #postDeleteWrapper").fadeTo(250, 0);
+            
+            let email = $(`#settingsPage #editPage #deleteWrapper input[name="email"]`).val();
+            let password = $(`#settingsPage #editPage #deleteWrapper input[name="password"]`).val();
+            AccountBackend.deleteAccount(email, password, (response) => {
+                console.log(response);
+                if (response.status > 0) {
+                    hasDeleted.resolve();
+                } else {
+                    if(response.substatus == 6) {
+                        Popup.createConfirmationPopup("Your email or password was incorrect. Please try again", ["OK"]);
+                    } else {
+                        hasDeleted.reject();
+                    }
+                }
+            });
+        });
+
+        return hasDeleted.promise();
+    }
+    
+    /**
+     * Puts on a small "show" or animation for 2.5 seconds for the user when they delete the team.
+     * To stop the process, set didCancel = true in the mutable controlObject.
+     * 
+     * @example let controlObj = {didCancel: false}
+     *          deleteTeamWithFeedback(controlObj).then(() => { // Success }).error(() => { // Failure });
      * 
      * @param {Object} controlObject should contain "didCancel" boolean property used to stop team deletion
      * 
@@ -1196,13 +1331,9 @@ class Settings extends Page {
             if(!shouldDelete) {
                 return;
             }
+            $(this.inputDivIdentifier + " #deleteWrapper #postDeleteWrapper").fadeTo(250, 0);
             
             TeamBackend.deleteTeam((response) => {
-                // Clean up wrapper for next press / action
-                $(this.inputDivIdentifier + " #deleteWrapper #stopDelete").css("opacity", "1");
-                $(this.inputDivIdentifier + " #deleteWrapper #stopDelete").prop("disabled", false);
-                $(this.inputDivIdentifier + " #deleteWrapper #postDeleteWrapper").fadeTo(250, 0);
-
                 if(response.status > 0) {
                     // Return to the calling function
                     hasDeleted.resolve();
@@ -1217,52 +1348,6 @@ class Settings extends Page {
         });
         
         return hasDeleted.promise();
-        
-        // $(this.inputDivIdentifier + " #deleteWrapper #statusText").html(`<i>Removing team data...</i>`);
-        // setTimeout(() => {
-        //     if(!controlObject.didCancel) {
-        //         $(this.inputDivIdentifier + " #deleteWrapper #statusText").html(`<i>${textArray[0]}</i>`);
-        //     }
-        // }, 500);
-        // setTimeout(() => {
-        //     if(!controlObject.didCancel) {
-        //         $(this.inputDivIdentifier + " #deleteWrapper #statusText").html(`<i>${textArray[1]}</i>`);
-        //     }
-        // }, 1500);
-        // setTimeout(() => {
-        //     if(!controlObject.didCancel) {
-        //         $(this.inputDivIdentifier + " #deleteWrapper #statusText").html(`<i>${textArray[2]}</i>`);
-        //     }
-        // }, 2000);
-        
-        // // Actually submit the delete call to the backendnow
-        // setTimeout(() => {
-        //     if(!controlObject.didCancel) {
-        //         $(this.inputDivIdentifier + " #deleteWrapper #statusText").html(`<i>${textArray[3]}</i>`);
-        //         $(this.inputDivIdentifier + " #deleteWrapper #stopDelete").prop("disabled", true);
-        //         $(this.inputDivIdentifier + " #deleteWrapper #stopDelete").fadeTo(250, 0);
-                
-        //         TeamBackend.deleteTeam((response) => {
-        //             // Clean up wrapper for next press / action
-        //             $(this.inputDivIdentifier + " #deleteWrapper #stopDelete").css("opacity", "1");
-        //             $(this.inputDivIdentifier + " #deleteWrapper #stopDelete").prop("disabled", false);
-        //             $(this.inputDivIdentifier + " #deleteWrapper #postDeleteWrapper").fadeTo(250, 0);
-                    
-        //             if(response.status > 0) {
-        //                 // Return to the calling function
-        //                 hasDeleted.resolve();
-        //             } else {
-        //                 if(response.substatus == 3) {
-        //                     Popup.createConfirmationPopup("Only the primary coach can delete the team.", ["OK"]);
-        //                 } else {
-        //                     hasDeleted.reject();
-        //                 }
-        //             }
-        //         });
-        //     }
-        // }, 2500);
-        
-        // return hasDeleted.promise();
     }
     
     /**
@@ -1318,7 +1403,6 @@ class Settings extends Page {
             
             // If it's the last message, call the callback here
             if(m == (deleteMessages.length - 1)) {
-                console.log("defining...");
                 actionFunction = () => {
                     $(deleteSelector + " #statusText").html(`<i>${deleteMessages[m]}</i>`);
                     $(deleteSelector + " #stopDelete").prop("disabled", true);

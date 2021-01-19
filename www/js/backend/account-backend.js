@@ -193,6 +193,52 @@ class AccountBackend {
     }
     
     /**
+     * Permanently deletes the user's account, along with all of their records,
+     * name and email, and team data. Purchase / transaction data is saved
+     * in the event that we are legally required to prove income or anything like that.
+     * 
+     * @example deleteAccount("lafrazerl@gmail.com", "Testing12345" (r) => { if(r.status > 0) { alert("Account deleted"); } });
+     *          --> Delete's lafrazerl@gmail.com's account
+     * 
+     * @param {String} email the email of the user to delete
+     * @param {String} password current password for the user
+     * @param {Function} callback function that should handle and error or success response
+     *                            (takes AssociativeArray as parameter, but may return string if response is malformed)
+     */
+    static deleteAccount(email, password, callback) {
+
+        // Submit the request and call the callback
+        return $.ajax({
+            type: "POST",
+            url: Constant.getAccountURL() + "?intent=6",
+            timeout: Constant.AJAX_CFG.timeout,
+            data: {
+                SID: localStorage.getItem("SID"),
+                accountIdentity: { "email": email },
+                "email": email,
+                "password": password
+            },
+            success: (response) => {
+                if (DO_LOG) {
+                    console.log("[account-backend.js:deleteAccount()] " + response);
+                }
+                try {
+                    response = JSON.parse(response);
+                } catch (e) {
+                    // Couldn't parse, so just use string
+                }
+                callback(response);
+            },
+            error: (error) => {
+                if (DO_LOG) {
+                    console.log("[account-backend.js:deleteAccount()] " + error);
+                }
+                callback(error);
+            }
+        });
+    }
+    
+    /**
      * Used to recall values from local storage and will check to make sure
      * they aren't null or empty. It will also perform a basic sanitize on
      * strings. It returns an associaitve array of the keys and values

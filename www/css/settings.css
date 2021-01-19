@@ -173,6 +173,21 @@
     margin: 0 3vw 2vh 3vw;
     font-weight: unset;
 }
+#settingsPage #deleteWrapper p {
+    margin: 0 3vw 2vh 3vw;
+    font-weight: unset;
+}
+#settingsPage #deleteWrapper a {
+    color: black;
+}
+
+#settingsPage #deleteWrapper #deleteAccount {
+    background-color: #dd3333;
+    transition: all 0.5s;
+}
+#settingsPage #deleteWrapper #deleteAccount:disabled {
+    background-color: gray;
+}
 #settingsPage #deleteWrapper #deleteTeam {
     background-color: #dd3333;
     transition: all 0.5s;
@@ -180,6 +195,7 @@
 #settingsPage #deleteWrapper #deleteTeam:disabled {
     background-color: gray;
 }
+
 
 #settingsPage #deleteWrapper #postDeleteWrapper {
     padding-top: 15px;
@@ -231,7 +247,7 @@
     border-radius: 5px;
 }
 
-/* Setting -- Membership */
+/* Setting -- Support */
 
 #settingsPage #supportWrapper > p {
     margin: 10px 15px;
