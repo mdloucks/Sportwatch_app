@@ -34,19 +34,28 @@ class PaymentHandler {
             return;
         }
         
+        // Set logging
+        if(DO_LOG) {
+            store.verbosity = 2; // Highest level of log statements is 4. Set to 2 for brevity
+        }
+        
+        // // There is a weird behavior that sometimes renews a membership
+        // // when store.when().approved is called. To be safe, if the user
+        // // has a membership, refresh the store now and exit
+        // if((localStorage.getItem("validMembership") == "true") && (!forceInit)) {
+        //     console.log("Valid membership, so we're leaving");
+        //     store.refresh();
+        //     return;
+        // }
+        
         // Add plans (annual, seasonal) here \/
         store.register([{
                 // Sportwatch Monthly
                 id: monthlyID,
                 type: store.PAID_SUBSCRIPTION,
-            },
-            {
-                // Sportwatch annually
-                id: annuallyID,
-                type: store.PAID_SUBSCRIPTION,
             }
         ]);
-
+        
         // Setup the receipt validator service.
         store.validator = Constant.getValidateURL();
         store.applicationUsername = localStorage.getItem("email");
@@ -57,52 +66,74 @@ class PaymentHandler {
         });
 
         // Update the status of each subscription when updated
-        store.when("subscription").updated(() => {
+        store.when("valid product").updated(() => {
             PaymentHandler.PLANS = []; // Clear the array to re-register the plans
             PaymentHandler.PLANS.push(store.get(monthlyID));
-            PaymentHandler.PLANS.push(store.get(annuallyID));
+            // PaymentHandler.PLANS.push(store.get(annuallyID));
         });
         
         // There is a weird behavior that sometimes renews a membership
         // when store.when().approved is called. To be safe, if the user
         // has a membership, refresh the store now and exit
-        if(localStorage.getItem("validMembership") == "true") {
-            store.refresh();
-            console.log("Valid membership, so we're leaving");
-            return;
-        }
+        // if (localStorage.getItem("validMembership") == "true") {
+        //     console.log("Valid membership, so we're leaving");
+        //     store.refresh();
+        //     return;
+        // }
         
         // Good docs: https://github.com/j3k0/cordova-plugin-purchase/blob/master/doc/api.md#order
         
         // Check to see if they own any of the plans
         store.when(monthlyID).updated((product) => {
+            // console.log("State: " + product.state);
+            // console.log(product);
             if((product.owned) && (product.state == "owned") && (!product.isExpired)) {
                 this.handlePremiumSetup();
             }
         });
-         store.when(annuallyID).updated((product) => {
-            if((product.owned) && (product.state == "owned") && (!product.isExpired)) {
-                this.handlePremiumSetup();
-            }
-        });
+        //  store.when(annuallyID).updated((product) => {
+        //     if((product.owned) && (product.state == "owned") && (!product.isExpired)) {
+        //         this.handlePremiumSetup();
+        //     }
+        // });
         
         // Set up the logic for when a plan is ordered (i.e. initiated by button press)
         store.when(monthlyID).approved((product) => {
             // console.log("Monthly approved");
             // console.log(product);
-            product.verify();
+            product.verify().done((p) => {
+                // console.log("Done verifying...");
+                // console.log(p);
+                p.finish();
+                this.handlePremiumSetup();
+            }).expired((p1) => {
+                // console.log("Expired");
+            }).success((p2, pData) => {
+                // console.log("SUCCESS");
+                // console.log(pData);
+            }).error((err) => {
+                // console.log("Error");
+                // console.log(err);
+            });
         });
-        store.when(annuallyID).approved((product) => {
+        store.when(monthlyID).cancelled((product) => {
+            if(($("#premiumPopup").length != 0) && ($(".popup:not(#premiumPopup)").length == 0)) {
+                $("#premiumPopup #logoImg").prop("src", "img/logo.png");
+                $(".premium_purchase_button").prop("disabled", false);
+            }
+        });
+        // store.when(annuallyID).approved((product) => {
             
-        });
+        // });
         
-        store.when(monthlyID).verified((product) => {
-            product.finish();
+        // store.when(monthlyID).verified((product) => {
+            // product.finish();
+            // console.log("Finished");
             // console.log("Is verified");
             // this.handlePremiumSetup();
-        });
-        store.when(annuallyID).verified((product) => {
-        });
+        // });
+        // store.when(annuallyID).verified((product) => {
+        // });
         
         // Load informations about products and purchases
         store.refresh();
@@ -115,12 +146,12 @@ class PaymentHandler {
      * @param {String} planId unique ID of the plan (defined in Constant object)
      */
     static handlePremiumSetup(planId) {
-        console.log("Premium member!");
+        // console.log("Premium member!");
+        localStorage.setItem("validMembership", "true");
         // If the popup is open, we know the user just bought a membership
         // Make sure it's ONLY the premium popup; don't want to thank the user twice
         if(($("#premiumPopup").length != 0) && ($(".popup:not(#premiumPopup)").length == 0)) {
             
-            localStorage.setItem("validMembership", "true");
             $("#app").trigger("didPurchase");
             $("#premiumPopup #logoImg").prop("src", "img/logo.png");
             Popup.createConfirmationPopup("Welcome to your Sportwatch Membership! Thank you for your purchase!", ["Start Tracking!"], [function() {
