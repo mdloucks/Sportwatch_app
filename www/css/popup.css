@@ -28,7 +28,7 @@
 
     word-wrap: break-word;
     text-align: center;
-    font-size: 2em;
+    font-size: 2.2vh;
     padding-top: 1em;
     margin: 0 auto;
 
@@ -44,7 +44,7 @@ li span {
     font-family: "Poppins", sans-serif;
     font-size: 3vh;
     width: 80%;
-    margin: 0.5em 0 1.5em 0;
+    margin: 0.5em 0 0.5em 0;
     font-weight: bold;
     text-align: center;
     transition: background-color 0.5s;
@@ -70,6 +70,7 @@ li span {
 
 .payment_footer {
     margin: auto;
+    background-color: white;
     color: #222;
     position: absolute;
     word-wrap: break-word;

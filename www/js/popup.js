@@ -122,11 +122,12 @@ class Popup {
         $("#app").append(`
             <div id="premiumPopup" class="popup white_background">
 
-                <img id="logoImg" width=45% src="img/logo.png" alt=""></img>
+                <img id="logoImg" width=25% src="img/logo.png" alt=""></img>
 
                 <div class="premium_popup_description">
-                    <b>Your membership is no longer active.</b><br><br>
-                    Continue to improve with a Sportwatch Membership.<br><br><br>
+                    <b>Your membership is no longer active.</b>
+                    <br>
+                    Continue to improve with a Sportwatch Membership.
                 </div>
             
                 <div id="planOptions">
@@ -152,18 +153,6 @@ class Popup {
                 $("#premiumPopup").remove();
                 $(".navbar").removeClass("hidden");
             });
-            // Popup.createConfirmationPopup("Sportwatch requires a premium membership in order to use. Do you want to go back to using a clipboard?",
-            //     ["No, take me back!", "Yes"], [function () {
-            //         return;
-            //     }, function () {
-            //         // TODO: open a link that prompts the user for a reason why they don't want to keep using the app.
-            //         // navigator.app.exitApp();
-            //         // Disabled for now since there are other things the user can do
-            //         $("#premiumPopup").fadeOut(Constant.popupFadeoutDuration, () => {
-            //             $("#premiumPopup").remove();
-            //             $(".navbar").removeClass("hidden");
-            //         });
-            //     }]);
         });
 
         // -- PURCHASE SETUP -- //
