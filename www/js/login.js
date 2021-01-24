@@ -82,7 +82,7 @@ class Login extends Page {
         // Input - Forgot email
         this.getPageElement("#reset_input").on("input", (e) => {
             let resetEmail = this.getPageElement("#reset_input").val();
-            let testMatch = resetEmail.match(/[A-Za-z0-9\-_.]*@[A-Za-z0-9\-_.]*\.(com|net|org|us|website|io)/gm);
+            let testMatch = resetEmail.match(/[A-Za-z0-9\-_.]*@[A-Za-z0-9\-_.]*\.(com|net|org|us|website|io|edu)/gm);
             
             // Enable / Disable the button
             if ((testMatch == null) || (testMatch[0].length != resetEmail.length) || (resetEmail.length > 250)) {
@@ -148,7 +148,7 @@ class Login extends Page {
         this.getPageElement("#label_forgotPassword").click((e) => {
             // If a valid email is entered in the login input, copy it here
             let enteredValue = this.getPageElement("input[name=email]").val();
-            let regexMatch = enteredValue.match(/[A-Za-z0-9\-_.]*@[A-Za-z0-9\-_.]*\.(com|net|org|us|website|io)/gm);
+            let regexMatch = enteredValue.match(/[A-Za-z0-9\-_.]*@[A-Za-z0-9\-_.]*\.(com|net|org|us|website|io|edu)/gm);
             if((regexMatch != null) && (regexMatch[0].length == enteredValue.length) && (enteredValue.length <= 250)) {
                 this.getPageElement("#reset_input").val(enteredValue);
                 this.getPageElement("#resetPass_button").removeClass("invalid");

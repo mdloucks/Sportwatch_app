@@ -103,7 +103,7 @@ class Signup extends Page {
         this.getPageElement("input[name=email]").on("input", () => {
             let input = this.getPageElement("input[name=email]").val();
 
-            let testMatch = input.match(/[A-Za-z0-9\-_.]*@[A-Za-z0-9\-_.]*\.(com|net|org|us|website|io)/gm);
+            let testMatch = input.match(/[A-Za-z0-9\-_.]*@[A-Za-z0-9\-_.]*\.(com|net|org|us|website|io|edu)/gm);
             if (testMatch == null) {
                 this.setupInvalidSymbol("#i_email", false, "Please enter a valid email");
             } else if (testMatch[0].length != input.length) {

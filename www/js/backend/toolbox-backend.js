@@ -1123,7 +1123,7 @@ class ToolboxBackend {
      */
     static inviteAthleteWithFeedback(email) {
         // Validate again just to be safe
-        let emailMatch = email.match(/[A-Za-z0-9\-_.]*@[A-Za-z0-9\-_.]*\.(com|net|org|us|website|io)/gm);
+        let emailMatch = email.match(/[A-Za-z0-9\-_.]*@[A-Za-z0-9\-_.]*\.(com|net|org|us|website|io|edu)/gm);
         if (emailMatch == null) {
             Popup.createConfirmationPopup("Invalid email, please try again", ["OK"], [() => {}]);
             return;
