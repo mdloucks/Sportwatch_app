@@ -123,7 +123,7 @@ class WelcomeSet extends PageSet {
         });
 
         // If the gesture was classified as a tap, snap it back / reset it
-        this.swipeHandler.bindGestureCallback(this.swipeHandler.Gestures.TAP, () => {
+        this.swipeHandler.bindGestureCallback(this.swipeHandler.Gestures.NOMOVE, () => {
             this.transitionObj.slidePageX(this.getPage(pageIndex).name.toLowerCase() + "Page", true, 0);
         });
 

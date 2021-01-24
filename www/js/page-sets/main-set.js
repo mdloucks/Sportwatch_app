@@ -169,7 +169,7 @@ class MainSet extends PageSet {
         });
 
         // If the gesture was classified as a tap or scroll, snap it back / reset it
-        this.swipeHandler.bindGestureCallback(this.swipeHandler.Gestures.TAP, () => {
+        this.swipeHandler.bindGestureCallback(this.swipeHandler.Gestures.NOMOVE, () => {
             this.transitionObj.slidePageX(this.getPage(pageIndex).name.toLowerCase() + "Page", true, 0, 200);
         });
         this.swipeHandler.bindGestureCallback(this.swipeHandler.Gestures.SWIPEUP, () => {

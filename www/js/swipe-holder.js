@@ -11,6 +11,7 @@ class SwipeHolder {
         // VARIABLES
         this.MAX_HISTORY = 20; // Max length of arrays
         this.MIN_PERCENT_DIFFERENCE = 0.15; // percent change needed to trigger a swipe
+        this.MAX_TAP_TIME = 800; // Tap < 800 milliseconds; No Move > 800 ms
         this.currentTouch = []; // [x, y]  (Max length of 2)
         this.touchHistory = []; // Formatted as [0: [{initX, initY}, {endX, endY}], 1: ...]
         this.gestureHistory = []; // Consists of Gestures enum
@@ -31,12 +32,13 @@ class SwipeHolder {
         this.Gestures = { // Enum
             BEGIN: 0,
             MOVE: 1,
-            STOP: 2,
-            TAP: 3,
-            SWIPEUP: 4,
-            SWIPERIGHT: 5,
-            SWIPEDOWN: 6,
-            SWIPELEFT: 7
+            NOMOVE: 2,
+            STOP: 3,
+            TAP: 4,
+            SWIPEUP: 5,
+            SWIPERIGHT: 6,
+            SWIPEDOWN: 7,
+            SWIPELEFT: 8
         };
 
         this.Intents = {
@@ -89,6 +91,7 @@ class SwipeHolder {
             // Now, add to the arrays for each touch
             for (let t = 0; t < e.changedTouches.length; t++) {
                 let touch = e.changedTouches[t];
+                touch.timestamp = Date.now(); // Manually add to distinguish between a tap and moving tap
                 _this.currentTouch = touch;
                 _this.touchHistory.unshift([touch, null]); // Set endTouch null, for now
                 if (_this.touchHistory.length > _this.MAX_HISTORY) {
@@ -148,6 +151,8 @@ class SwipeHolder {
             
             for (let l = 0; l < e.changedTouches.length; l++) {
                 let touch = e.changedTouches[l];
+                touch.timestamp = Date.now();
+                
                 // Update the touchHistory, setting the ending touch (index 1)
                 let currentTouchIndex = this.getIndexFromId(touch.identifier);
                 this.touchHistory[currentTouchIndex][1] = touch;
@@ -184,6 +189,8 @@ class SwipeHolder {
      * addScrollPage() first
      * 
      * @param {Integer} dy change in y of the touch
+     * 
+     * @deprecated
      */
     tryScrolling(newTouch) {
         
@@ -214,6 +221,8 @@ class SwipeHolder {
      * @example addScrollPage("#settingsPage > #editPage");
      * 
      * @param {String} pageSelector specific selector for an individual div_page
+     * 
+     @deprecated
      */
     addScrollPage(pageSelector) {
         this.scrollPages.push(pageSelector);
@@ -258,7 +267,11 @@ class SwipeHolder {
             }
 
         } else { // No movement
-            this.gestureHistory.unshift(this.Gestures.TAP);
+            if(endTouch.timestamp - startTouch.timestamp > this.MAX_TAP_TIME) {
+                this.gestureHistory.unshift(this.Gestures.NOMOVE);
+            } else {
+                this.gestureHistory.unshift(this.Gestures.TAP);
+            }
         }
         if (this.gestureHistory.length > this.MAX_HISTORY) {
             this.gestureHistory.pop();
