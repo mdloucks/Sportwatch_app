@@ -374,7 +374,7 @@ class Settings extends Page {
                         emailValid = false;
                     }
                     
-                    let emailRegex = input.match(/[A-Za-z0-9\-_.]*@[A-Za-z0-9\-_.]*\.(com|net|org|us|website|io)/gm);
+                    let emailRegex = input.match(/[A-Za-z0-9\-_.]*@[A-Za-z0-9\-_.]*\.(com|net|org|us|website|io|edu)/gm);
                     
                     if (emailRegex == null) {
                         invalidMessages[0] = "Please enter valid email";
@@ -519,7 +519,7 @@ class Settings extends Page {
                 
                 // Do input checks
                 if($(e.target).prop("name") == "email") {
-                    let emailRegex = input.match(/[A-Za-z0-9\-_.]*@[A-Za-z0-9\-_.]*\.(com|net|org|us|website|io)/gm);
+                    let emailRegex = input.match(/[A-Za-z0-9\-_.]*@[A-Za-z0-9\-_.]*\.(com|net|org|us|website|io|edu)/gm);
                     if((emailRegex != null) && (emailRegex[0].length == input.length) && (input.length <= 250)) {
                         matchingEmail = true;
                     }
@@ -857,7 +857,7 @@ class Settings extends Page {
             let inputEmail = $(`${this.inputDivIdentifier} #input_athleteEmail`).val().trim();
             if (inputEmail.length > 0) {
                 // Make sure email has all necessary parts (if given)
-                let emailValidMatch = inputEmail.match(/[A-Za-z0-9\-_.]*@[A-Za-z0-9\-_.]*\.(com|net|org|us|website|io)/gm);
+                let emailValidMatch = inputEmail.match(/[A-Za-z0-9\-_.]*@[A-Za-z0-9\-_.]*\.(com|net|org|us|website|io|edu)/gm);
                 if (emailValidMatch == null) {
                     invitedValid = false;
                 } else if (emailValidMatch[0].length != inputEmail.length) {
@@ -1011,7 +1011,7 @@ class Settings extends Page {
                 <span id="membershipStatus">Inactive</span>
             </h1>
             <br>
-            <button id="restartMembership" class="sw_big_button">Start Your Membership</button>
+            <button id="restartMembership" class="sw_big_button">View Membership Plans</button>
             <hr>
             <h1 class="membershipHeader"><u>Details</u></h1>
             <div id="individualOwner" class="stateWrapper" style="display: inline-block">
@@ -1470,7 +1470,13 @@ class Settings extends Page {
                     }
                     endsDate = endsDate[1] + "/" + endsDate[2] + "/" + endsDate[0];
                     $(`#settingsPage #editPage #statusDate`).text(endsDate);
-
+                }
+                
+                console.log(response.id_planTemplate);
+                // Give them the option to view the Membership plans if they're not a paying member
+                if(((response.id_planTemplate == undefined) || (response.id_planTemplate == 4)) && 
+                                ($(`#settingsPage #editPage #restartMembership`).hasClass("hidden"))) {
+                    $(`#settingsPage #editPage #restartMembership`).removeClass("hidden");
                 }
 
             } else {

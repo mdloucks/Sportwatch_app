@@ -73,9 +73,8 @@ class CreateTeam extends Page {
                 <br><br>
                 <p id="p_trialInfo">
                     Once you create the team, you will have <b>15 days</b> of free unrestricted
-                    access. After that, you will be required to purchase a Sportwatch Membership.
+                    access. You will <b>not be charged</b> until you purchase a Sportwatch Membership.
                 </p>
-                <br><br>
                 
                 <!-- Progression Buttons -->
                 <button id="button_createTeam">Create Team</button><br><br><br>
@@ -189,7 +188,7 @@ class CreateTeam extends Page {
                 } else {
                     // Reset it here in case they buy a membership in the middle of creating a team
                     $("#createteamPage #p_trialInfo").html(`Once you create the team, you will have <b>15 days</b> of free unrestricted
-                                                            access. After that, you will be required to purchase a Sportwatch Membership.`);
+                                                            access. You will <b>not be charged</b> until you purchase a Sportwatch Membership.`);
                 }
             } else {
                 $("#createteamPage #p_trialInfo").html(`You may be required to purchase a Sportwatch Membership after creating your team.`);;
@@ -419,7 +418,7 @@ class CreateTeam extends Page {
             let inputEmail = this.getPageElement("#input_secondaryCoach").val().trim();
             if (inputEmail.length > 0) {
                 // Make sure email has all necessary parts (if given)
-                let emailValidMatch = inputEmail.match(/[A-Za-z0-9\-_.]*@[A-Za-z0-9\-_.]*\.(com|net|org|us|website|io)/gm);
+                let emailValidMatch = inputEmail.match(/[A-Za-z0-9\-_.]*@[A-Za-z0-9\-_.]*\.(com|net|org|us|website|io|edu)/gm);
                 if (emailValidMatch == null) {
                     secondaryValid = false;
                 } else if (emailValidMatch[0].length != inputEmail.length) {
@@ -461,7 +460,7 @@ class CreateTeam extends Page {
             let inputEmail = this.getPageElement("#input_athleteEmail").val().trim();
             if (inputEmail.length > 0) {
                 // Make sure email has all necessary parts (if given)
-                let emailValidMatch = inputEmail.match(/[A-Za-z0-9\-_.]*@[A-Za-z0-9\-_.]*\.(com|net|org|us|website|io)/gm);
+                let emailValidMatch = inputEmail.match(/[A-Za-z0-9\-_.]*@[A-Za-z0-9\-_.]*\.(com|net|org|us|website|io|edu)/gm);
                 if (emailValidMatch == null) {
                     invitedValid = false;
                 } else if (emailValidMatch[0].length != inputEmail.length) {
@@ -545,7 +544,7 @@ class CreateTeam extends Page {
      */
     inviteAthlete(email) {
         // Validate again just to be safe
-        let emailMatch = email.match(/[A-Za-z0-9\-_.]*@[A-Za-z0-9\-_.]*\.(com|net|org|us|website|io)/gm);
+        let emailMatch = email.match(/[A-Za-z0-9\-_.]*@[A-Za-z0-9\-_.]*\.(com|net|org|us|website|io|edu)/gm);
         if (emailMatch == null) {
             Popup.createConfirmationPopup("Invalid email, please try again", ["OK"], [() => {}]);
             return;
