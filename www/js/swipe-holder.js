@@ -11,7 +11,7 @@ class SwipeHolder {
         // VARIABLES
         this.MAX_HISTORY = 20; // Max length of arrays
         this.MIN_PERCENT_DIFFERENCE = 0.15; // percent change needed to trigger a swipe
-        this.MAX_TAP_TIME = 800; // Tap < 800 milliseconds; No Move > 800 ms
+        this.MAX_TAP_TIME = 400; // Tap < 400 milliseconds; No Move > 400 ms
         this.currentTouch = []; // [x, y]  (Max length of 2)
         this.touchHistory = []; // Formatted as [0: [{initX, initY}, {endX, endY}], 1: ...]
         this.gestureHistory = []; // Consists of Gestures enum
