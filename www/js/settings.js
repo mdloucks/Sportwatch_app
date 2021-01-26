@@ -1472,7 +1472,6 @@ class Settings extends Page {
                     $(`#settingsPage #editPage #statusDate`).text(endsDate);
                 }
                 
-                console.log(response.id_planTemplate);
                 // Give them the option to view the Membership plans if they're not a paying member
                 if(((response.id_planTemplate == undefined) || (response.id_planTemplate == 4)) && 
                                 ($(`#settingsPage #editPage #restartMembership`).hasClass("hidden"))) {
