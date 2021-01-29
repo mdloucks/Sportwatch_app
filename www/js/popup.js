@@ -38,7 +38,6 @@ class Popup {
             <div class="popup" id="popup_${popupId}">
     
                 <div class="popup_content">
-                    <span class="close">&times;</span>
                     <p class="popup_tooltip">${tooltip}</p><br>
                 </div>
             </div>
@@ -58,14 +57,6 @@ class Popup {
         }
 
         $("#popup_" + popupId).css("display", "block");
-
-        $("#popup_" + popupId + " .close:first").on("click", function (e) {
-            e.preventDefault();
-            $("#popup_" + popupId + " .close").unbind();
-            $("#popup_" + popupId).fadeOut(300, function () {
-                $(this).remove();
-            });
-        });
     }
 
     /**
@@ -147,7 +138,7 @@ class Popup {
             </div>
         `);
 
-        // close the app if the user does not make a purchase
+        // Re-open the app of the user didn't make a purchase
         $(".premium_deny_text").click(function (e) {
             $("#premiumPopup").fadeOut(Constant.popupFadeoutDuration, () => {
                 $("#premiumPopup").remove();
