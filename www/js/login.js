@@ -128,6 +128,7 @@ class Login extends Page {
                     
                     this.pageController.transitionObj.forceHaltSlide(); // See settings.js for explanation
                     this.pageController.onChangePageSet(1); // 1 for Main logic
+                    store.applicationUsername = localStorage.getItem("email");
                     
                     // And finally, clear the inputs
                     this.getPageElement("input").not("#login_button").val("");

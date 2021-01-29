@@ -11,7 +11,11 @@ class PaymentHandler {
      * app information once a subscription is purchased.
      */
     static initPlans() {
-
+        
+        if(DO_LOG) {
+            console.log("[payment-handler.js]: Initializing plans...");
+        }
+        
         let monthlyID;
         let annuallyID;
 
