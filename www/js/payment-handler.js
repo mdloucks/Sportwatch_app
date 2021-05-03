@@ -63,7 +63,8 @@ class PaymentHandler {
         // Setup the receipt validator service.
         store.validator = Constant.getValidateURL();
         store.applicationUsername = localStorage.getItem("email");
-
+        store.autoFinishTransactions = true;
+        
         // Log the error
         store.error(function (error) {
             console.log("THERE WAS AN ERROR #" + error.code + ": " + error.message);
