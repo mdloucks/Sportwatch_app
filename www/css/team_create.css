@@ -234,13 +234,32 @@
 }
 
 
-/* ---- INVITE ATHLETES ---- */
+/* ---- INVITE / ADD ATHLETES ---- */
 
 #createteamPage #invitePage .sectionWrapper {
     margin: 5vw;
     padding: 10px;
     border: 1px solid black;
     border-radius: 15px;
+}
+
+#createteamPage #invitePage .inputLabel {
+    margin: 0 0 5px 0;
+    font-size: 1.5em;
+}
+
+#createteamPage #invitePage .athleteName {
+    width: 35%;
+}
+
+#createteamPage #invitePage .dropdown_input {
+    margin-bottom: 5vw;
+    padding: 5px 10px;
+    width: 50vw;
+    height: 40px;
+    font-size: 1.8em;
+    border: 2px solid crimson;
+    -webkit-appearance: none;
 }
 
 #createteamPage #invitePage #button_sendInvite {

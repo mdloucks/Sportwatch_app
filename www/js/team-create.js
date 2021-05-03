@@ -98,10 +98,11 @@ class CreateTeam extends Page {
 
         this.invitePage = (`
             <div id="invitePage" class="div_page">
+                <!-- 
                 <div id="schoolInviteWrapper" class="sectionWrapper" style="display: none;">
                     <h1 id="h1_schoolInvite">Invite from School</h1>
                     <div id="schoolAthletesList">
-                        <!-- Athlete Buttons will be added here -->
+                        <!-- Athlete Buttons will be added here --><!--
                     </div>
                 </div>
                 
@@ -110,6 +111,25 @@ class CreateTeam extends Page {
                     <input id="input_athleteEmail" class="sw_text_input" type="text" placeholder="randy@sportwatch.us"></input>
                     <br>
                     <button id="button_sendInvite" class="sw_button">Invite</button>
+                </div>
+                -->
+                
+                <div id="addAthleteWrapper" class="sectionWrapper">
+                    <h1 id="h1_addAthlete">Add an Athlete</h1>
+                    <p class="inputLabel">First and Last Name</p>
+                    <input id="input_athleteFname" class="sw_text_input athleteName" type="text" placeholder="Randy"></input>
+                    <input id="input_athleteLname" class="sw_text_input athleteName" type="text" placeholder="Jones"></input>
+                    <p class="inputLabel">Email (optional)</p>
+                    <input id="input_athleteEmail" class="sw_text_input" type="text" placeholder="randy@sportwatch.us"></input>
+                    <p class="inputLabel">Competition Gender</p>
+                    <select class="dropdown_input" name="gender">
+                        <option value="NA">-- Tap to Select --</option>
+                        <option value="M">Male</option>
+                        <option value="F">Female</option>
+                    </select>
+                    <br>
+                    
+                    <button id="button_sendInvite" class="sw_button">Add Athlete</button>
                 </div>
                 
                 <!-- Progression Buttons -->
