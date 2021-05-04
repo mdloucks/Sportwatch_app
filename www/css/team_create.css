@@ -248,6 +248,14 @@
     font-size: 1.5em;
 }
 
+#createteamPage #invitePage #addAthleteWrapper .sw_text_input {
+    border: 2px solid green;
+    transition: border-color 0.5s;
+}
+#createteamPage #invitePage #addAthleteWrapper *.invalid {
+    border-color: black;
+}
+
 #createteamPage #invitePage .athleteName {
     width: 35%;
 }
@@ -258,7 +266,8 @@
     width: 50vw;
     height: 40px;
     font-size: 1.8em;
-    border: 2px solid crimson;
+    border: 2px solid green;
+    transition: border-color 0.5s;
     -webkit-appearance: none;
 }
 

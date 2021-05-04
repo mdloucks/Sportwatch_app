@@ -117,12 +117,12 @@ class CreateTeam extends Page {
                 <div id="addAthleteWrapper" class="sectionWrapper">
                     <h1 id="h1_addAthlete">Add an Athlete</h1>
                     <p class="inputLabel">First and Last Name</p>
-                    <input id="input_athleteFname" class="sw_text_input athleteName" type="text" placeholder="Randy"></input>
-                    <input id="input_athleteLname" class="sw_text_input athleteName" type="text" placeholder="Jones"></input>
-                    <p class="inputLabel">Email (optional)</p>
+                    <input id="input_athleteFname" class="sw_text_input athleteName invalid" type="text" placeholder="Randy"></input>
+                    <input id="input_athleteLname" class="sw_text_input athleteName invalid" type="text" placeholder="Jones"></input>
+                    <p class="inputLabel">Email (Optional)</p>
                     <input id="input_athleteEmail" class="sw_text_input" type="text" placeholder="randy@sportwatch.us"></input>
                     <p class="inputLabel">Competition Gender</p>
-                    <select class="dropdown_input" name="gender">
+                    <select id="input_athleteGender" class="dropdown_input invalid" name="gender">
                         <option value="NA">-- Tap to Select --</option>
                         <option value="M">Male</option>
                         <option value="F">Female</option>
@@ -402,7 +402,7 @@ class CreateTeam extends Page {
         });
 
         // School name checking
-        this.addInputCheck("#input_school", 5, 65, /[A-Za-z0-9. ]/gm, false, (schoolValid) => {
+        this.addInputCheck("#input_school", 5, 65, Constant.REGEX.schoolName, false, (schoolValid) => {
             // Disable the input by default until a school is clicked
             this.getPageElement("#schoolPage .button_next").prop("disabled", true);
 
@@ -433,12 +433,12 @@ class CreateTeam extends Page {
         });
 
         // Secondary coach email (Options page)
-        this.addInputCheck("#input_secondaryCoach", 5, 65, /[A-Za-z0-9.@\-_]/gm, true, (secondaryValid) => {
+        this.addInputCheck("#input_secondaryCoach", 5, 65, Constant.REGEX.emailBroad, true, (secondaryValid) => {
 
             let inputEmail = this.getPageElement("#input_secondaryCoach").val().trim();
             if (inputEmail.length > 0) {
                 // Make sure email has all necessary parts (if given)
-                let emailValidMatch = inputEmail.match(/[A-Za-z0-9\-_.]*@[A-Za-z0-9\-_.]*\.(com|net|org|us|website|io|edu)/gm);
+                let emailValidMatch = inputEmail.match(Constant.REGEX.emailParts);
                 if (emailValidMatch == null) {
                     secondaryValid = false;
                 } else if (emailValidMatch[0].length != inputEmail.length) {
@@ -458,7 +458,7 @@ class CreateTeam extends Page {
         });
 
         // Invite code (Options page)
-        this.addInputCheck("#input_inviteCode", 7, 7, /[A-Za-z0-9]/gm, true, (codeValid) => {
+        this.addInputCheck("#input_inviteCode", 7, 7, Constant.REGEX.inviteCode, true, (codeValid) => {
 
             let inputCode = this.getPageElement("#input_inviteCode").val().trim();
             if (inputCode.length > 0) {
@@ -473,29 +473,96 @@ class CreateTeam extends Page {
             document.activeElement.blur();
             this.getPageElement("#button_createTeam").trigger("click");
         });
-
-        // Invite via Email (Invite page)
-        this.addInputCheck("#input_athleteEmail", 5, 65, /[A-Za-z0-9.@\-_]/gm, false, (invitedValid) => {
-
-            let inputEmail = this.getPageElement("#input_athleteEmail").val().trim();
-            if (inputEmail.length > 0) {
-                // Make sure email has all necessary parts (if given)
-                let emailValidMatch = inputEmail.match(/[A-Za-z0-9\-_.]*@[A-Za-z0-9\-_.]*\.(com|net|org|us|website|io|edu)/gm);
-                if (emailValidMatch == null) {
-                    invitedValid = false;
-                } else if (emailValidMatch[0].length != inputEmail.length) {
-                    invitedValid = false;
-                }
-
-                this.getPageElement("#button_sendInvite").prop("disabled", !invitedValid);
-
+        
+        // Invite Athlete - First Name
+        this.addInputCheck("#input_athleteFname", 3, 127, Constant.REGEX.humanNameSingle, false, (fnameValid) => {
+            
+            // Update visuals
+            $(document.activeElement).removeClass("invalid");
+            if(!fnameValid) {
+                $(document.activeElement).addClass("invalid");
+            }
+            
+            // Update send invite button
+            if((fnameValid) && (this.getPageElement("#addAthleteWrapper *.invalid").length == 0)) {
+                this.getPageElement("#button_sendInvite").prop("disabled", false);
+            } else {
+                this.getPageElement("#button_sendInvite").prop("disabled", true);
             }
         }, () => { // On enter press
             document.activeElement.blur();
             this.getPageElement("#button_sendInvite").trigger("click");
         });
+        // Invite Athlete - Last Name
+        this.addInputCheck("#input_athleteLname", 3, 127, Constant.REGEX.humanNameSingle, false, (lnameValid) => {
 
+            // Update visuals
+            $(document.activeElement).removeClass("invalid");
+            if(!lnameValid) {
+                $(document.activeElement).addClass("invalid");
+            }
 
+            // Update send invite button
+            if((lnameValid) && (this.getPageElement("#addAthleteWrapper *.invalid").length == 0)) {
+                this.getPageElement("#button_sendInvite").prop("disabled", false);
+            } else {
+                this.getPageElement("#button_sendInvite").prop("disabled", true);
+            }
+        }, () => { // On enter press
+            document.activeElement.blur();
+            this.getPageElement("#button_sendInvite").trigger("click");
+        });
+        
+        // Invite Athlete - Email
+        this.addInputCheck("#input_athleteEmail", 5, 65, Constant.REGEX.emailBroad, true, (invitedValid) => {
+
+            let inputEmail = this.getPageElement("#input_athleteEmail").val().trim();
+            if(inputEmail.length > 0) {
+                // Make sure email has all necessary parts (if given)
+                let emailValidMatch = inputEmail.match(Constant.REGEX.emailParts);
+                if(emailValidMatch == null) {
+                    invitedValid = false;
+                } else if(emailValidMatch[0].length != inputEmail.length) {
+                    invitedValid = false;
+                }
+            }
+            
+            // Update visuals
+            $(document.activeElement).removeClass("invalid");
+            if(!invitedValid) {
+                $(document.activeElement).addClass("invalid");
+            }
+            
+            // Update invite button
+            if((invitedValid) && (this.getPageElement("#addAthleteWrapper *.invalid").length == 0)) {
+                this.getPageElement("#button_sendInvite").prop("disabled", false);
+            } else {
+                this.getPageElement("#button_sendInvite").prop("disabled", true);
+            }
+        }, () => { // On enter press
+            document.activeElement.blur();
+            this.getPageElement("#button_sendInvite").trigger("click");
+        });
+        
+        // Invite Athlete - Gender
+        this.getPageElement("#input_athleteGender").on("change", () => {
+            let input = this.getPageElement("#input_athleteGender").val();
+            
+            // Check validity
+            $("#input_athleteGender").removeClass("invalid");
+            if(input.length != 1) { // M or F
+                $("#input_athleteGender").addClass("invalid");
+            }
+            
+            // Update invite button
+            if ((input.length == 1) && (this.getPageElement("#addAthleteWrapper *.invalid").length == 0)) {
+                this.getPageElement("#button_sendInvite").prop("disabled", false);
+            } else {
+                this.getPageElement("#button_sendInvite").prop("disabled", true);
+            }
+        });
+        
+        
         // ---- MISC ---- //
 
         // Invite Logic //
@@ -564,7 +631,7 @@ class CreateTeam extends Page {
      */
     inviteAthlete(email) {
         // Validate again just to be safe
-        let emailMatch = email.match(/[A-Za-z0-9\-_.]*@[A-Za-z0-9\-_.]*\.(com|net|org|us|website|io|edu)/gm);
+        let emailMatch = email.match(Constant.REGEX.emailParts);
         if (emailMatch == null) {
             Popup.createConfirmationPopup("Invalid email, please try again", ["OK"], [() => {}]);
             return;
@@ -782,8 +849,8 @@ class CreateTeam extends Page {
      *              function submitName() if entered is pressed
      * 
      * @param {String} inputSelector jQuery selector for the input element
-     * @param {Integer} lengthMin max length of input, exclusive
-     * @param {Integer} lengthMax minimum length of input, inclusive
+     * @param {Integer} lengthMin minimum length of input, exclusive
+     * @param {Integer} lengthMax max length of input, exclusive
      * @param {Regex} acceptRegex regex expression ("/[A-Za-z0-9/gm") of accepted values
      * @param {Boolean} isOptional is the parameter optional / allowed to have a length of 0?
      * @param {Function} handleStatusCallback function that takes in a boolean (true for valid input, false otherwise)
