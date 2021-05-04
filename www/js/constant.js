@@ -39,7 +39,7 @@ class Constant {
 // outside of declaration
 Constant.DIR_CSS = "css/";
 
-Constant.HOSTNAME = "https://sportwatch.us"; // Append "dev." for testing
+Constant.HOSTNAME = "http://dev.sportwatch.us"; // Append "dev." for testing
 Constant.BACKEND_PATH = "/backend/v1-0/"; // So we can adjust based on versions of backend
 Constant.FUNCTION = {
     signup: "signup.php",
@@ -65,6 +65,17 @@ Constant.IOS_ANNUALLY_ID = "sRfafDxVzo";
 
 Constant.ANDROID_MONTHLY_ID = "sp_m_kxqzg";
 Constant.ANDROID_ANNUALLY_ID = "srfafdxvzo";
+
+// Input regex checks
+Constant.REGEX = {
+    emailBroad: /[A-Za-z0-9.@\-_]/gm,
+    emailParts: /[A-Za-z0-9\-_.]*@[A-Za-z0-9\-_.]*\.(com|net|org|us|website|io|edu)/gm,
+    password: /[`"';<>{} ]/gm,
+    humanNameSingle: /[A-Za-z.\-]/gm,
+    humanNameCombined: /[A-Za-z.\- ]/gm,
+    schoolName: /[A-Za-z0-9. ]/gm,
+    inviteCode: /[A-Za-z0-9]/gm
+};
 
 // animation durations
 Constant.fadeDuration = 300;
