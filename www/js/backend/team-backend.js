@@ -303,13 +303,39 @@ class TeamBackend {
     }
     
     /**
+     * A wrapper for the inviteToTeam functionality to help
+     * separate user creation from user invitiation.
+     * 
+     * @param {String} fname first name of the created user
+     * @param {String} lname last name of the created user
+     * @param {String} gender gender ("M" | "F") of the created user
+     * @param {String} email email of the created user (optional)
+     * @param {Function} cb function to call after the server response is received
+     * @returns
+     * The promise returned by the Ajax request
+     */
+    static addToTeam(fname, lname, gender, email, cb) {
+        let newUserObject = {
+            "fname": fname,
+            "lname": lname,
+            "gender": gender
+        };
+        if(email.length > 3) {
+            newUserObject["email"] = email;
+        }
+        return this.inviteToTeam(email, cb, newUserObject);
+    }
+    
+    /**
      * Attempts to send an email to the given parameter, including the team's
      * invite code and instructions on joining the team.
      * 
      * @param {String} inviteEmail the address to send the invite code email to
      * @param {Function} cb callback function that takes in response JSON (or string on error)
+     * @param {Object} addedUserInfo object with fname, lname, and gender to manually create a
+     *                               user account. If blank, it will simply invite the user
      */
-    static inviteToTeam(inviteEmail, cb) {
+    static inviteToTeam(inviteEmail, cb, addedUserInfo = { }) {
         
         let requestArray = { };
         let storage = window.localStorage;
@@ -318,7 +344,29 @@ class TeamBackend {
         requestArray.SID = storage.getItem("SID");
         requestArray.accountEmail = storage.getItem("email");
         requestArray.teamIdentity = { "id_team" : storage.getItem("id_team") };
-        requestArray.invitedEmail = inviteEmail;
+        
+        // Add in appropriate values if the user is being added
+        if((addedUserInfo.fname.length > 3) && (addedUserInfo.lname.length > 3) && (addedUserInfo.gender.length > 0)) {
+            requestArray.addShellUser = true;
+            requestArray.invitedFname = addedUserInfo.fname.replace(Constant.getReplaceRegex(Constant.REGEX.humanNameSingle), "");
+            requestArray.invitedLname = addedUserInfo.lname.replace(Constant.getReplaceRegex(Constant.REGEX.humanNameSingle), "");
+            if(addedUserInfo.gender.length > 1) {
+                addedUserInfo.gender = addedUserInfo.gender.substr(0, 1);
+            }
+            addedUserInfo.gender = addedUserInfo.gender.toLowerCase(); // To make processing easier
+            if((addedUserInfo.gender == "m") || (addedUserInfo.gender == "f")) {
+                requestArray.invitedGender = addedUserInfo.gender.toUpperCase();
+            } else {
+                requestArray.invitedGender = "M"; // Default to male
+            }
+        }
+        if(inviteEmail.length > 3) {
+            // Make sure email has all necessary parts (if given)
+            let emailMatch = inviteEmail.match(Constant.REGEX.emailParts);
+            if ((emailMatch != null) && (emailMatch[0].length == inviteEmail.length)) {
+                requestArray.invitedEmail = inviteEmail.replace(Constant.getReplaceRegex(Constant.REGEX.emailBroad), "");
+            }
+        }
         
         // Submit the request and call the callback
         return $.ajax({

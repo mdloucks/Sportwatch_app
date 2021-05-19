@@ -1153,5 +1153,71 @@ class ToolboxBackend {
             }
         });
     }
+    
+    static createAthleteWithFeedback(fname, lname, gender, email = "") {
+        let faultMessage = "";
+        // Clean submitted values because you can never be too safe...
+        fname = fname.replace(Constant.getReplaceRegex(Constant.REGEX.humanNameSingle));
+        lname = lname.replace(Constant.getReplaceRegex(Constant.REGEX.humanNameSingle));
+        if((fname == false) || (lname == false)) {
+            faultMessage = "Name is invalid, please try again";
+        } else if((fname.length < 3) || (lname.length < 3)) {
+            faultMessage = "Name is invalid, please try again";
+        }
+        if(gender == false) { // Sanitize as much as possible and default to male if invalid
+            gender = "M";
+        } else if(gender.length != 1) {
+            gender = gender.subtr(0, 1).toUpperCase();
+        }
+        if(!((gender == "M") || (gender == "F"))) {
+            gender = "M";
+        }
+        
+        // Check to see if email was provided and is valid
+        let providedEmail = true;
+        let emailMatch = email.match(/[A-Za-z0-9\-_.]*@[A-Za-z0-9\-_.]*\.(com|net|org|us|website|io|edu)/gm);
+        if (emailMatch == null) {
+            providedEmail = false;
+        } else if (emailMatch[0].length != email.length) {
+            providedEmail = false;
+        }
+        if(!providedEmail) {
+            email = ""; // Set to blank string to prevent it causing errors in addToTeam()
+        }
+        
+        // Define feedback function (maybe move to Constant at some later point?)
+        let feedbackFn = function(response) {
+            if(response.status > 0) {
+                if(response.substatus == 2) {
+                    Popup.createConfirmationPopup("Athlete is already apart of this team", ["OK"], [() => { }]);
+                } else {
+                    Popup.createConfirmationPopup("Successfully invited!", ["OK"], [() => { }]);
+                }
+            } else {
+                if(response.substatus == 3) {
+                    Popup.createConfirmationPopup("Team is locked! Please unlock to invite athletes", ["Unlock Now", "Unlock Later"],
+                        [() => {
+                            // TODO: Unlock the team
+                        }, () => { }]); // End of Popup callbacks
+                } else if(response.substatus == 4) {
+                    Popup.createConfirmationPopup("Invalid email, please try again", ["OK"], [() => { }]);
+                } else {
+                    Popup.createConfirmationPopup("We're sorry, an error occured. Please try again later", ["OK"], [() => { }]);
+                }
+            }
+        }
+        
+        // If both athlete info and email were provided, invite with both
+        if((faultMessage.length == 0) && (providedEmail)) {
+            TeamBackend.addToTeam(fname, lname, gender, email, feedbackFn);
+        } else if((faultMessage.length == 0) && (!providedEmail)) { // Only athlete info
+            TeamBackend.addToTeam(fname, lname, gender, "", feedbackFn);
+        } else if((faultMessage.length > 0) && (providedEmail)) { // Only email
+            TeamBackend.inviteToTeam(email, feedbackFn);
+        } else { // Error
+            Popup.createConfirmationPopup(faultMessage, ["OK"], [() => { }]);
+            return;
+        }
+    }
 
 }

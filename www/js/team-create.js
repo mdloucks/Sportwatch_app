@@ -119,14 +119,14 @@ class CreateTeam extends Page {
                     <p class="inputLabel">First and Last Name</p>
                     <input id="input_athleteFname" class="sw_text_input athleteName invalid" type="text" placeholder="Randy"></input>
                     <input id="input_athleteLname" class="sw_text_input athleteName invalid" type="text" placeholder="Jones"></input>
-                    <p class="inputLabel">Email (Optional)</p>
-                    <input id="input_athleteEmail" class="sw_text_input" type="text" placeholder="randy@sportwatch.us"></input>
                     <p class="inputLabel">Competition Gender</p>
                     <select id="input_athleteGender" class="dropdown_input invalid" name="gender">
                         <option value="NA">-- Tap to Select --</option>
                         <option value="M">Male</option>
                         <option value="F">Female</option>
                     </select>
+                    <p class="inputLabel">Email (Optional)</p>
+                    <input id="input_athleteEmail" class="sw_text_input" type="text" placeholder="randy@sportwatch.us"></input>
                     <br>
                     
                     <button id="button_sendInvite" class="sw_button">Add Athlete</button>
@@ -491,7 +491,8 @@ class CreateTeam extends Page {
             }
         }, () => { // On enter press
             document.activeElement.blur();
-            this.getPageElement("#button_sendInvite").trigger("click");
+            this.getPageElement("#input_athleteLname").focus();
+            // this.getPageElement("#button_sendInvite").trigger("click");
         });
         // Invite Athlete - Last Name
         this.addInputCheck("#input_athleteLname", 3, 127, Constant.REGEX.humanNameSingle, false, (lnameValid) => {
@@ -510,7 +511,7 @@ class CreateTeam extends Page {
             }
         }, () => { // On enter press
             document.activeElement.blur();
-            this.getPageElement("#button_sendInvite").trigger("click");
+            this.getPageElement("#input_athleteEmail").focus();
         });
         
         // Invite Athlete - Email
@@ -555,7 +556,7 @@ class CreateTeam extends Page {
             }
             
             // Update invite button
-            if ((input.length == 1) && (this.getPageElement("#addAthleteWrapper *.invalid").length == 0)) {
+            if((input.length == 1) && (this.getPageElement("#addAthleteWrapper *.invalid").length == 0)) {
                 this.getPageElement("#button_sendInvite").prop("disabled", false);
             } else {
                 this.getPageElement("#button_sendInvite").prop("disabled", true);
@@ -567,14 +568,16 @@ class CreateTeam extends Page {
 
         // Invite Logic //
         this.getPageElement("#button_sendInvite").click((e) => {
+            let fname = $("#input_athleteFname").val();
+            let lname = $("#input_athleteLname").val();
+            let gender = $("#input_athleteGender").val();
             let invitedEmail = this.getPageElement("#input_athleteEmail").val();
-
+            
             // Don't try inviting if it's disabled
-            if (this.getPageElement("#button_sendInvite").prop("disabled") == true) {
+            if(this.getPageElement("#button_sendInvite").prop("disabled") == true) {
                 return;
             }
-            ToolboxBackend.inviteAthleteWithFeedback(invitedEmail);
-            // this.inviteAthlete(invitedEmail);
+            ToolboxBackend.createAthleteWithFeedback(fname, lname, gender, invitedEmail);
             this.getPageElement("#button_sendInvite").prop("disabled", true);
         })
 
