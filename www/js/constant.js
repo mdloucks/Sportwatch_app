@@ -33,6 +33,16 @@ class Constant {
     static getToolboxURL() {
         return Constant.HOSTNAME + Constant.BACKEND_PATH + Constant.FUNCTION.toolbox;
     }
+    
+    // Converts the acceptable REGEX solutions below for use in replace statements
+    static getReplaceRegex(matchRegex) {
+        if(typeof matchRegex != "string") {
+            matchRegex = matchRegex.source;
+        }
+        // Add ^ to beginning of group
+        matchRegex = matchRegex.substr(0, 1) + "^" + matchRegex.substr(1);
+        return new RegExp(matchRegex, "gm");
+    }
 }
 
 // Due to the way ES6 classes work, constants have to be defined
