@@ -631,11 +631,23 @@ class Settings extends Page {
                 <br><hr>
                 
                 <div id="inviteCode" class="subheading_text">Invite Code: <span class="underline">Unknown<span></div>
-                <div class="sectionWrapper">
-                    <h1 id="h1_emailInvite">Invite via Email</h1>
+                <hr>
+                <div id="addWrapper" class="sectionWrapper">
+                    <h1 id="h1_addAthlete" class="subheading_text" style="margin-top: 0">Add Athlete</h1>
+                    <p class="inputLabel">First and Last Name</p>
+                    <input id="input_athleteFname" class="sw_text_input athleteName invalid" type="text" placeholder="Randy" style="width: 35%"></input>
+                    <input id="input_athleteLname" class="sw_text_input athleteName invalid" type="text" placeholder="Jones" style="width: 35%"></input>
+                    <p class="inputLabel">Competition Gender</p>
+                    <select id="input_athleteGender" class="dropdown_input invalid" name="gender">
+                        <option value="NA">-- Tap to Select --</option>
+                        <option value="M">Male</option>
+                        <option value="F">Female</option>
+                    </select>
+                    <p class="inputLabel">Email (Optional)</p>
                     <input id="input_athleteEmail" class="sw_text_input" type="text" placeholder="randy@sportwatch.us"></input>
                     <br>
-                    <button id="button_sendInvite" class="sw_button" disabled>Invite</button>
+
+                    <button id="button_sendInvite" class="sw_button">Add Athlete</button>
                 </div>
                 <br><hr>
                 
@@ -803,6 +815,8 @@ class Settings extends Page {
         this.addInputCheck('#editPage input[name="Team Name"]', 5, 45, /[A-Za-z0-9& ]/gm, false, (isValid) => {
             if((isValid) && (schoolId > 0)) {
                 $("#settingsPage #editPage #changeTeamButton").prop("disabled", false);
+            } else {
+                $("#settingsPage #editPage #changeTeamButton").prop("disabled", true);
             }
         }, () => {
             document.activeElement.blur(); // On enter press
@@ -850,32 +864,102 @@ class Settings extends Page {
             });
         });
         
-        // INVITE VIA EMAIL
-        // Check input
-        this.addInputCheck("#input_athleteEmail", 5, 65, /[A-Za-z0-9.@\-_]/gm, false, (invitedValid) => {
+        // ADD ATHLETE
+        // First Name
+        this.addInputCheck("#editPage #addWrapper #input_athleteFname", 3, 127, Constant.REGEX.humanNameSingle, false, (fnameValid) => {
+            
+            // Update visuals
+            $(document.activeElement).removeClass("invalid");
+            if(!fnameValid) {
+                $(document.activeElement).addClass("invalid");
+            }
+            
+            // Update send invite button
+            if((fnameValid) && ($("#settingsPage #addWrapper *.invalid").length == 0)) {
+                $("#settingsPage #addWrapper #button_sendInvite").prop("disabled", false);
+            } else {
+                $("#settingsPage #addWrapper #button_sendInvite").prop("disabled", true);
+            }
+        }, () => { // On enter press
+            document.activeElement.blur();
+            $("#settingsPage #addWrapper #input_athleteLname").focus();
+        });
+        // Last Name
+        this.addInputCheck("#editPage #addWrapper #input_athleteLname", 3, 127, Constant.REGEX.humanNameSingle, false, (lnameValid) => {
+            
+            // Update visuals
+            $(document.activeElement).removeClass("invalid");
+            if (!lnameValid) {
+                $(document.activeElement).addClass("invalid");
+            }
 
-            let inputEmail = $(`${this.inputDivIdentifier} #input_athleteEmail`).val().trim();
+            // Update send invite button
+            if ((lnameValid) && ($("#settingsPage #addWrapper *.invalid").length == 0)) {
+                $("#settingsPage #addWrapper #button_sendInvite").prop("disabled", false);
+            } else {
+                $("#settingsPage #addWrapper #button_sendInvite").prop("disabled", true);
+            }
+        }, () => { // On enter press
+            document.activeElement.blur();
+            $("#settingsPage #addWrapper #input_athleteEmail").focus();
+        });
+        // Gender
+        $("#settingsPage #addWrapper #input_athleteGender").on("change", () => {
+            let input = $("#settingsPage #addWrapper #input_athleteGender").val();
+
+            // Check validity
+            $("#settingsPage #addWrapper #input_athleteGender").removeClass("invalid");
+            if (input.length != 1) { // M or F
+                $("#settingsPage #addWrapper #input_athleteGender").addClass("invalid");
+            }
+
+            // Update invite button
+            if ((input.length == 1) && ($("#settingsPage #addWrapper *.invalid").length == 0)) {
+                $("#settingsPage #addWrapper #button_sendInvite").prop("disabled", false);
+            } else {
+                $("#settingsPage #addWrapper #button_sendInvite").prop("disabled", true);
+            }
+        });
+        // Email
+        this.addInputCheck("#editPage #addWrapper #input_athleteEmail", 5, 65, Constant.REGEX.emailBroad, true, (invitedValid) => {
+            
+            let inputEmail = $("#settingsPage #addWrapper #input_athleteEmail").val().trim();
             if (inputEmail.length > 0) {
                 // Make sure email has all necessary parts (if given)
-                let emailValidMatch = inputEmail.match(/[A-Za-z0-9\-_.]*@[A-Za-z0-9\-_.]*\.(com|net|org|us|website|io|edu)/gm);
+                let emailValidMatch = inputEmail.match(Constant.REGEX.emailParts);
                 if (emailValidMatch == null) {
                     invitedValid = false;
                 } else if (emailValidMatch[0].length != inputEmail.length) {
                     invitedValid = false;
                 }
+            }
 
-                $(`${this.inputDivIdentifier} #button_sendInvite`).prop("disabled", !invitedValid);
+            // Update visuals
+            $(document.activeElement).removeClass("invalid");
+            if (!invitedValid) {
+                $(document.activeElement).addClass("invalid");
+            }
+
+            // Update invite button
+            if ((invitedValid) && ($("#settingsPage #addWrapper *.invalid").length == 0)) {
+                $("#settingsPage #addWrapper #button_sendInvite").prop("disabled", false);
+            } else {
+                $("#settingsPage #addWrapper #button_sendInvite").prop("disabled", true);
             }
         }, () => { // On enter press
             document.activeElement.blur();
-            $(`${this.inputDivIdentifier} #button_sendInvite`).trigger("click");
+            console.log($("#settingsPage #addWrapper #button_sendInvite"));
+            $("#settingsPage #addWrapper #button_sendInvite").trigger("click");
         });
         // Send email
         $(`${this.inputDivIdentifier} #button_sendInvite`).click((e) => {
             $(`${this.inputDivIdentifier} #button_sendInvite`).prop("disabled", true);
             
-            let invitedEmail = $(`${this.inputDivIdentifier} #input_athleteEmail`).val();
-            ToolboxBackend.inviteAthleteWithFeedback(invitedEmail);
+            let fname = $("#settingsPage #addWrapper #input_athleteFname").val();
+            let lname = $("#settingsPage #addWrapper #input_athleteLname").val();
+            let gender = $("#settingsPage #addWrapper #input_athleteGender").val();
+            let invitedEmail = $("#settingsPage #addWrapper #input_athleteEmail").val();
+            ToolboxBackend.createAthleteWithFeedback(fname, lname, gender, invitedEmail);
         });
         
         // KICK ATHLETE

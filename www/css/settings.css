@@ -147,6 +147,29 @@
     background-color: lightgray;
 }
 
+#settingsPage #addWrapper > .inputLabel {
+    margin: 0 0 5px 0;
+}
+
+#settingsPage #editPage #addWrapper > .sw_text_input {
+    border: 2px solid green;
+    transition: border-color 0.5s;
+}
+#settingsPage #editPage #addWrapper > *.invalid {
+    border-color: #dd3333;
+}
+
+#settingsPage  #addWrapper > .dropdown_input {
+    margin-bottom: 5vw;
+    padding: 5px 10px;
+    width: 50vw;
+    height: 40px;
+    font-size: 1.8em;
+    border: 2px solid green;
+    transition: border-color 0.5s;
+    -webkit-appearance: none;
+}
+
 #settingsPage #button_sendInvite {
     padding: 10px;
     font-size: 1.5em;
