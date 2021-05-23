@@ -382,7 +382,8 @@ class TeamBackend {
                 }
                 
                 if(DO_LOG) {
-                    console.log("[team-backend.js:inviteToTeam()] " + response);
+                    console.log("[team-backend.js:inviteToTeam()]:");
+                    console.log(response);
                 }
                 try {
                     response = JSON.parse(response);
