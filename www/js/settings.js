@@ -125,9 +125,10 @@ class Settings extends Page {
             $("#settingsPage .cat_button").removeClass("cat_button_selected");
             this.pageTransition.slideRight("catagoryPage");
             // Scroll to the top
-            $("#settingsPage").animate({
-                scrollTop: 0
-            }, 1000);
+            $("#settingsPage").scrollTop(0);
+            // $("#settingsPage").animate({
+            //     scrollTop: 0
+            // }, 1000);
         });
     }
 
@@ -605,11 +606,12 @@ class Settings extends Page {
         }); // End of population function
 
         this.pageTransition.slideLeft("editPage");
-        $("#settingsPage #editPage").animate({
-            scrollTop: 0
-        }, 1000);
-        let headerWidth = $("#settingsPage #editPage > .generic_header").height();
-        $("#settingsPage #editPage > *:not(.generic_header)").first().css("margin-top", `calc(${headerWidth}px + 7vh)`);
+        $("#settingsPage #editPage").scrollTop(0);
+        // $("#settingsPage #editPage").animate({
+            // scrollTop: 0
+        // }, 1000);
+        let headerHeight = $("#settingsPage #editPage > .generic_header").height();
+        $("#settingsPage #editPage > *:not(.generic_header)").first().css("margin-top", `calc(${headerHeight}px + 7vh)`);
     }
 
     startTeamPreferences() {
@@ -1026,11 +1028,12 @@ class Settings extends Page {
         
         // Slide the page, we're ready to show the user
         this.pageTransition.slideLeft("editPage");
-        $("#settingsPage #editPage").animate({
-            scrollTop: 0
-        }, 1000);
-        let headerWidth = $("#settingsPage #editPage > .generic_header").height();
-        $("#settingsPage #editPage > *:not(.generic_header)").first().css("margin-top", `calc(${headerWidth}px + 7vh)`);
+        $("#settingsPage #editPage").scrollTop(0);
+        // $("#settingsPage #editPage").animate({
+        //     scrollTop: 0
+        // }, 1000);
+        let headerHeight = $("#settingsPage #editPage > .generic_header").height();
+        $("#settingsPage #editPage > *:not(.generic_header)").first().css("margin-top", `calc(${headerHeight}px + 7vh)`);
         
         // ---- BACKEND PULL ---- //
         
@@ -1078,8 +1081,8 @@ class Settings extends Page {
         }]);
 
         this.pageTransition.slideLeft("editPage");
-        let headerWidth = $("#settingsPage #editPage > .generic_header").height();
-        $("#settingsPage #editPage > *:not(.generic_header)").first().css("margin-top", `calc(${headerWidth}px + 7vh)`);
+        let headerHeight = $("#settingsPage #editPage > .generic_header").height();
+        $("#settingsPage #editPage > *:not(.generic_header)").first().css("margin-top", `calc(${headerHeight}px + 7vh)`);
     }
     
     startMembership() {
@@ -1179,8 +1182,8 @@ class Settings extends Page {
         
         
         this.pageTransition.slideLeft("editPage");
-        let headerWidth = $("#settingsPage #editPage > .generic_header").height();
-        $("#settingsPage #editPage > *:not(.generic_header)").first().css("margin-top", `calc(${headerWidth}px + 7vh)`);
+        let headerHeight = $("#settingsPage #editPage > .generic_header").height();
+        $("#settingsPage #editPage > *:not(.generic_header)").first().css("margin-top", `calc(${headerHeight}px + 7vh)`);
     }
     
     startSignOut() {
@@ -1238,8 +1241,8 @@ class Settings extends Page {
         
         // Slide the page since it's set up
         this.pageTransition.slideLeft("editPage");
-        let headerWidth = $("#settingsPage #editPage > .generic_header").height();
-        $("#settingsPage #editPage > *:not(.generic_header)").first().css("margin-top", `calc(${headerWidth}px + 7vh)`);
+        let headerHeight = $("#settingsPage #editPage > .generic_header").height();
+        $("#settingsPage #editPage > *:not(.generic_header)").first().css("margin-top", `calc(${headerHeight}px + 7vh)`);
     }
     
     // MISC FUNCTIONS //

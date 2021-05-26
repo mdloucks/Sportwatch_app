@@ -528,14 +528,14 @@ class Stats extends Page {
         $("#statsPage").animate({
             scrollTop: 0
         }, 1000);
-        // Add top padding to avoid header overlap (iOS issue)
-        let headerWidth = $("#statsPage #eventPage > .generic_header").height();
-        $("#statsPage #eventPage > *:not(.generic_header)").first().css("margin-top", `calc(${headerWidth}px + 10vh)`);
 
         this.clearResultsTable();
 
         $("#statsPage #eventPage #event_name").html(event.record_identity);
-
+        // Add top padding to avoid header overlap (iOS issue)
+        let headerHeight = $("#statsPage #eventPage > .generic_header").height();
+        $("#statsPage #eventPage > *:not(.generic_header)").first().css("margin-top", `calc(${headerHeight}px + 10vh)`);
+        
         $("#statsPage #eventPage #back_button_event").unbind("click");
         $("#statsPage #eventPage #save_csv").unbind("click");
 

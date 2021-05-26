@@ -29,15 +29,15 @@ This is to limit the file size for our page specific styles
 
 .sw_text_input {
     padding: 10px;
-    border-width: 2px;
-    border-color: #dd3333;
+    /* border-width: 2px; */
+    /* border-color: #dd3333; */
     margin-bottom: 15px;
     font-size: 1.5em;
     width: 60%;
     outline: none;
     -webkit-appearance: none;;
     -webkit-tap-highlight-color: rgba(0, 0, 0, 0);
-    border: 1px solid black;
+    border: 2px solid black;
 }
 
 .sw_dropdown {
