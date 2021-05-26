@@ -376,7 +376,7 @@ class CreateTeam extends Page {
             }
 
             // Special characters (Plus &)
-            if (input.replace(/[A-Za-z0-9& ]/gm, "").length > 0) {
+            if (input.replace(Constant.REGEX.teamName, "").length > 0) {
                 if (!this.getPageElement("#tip_specials").hasClass("bolded")) {
                     this.getPageElement("#tip_specials").addClass("bolded");
                 }

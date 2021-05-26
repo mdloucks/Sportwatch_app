@@ -263,7 +263,7 @@ class AccountBackend {
                 if((typeof value == "string") && (value.length > 0)) {
                     // Filter with a generic regex (replace most special characters)
                     // Should be fine since passwords shouldn't be stored anyway
-                    returnArray[key] = value.replace(/[^A-Za-z0-9@\-_\. ]/gm, "");
+                    returnArray[key] = value.replace(Constant.getReplaceRegex(Constant.REGEX.generic), "");
                     
                 } else {
                     returnArray[key] = value; // Not much filtering to be done
@@ -378,7 +378,7 @@ class AccountBackend {
         // -- ACCOUNT -- //
         // Name
         if("fname" in postArray) {
-            let cleanedInput = this.getValidInput(postArray["fname"], /[^A-Za-z. ]/gm, 0, 60);
+            let cleanedInput = this.getValidInput(postArray["fname"], Constant.getReplaceRegex(Constant.REGEX.humanNameSingle), 0, 60);
             if(cleanedInput !== false) {
                 postArray["fname"] = cleanedInput;
             } else {
@@ -390,7 +390,7 @@ class AccountBackend {
             }
         }
         if("lname" in postArray) {
-            let cleanedInput = this.getValidInput(postArray["lname"], /[^A-Za-z. ]/gm, 0, 60);
+            let cleanedInput = this.getValidInput(postArray["lname"], Constant.getReplaceRegex(Constant.REGEX.humanNameSingle), 0, 60);
             if(cleanedInput !== false) {
                 postArray["lname"] = cleanedInput;
             } else {
@@ -446,7 +446,7 @@ class AccountBackend {
         }
         // Email
         if("email" in postArray) {
-            let cleanedInput = this.getValidInput(postArray["email"], /[^A-Za-z0-9.@\-_]/gm, 5, 128);
+            let cleanedInput = this.getValidInput(postArray["email"], Constant.getReplaceRegex(Constant.REGEX.emailBroad), 5, 128);
             if(cleanedInput !== false) {
                 postArray["email"] = cleanedInput;
             } else {
@@ -459,7 +459,7 @@ class AccountBackend {
         }
         // Password
         if("password" in postArray) {
-            let cleanedInput = this.getValidInput(postArray["password"], /[ ;\"\'\/]/gm, 7, 128);
+            let cleanedInput = this.getValidInput(postArray["password"], Constant.getReplaceRegex(Constant.REGEX.password), 7, 128);
             if(cleanedInput !== false) {
                 postArray["password"] = cleanedInput;
             } else {
@@ -475,10 +475,12 @@ class AccountBackend {
             let cleanedInput = this.getValidInput(postArray["accountType"], /[^A-Za-z]/gm, 3, 30);
             if(cleanedInput !== false) {
                 cleanedInput = cleanedInput.toLowerCase();
-                if(cleanedInput == "coach") {
-                    postArray["accountType"] = "Coach";
+                if(cleanedInput == "added") {
+                    postArray["accountType"] = "added";
+                } else if(cleanedInput == "deleted") {
+                    postArray["accountType"] = "deleted";
                 } else {
-                    postArray["accountType"] = "Athlete";
+                    postArray["accountType"] = "user";
                 }
             } else {
                 if(removeInvalid) {
@@ -505,12 +507,12 @@ class AccountBackend {
             }
         }
         // Phone Number
-        if ("cellNum" in postArray) {
+        if("cellNum" in postArray) {
             let cleanedInput = this.getValidInput(postArray["cellNum"], /[^0-9]/gm, 5, 11);
-            if (cleanedInput !== false) {
+            if(cleanedInput !== false) {
                 postArray["cellNum"] = cleanedInput;
             } else {
-                if (removeInvalid) {
+                if(removeInvalid) {
                     delete postArray["cellNum"];
                 } else {
                     return false;

@@ -78,12 +78,14 @@ Constant.ANDROID_ANNUALLY_ID = "srfafdxvzo";
 
 // Input regex checks
 Constant.REGEX = {
+    generic: /[A-Za-z0-9@\-_\. ]/gm,
     emailBroad: /[A-Za-z0-9.@\-_]/gm,
-    emailParts: /[A-Za-z0-9\-_.]*@[A-Za-z0-9\-_.]*\.(com|net|org|us|website|io|edu)/gm,
-    password: /[`"';<>{} ]/gm,
+    emailParts: /[A-Za-z0-9\-_\.]*@[A-Za-z0-9\-_.]*\.(com|net|org|us|website|io|edu)/gm,
+    password: /[A-Za-z0-9\-_\.~!@#$%^&\*\(\)\[\]?,]/gm,
     humanNameSingle: /[A-Za-z.\-]/gm,
-    humanNameCombined: /[A-Za-z.\- ]/gm,
-    schoolName: /[A-Za-z0-9. ]/gm,
+    humanNameCombined: /[A-Za-z\.\- ]/gm,
+    schoolName: /[A-Za-z0-9\. ]/gm,
+    teamName: /[A-Za-z0-9\. &]/gm,
     inviteCode: /[A-Za-z0-9]/gm
 };
 

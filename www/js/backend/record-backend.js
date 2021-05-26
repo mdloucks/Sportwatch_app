@@ -549,7 +549,7 @@ class RecordBackend {
                 let value = storage.getItem(key);
                 if ((typeof value == "string") && (value.length > 0)) {
                     // Filter with a generic regex (replace most special characters)
-                    returnArray[key] = value.replace(/[^A-Za-z0-9@\-_\. ]/gm, "");
+                    returnArray[key] = value.replace(Constant.getReplaceRegex(Constant.REGEX.generic), "");
 
                 } else {
                     returnArray[key] = value; // Not much filtering to be done

@@ -82,7 +82,7 @@ class Signup extends Page {
             let lastName = this.getPageElement("input[name=lname]").val();
             let input = firstName + lastName;
 
-            if (input.replace(/[A-Za-z.\-]/gm, "") != "") {
+            if (input.replace(Constant.REGEX.humanNameSingle, "") != "") {
                 this.setupInvalidSymbol("#i_name", false, "Please only use letters in your name.");
             } else if (input.length > 127) {
                 this.setupInvalidSymbol("#i_name", false, "Name is too long");
@@ -103,7 +103,7 @@ class Signup extends Page {
         this.getPageElement("input[name=email]").on("input", () => {
             let input = this.getPageElement("input[name=email]").val();
 
-            let testMatch = input.match(/[A-Za-z0-9\-_.]*@[A-Za-z0-9\-_.]*\.(com|net|org|us|website|io|edu)/gm);
+            let testMatch = input.match(Constant.REGEX.emailParts);
             if (testMatch == null) {
                 this.setupInvalidSymbol("#i_email", false, "Please enter a valid email");
             } else if (testMatch[0].length != input.length) {

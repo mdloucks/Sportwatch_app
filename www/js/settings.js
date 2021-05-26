@@ -305,7 +305,7 @@ class Settings extends Page {
                 // User must select a dropdown option, so disable Save button until then
                 newSchoolId = -1;
                 
-                input = input.replace(/[^A-Za-z0-9. ]/gm, "");
+                input = input.replace(Constant.getReplaceRegex(Constant.REGEX.schoolName), "");
                 // Search for schools with the given input
                 ToolboxBackend.searchForSchool(input, 10, (response) => {
                     if (response.status > 0) {
@@ -374,7 +374,7 @@ class Settings extends Page {
                         emailValid = false;
                     }
                     
-                    let emailRegex = input.match(/[A-Za-z0-9\-_.]*@[A-Za-z0-9\-_.]*\.(com|net|org|us|website|io|edu)/gm);
+                    let emailRegex = input.match(Constant.REGEX.emailParts);
                     
                     if (emailRegex == null) {
                         invalidMessages[0] = "Please enter valid email";
@@ -519,7 +519,7 @@ class Settings extends Page {
                 
                 // Do input checks
                 if($(e.target).prop("name") == "email") {
-                    let emailRegex = input.match(/[A-Za-z0-9\-_.]*@[A-Za-z0-9\-_.]*\.(com|net|org|us|website|io|edu)/gm);
+                    let emailRegex = input.match(Constant.REGEX.emailParts);
                     if((emailRegex != null) && (emailRegex[0].length == input.length) && (input.length <= 250)) {
                         matchingEmail = true;
                     }
@@ -530,7 +530,7 @@ class Settings extends Page {
                         matchingEmail = false;
                     }
                 } else if($(e.target).prop("name") == "password") {
-                    if((input.match(/[`"';<>{} ]/gm) == null) && (input.length > 3) && (input.length < 250)) {
+                    if((input.match(Constant.getReplaceRegex(Constant.REGEX.password)) == null) && (input.length > 3) && (input.length < 250)) {
                         validPassword = true;
                     } else {
                         validPassword = false;
@@ -692,7 +692,7 @@ class Settings extends Page {
             
             // Pre-backend filtering
             let newName = newValues["Team Name"];
-            newName = newName.replace(/[^A-Za-z0-9\- ]/gm, "");
+            newName = newName.replace(Constant.getReplaceRegex(Constant.REGEX.teamName), "");
             if(newName.length < 5) {
                 Popup.createConfirmationPopup("The team name is too short, please try adding to it.", ["OK"]);
             } else if(newName > 75) {
@@ -812,7 +812,7 @@ class Settings extends Page {
         
         // GENERAL INFO EDITING
         // Name input
-        this.addInputCheck('#editPage input[name="Team Name"]', 5, 45, /[A-Za-z0-9& ]/gm, false, (isValid) => {
+        this.addInputCheck('#editPage input[name="Team Name"]', 5, 45, Constant.REGEX.teamName, false, (isValid) => {
             if((isValid) && (schoolId > 0)) {
                 $("#settingsPage #editPage #changeTeamButton").prop("disabled", false);
             } else {
@@ -829,7 +829,7 @@ class Settings extends Page {
             // User must select a dropdown option, so disable Change button until then
             schoolId = -1;
             
-            input = input.replace(/[^A-Za-z0-9. ]/gm, "");
+            input = input.replace(Constant.getReplaceRegex(Constant.REGEX.schoolName), "");
             // Search for schools with the given input
             ToolboxBackend.searchForSchool(input, 10, (response) => {
                 if (response.status > 0) {

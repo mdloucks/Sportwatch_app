@@ -76,7 +76,7 @@ class JoinTeam extends Page {
             }
             
             // Character filter (only allow a-z and 0-9)
-            if(input.toLowerCase().replace(/[a-z0-9]/gm, "").length > 0) {
+            if(input.toLowerCase().replace(Constant.REGEX.inviteCode, "").length > 0) {
                 this.codeIsValid = false;
             }
             

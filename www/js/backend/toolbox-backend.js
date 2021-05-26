@@ -838,7 +838,7 @@ class ToolboxBackend {
                 let value = storage.getItem(key);
                 if ((typeof value == "string") && (value.length > 0)) {
                     // Filter with a generic regex (replace most special characters)
-                    returnArray[key] = value.replace(/[^A-Za-z0-9@\-_\. ]/gm, "");
+                    returnArray[key] = value.replace(Constant.getReplaceRegex(Constnat.REGEX.generic), "");
 
                 } else {
                     returnArray[key] = value; // Not much filtering to be done
@@ -949,27 +949,27 @@ class ToolboxBackend {
      * A cleaned postArray. False, if an invalid variable was found and removeInvalid was set to false
      */
     static sanitizePostRequest(postArray, removeInvalid = true) {
-
+        
         // -- ACCOUNT -- //
         // Name
-        if ("fname" in postArray) {
-            let cleanedInput = this.getValidInput(postArray["fname"], /[^A-Za-z. ]/gm, 0, 60);
-            if (cleanedInput !== false) {
+        if("fname" in postArray) {
+            let cleanedInput = this.getValidInput(postArray["fname"], Constant.getReplaceRegex(Constant.REGEX.humanNameSingle), 0, 60);
+            if(cleanedInput !== false) {
                 postArray["fname"] = cleanedInput;
             } else {
-                if (removeInvalid) {
+                if(removeInvalid) {
                     delete postArray["fname"];
                 } else {
                     return false;
                 }
             }
         }
-        if ("lname" in postArray) {
-            let cleanedInput = this.getValidInput(postArray["lname"], /[^A-Za-z. ]/gm, 0, 60);
-            if (cleanedInput !== false) {
+        if("lname" in postArray) {
+            let cleanedInput = this.getValidInput(postArray["lname"], Constant.getReplaceRegex(Constant.REGEX.humanNameSingle), 0, 60);
+            if(cleanedInput !== false) {
                 postArray["lname"] = cleanedInput;
             } else {
-                if (removeInvalid) {
+                if(removeInvalid) {
                     delete postArray["lname"];
                 } else {
                     return false;
@@ -977,19 +977,19 @@ class ToolboxBackend {
             }
         }
         // Gender
-        if ("gender" in postArray) {
+        if("gender" in postArray) {
             let cleanedInput = this.getValidInput(postArray["gender"], /[^A-Za-z]/gm, 0, 15);
-            if (cleanedInput !== false) {
+            if(cleanedInput !== false) {
                 cleanedInput = cleanedInput.toLowerCase();
-                if ((cleanedInput == "male") || (cleanedInput == "m")) {
+                if((cleanedInput == "male") || (cleanedInput == "m")) {
                     postArray["gender"] = "M";
-                } else if ((cleanedInput == "female") || (cleanedInput == "f")) {
+                } else if((cleanedInput == "female") || (cleanedInput == "f")) {
                     postArray["gender"] = "F";
                 } else {
                     postArray["gender"] = "O";
                 }
             } else {
-                if (removeInvalid) {
+                if(removeInvalid) {
                     delete postArray["gender"];
                 } else {
                     return false;
@@ -997,25 +997,35 @@ class ToolboxBackend {
             }
         }
         // State
-        if ("state" in postArray) {
+        if("state" in postArray) {
             let cleanedInput = this.getValidInput(postArray["state"], /[^A-Za-z]/gm, 0, 2);
-            if (cleanedInput !== false) {
+            if(cleanedInput !== false) {
                 postArray["state"] = cleanedInput.toUpperCase();
             } else {
-                if (removeInvalid) {
+                if(removeInvalid) {
                     delete postArray["state"];
                 } else {
                     return false;
                 }
             }
         }
+        // School
+        if("id_school" in postArray) {
+            if((typeof postArray["id_school"] != "number") || (parseInt(postArray["id_school"]) < 1)) {
+                if(removeInvalid) {
+                    delete postArray["id_school"];
+                } else {
+                    return false;
+                }
+            }
+        }
         // Email
-        if ("email" in postArray) {
-            let cleanedInput = this.getValidInput(postArray["email"], /[^A-Za-z0-9.@\-_]/gm, 5, 128);
-            if (cleanedInput !== false) {
+        if("email" in postArray) {
+            let cleanedInput = this.getValidInput(postArray["email"], Constant.getReplaceRegex(Constant.REGEX.emailBroad), 5, 128);
+            if(cleanedInput !== false) {
                 postArray["email"] = cleanedInput;
             } else {
-                if (removeInvalid) {
+                if(removeInvalid) {
                     delete postArray["email"];
                 } else {
                     return false;
@@ -1023,12 +1033,12 @@ class ToolboxBackend {
             }
         }
         // Password
-        if ("password" in postArray) {
-            let cleanedInput = this.getValidInput(postArray["password"], /[ ;\"\'\/]/gm, 7, 128);
-            if (cleanedInput !== false) {
+        if("password" in postArray) {
+            let cleanedInput = this.getValidInput(postArray["password"], Constant.getReplaceRegex(Constant.REGEX.password), 7, 128);
+            if(cleanedInput !== false) {
                 postArray["password"] = cleanedInput;
             } else {
-                if (removeInvalid) {
+                if(removeInvalid) {
                     delete postArray["password"];
                 } else {
                     return false;
@@ -1036,17 +1046,19 @@ class ToolboxBackend {
             }
         }
         // Account Type
-        if ("accountType" in postArray) {
+        if("accountType" in postArray) {
             let cleanedInput = this.getValidInput(postArray["accountType"], /[^A-Za-z]/gm, 3, 30);
-            if (cleanedInput !== false) {
+            if(cleanedInput !== false) {
                 cleanedInput = cleanedInput.toLowerCase();
-                if (cleanedInput == "coach") {
-                    postArray["accountType"] = "Coach";
+                if(cleanedInput == "added") {
+                    postArray["accountType"] = "added";
+                } else if(cleanedInput == "deleted") {
+                    postArray["accountType"] = "deleted";
                 } else {
-                    postArray["accountType"] = "Athlete";
+                    postArray["accountType"] = "user";
                 }
             } else {
-                if (removeInvalid) {
+                if(removeInvalid) {
                     delete postArray["accountType"];
                 } else {
                     return false;
@@ -1054,15 +1066,15 @@ class ToolboxBackend {
             }
         }
         // Date of Birth (should be formatted: mm/dd/year)
-        if ("dob" in postArray) {
+        if("dob" in postArray) {
             let cleanedInput = this.getValidInput(postArray["dob"], /[^0-9]/gm, 5, 10);
-            if (cleanedInput !== false) {
-                let month = cleanedInput.substr(0, 2);
-                let day = cleanedInput.substr(2, 2);
-                let year = cleanedInput.substr(4, 4);
+            if(cleanedInput !== false) {
+                let year = cleanedInput.substr(0, 4);
+                let month = cleanedInput.substr(4, 2);
+                let day = cleanedInput.substr(6, 2);
                 postArray["dob"] = year + "-" + month + "-" + day;
             } else {
-                if (removeInvalid) {
+                if(removeInvalid) {
                     delete postArray["dob"];
                 } else {
                     return false;
@@ -1070,19 +1082,19 @@ class ToolboxBackend {
             }
         }
         // Phone Number
-        if ("cellNum" in postArray) {
+        if("cellNum" in postArray) {
             let cleanedInput = this.getValidInput(postArray["cellNum"], /[^0-9]/gm, 5, 11);
-            if (cleanedInput !== false) {
+            if(cleanedInput !== false) {
                 postArray["cellNum"] = cleanedInput;
             } else {
-                if (removeInvalid) {
+                if(removeInvalid) {
                     delete postArray["cellNum"];
                 } else {
                     return false;
                 }
             }
         }
-
+        
         return postArray;
     }
 
