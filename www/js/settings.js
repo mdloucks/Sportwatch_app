@@ -1290,11 +1290,20 @@ class Settings extends Page {
      * @param {String} appendToElement jQuery selector that identifies where the form will be appended
      */
     generateKickableAthletes(appendToElement) {
+        console.log(Object.keys(localStorage));
         // generate select form to select an athlete, and pass its rowid to deleteAthlete
         dbConnection.selectValues("SELECT *, rowid FROM athlete").then((athletes) => {
             
             let values = { };
             for (let i = 0; i < athletes.length; i++) {
+                // Skip primary coach
+                if(athletes.item(i).id_backend == localStorage.getItem("id_coachPrimary")) {
+                    continue;
+                }
+                // Skip logged in user
+                if(athletes.item(i).id_backend == localStorage.getItem("id_user")) {
+                    continue;
+                }
                 values[`${athletes.item(i).fname} ${athletes.item(i).lname}`] = athletes.item(i).rowid;
             }
 
