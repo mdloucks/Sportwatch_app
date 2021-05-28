@@ -1216,7 +1216,13 @@ class ToolboxBackend {
                 if(response.substatus == 3) {
                     Popup.createConfirmationPopup("Team is locked! Please unlock to invite athletes", ["Unlock Now", "Unlock Later"],
                         [() => {
-                            // TODO: Unlock the team
+                            TeamBackend.lockTeam((response) => {
+                                if((response.status > 0) && (response.isLocked == false)) {
+                                    Popup.createConfirmationPopup("Success! You can now add athletes!", ["OK"], [() => { }]);
+                                } else {
+                                    Popup.createConfirmationPopup("We're sorry, an error occured. Please try again later", ["OK"], [() => { }]);
+                                }
+                            });
                         }, () => { }]); // End of Popup callbacks
                 } else if(response.substatus == 4) {
                     Popup.createConfirmationPopup("Invalid email, please try again", ["OK"], [() => { }]);
