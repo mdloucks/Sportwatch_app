@@ -649,7 +649,7 @@ class Settings extends Page {
                     <input id="input_athleteEmail" class="sw_text_input" type="text" placeholder="randy@sportwatch.us"></input>
                     <br>
 
-                    <button id="button_sendInvite" class="sw_button">Add Athlete</button>
+                    <button id="button_sendInvite" class="sw_button" disabled>Add Athlete</button>
                 </div>
                 <br><hr>
                 
@@ -1372,21 +1372,22 @@ class Settings extends Page {
 
         let hasDeleted = $.Deferred();
         let textArray = ["Leaving team...", "Finding records...", "Deleting records...", "Revoking login data...", "Purging account..."];
-        let delayArray = [500, 500, 1500, 1000, 1500];
+        let delayArray = [500, 500, 2500, 1000, 1500];
 
         // First, change the "status" text a few times to make it seem real and give user a change to cancel
-        this.delayedDelete(controlObject, this.inputDivIdentifier + " #deleteWrapper", textArray, delayArray, (shouldDelete) => {
+        this.delayedDelete(controlObject, this.inputDivIdentifier + " #deleteWrapper", textArray, delayArray, 2, (shouldDelete) => {
 
             // Don't reject since it's used to handle errors from the backend process
             if (!shouldDelete) {
                 return;
             }
-            $(this.inputDivIdentifier + " #deleteWrapper #postDeleteWrapper").fadeTo(250, 0);
+            // $(this.inputDivIdentifier + " #deleteWrapper #postDeleteWrapper").fadeTo(250, 0);
             
             let email = $(`#settingsPage #editPage #deleteWrapper input[name="email"]`).val();
             let password = $(`#settingsPage #editPage #deleteWrapper input[name="password"]`).val();
             AccountBackend.deleteAccount(email, password, (response) => {
-                console.log(response);
+                $(this.inputDivIdentifier + " #deleteWrapper #postDeleteWrapper").fadeTo(250, 0);
+                
                 if (response.status > 0) {
                     hasDeleted.resolve();
                 } else {
@@ -1418,18 +1419,20 @@ class Settings extends Page {
         
         let hasDeleted = $.Deferred();
         let textArray = ["Kicking athletes...", "Demoting coaches...", "Erasing team structure...", "Finalizing..."];
-        let delayArray = [500, 1000, 1000, 500];
+        let delayArray = [2500, 1000, 1000, 1500];
         
         // First, change the "status" text a few times to make it seem real and give user a change to cancel
-        this.delayedDelete(controlObject, this.inputDivIdentifier + " #deleteWrapper", textArray, delayArray, (shouldDelete) => {
+        this.delayedDelete(controlObject, this.inputDivIdentifier + " #deleteWrapper", textArray, delayArray, 1, (shouldDelete) => {
             
             // Don't reject since it's used to handle errors from the backend process
             if(!shouldDelete) {
                 return;
             }
-            $(this.inputDivIdentifier + " #deleteWrapper #postDeleteWrapper").fadeTo(250, 0);
+            // $(this.inputDivIdentifier + " #deleteWrapper #postDeleteWrapper").fadeTo(250, 0);
             
             TeamBackend.deleteTeam((response) => {
+                $(this.inputDivIdentifier + " #deleteWrapper #postDeleteWrapper").fadeTo(250, 0);
+                
                 if(response.status > 0) {
                     // Return to the calling function
                     hasDeleted.resolve();
@@ -1461,9 +1464,10 @@ class Settings extends Page {
      * @param {String} deleteSelector jQuery selection string of the div containing delete elements
      * @param {Array} deleteMessages array of strings to display during the delay
      * @param {Array} messageDelays array of integers representing the delay between messages
+     * @param {Integer} triggerIndex when the callback shuold be called; unwise to wait until last message
      * @param {Function} cb function to call after the delay accepting a boolean shouldProceed
      */
-    delayedDelete(controlObject, deleteSelector, deleteMessages, messageDelays, cb) {
+    delayedDelete(controlObject, deleteSelector, deleteMessages, messageDelays, triggerIndex, cb) {
         
         // Do some parameter checks
         if($(deleteSelector).length == 0) {
@@ -1498,7 +1502,7 @@ class Settings extends Page {
             }
             
             // If it's the last message, call the callback here
-            if(m == (deleteMessages.length - 1)) {
+            if(m == triggerIndex) {
                 actionFunction = () => {
                     $(deleteSelector + " #statusText").html(`<i>${deleteMessages[m]}</i>`);
                     $(deleteSelector + " #stopDelete").prop("disabled", true);
