@@ -1,4 +1,5 @@
 // List of record definition ID's since enums don't exist in vanilla JS
+// !!! NOTE: This list is obsolete and not currently in use!!!
 const DEFINITIONS = {
     "60m": 1,
     "75m": 2,
@@ -87,12 +88,12 @@ class RecordBackend {
             }
             return false;
         }
-        if (Object.values(DEFINITIONS).indexOf(definitionId) == -1) {
-            if (DO_LOG) {
-                console.log("[record-backend.js:saveRecord()]: Invalid definitionId given");
-            }
-            return false;
-        }
+        // if (Object.values(DEFINITIONS).indexOf(definitionId) == -1) {
+        //     if (DO_LOG) {
+        //         console.log("[record-backend.js:saveRecord()]: Invalid definitionId given");
+        //     }
+        //     return false;
+        // }
 
         // Add them to the details array
         details.SID = storage.getItem("SID");
