@@ -1135,7 +1135,7 @@ class ToolboxBackend {
      */
     static inviteAthleteWithFeedback(email) {
         // Validate again just to be safe
-        let emailMatch = email.match(/[A-Za-z0-9\-_.]*@[A-Za-z0-9\-_.]*\.(com|net|org|us|website|io|edu)/gm);
+        let emailMatch = email.match(Constant.REGEX.emailParts);
         if (emailMatch == null) {
             Popup.createConfirmationPopup("Invalid email, please try again", ["OK"], [() => {}]);
             return;
@@ -1187,7 +1187,7 @@ class ToolboxBackend {
         
         // Check to see if email was provided and is valid
         let providedEmail = true;
-        let emailMatch = email.match(/[A-Za-z0-9\-_.]*@[A-Za-z0-9\-_.]*\.(com|net|org|us|website|io|edu)/gm);
+        let emailMatch = email.match(Constant.REGEX.emailParts);
         if (emailMatch == null) {
             providedEmail = false;
         } else if (emailMatch[0].length != email.length) {
@@ -1204,6 +1204,13 @@ class ToolboxBackend {
                     Popup.createConfirmationPopup("Athlete is already apart of this team", ["OK"], [() => { }]);
                 } else {
                     Popup.createConfirmationPopup("Successfully invited!", ["OK"], [() => { }]);
+                    // If a new user was created, this key will be present. Add them to the local DB
+                    if("invitedInfo" in response) {
+                        let newAthleteInfo = response.invitedInfo;
+                        newAthleteInfo["id_backend"] = newAthleteInfo["id_user"];
+                        delete newAthleteInfo["id_user"];
+                        dbConnection.insertValuesFromObject("athlete", response.invitedInfo);
+                    }
                 }
             } else {
                 if(response.substatus == 3) {
