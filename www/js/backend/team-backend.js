@@ -889,7 +889,7 @@ class TeamBackend {
         return $.ajax({
             type: "POST",
             url: Constant.getTeamActionURL() + "?intent=14",
-            timeout: Constant.AJAX_CFG.timeout,
+            timeout: Constant.AJAX_CFG.timeout * 5, // This can take quite some time
             data: postArray,
             success: (response) => {
                 if(DO_LOG) {

@@ -211,7 +211,7 @@ class AccountBackend {
         return $.ajax({
             type: "POST",
             url: Constant.getAccountURL() + "?intent=6",
-            timeout: Constant.AJAX_CFG.timeout,
+            timeout: Constant.AJAX_CFG.timeout * 5, // This takes a while
             data: {
                 SID: localStorage.getItem("SID"),
                 accountIdentity: { "email": email },
