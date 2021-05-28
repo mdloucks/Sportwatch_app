@@ -86,6 +86,9 @@
 #createteamPage input {
     outline: none;
 }
+#createteamPage .sw_text_input {
+    border-width: 1px;
+}
 
 /* ---- TIPS ---- */
 
