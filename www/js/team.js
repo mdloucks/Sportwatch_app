@@ -137,7 +137,7 @@ class Team extends Page {
         if (!this.hasStarted) {
             this.hasStarted = true;
 
-            let teamCode = "Unkown";
+            let teamCode = "Unknown";
             if (storage.getItem("inviteCode") != null) {
                 teamCode = storage.getItem("inviteCode");
             }
@@ -200,12 +200,12 @@ class Team extends Page {
 
                                 ${localStorage.getItem("schoolName") === null ? "" : ("Head coach for " + localStorage.getItem("schoolName"))}<br><br>
 
-                                `, ["View Profile"], [() => {
+                                `, ["View Profile", "Close"], [ () => {
                                 // consider having the coach's contact information here
                                 // Email: ${localStorage.getItem("coachEmail") | "N/A"}<br>
                                 // Phone: ${localStorage.getItem("coachPhoneNumber") | "N/A"}
                                 this.startAthletePage(athletes.item(i));
-                            }])
+                            }, () => { /* Close, do nothing */ }])
                         });
 
                         $(this.athleteBoxSelector).append(coachButton);

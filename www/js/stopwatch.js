@@ -1098,7 +1098,7 @@ class Stopwatch extends Page {
                                 Results saved sucessfully!<br><br>
                                 <i>Go to the stats page to see the results!</i><br>
                                 <i>A graph of the athlete's progress can be found on the team page</i>
-                            `, ["Ok"], [() => {}]);
+                            `, ["OK"], [() => {}]);
                         }
 
                     }, ["gender", "unit", "is_relay", "timestamp", "id_backend"], Constant.genderColorConditionalAttributes);
