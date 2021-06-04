@@ -626,7 +626,7 @@ class Settings extends Page {
         
         // Have to use so many wrappers since many elements are added dynamically
         let baseContent = (`
-            <button class="generated_button" style="background-color: #dd3333" id="leave_team_button">Leave Team</button>
+            <button class="generated_button" style="background-color: var(--sw-main-color)" id="leave_team_button">Leave Team</button>
             <hr>
             <div id="coachControlsWrapper" style="display: none">
                 <div id="editTeamWrapper"></div>

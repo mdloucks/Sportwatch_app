@@ -14,7 +14,7 @@
 
 .meet_delete {
     font-size: 1.5em;
-    background: crimson;
+    background: var(--sw-main-color);
     border-radius: 20px;
     float: right;
     border: none;
@@ -26,7 +26,7 @@
 }
 
 #meet_add {
-    background: lightgray;
+    background: var(--add-button-color);
     border-radius: 15px;
     font-size: 1.5em
 }

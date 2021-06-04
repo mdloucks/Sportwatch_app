@@ -9,16 +9,16 @@
     padding: 5px;
     margin: auto;
     width: 80%;
-    border: 3px solid black;
+    border: 3px solid var(--sw-main-color);
     border-radius: 3vw;
-    background-color: dimgray;
+    background-color: #eee;
 }
 
 #createteamPage #banner h1 {
     margin-top: 2%;
-    color: white;
+    color: black;
     font-size: 3vh;
-    font-family: "Poppins", sans-serif;
+    font-family: 'Helvetica', 'Arial', sans-serif;
 }
 
 #createteamPage .step {
@@ -27,15 +27,14 @@
   display: inline-block;
   background-color: white;
   font-size: 3.5vw;
-  border: 3px solid black;
+  border: 2px solid black;
   border-radius: 100%;
   transition: background-color 0.5s;
 }
 
 #createteamPage .step_selected {
-    background-color: #dd3333;
+    background-color: var(--sw-main-color);
     font-weight: bold;
-
 }
 
 #createteamPage #step2 {
@@ -56,11 +55,11 @@
     margin: 5px;
     padding: 5px;
     width: 15vw;
-    height: 12vw; /* 50 + 2px border on input */
+    height: 13vw; /* 50 + 2px border on input */
     max-width: 65px;
     max-height: 55px;
     vertical-align: top;
-    background-color: #dd3333;
+    background-color: var(--sw-main-color);
     background-image: url("../img/arrow.png");
     /* background-size: 15vw 12vw; */
     background-size: cover;
@@ -69,13 +68,13 @@
 }
 
 #createteamPage .button_back {
-    background-color: lightgray;
+    background-color: var(--page-back-button-color);
     transform: rotate(180deg); /* So arrow points left */
 }
 
 /* Have to specify createTeam button due to CSS specificity :< */
 #createteamPage button:disabled, #createteamPage #button_createTeam:disabled {
-    background-color: dimgray;
+    background-color: var(--disabled-button-color);
     opacity: 1;
 }
 
@@ -128,24 +127,24 @@
 #createteamPage #input_teamName {
     margin-top: 0;
     margin-right: -4px; /* Push against submit button */
-    font-size: 2.5em;
+    font-size: 2.4em;
     border-radius: 5px 0 0 5px;
 }
 
 #createteamPage #button_submitName {
     padding: 5px;
-    width: 50px;
-    height: 52px; /* 50 + 1px border on input */
+    width: 15vw;
+    height: 13vw; /* 50 + 1px border on input */
     vertical-align: top;
-    background-color: #dd3333;
+    background-color: var(--sw-main-color);
     background-image: url("../img/arrow.png");
-    background-size: 50px 54px;
+    background-size: cover;
     border-radius: 0 5px 5px 0;
     transition: background-color 0.5s;
 }
 
 #createteamPage #button_submitName:disabled {
-    background-color: dimgray;
+    background-color: var(--disabled-button-color);
     opacity: 1;
 }
 
@@ -185,7 +184,7 @@
 #createteamPage #schoolPage #noSchool {
     padding: 0.5em;
     border: none;
-    color: #dd3333;
+    color: var(--sw-main-color);
     font-size: 1.5em;
     font-weight: bold;
 }
@@ -193,10 +192,14 @@
 
 /* ---- OPTIONS ---- */
 
+#createteamPage #input_inviteCode {
+    font-size: 1.6em;
+}
+
 #createteamPage #button_createTeam {
     margin: 5px;
     padding: 15px;
-    background-color: #dd3333;
+    background-color: var(--sw-main-color);
     border-radius: 5px;
     font-size: 1.5em;
     font-weight: bold;
@@ -225,7 +228,7 @@
 #createteamPage #postCreatePage button {
     margin: 10px;
     padding: 10px;
-    background-color: #dd3333;
+    background-color: var(--sw-main-color);
     font-size: 2em;
     color: white;
     border: 1px solid black;
@@ -233,7 +236,8 @@
 }
 
 #createteamPage #postCreatePage #button_goToMain {
-    background-color: gray;
+    background-color: var(--page-back-button-color);
+    color: black;
 }
 
 
@@ -252,7 +256,7 @@
 }
 
 #createteamPage #invitePage #addAthleteWrapper .sw_text_input {
-    border: 2px solid green;
+    border: 2px solid var(--sw-main-color);
     transition: border-color 0.5s;
 }
 #createteamPage #invitePage #addAthleteWrapper *.invalid {
@@ -269,7 +273,7 @@
     width: 50vw;
     height: 40px;
     font-size: 1.8em;
-    border: 2px solid green;
+    border: 2px solid var(--sw-main-color);
     transition: border-color 0.5s;
     -webkit-appearance: none;
 }
@@ -293,7 +297,7 @@
     padding: 10px;
     width: 85%;
     display: block;
-    border: 2px solid #dd3333;
+    border: 2px solid var(--sw-main-color);
     border-radius: 5px;
     text-align: center;
     font-size: 1.5em;
@@ -302,11 +306,11 @@
 }
 
 #createteamPage #invitePage .button_schoolAthlete:disabled {
-    background-color: lightgray;
+    background-color: var(--disabled-button-color);
     opacity: 1;
 }
 #createteamPage #invitePage .button_schoolAthlete.invited {
-    border-color: green;
+    border-color: green; /* TODO: Create confirmation color */
 }
 #createteamPage #invitePage .button_schoolAthlete.failed {
     border-color: black;

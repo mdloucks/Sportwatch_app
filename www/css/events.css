@@ -1,5 +1,5 @@
 #event_track_add {
-    background: crimson; 
+    background: var(--sw-main-color); 
     border: none;
     color: white;
     margin-left: white;
@@ -27,7 +27,7 @@
 
 .event_delete {
     font-size: 1em;
-    background: crimson;
+    background: var(--sw-main-color);
     border-radius: 10px;
     float: right;
     border: none;
@@ -35,7 +35,7 @@
 
 .event_athlete_delete {
     font-size: 1em;
-    background: crimson;
+    background: var(--sw-main-color);
     border-radius: 10px;
     display: inline-block;
     border: none;
@@ -43,7 +43,7 @@
 
 
 .event_athlete_add {
-    background-color: lightgreen; /* Green */
+    background-color: var(--add-button-color); /* Green */
     border: none;
     color: white;
     border-radius: 10px;

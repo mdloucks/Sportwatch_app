@@ -25,7 +25,7 @@
 
 #teamPage #invite_athletes {
     padding: 5px;
-    background-color: rgb(48, 208, 88);
+    background-color: var(--add-button-color);
 }
 
 
@@ -78,7 +78,7 @@
 }
 
 #teamPage .delete_column_red tr td:nth-child(3) {
-    background: red;
+    background: red; /* TODO: Create warning / DELETE color variable */
     font-size: 1.5em;
 }
 
@@ -146,9 +146,9 @@
 }
 
 #teamPage .save_values_button {
-    background: rgb(64, 202, 0);
+    background: var(--add-button-color);
 }
 
 #teamPage .add_values_button {
-    background: rgb(64, 202, 0);
+    background: var(--add-button-color);
 }

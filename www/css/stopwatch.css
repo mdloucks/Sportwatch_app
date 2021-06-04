@@ -96,7 +96,7 @@
 
 #stopwatchPage #landingPage .slideup_arrow_up {
     background-color: rgb(229, 229, 234);
-    border: 0.5vw solid #dd3333;
+    border: 0.5vw solid var(--sw-main-color);
 }
 
 #stopwatchPage #landingPage .slideup_arrow_down {
@@ -134,7 +134,7 @@
 
 #stopwatchPage .slideup_top_bar.select_events {
     padding: 8px;
-    background-color: rgb(48, 208, 88);
+    background-color: var(--add-button-color);
     border: 2px solid black;
 } 
 
@@ -232,7 +232,7 @@
 }
 
 #stopwatchPage #landingPage .active_item {
-    background-color: #dd3333;
+    background-color: var(--sw-main-color);
 }
 
 #stopwatchPage #landingPage .carousel_arrow {

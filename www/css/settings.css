@@ -12,7 +12,7 @@
 }
 
 #settingsPage .generic_selected {
-    background-color: #dd3333;
+    background-color: var(--sw-main-color);
 }
 
 #settingsPage #editPage p {
@@ -47,7 +47,7 @@
     text-align: left;
     font-size: 2em;
     border-style: solid;
-    border-color: #dd3333;
+    border-color: var(--sw-main-color);
     border-radius: 20px;
     background-color: white;
     outline: none;
@@ -55,7 +55,7 @@
 }
 
 #settingsPage .cat_button_selected {
-    background-color: #dd3333;
+    background-color: var(--sw-main-color);
 }
 
 #settingsPage .cat_desc {
@@ -78,7 +78,7 @@
 #settingsPage #editPage #account_edit_inputs input {
     padding: 10px;
     border-width: 2px;
-    border-color: #dd3333;
+    border-color: var(--sw-main-color);
     margin-bottom: 15px;
     font-size: 1.5em;
     width: 60%;
@@ -87,11 +87,11 @@
 
 #settingsPage #editPage > #account_edit_inputs > .generated_button {
     margin-bottom: 8vh;
-    background-color: rgb(64, 202, 0);
+    background-color: var(--add-button-color);
     transition: background-color 0.5s;
 }
 #settingsPage #editPage > #account_edit_inputs > .generated_button:disabled {
-    background-color: lightgray;
+    background-color: var(--disabled-button-color);
 }
 
 #settingsPage #editPage > #account_edit_inputs .twoColWrapper > * {
@@ -136,15 +136,15 @@
 }
 
 #editPage input:checked + .slider {
-    background-color: #dd3333;
+    background-color: var(--sw-main-color);
 }
 
 #settingsPage #changeTeamButton {
-    background-color: rgb(64, 202, 0);
+    background-color: var(--add-button-color);
     transition: background-color 0.5s;
 }
 #settingsPage #changeTeamButton:disabled {
-    background-color: lightgray;
+    background-color: var(--disabled-button-color);
 }
 
 #settingsPage #addWrapper > .inputLabel {
@@ -152,11 +152,11 @@
 }
 
 #settingsPage #editPage #addWrapper > .sw_text_input {
-    border: 2px solid green;
+    border: 2px solid var(--sw-main-color);
     transition: border-color 0.5s;
 }
 #settingsPage #editPage #addWrapper > *.invalid {
-    border-color: #dd3333;
+    border-color: black;
 }
 
 #settingsPage  #addWrapper > .dropdown_input {
@@ -165,7 +165,7 @@
     width: 50vw;
     height: 40px;
     font-size: 1.8em;
-    border: 2px solid green;
+    border: 2px solid var(--sw-main-color);
     transition: border-color 0.5s;
     -webkit-appearance: none;
 }
@@ -179,14 +179,14 @@
     transition: background-color 0.5s;
 }
 #settingsPage #button_sendInvite:disabled {
-    background-color: gray;
+    background-color: var(--disabled-button-color);
 }
 
 #settingsPage form > .generated_button { /* Remove athlete button */
-    background-color: #dd3333;
+    background-color: var(--sw-main-color);
 }
 #settingsPage form > .generated_button:disabled {
-    background-color: lightgray;
+    background-color: var(--disabled-button-color);
 }
 
 #settingsPage #deleteWrapper h1 {
@@ -205,18 +205,18 @@
 }
 
 #settingsPage #deleteWrapper #deleteAccount {
-    background-color: #dd3333;
+    background-color: var(--sw-main-color);
     transition: all 0.5s;
 }
 #settingsPage #deleteWrapper #deleteAccount:disabled {
-    background-color: gray;
+    background-color: var(--disabled-button-color);
 }
 #settingsPage #deleteWrapper #deleteTeam {
-    background-color: #dd3333;
+    background-color: var(--sw-main-color);
     transition: all 0.5s;
 }
 #settingsPage #deleteWrapper #deleteTeam:disabled {
-    background-color: gray;
+    background-color: var(--disabled-button-color);
 }
 
 
@@ -296,7 +296,7 @@
     height: 30px;
     text-align: center;
     border-style: solid;
-    border-color: #dd3333;
+    border-color: var(--sw-main-color);
     border-width: 1px;
     border-radius: 20px;
     background-color: white;

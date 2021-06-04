@@ -17,7 +17,7 @@
     padding: 10px 20px;
     font-size: 1.5em;
     border-radius: 5px;
-    background-color: gray;
+    background-color: var(--page-back-button-color);
     -webkit-appearance: none;
 }
 
@@ -42,15 +42,15 @@
 #loginPage #login_button {
     padding: 15px 35px;
     font-size: 2em;
-    background-color: #dd3333;
+    background-color: var(--sw-main-color);
     border: 1px solid black;
     transition: all 1s;
 }
 #loginPage #login_button.pressed {
-    background-color: maroon;
+    background-color: var(--main-color-pressed);
 }
 #loginPage #login_button.invalid {
-    background-color: lightgray;
+    background-color: var(--disabled-button-color);
     color: black;
 }
 
@@ -66,7 +66,7 @@
     position: absolute;
     left: 0;
     top: 0;
-    text-align: cetner;
+    text-align: center;
     background-color: white;
     border: 2px solid #8D2618;
     border-radius: 5px;
@@ -80,7 +80,7 @@
 #loginPage #label_forgotPassword {
     font-size: 1.5em;
     font-weight: bold;
-    color: crimson;
+    color: var(--sw-main-color);
 }
 
 #loginPage #passResetWrapper {
@@ -97,6 +97,6 @@
     transition: all 1s;
 }
 #loginPage #resetPass_button.invalid {
-    background-color: lightgray;
+    background-color: var(--disabled-button-color);
     color: black;
 }

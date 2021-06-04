@@ -104,11 +104,11 @@
 
 
 #statsPage #save_csv {
-    background-color: rgb(64, 202, 0);
+    background-color: var(--add-button-color);
     transition: background-color 0.5s;
     font-size: 4.5vw;
 }
 
 #statsPage #save_csv:disabled {
-    background-color: lightgray;
+    background-color: var(--disabled-button-color);
 }
