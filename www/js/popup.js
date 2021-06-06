@@ -182,7 +182,7 @@ class Popup {
 
             let planId = $(e.target).prop("id");
             store.order(planId).then((param) => {
-                $("#premiumPopup #logoImg").prop("src", "vid/loading_logo_25_FPS_GIF.gif");
+                // $("#premiumPopup #logoImg").prop("src", "vid/loading_logo_25_FPS_GIF.gif");
             }).error(() => {
                 Popup.createConfirmationPopup("Sorry, an unknown error occured. Please try again later", ["OK"]);
             });
