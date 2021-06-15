@@ -566,30 +566,27 @@ class Stats extends Page {
             dbConnection.selectValues(query, [event.rowid]).then((results) => {
 
                 let athletes = this.constructAthleteTimeArray(results, "");
-                this.saveCSV("data.csv", athletes, false);
+                this.saveCSV("data.csv", athletes, false, () => {
+                    
+                    // If it's iOS, share the saved file with native "share" dialog
+                    if(device.platform) {
+                        let shareOptions = {
+                            files: [this.csvLocation]
+                        };
 
-                // If it's iOS, share the saved file with native "share" dialog
-                if (device.platform) {
-                    let shareOptions = {
-                        files: [this.csvLocation]
-                    };
-
-                    window.plugins.socialsharing.shareWithOptions(shareOptions, (result) => {
-                        if (DO_LOG) {
-                            console.log("On success");
-                            console.log(result);
-                        }
+                        window.plugins.socialsharing.shareWithOptions(shareOptions, (result) => {
+                            $("#statsPage #eventPage #save_csv").prop("disabled", false);
+                        }, (msg) => {
+                            if(DO_LOG) {
+                                console.log("Sharing failed");
+                                console.log(msg);
+                            }
+                            $("#statsPage #eventPage #save_csv").prop("disabled", false);
+                        });
+                    } else { // End of iOS share logic
                         $("#statsPage #eventPage #save_csv").prop("disabled", false);
-                    }, (msg) => {
-                        if (DO_LOG) {
-                            console.log("On fail");
-                            console.log(msg);
-                        }
-                        $("#statsPage #eventPage #save_csv").prop("disabled", false);
-                    });
-                } else { // End of iOS share logic
-                    $("#statsPage #eventPage #save_csv").prop("disabled", false);
-                }
+                    }
+                });
 
             });
         });
@@ -774,13 +771,14 @@ class Stats extends Page {
     }
 
     // reference this https://github.com/apache/cordova-plugin-file
-    saveCSV(fileName, dataObj, showPopup = true) {
+    saveCSV(fileName, dataObj, showPopup = true, afterSaveCallback = { }) {
         this.createFile(fileName, (fileEntry) => {
 
             // Create a FileWriter object for our FileEntry (log.txt).
             fileEntry.createWriter((fileWriter) => {
 
                 fileWriter.onwriteend = function () {
+                    afterSaveCallback();
                     if (!showPopup) return; // Don't show for iOS
                     Popup.createConfirmationPopup(`Successfully downloaded CSV file. Find it in your Documents folder.`, ["Ok"], [function () {}]);
                 };
