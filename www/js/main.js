@@ -214,6 +214,6 @@ class App {
 // Main entry point for the app
 let app = new App();
 let dbConnection; // Can't initialize yet since device isn't ready
-let DO_LOG = true;
+let DO_LOG = false;
 
 app.initialize(); // Simply binds the onReady, onPause, etc. functions
