@@ -1169,11 +1169,11 @@ class ToolboxBackend {
     static createAthleteWithFeedback(fname, lname, gender, email = "") {
         let faultMessage = "";
         // Clean submitted values because you can never be too safe...
-        fname = fname.replace(Constant.getReplaceRegex(Constant.REGEX.humanNameSingle));
-        lname = lname.replace(Constant.getReplaceRegex(Constant.REGEX.humanNameSingle));
+        fname = fname.replace(Constant.getReplaceRegex(Constant.REGEX.humanNameSingle), "");
+        lname = lname.replace(Constant.getReplaceRegex(Constant.REGEX.humanNameSingle), "");
         if((fname == false) || (lname == false)) {
             faultMessage = "Name is invalid, please try again";
-        } else if((fname.length < 3) || (lname.length < 3)) {
+        } else if((fname.length < 2) || (lname.length < 2)) {
             faultMessage = "Name is invalid, please try again";
         }
         if(gender == false) { // Sanitize as much as possible and default to male if invalid
@@ -1201,16 +1201,22 @@ class ToolboxBackend {
         let feedbackFn = function(response) {
             if(response.status > 0) {
                 if(response.substatus == 2) {
-                    Popup.createConfirmationPopup("Athlete is already apart of this team", ["OK"], [() => { }]);
+                    Popup.createConfirmationPopup("Athlete is already on this team", ["OK"], [() => { }]);
                 } else {
-                    Popup.createConfirmationPopup("Successfully invited!", ["OK"], [() => { }]);
                     // If a new user was created, this key will be present. Add them to the local DB
+                    let action = "invited";
                     if("invitedInfo" in response) {
                         let newAthleteInfo = response.invitedInfo;
                         newAthleteInfo["id_backend"] = newAthleteInfo["id_user"];
                         delete newAthleteInfo["id_user"];
+                        if("email" in newAthleteInfo) {
+                            delete newAthleteInfo["email"];
+                        }
                         dbConnection.insertValuesFromObject("athlete", response.invitedInfo);
+                        
+                        action = "added";
                     }
+                    Popup.createConfirmationPopup("Successfully " + action + "!", ["OK"], [() => { }]);
                 }
             } else {
                 if(response.substatus == 3) {

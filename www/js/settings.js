@@ -868,7 +868,7 @@ class Settings extends Page {
         
         // ADD ATHLETE
         // First Name
-        this.addInputCheck("#editPage #addWrapper #input_athleteFname", 3, 127, Constant.REGEX.humanNameSingle, false, (fnameValid) => {
+        this.addInputCheck("#editPage #addWrapper #input_athleteFname", 1, 127, Constant.REGEX.humanNameSingle, false, (fnameValid) => {
             
             // Update visuals
             $(document.activeElement).removeClass("invalid");
@@ -887,7 +887,7 @@ class Settings extends Page {
             $("#settingsPage #addWrapper #input_athleteLname").focus();
         });
         // Last Name
-        this.addInputCheck("#editPage #addWrapper #input_athleteLname", 3, 127, Constant.REGEX.humanNameSingle, false, (lnameValid) => {
+        this.addInputCheck("#editPage #addWrapper #input_athleteLname", 1, 127, Constant.REGEX.humanNameSingle, false, (lnameValid) => {
             
             // Update visuals
             $(document.activeElement).removeClass("invalid");

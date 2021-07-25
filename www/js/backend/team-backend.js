@@ -346,7 +346,7 @@ class TeamBackend {
         requestArray.teamIdentity = { "id_team" : storage.getItem("id_team") };
         
         // Add in appropriate values if the user is being added
-        if((addedUserInfo.fname.length > 3) && (addedUserInfo.lname.length > 3) && (addedUserInfo.gender.length > 0)) {
+        if((addedUserInfo.fname.length > 1) && (addedUserInfo.lname.length > 1) && (addedUserInfo.gender.length > 0)) {
             requestArray.addShellUser = true;
             requestArray.invitedFname = addedUserInfo.fname.replace(Constant.getReplaceRegex(Constant.REGEX.humanNameSingle), "");
             requestArray.invitedLname = addedUserInfo.lname.replace(Constant.getReplaceRegex(Constant.REGEX.humanNameSingle), "");
