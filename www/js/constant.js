@@ -49,7 +49,7 @@ class Constant {
 // outside of declaration
 Constant.DIR_CSS = "css/";
 
-Constant.HOSTNAME = "https://sportwatch.us"; // Append "dev." for testing
+Constant.HOSTNAME = "https://dev.sportwatch.us"; // Append "dev." for testing
 Constant.BACKEND_PATH = "/backend/v1-0/"; // So we can adjust based on versions of backend
 Constant.FUNCTION = {
     signup: "signup.php",
@@ -66,7 +66,7 @@ Constant.FUNCTION = {
  * config options for remote communication with our server
  */
 Constant.AJAX_CFG = {
-    timeout: 3000
+    timeout: 5000
 };
 
 // Subscription information
