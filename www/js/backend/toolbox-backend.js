@@ -61,9 +61,9 @@ class ToolboxBackend {
                                 Popup.createConfirmationPopup(`
                                 Your free trial will expire in <b>${Number(planInfo.daysToExpire)} days</b><br><br>
                                 Keep improving your team by investing in a Sportwatch Membership.
-                            `, ["Become a Member"], [() => {
+                            `, ["Become a Member", "Not Now"], [() => {
                                     Popup.createPremiumPopup(() => { });
-                                }]);
+                                }, () => { }]);
                             }, 2500);
                         }
                     }
