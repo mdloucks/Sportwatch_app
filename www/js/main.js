@@ -14,9 +14,11 @@ class App {
 
     initialize(params) {
         // bind sets the value of 'this' inside the function to this object
-        document.addEventListener('deviceready', this.onReady.bind(this), false);
-        document.addEventListener('pause', this.onPause.bind(this), false);
-        document.addEventListener('resume', this.onResume.bind(this), false);
+        document.addEventListener("deviceready", this.onReady.bind(this), false);
+        document.addEventListener("pause", exitUtil.executeOnPause.bind(exitUtil), false);
+        document.addEventListener("resume", exitUtil.executeOnResume.bind(exitUtil), false);
+        exitUtil.addPauseFunction(this.onPause, this);
+        exitUtil.addResumeFunction(this.onResume, this);
 
         document.addEventListener("online", NetworkInfo.onOnline.bind(this), false);
         document.addEventListener("offline", NetworkInfo.onOffline.bind(this), false);
@@ -214,6 +216,9 @@ class App {
 // Main entry point for the app
 let app = new App();
 let dbConnection; // Can't initialize yet since device isn't ready
+let exitUtil = new ExitHandler(); // Can't be static since it's storing arrays of functions
 let DO_LOG = false;
 
 app.initialize(); // Simply binds the onReady, onPause, etc. functions
+
+
