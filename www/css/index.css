@@ -23,12 +23,18 @@ span {
 }
 
 input {
+    color: black;
     -webkit-appearance: none;
     -webkit-tap-highlight-color: rgba(0, 0, 0, 0);
 }
 
 button {
+    color: black;
     -webkit-tap-highlight-color: rgba(0, 0, 0, 0);
+}
+
+select {
+    color: black;
 }
 
 .loader_container {
