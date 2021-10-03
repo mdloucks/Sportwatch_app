@@ -159,15 +159,9 @@
     border-color: black;
 }
 
-#settingsPage  #addWrapper > .dropdown_input {
+#settingsPage  #addWrapper > .sw_dropdown {
     margin-bottom: 5vw;
-    padding: 5px 10px;
-    width: 50vw;
-    height: 40px;
-    font-size: 1.8em;
-    border: 2px solid var(--sw-main-color);
     transition: border-color 0.5s;
-    -webkit-appearance: none;
 }
 
 #settingsPage #button_sendInvite {

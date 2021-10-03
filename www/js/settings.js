@@ -640,7 +640,7 @@ class Settings extends Page {
                     <input id="input_athleteFname" class="sw_text_input athleteName invalid" type="text" placeholder="Randy" style="width: 35%"></input>
                     <input id="input_athleteLname" class="sw_text_input athleteName invalid" type="text" placeholder="Jones" style="width: 35%"></input>
                     <p class="inputLabel">Competition Gender</p>
-                    <select id="input_athleteGender" class="dropdown_input invalid" name="gender">
+                    <select id="input_athleteGender" class="sw_dropdown invalid" name="gender">
                         <option value="NA">-- Tap to Select --</option>
                         <option value="M">Male</option>
                         <option value="F">Female</option>
