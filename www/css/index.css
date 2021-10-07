@@ -24,6 +24,8 @@ span {
 
 input {
     color: black;
+    /* Override iOS styling */
+    background-color: white;
     -webkit-appearance: none;
     -webkit-tap-highlight-color: rgba(0, 0, 0, 0);
 }
@@ -35,6 +37,8 @@ button {
 
 select {
     color: black;
+    /* Override iOS styling */
+    background-color: white;
 }
 
 .loader_container {
