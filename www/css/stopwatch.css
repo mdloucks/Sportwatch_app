@@ -7,6 +7,37 @@
     margin: auto;
 }
 
+#stopwatchPage #landingPage #stopwatch_wrapper {
+    margin: 10vh auto;
+    padding: 0;
+    width: 30vh;
+    height: 30vh;
+    border: 3px solid var(--sw-main-color);
+    border-radius: 100%;
+}
+
+#stopwatchPage #landingPage #stopwatch_point {
+    /* margin: 8.8vh 14vw; */
+    width: 2.5vh;
+    height: 2.5vh;
+    display: inline-block;
+    background-color: black;
+    border-radius: 100%;
+    position: relative;
+    top: -1.25vh; /* Half of the height of the point to center it on the circle */
+    left: 0;
+}
+#stopwatchPage #landingPage #stopwatch_time {
+    margin: 20vh 20vw;
+    width: 50vw;
+    display: inline-block;
+    font-size: 5vh;
+    font-family: "Poppins", sans-serif;
+    font-weight: 200;
+    position: absolute;
+    top: 2vh;
+    left: 2vh;
+}
 
 #stopwatchPage #landingPage .table_container a {
     font-size: 2.5em;

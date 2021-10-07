@@ -64,16 +64,9 @@ class Stopwatch extends Page {
         `);
 
         this.clock = {
-            radius: 125,
-            pointSize: 10,
             centerX: 0,
             centerY: 0,
-            font: "40px Poppins",
-            textHeight: 0,
-            fillStyle: "dd3333",
-            circleColor: "#dd3333",
-            dotColor: "#000000",
-            lineWidth: 5.5,
+            // Styles moved to stopwatch.css
 
             angle: 90,
             initialAngle: 90,
@@ -92,7 +85,10 @@ class Stopwatch extends Page {
 
         this.landingPage = (`
             <div id="landingPage" class="div_page">
-                <canvas id="stopwatch_canvas" class="stopwatch_canvas"></canvas>
+                <div id="stopwatch_wrapper">
+                    <span id="stopwatch_point"></span>
+                    <span id="stopwatch_time">0:00</span>
+                </div>
 
                 <img src="${this.upArrowPath}" alt="" id="slideup_arrow" class="slideup_arrow_up"></img>
                 <div id="slideup" class="slideup_contracted"></div>
@@ -180,8 +176,8 @@ class Stopwatch extends Page {
         $("#slideup").addClass('slideup_expanded');
 
 
-        this.setupStopwatch(this.defaultStopwatchToggleFunction);
-
+        // this.setupStopwatch(this.defaultStopwatchToggleFunction);
+        this.setupCssStopwatch(this.defaultStopwatchToggleFunction);
         this.setupSlideup();
 
         
@@ -192,12 +188,95 @@ class Stopwatch extends Page {
         this.resetSlideup();
         // TODO: stop is called multiple times on startup, stop that, also lower slideup on switch
     }
+    
+    setupCssStopwatch(stopCallback) {
+        
+        $("#stopwatch_wrapper").unbind("click");
+        $("#stopwatch_wrapper").unbind("dblclick");
+        
+        // Remove any old loops
+        if(this.clockLoop !== null) {
+            clearInterval(this.clockLoop);
+            this.clockLoop = null;
+        }
+        
+        // Start loop that will check the state of clock.isRunning
+        this.clockLoop = setInterval(() => {
+            let dt = Date.now() - (this.clock.start == 0 ? Date.now() : this.clock.start);
+            this.clock.start = Date.now();
+            
+            // Update numerical display of the time
+            if(this.clock.isRunning) {
+                this.clock.seconds += Math.abs(dt / 1000);
+                this.clock.minutes = Math.floor(this.clock.seconds / 60);
+                this.clock.hours = Math.floor(this.clock.seconds / 3600);
+            }
+            let timeDisplay = (Math.round((this.clock.seconds % 60) * 100)) / 100; // Report to 3 decimal places
+            timeDisplay = timeDisplay.toString();
+            if(this.clock.minutes > 0) {
+                timeDisplay = this.clock.minutes + ":" + timeDisplay;
+            }
+            if(this.clock.hours > 0) {
+                timeDisplay = this.clock.hours + ":" + timeDisplay;
+            }
+            // Add trailing 00's if they're missing
+            if(!timeDisplay.includes(".")) {
+                timeDisplay = timeDisplay + ".00";
+            }
+            $("#stopwatch_time").text(timeDisplay);
+            
+            // Move the dot around the circle
+            let secondPart = (this.clock.seconds % 1); // Returns decimal component of second
+            let targetAngle = secondPart * Math.PI * 2; // Radians; fraction of a full second & full turn
+            let vh = $("#app").height() / 100; // CSS viewport height (window changes after app close, use "#app instead")
+            let radius = (vh * 15) + 10; // Radius from .css file, +10 from experimenting
+            let pointPosOffset = $("#stopwatch_wrapper").width() / 2;
+            let pointCenterOffset = $("#stopwatch_point").height() / 2; // Center point on circle
+            
+            // Translate point (origin is upper left of the wrapper)
+            let x = radius + (radius * Math.sin(targetAngle)) - pointPosOffset;
+            let y = radius - (radius * Math.cos(targetAngle)) - pointCenterOffset;
+            $("#stopwatch_point").css("left", x + "px");
+            $("#stopwatch_point").css("top", y + "px");
+        });
+        
+        
+        $("#stopwatch_wrapper").bind("dblclick", (e) => {
 
+            if (this.isSlideupTransitioning) {
+                setTimeout(() => {
+                    this.resetStopwatch();
+                    this.resetSlideup();
+                }, this.chooseEventTransitionDuration);
+            } else {
+                this.resetStopwatch();
+                this.resetSlideup();
+            }
+            
+        });
+        
+        $("#stopwatch_wrapper").bind("click", (e) => {
+            stopCallback();
+        });
+
+
+        this.clock.hasInitialized = true; // Not really used anymore
+    }
+    
     /**
      * @description retreive the context for the canvas and setup necessary event listeners
+     * 
+     * @deprecated Due to lag induced by the canvas element (for unknown reasons) on
+     * iOS, a CSS alternative was implemented. This has the added benefit of translating
+     * more easily to other device sizes and solving the lag issue. This method
+     * can likely be removed in time, but was preserved in case we need to revert
      */
     setupStopwatch(stopCallback) {
-
+        
+        if(DO_LOG) {
+            console.log("[stopwatch.js]: Deprecated stopwatch method is being called! Please use CSS revision!");
+        }
+        
         if (this.c == null || this.ctx == null) {
             this.c = $("#stopwatch_canvas")[0];
             this.ctx = this.c.getContext("2d");
@@ -882,7 +961,7 @@ class Stopwatch extends Page {
         }
 
         // add tooltip text and make it fade out
-        $("#stopwatchPage #stopwatch_canvas").after(`
+        $("#stopwatchPage #stopwatch_wrapper").after(`
             <div class="missing_info_text info_text">Tap clock to start. <br> Tap twice to reset.</div>
         `);
 
@@ -894,7 +973,7 @@ class Stopwatch extends Page {
 
 
         // set watch to slide up, then only change stopwatch
-        this.setupStopwatch(() => {
+        this.setupCssStopwatch(() => {
             this.toggleStopwatch();
 
             if (!this.isSlideupActive) {
@@ -1272,22 +1351,21 @@ class Stopwatch extends Page {
      * @param {CanvasRenderingContext2D} this.ctx the canvas to reset
      */
     resetStopwatch() {
-        this.clock.isRunning = false;
+        
+        // this.ctx.clearRect(0, 0, 400, 400);
+        // this.drawCircle();
+        // this.drawPoint(this.clock.initialAngle, 1);
 
-        this.ctx.clearRect(0, 0, 400, 400);
-        this.drawCircle();
-        this.drawPoint(this.clock.initialAngle, 1);
+        // let resetText = "0.00";
 
-        let resetText = "0.00";
-
-        this.ctx.fillText(resetText, this.clock.centerX - (this.ctx.measureText(resetText).width / 2),
-            this.clock.centerY + (this.clock.textHeight / 2));
+        // this.ctx.fillText(resetText, this.clock.centerX - (this.ctx.measureText(resetText).width / 2),
+        //     this.clock.centerY + (this.clock.textHeight / 2));
 
         this.stopStopwatch();
-        this.setupStopwatch(this.defaultStopwatchToggleFunction);
+        this.setupCssStopwatch(this.defaultStopwatchToggleFunction);
 
-        this.clock.angle = this.clock.initialAngle;
-        this.clock.epoch = 0;
+        // this.clock.angle = this.clock.initialAngle;
+        // this.clock.epoch = 0;
         this.clock.hours = 0;
         this.clock.minutes = 0;
         this.clock.seconds = 0;
