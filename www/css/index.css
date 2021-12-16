@@ -87,6 +87,9 @@ select {
     --main-color-pressed: #bb1111;
     --page-back-button-color: lightgray;
     --add-button-color: rgb(64, 202, 0); /* Hex: #40CA00 */
+    
+    --male-color: #6abce1;
+    --female-color: #fc99b6;
 }
 
 
@@ -235,6 +238,13 @@ https://css-tricks.com/places-its-tempting-to-use-display-none-but-dont/ */
     -webkit-tap-highlight-color: rgba(0, 0, 0, 0);
 }
 
+.generated_button[gender="M"] {
+    background-color: var(--male-color);
+}
+.generated_button[gender="F"] {
+    background-color: var(--female-color);
+}
+
 /* generic table layout */
 .table_container {
     width: 100%;
@@ -319,11 +329,11 @@ https://css-tricks.com/places-its-tempting-to-use-display-none-but-dont/ */
 /* See top :root element for color variables */
 
 .female_color {
-    background-color: #fc99b6;
+    background-color: var(--female-color);
 }
 
 .male_color {
-    background-color: #6abce1;
+    background-color: var(--male-color);
 }
 
 .female_color_alternate {

@@ -152,20 +152,11 @@ class Stats extends Page {
         $("#statsPage #landingPage .button_box").empty();
         $("#statsPage #landingPage #add_event_box").empty();
         
-        // get any unique entries in record identity
-        let query = (`
-            SELECT DISTINCT record_definition.record_identity, record_definition.rowid FROM record
-            INNER JOIN record_definition
-            ON record_definition.rowid = record.id_record_definition
-        `);
-
-
-
-        let joinAthletesQuery = (`
-        `);
-
-        let todaysRecordsPromise = dbConnection.selectValues(Constant.queryTodaysRecordsQuery);
-        let otherRecordsPromise = dbConnection.selectValues(Constant.queryAllRecords + "EXCEPT " + Constant.queryTodaysRecordsQuery);
+        // Generate Today's stats popup if applicable
+        // Customize the query with today's date
+        let populatedRecordsQuery = Constant.queryTodaysRecordsQuery.replace("?DATE?", "'" + this.getCurrentDate() + "%'");
+        let todaysRecordsPromise = dbConnection.selectValues(populatedRecordsQuery);
+        let otherRecordsPromise = dbConnection.selectValues(Constant.queryAllRecords + "EXCEPT " + populatedRecordsQuery);
 
         Promise.all([todaysRecordsPromise, otherRecordsPromise]).then((results) => {
             if (results[0].length == 0 || results[0].length == undefined ||
@@ -176,7 +167,14 @@ class Stats extends Page {
 
             this.generateTodaysStatsPopup(results[0], results[1]);
         });
-
+        
+        // get any unique entries in record identity
+        let query = (`
+            SELECT DISTINCT record_definition.record_identity, record_definition.rowid FROM record
+            INNER JOIN record_definition
+            ON record_definition.rowid = record.id_record_definition
+        `);
+        
         dbConnection.selectValues(query).then((events) => {
             // if records exist for any event
             if (events != false) {
@@ -988,7 +986,16 @@ class Stats extends Page {
 
         return lr;
     }
-
+    
+    // Used to search for records saved today; formatted "year/mm/dd"
+    getCurrentDate() {
+        let dateObj = new Date();
+        let updateTime = dateObj.getFullYear() + "-";
+        updateTime = updateTime + ((dateObj.getMonth() + 1) < 10 ? "0" : "") + (dateObj.getMonth() + 1) + "-";
+        updateTime = updateTime + (dateObj.getDate() < 10 ? "0" : "") + dateObj.getDate();
+        return updateTime;
+    }
+    
     /**
      * will remove all of the generated entries in the results
      */

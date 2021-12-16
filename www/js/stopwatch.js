@@ -1180,7 +1180,7 @@ class Stopwatch extends Page {
                             `, ["OK"], [() => {}]);
                         }
 
-                    }, ["gender", "unit", "is_relay", "timestamp", "id_backend"], Constant.genderColorConditionalAttributes);
+                    }, ["gender", "unit", "is_relay", "timestamp", "id_backend"]);
 
 
                     if (i == 0 && (!isUnsavedRecordsEmpty)) {
@@ -1436,7 +1436,7 @@ class Stopwatch extends Page {
                     this.startSelectEventPage(athlete, (event, athlete) => {
                         this.saveTime(event, athlete);
                     })
-                }, ["gender", "unit", "is_relay", "timestamp", "id_backend"], Constant.genderColorConditionalAttributes, "lname");
+                }, ["gender", "unit", "is_relay", "timestamp", "id_backend"], {}, "lname");
             } else {
                 $("#stopwatchPage #selectAthletePage .subheading_text").html(`
                 You have no athletes on your team yet. Go to the Team page and invite some athletes to join!
@@ -1470,16 +1470,15 @@ class Stopwatch extends Page {
 
         let eventRowid = eventConfig.selectedEvent;
 
-
-        // Define default fallback values, then use actual values in loop below
+        // Define default values, then use actual values in loop below after server response
         let recordData = {
             "value": 0.000, // Clock gets reset before call can complete, so use backend value below
             "id_record_definition": 1,
-            "is_practice": true,
-            "is_split": false,
+            "is_practice": 1,
+            "is_split": 0,
             "id_split": null,
             "id_split_index": null,
-            "last_updated": Date.now()
+            "last_updated": this.getCurrentDateTime()
         };
 
         let linkData = {
@@ -1537,7 +1536,7 @@ class Stopwatch extends Page {
                                         let splitObject = response.addedSplit;
                                         splitObject["split_name"] = splitObject["name"];
                                         splitObject["split_index"] = splitObject["splitIndex"];
-                                        splitObject["last_updated"] = Date.now();
+                                        splitObject["last_updated"] = this.getCurrentDateTime()
                                         delete splitObject["name"];
                                         delete splitObject["splitIndex"];
                                         delete splitObject["id_user"];
@@ -1638,4 +1637,17 @@ class Stopwatch extends Page {
         n = n + '';
         return n.length >= width ? n : new Array(width - n.length + 1).join(z) + n;
     }
+    
+    // Used to set last_updated of records; formatted "year/mm/dd hr:mm:ss"
+    getCurrentDateTime() {
+        let dateObj = new Date();
+        let updateTime = dateObj.getFullYear() + "-";
+        updateTime = updateTime + ((dateObj.getMonth() + 1) < 10 ? "0" : "") + (dateObj.getMonth() + 1) + "-";
+        updateTime = updateTime + (dateObj.getDate() < 10 ? "0" : "") + dateObj.getDate() + " ";
+        updateTime = updateTime + (dateObj.getHours() < 10 ? "0" : "") + dateObj.getHours() + ":";
+        updateTime = updateTime + (dateObj.getMinutes() < 10 ? "0" : "") + dateObj.getMinutes() + ":";
+        updateTime = updateTime + (dateObj.getSeconds() < 10 ? "0" : "") + dateObj.getSeconds();
+        return updateTime;
+    }
+    
 }
