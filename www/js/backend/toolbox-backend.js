@@ -263,6 +263,11 @@ class ToolboxBackend {
                     for(let k = 0; k < backendKeys.length; k++) { // Loop through all specified keys
                         // Get data for this match (m) with the key from backendKeys (k)
                         dataValue = response.matches[m][backendKeys[k]];
+                        // Parse as float if applicable
+                        if((!isNaN(dataValue)) && (!isNaN(parseFloat(dataValue)))) {
+                            dataValue = parseFloat(dataValue);
+                        }
+                        
                         // Get the frontend column name \/ and set equal to value
                         currentEntry[backToFrontKeyPairs[backendKeys[k]]] = dataValue;
                     }
