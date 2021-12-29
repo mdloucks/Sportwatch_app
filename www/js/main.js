@@ -109,12 +109,12 @@ class App {
         this.determinePageSet();
         
         // TODO: Move this to a dedicated method or a better spot
-        // DON'T DELETE
-        // let screenshotWorkflow = new ScreenshotMaker();
-        // setTimeout(() => {
-        //     screenshotWorkflow.runWorkflow();
-        // }, 1000);
-        
+        if(Constant.MAKE_SCREENSHOTS) {
+            let screenshotWorkflow = new ScreenshotMaker();
+            setTimeout(() => {
+                screenshotWorkflow.runWorkflow();
+            }, 1000);
+        }
     }
 
     /**

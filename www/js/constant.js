@@ -49,6 +49,7 @@ class Constant {
 // outside of declaration
 Constant.DIR_CSS = "css/";
 
+Constant.MAKE_SCREENSHOTS = false; // False for production; true to get screenshots for app stores
 Constant.HOSTNAME = "https://sportwatch.us"; // Append "dev." for testing
 Constant.BACKEND_PATH = "/backend/v1-0/"; // So we can adjust based on versions of backend
 Constant.FUNCTION = {
@@ -134,7 +135,7 @@ Constant.queryTodaysRecordsQuery = (`
     ON record_user_link.id_backend = athlete.id_backend
     INNER JOIN record_definition
     ON record.id_record_definition = record_definition.rowid
-    WHERE date(datetime(record.last_updated / 1000 , 'unixepoch')) = date('now')
+    WHERE record.last_updated LIKE ?DATE?
 `);
 
 // get all records and the users linked to them
