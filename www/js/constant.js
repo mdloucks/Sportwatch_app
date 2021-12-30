@@ -50,7 +50,7 @@ class Constant {
 Constant.DIR_CSS = "css/";
 
 Constant.MAKE_SCREENSHOTS = false; // False for production; true to get screenshots for app stores
-Constant.HOSTNAME = "https://dev.sportwatch.us"; // Append "dev." for testing
+Constant.HOSTNAME = "https://sportwatch.us"; // Append "dev." for testing
 Constant.BACKEND_PATH = "/backend/v1-0/"; // So we can adjust based on versions of backend
 Constant.FUNCTION = {
     signup: "signup.php",
