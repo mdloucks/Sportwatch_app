@@ -207,6 +207,11 @@
     font-size: 5vw;
 }
 
+#stopwatchPage #landingPage .input_splits_box .split_input {
+    margin: 1vh;
+    width: 25%;
+}
+
 #stopwatchPage #landingPage .boys_box input:checked+.slider {
     background-color: #6abce1;
 }

@@ -1224,9 +1224,9 @@ class Stopwatch extends Page {
 
         $(`${this.landingPageSelector} #slideup_content`).prepend(`
             <br><button id="confirm_selected_splits_button" class="generated_button" style="background-color: #68be9a;">Confirm Splits</button><br>
-            <h2 style="text-align: center; padding-left: 5px; padding-right: 5px;">
+            <!-- <h2 style="text-align: center; padding-left: 5px; padding-right: 5px;">
             Click the "Add Split" button and enter a number representing the distance
-            </h2>
+            </h2> -->
         `);
 
         $("#confirm_selected_splits_button").click(function (e) {
@@ -1236,7 +1236,17 @@ class Stopwatch extends Page {
         });
 
         for (let i = 0; i < eventIds.length; i++) {
-
+            
+            // Make sure the selected event is distance-based and valid to add splits to
+            if(!(eventNames[i] in Constant.recordIdentityInfo)) {
+                Popup.createConfirmationPopup(`Splits are not currently supported for ${eventNames[i]}`, ["OK"], [
+                    () => {
+                        // Reset the stopwatch
+                        $("#stopwatchPage #stopwatch_wrapper").trigger("dblclick");
+                    }]);
+                return;
+            }
+            
             let sectionId = `add_splits_section_${i}`;
             let inputId = `splits_input_${i}`;
 
@@ -1245,7 +1255,7 @@ class Stopwatch extends Page {
                 <div id="${sectionId}">
                     <h1>${eventNames[i]}</h1>
                     <hr>
-                    <button class="generated_button">Add Split to ${eventNames[i]} +</button>
+                    <button class="generated_button" style="margin-bottom: 100px;">Add Split to ${eventNames[i]}</button>
                 </div><br><br><br><br>
             `);
 
@@ -1259,24 +1269,50 @@ class Stopwatch extends Page {
                 $(e.target).before(`
                     <br>
                     <div class="input_splits_box">
-                        <b>Split ${clickNumber}:</b> <input class="sw_text_input" type="number" id="${inputId}">Meters</input>
+                        <!-- Use type="text" to allow for proper parsing even if letters are entered -->
+                        <b>Split ${clickNumber}:</b> <input class="sw_text_input split_input" type="text" id="${inputId}">Meters</input>
                     </div>
                 `);
-                // TODO: restrict split range to less than max event length
-
+                // TODO: Add preset splits (i.e. every mile for 3k)
+                
+                // Hide the Add split button until the field is completed
+                $(`#${sectionId}`).find("button:last").fadeTo(Constant.fadeDuration, 0);
                 // focus the input and change it to a div on onfocus
                 $(`#${inputId}`).focus();
-
-
+                
+                
                 let onInputFinish = function () {
                     
-                    let splitDistance = Number($(this).val());
-
-                    if(isNaN(splitDistance)) {
+                    let splitDistance = $(this).val();
+                    // If blank, just close unfocus
+                    if(splitDistance.trim().length == 0) {
+                        return;
+                    }
+                    splitDistance = parseInt(splitDistance.replace(/[^0-9]/gm, ""));;
+                    
+                    // Sanitize entry to make sure its a valid number
+                    if((isNaN(splitDistance)) || (!Number.isInteger(splitDistance))) {
                         Popup.createConfirmationPopup("Please enter a number for the split distance eg. 100", ["OK"], [() => {}]);
                         return;
                     }
-
+                    
+                    // Prevent splits that are longer than max event length
+                    if(eventNames[i] in Constant.recordIdentityInfo) {
+                        let eventMaxDistance = Constant.recordIdentityInfo[eventNames[i]].distance;
+                        if(splitDistance >= eventMaxDistance) {
+                            Popup.createConfirmationPopup(`Split cannot equal or exceed event length of ${eventMaxDistance}m`, ["OK"], [() => { }]);
+                            $(`#${inputId}`).val(""); // Clear input box
+                            return;
+                        }
+                    }
+                    
+                    // Make sure it isn't already added
+                    if((clickNumber > 1) && (eventConfig.selectedSplits[eventIds[i]].includes(splitDistance.toString()))) {
+                        Popup.createConfirmationPopup(`${splitDistance}m split has already been added`, ["OK"], [() => { }]);
+                        $(`#${inputId}`).val("");
+                        return;
+                    }
+                    
                     $(this).parent().find("b").after(`
                         <span>${splitDistance}</span>
                     `);
@@ -1288,11 +1324,14 @@ class Stopwatch extends Page {
                     } else {
                         eventConfig.selectedSplits[eventIds[i]].push(`${splitDistance}`);
                     }
-
+                    
+                    // Remove the input field and re-show the add button
+                    $(`#${sectionId}`).find("button:last").fadeTo(Constant.fadeDuration, 1);
                     $(this).remove();
                 }
-
-                $(`#${inputId}`).focusout(onInputFinish);
+                
+                
+                $(`#${inputId}`).blur(onInputFinish);
                 $(`#${inputId}`).submit(onInputFinish);
                 $(`#${inputId}`).on('keydown', (e) => {
                     if (Number(e.which) == 13) {
@@ -1475,9 +1514,6 @@ class Stopwatch extends Page {
             "value": 0.000, // Clock gets reset before call can complete, so use backend value below
             "id_record_definition": 1,
             "is_practice": 1,
-            "is_split": 0,
-            "id_split": null,
-            "id_split_index": null,
             "last_updated": this.getCurrentDateTime()
         };
 

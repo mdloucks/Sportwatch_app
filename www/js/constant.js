@@ -50,7 +50,7 @@ class Constant {
 Constant.DIR_CSS = "css/";
 
 Constant.MAKE_SCREENSHOTS = false; // False for production; true to get screenshots for app stores
-Constant.HOSTNAME = "https://sportwatch.us"; // Append "dev." for testing
+Constant.HOSTNAME = "https://dev.sportwatch.us"; // Append "dev." for testing
 Constant.BACKEND_PATH = "/backend/v1-0/"; // So we can adjust based on versions of backend
 Constant.FUNCTION = {
     signup: "signup.php",
@@ -295,3 +295,93 @@ Constant.eventColorConditionalAttributes = {
         }
     }
 };
+
+Constant.recordIdentityInfo = {
+    "60m": {
+        "distance": 60
+    },
+    "75m": {
+        "distance": 75
+    },
+    "100m": {
+        "distance": 100
+    },
+    "200m": {
+        "distance": 200
+    },
+    "400m": {
+        "distance": 400
+    },
+    "800m": {
+        "distance": 800
+    },
+    "1500m": {
+        "distance": 1500
+    },
+    "1600m": {
+        "distance": 1600
+    },
+    "3200m": {
+        "distance": 3200
+    },
+    "60m hurdle": {
+        "distance": 60
+    },
+    "100m hurdle": {
+        "distance": 100
+    },
+    "110m hurdle": {
+        "distance": 110
+    },
+    "300m hurdle": {
+        "distance": 300
+    },
+    "400m hurdle": {
+        "distance": 400
+    },
+    "4x100m relay": {
+        "distance": 400
+    },
+    "4x400m relay": {
+        "distance": 1600
+    },
+    "4x800m relay": {
+        "distance": 3200
+    },
+    "3k": {
+        "distance": 3000
+    },
+    "5k": {
+        "distance": 5000
+    },
+    "6k": {
+        "distance": 6000
+    },
+    "8k": {
+        "distance": 8000
+    },
+    "10k": {
+        "distance": 10000
+    },
+    "20k": {
+        "distance": 20000
+    },
+    "half marathon": {
+        "distance": 21098
+    },
+    "marathon": {
+        "distance": 42195
+    },
+    "300m steeplechase": {
+        "distance": 300
+    },
+    "20km race walk": {
+        "distance": 20000
+    },
+    "50km race walk": {
+        "distance": 50000
+    }
+}
+
+
+
