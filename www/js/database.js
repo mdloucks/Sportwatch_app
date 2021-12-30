@@ -44,7 +44,8 @@ let json = {
         ["foot", "other"],
         ["yard", "other"],
         ["second", "3200m"]
-    ]
+    ] // Make sure to ADD the relevant information to Constant.recordIdentityInfo!!!
+    
     // "offline_record": [
     //     [1, 69, 1, false, false, 0, 0, Date.now()],
     //     [2, 69, 1, false, false, 0, 0, Date.now()],
@@ -110,7 +111,7 @@ class DatabaseConnection {
 
             tx.executeSql(`CREATE TABLE IF NOT EXISTS record_definition (unit, record_identity)`);
 
-            tx.executeSql(`CREATE TABLE IF NOT EXISTS record (id_record, value, id_record_definition, is_practice, is_split, id_split, id_split_index, last_updated)`);
+            tx.executeSql(`CREATE TABLE IF NOT EXISTS record (id_record, value, id_record_definition, is_practice, last_updated)`);
 
             tx.executeSql(`CREATE TABLE IF NOT EXISTS record_split (id_split, id_record, value, split_name, split_index, last_updated)`);
 
