@@ -363,12 +363,12 @@ class Team extends Page {
 
         let recordsPromise = dbConnection.selectValues(Constant.queryRecordsForAthleteEvent, [event.rowid, athlete.id_backend]);
         let splitRecordsPromise = dbConnection.selectValues(Constant.querySplitRecordsForAthleteEvent, [event.rowid, athlete.id_backend]);
-
+        
         Promise.all([recordsPromise, splitRecordsPromise]).then((records) => {
 
             let results = records[0];
             let splits = records[1];
-
+            
             // no records, don't show a graph or table.
             if ((results == false || results.length == undefined)) {
                 $("#athlete_stat_chart").remove();
@@ -391,12 +391,14 @@ class Team extends Page {
                     data: [],
                     label: "Race Times"
                 };
+                let idOnAxisMapping = []; // Maps record ids to their x coordinate to correctly position splits ([id] => x-val)
 
                 for (let i = 0; i < length; i++) {
                     recordData["data"].push({
                         x: i + 1,
                         y: results.item(i).value
                     });
+                    idOnAxisMapping[results.item(i).id_record] = i + 1;
                 }
 
                 datasets.push(recordData);
@@ -406,11 +408,10 @@ class Team extends Page {
                     // create an object of objects that will go into the datasets property array.
                     // this is so it's easy to map the split name to an object without having to track indices
                     let splitObject = {};
-                    console.log("SPLITS LENGTH " + splits.length);
 
                     for (let i = 0; i < splits.length; i++) {
 
-                        console.log("SPLIT " + JSON.stringify(splits.item(i)));
+                        // console.log("SPLIT " + i + ": " + JSON.stringify(splits.item(i)));
                         let splitKey = splits.item(i).split_name;
 
                         if (splitObject[splitKey] === undefined) {
@@ -421,23 +422,20 @@ class Team extends Page {
                         }
 
                         splitObject[splitKey]["data"].push({
-                            x: i + 1,
+                            x: (idOnAxisMapping[splits.item(i).id_record]),
                             y: splits.item(i).value
                         });
                     }
 
                     let keys = Object.keys(splitObject);
-                    console.log("number of splits: " + keys.length);
-
                     keys.forEach(key => {
-                        console.log("pushing for " + key);
                         datasets.push(splitObject[key]);
                     });
                 }
             }
-
-            console.log("DATASETS " + JSON.stringify(datasets));
-            console.log("datasets length " + datasets.length);
+            
+            // console.log("DATASETS " + JSON.stringify(datasets));
+            // console.log("datasets length " + datasets.length);
 
             // don't show graph if there is only a single point
             if (results.length == 1) {

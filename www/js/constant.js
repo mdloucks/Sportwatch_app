@@ -108,13 +108,11 @@ Constant.minimumStallDuration = 8000;
 
 // select all of the splits for a given athlete in a given event eg. John Smith for the 400m
 Constant.querySplitRecordsForAthleteEvent = (`
-    SELECT * FROM record_split
+    SELECT record_split.* FROM record_split
     INNER JOIN record
     ON record_split.id_record = record.id_record
     INNER JOIN record_user_link
     ON record_user_link.id_record = record.id_record
-    INNER JOIN athlete
-    ON athlete.id_backend = record_user_link.id_backend
     WHERE record.id_record_definition = ? AND record_user_link.id_backend = ?
 `);
 

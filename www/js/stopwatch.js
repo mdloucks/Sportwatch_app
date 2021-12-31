@@ -1540,7 +1540,6 @@ class Stopwatch extends Page {
                         recordData["id_record"] = Number(newRecord.id_record);
                         recordData["value"] = Number(newRecord.value);
                         recordData["id_record_definition"] = Number(newRecord.id_recordDefinition);
-
                         dbConnection.insertValuesFromObject("record", recordData);
 
                         // record_user_link
@@ -1570,15 +1569,16 @@ class Stopwatch extends Page {
                                 RecordBackend.addSplit(newRecord.id_record, athleteSplitTime, splitName, -1, -1, (response) => {
                                     if(response.status > 0) {
                                         let splitObject = response.addedSplit;
+                                        splitObject["id_split"] = Number(splitObject["id_split"]);
+                                        splitObject["id_record"] = Number(splitObject["id_record"]);
+                                        splitObject["value"] = Number(splitObject["value"]);
                                         splitObject["split_name"] = splitObject["name"];
-                                        splitObject["split_index"] = splitObject["splitIndex"];
-                                        splitObject["last_updated"] = this.getCurrentDateTime()
+                                        splitObject["split_index"] = Number(splitObject["splitIndex"]);
+                                        splitObject["last_updated"] = this.getCurrentDateTime();
                                         delete splitObject["name"];
                                         delete splitObject["splitIndex"];
                                         delete splitObject["id_user"];
-
-                                        // id_split, id_record, value, split_name, split_index, last_updated
-                                        console.log("inserting " + JSON.stringify(splitObject));
+                                        
                                         // insert the record into the database
                                         dbConnection.insertValuesFromObject("record_split", splitObject);
                                     }
