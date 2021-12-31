@@ -376,7 +376,7 @@ class Team extends Page {
                 $("#edit_values_button").remove();
                 $("#teamPage #athleteStatPage .missing_info_text").remove();
 
-                this.createTable(athlete, results, event.rowid);
+                this.createTable(athlete, results, splits, event.rowid);
                 $("#teamPage #athleteStatPage").append(`<div class="missing_info_text">No times for this athlete's events. Add them here or at the stopwatch.</div>`);
 
                 return;
@@ -440,11 +440,11 @@ class Team extends Page {
             // don't show graph if there is only a single point
             if (results.length == 1) {
                 $("#athlete_stat_chart").remove();
-                this.createTable(athlete, results, event.rowid);
+                this.createTable(athlete, results, splits, event.rowid);
                 // there is enough data, graph
             } else if (results.length != 0) {
                 this.createGraph(datasets);
-                this.createTable(athlete, results, event.rowid);
+                this.createTable(athlete, results, splits, event.rowid);
             }
         });
     }
@@ -516,9 +516,12 @@ class Team extends Page {
     /**
      * @description construct a table to display the given results
      * 
+     * @param {Object} athlete db athlete info
      * @param {Object} results database results
+     * @param {Object} splits db splits info for the event
+     * @param {Object} id_record_definition event id
      */
-    createTable(athlete, results, id_record_definition) {
+    createTable(athlete, results, splits, id_record_definition) {
         $("#athlete_stats_container").remove();
         $("#edit_values_button").remove();
         $("#add_value_button").remove();
@@ -567,15 +570,39 @@ class Team extends Page {
                 <th>Time</th>
             </tr>
         `);
-
+        
         for (let i = 0; i < results.length; i++) {
-
+            
             // Parse date (first is local save, second handles server format)
             let date = new Date(results.item(i).last_updated).toLocaleDateString("en-US");
             if (date.includes("Invalid")) {
                 date = this.getRecordDate(results.item(i).last_updated);
             }
-
+            
+            // Check for and add any splits
+            let splitNames = []; // Tabulate split names to be sorted for coloring later
+            for(let s = 0; s < splits.length; s++) {
+                if(splits.item(s).id_record == results.item(i).id_record) {
+                    let splitRow = (`
+                        <tr class="splitRow" id_record="${splits.item(s).id_record}" id_split="${splits.item(s).id_split}" split_name="${splits.item(s).split_name}">
+                            <td>${splits.item(s).split_name}m Split</td>
+                            <td>${Clock.secondsToTimeString(splits.item(s).value)}</td>
+                        </tr>
+                    `);
+                    $("#teamPage #athleteStatPage #athlete_stats_container").append(splitRow);
+                    
+                    splitNames.push(splits.item(s).split_name);
+                }
+            }
+            // Determine split colors
+            splitNames.sort();
+            for(let n = 0; n < splitNames.length; n++) {
+                let splitColor = this.hexToRGBString(Constant.graphColors[n + 1]); // +1 to ignore Race Time graph color
+                splitColor = `rgba(${splitColor}, 0.5)`; // Lighten the color by 50% opacity
+                $(`#teamPage #athleteStatPage #athlete_stats_container tr[split_name="${splitNames[n]}"] > *`).css("background-color", splitColor);
+            }
+            
+            // Add the record time
             let row = (`
                 <tr id_record=${results.item(i).id_record}>
                     <td>${date}</td>
@@ -854,7 +881,17 @@ class Team extends Page {
 
         return true;
     }
-
+    
+    // Converts a hex string to an RGB string (copied from Stack Overflow)
+    hexToRGBString(hex) {
+        let result = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(hex);
+        if(result !== false) {
+            return (parseInt(result[1], 16) + ", " + parseInt(result[2], 16) + ", " + parseInt(result[3], 16));
+        } else {
+            return "0, 0, 0";
+        }
+    }
+    
     stop() {
         // this.pageTransition.slideRight("landingPage");
         Animations.hideChildElements(this.athleteBoxSelector);

@@ -73,8 +73,18 @@
     height: auto;
 }
 
+#teamPage .alternating_table_shade tr td {
+    background-color: #fff; /* Needs background color in order for filter to work below */
+}
+
 #teamPage .alternating_table_shade tr:nth-child(odd) td {
-    background-color: rgb(229, 229, 234);
+    /* background-color: rgb(229, 229, 234); */
+    filter: brightness(0.9);
+}
+
+#teamPage .alternating_table_shade tr.splitRow td:first-child {
+    font-size: 1.2em;
+    font-style: italic;
 }
 
 #teamPage .delete_column_red tr td:nth-child(3) {
