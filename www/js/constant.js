@@ -114,6 +114,7 @@ Constant.querySplitRecordsForAthleteEvent = (`
     INNER JOIN record_user_link
     ON record_user_link.id_record = record.id_record
     WHERE record.id_record_definition = ? AND record_user_link.id_backend = ?
+    ORDER BY record_split.id_record ASC, record_split.split_index ASC
 `);
 
 // select values for given event and athlete

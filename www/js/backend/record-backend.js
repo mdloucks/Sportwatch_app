@@ -452,7 +452,7 @@ class RecordBackend {
         // Add them to an array for post data
         let postData = {};
         postData.SID = storage.getItem("SID");
-        postData.id_record = recordId;
+        postData.id_split = splitId;
 
         // Submit the request and call the callback
         return $.ajax({

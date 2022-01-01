@@ -1555,9 +1555,11 @@ class Stopwatch extends Page {
                         // check to see if there are any splits. If so save those with this record.
 
                         if (Object.keys(eventConfig.splitTimes) != 0) {
-                            // console.log("there are splits!");
                             let athleteSplits = eventConfig.splitTimes[eventRowid][athlete.id_backend];
-
+                            let splitIndexByRecord = []; // [id_record] => split count
+                                // ^ Solves bug where sequential addSplit() backend calls resulted in
+                                //   identical (and erroneous) split_index values
+                            
                             // loop through every split for the athlete. n will be equal to the number of splits that were requested
                             // for instance if the user wants a split at the 100 and the 200, n = 2
                             for (let i = 0; i < athleteSplits.length; i++) {
@@ -1565,8 +1567,15 @@ class Stopwatch extends Page {
                                 let athleteSplitTime = Number(athleteSplits[i]);
                                 let splitName = String(eventConfig.selectedSplits[eventRowid][i]);
                                 
+                                // Define the split index
+                                let currentSplitIndex = 0;
+                                if(newRecord.id_record in splitIndexByRecord) {
+                                    currentSplitIndex = splitIndexByRecord[newRecord.id_record] + 1;
+                                }
+                                splitIndexByRecord[newRecord.id_record] = currentSplitIndex;
+                                
                                 // Add the split to the backend, then store the id_split in frontend
-                                RecordBackend.addSplit(newRecord.id_record, athleteSplitTime, splitName, -1, -1, (response) => {
+                                RecordBackend.addSplit(newRecord.id_record, athleteSplitTime, splitName, -1, currentSplitIndex, (response) => {
                                     if(response.status > 0) {
                                         let splitObject = response.addedSplit;
                                         splitObject["id_split"] = Number(splitObject["id_split"]);
