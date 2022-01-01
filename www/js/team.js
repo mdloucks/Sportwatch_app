@@ -356,8 +356,8 @@ class Team extends Page {
         });
         
         // Add padding for iOS's weird screens (10vh to account for missing graph if there's only the table)
-        let headerWidth = $("#teamPage #athleteStatPage > .generic_header").height();
-        $("#teamPage #athleteStatPage #paddingDiv").first().css("margin-top", `calc(${headerWidth}px + 7.5vh)`);
+        let headerHeight = $("#teamPage #athleteStatPage > .generic_header").height();
+        $("#teamPage #athleteStatPage #paddingDiv").first().css("margin-top", `calc(${headerHeight}px + 7.5vh)`);
         
         let datasets = [];
 
@@ -545,6 +545,7 @@ class Team extends Page {
 
             // append delete button or take them off
             if (this.isEditing) {
+                // Revert the table to its former, non-editing state
                 $("#teamPage tr").each(function () {
                     $(this).children().last().remove();
                 });
@@ -552,9 +553,11 @@ class Team extends Page {
                 $("#teamPage #athleteStatPage").append(`<button class="add_values_button action_button" id="add_value_button">Add Value</button>`);
                 $("#add_value_button").click(addContainer);
             } else {
-                $("#teamPage tr:first-child").append("<th>Delete</th>");
+                // Change the table to editing mode
+                $("#teamPage tr:first-child").append("<th>-</th>");
                 $("#teamPage tr:not(:first-child)").append("<td>X</td>");
                 $("#add_value_button").remove();
+                // $("#teamPage #athleteStatPage").append(`<button class="action_button" id="cancel_edit_button">Cancel</button>`)
             }
 
             this.toggleTableEditable();
@@ -579,6 +582,15 @@ class Team extends Page {
                 date = this.getRecordDate(results.item(i).last_updated);
             }
             
+            // Add the record time
+            let recordRow = (`
+                <tr id_record=${results.item(i).id_record}>
+                    <td>${date}</td>
+                    <td>${Clock.secondsToTimeString(results.item(i).value)}</td>
+                </tr>
+            `);
+            $("#teamPage #athleteStatPage #athlete_stats_container").append(recordRow);
+            
             // Check for and add any splits
             let splitNames = []; // Tabulate split names to be sorted for coloring later
             for(let s = 0; s < splits.length; s++) {
@@ -601,16 +613,6 @@ class Team extends Page {
                 splitColor = `rgba(${splitColor}, 0.5)`; // Lighten the color by 50% opacity
                 $(`#teamPage #athleteStatPage #athlete_stats_container tr[split_name="${splitNames[n]}"] > *`).css("background-color", splitColor);
             }
-            
-            // Add the record time
-            let row = (`
-                <tr id_record=${results.item(i).id_record}>
-                    <td>${date}</td>
-                    <td>${Clock.secondsToTimeString(results.item(i).value)}</td>
-                </tr>
-            `);
-
-            $("#teamPage #athleteStatPage #athlete_stats_container").append(row);
         }
 
     }
@@ -701,7 +703,7 @@ class Team extends Page {
             if ((val == null) || (val.length == 0)) { // Inputs use .val()
                 val = $(this).val();
             }
-            if ((val == null) || (val.length == 0)) { // Inputs use .val()
+            if ((val == null) || (val.length == 0)) { // Table Data uses .text()
                 val = $(this).find("td").text();
             }
 
@@ -709,13 +711,16 @@ class Team extends Page {
             if (val.includes("X")) {
                 return;
             }
-
+            
+            // Save the color for any split rows
+            let rowColor = $(this).css("background-color");
+            
             // Since the times are now being formatted as strings, make all fields editable
             if (_this.isEditing && $(this).is("input")) { // Editing to not editing change
-                $(this).parent().replaceWith(`<td>${val}</td>`);
-
+                $(this).parent().replaceWith(`<td style="background-color: ${rowColor}">${val}</td>`);
+                
             } else if (!_this.isEditing && $(this).is("td")) { // Not editing --> Editing changes
-                $(this).replaceWith(`<td><input value="${val}"></td>`);
+                $(this).replaceWith(`<td><input value="${val}" style="background-color: ${rowColor}"></td>`);
             }
         });
 
@@ -732,14 +737,39 @@ class Team extends Page {
 
             // delete values in rowsToDelete
             for (let i = 0; i < this.rowsToDelete.length; i++) {
-                // dbConnection.deleteValues("record", "WHERE record.id_record = ?", [this.rowsToDelete[i]]);
-                dbConnection.runQuery("DELETE FROM record WHERE id_record = ?", [Number(this.rowsToDelete[i])]);
-
-                RecordBackend.deleteRecord(this.rowsToDelete[i], function (response) {
-                    console.log("deleted " + JSON.stringify(response));
-                });
+                
+                let dataType = this.rowsToDelete[i][0]; // [0] = type, [1] = id to delete, [2] = deletion scope
+                
+                // Remove from local database
+                if(this.rowsToDelete[i][2].includes("local")) {
+                    let localTableName = ((dataType == "record") ? "record" : "record_split");
+                    dbConnection.runQuery(`DELETE FROM ${localTableName} WHERE id_${dataType} = ?`, [Number(this.rowsToDelete[i][1])]);
+                }
+                
+                // Delete from cloud server
+                if(this.rowsToDelete[i][2].includes("server")) {
+                    if(dataType == "record") {
+                        RecordBackend.deleteRecord(this.rowsToDelete[i][1], (response) => {
+                            if(response.status < 0) {
+                                Popup.createConfirmationPopup("An error occurred while removing some records. Please try again later", ["OK"]);
+                                i = this.rowsToDelete.length; // End loop tp prevent multiple popups (can't use break due to callback)
+                            }
+                        });
+                    } else {
+                        RecordBackend.deleteSplit(this.rowsToDelete[i][1], (response) => {
+                            if(response.status < 0) {
+                                Popup.createConfirmationPopup("An error occurred while removing some splits. Please try again later", ["OK"]);
+                                i = this.rowsToDelete.length;
+                            }
+                        });
+                    }
+                }
             }
-
+            // Clear the array after deleting
+            this.rowsToDelete = [];
+            
+            // TODO: editing splits
+            
             // save changed values
             let newData = this.tableToObject();
 
@@ -811,18 +841,29 @@ class Team extends Page {
 
             // delete row callback
             $("#athlete_stats_container td").click(function (e) {
+                
+                let rowType = ($(this).parent().hasClass("splitRow") ? "split" : "record");
+                let rowId = $(this).parent().attr("id_" + rowType);
 
-                let id_record = $(this).parent().attr("id_record");
-
-                let row = Number(e.target.parentNode.rowIndex);
+                // let row = Number(e.target.parentNode.rowIndex);
                 let isDeleting = $(this).text() == "X" ? true : false;
 
                 if (isDeleting) {
                     $(this).parent().remove();
 
                     // mark rows to delete on save
-                    _this.rowsToDelete.push(id_record);
+                    _this.rowsToDelete.push([rowType, rowId, "server-local"]);
+                    // Array format: ["split" | "record", id_record/split, "server" | "local" | "server-local"]
+                    if(rowType == "record") {
+                        let splitRows = $(`#teamPage #athlete_stats_container tr[id_record=${rowId}].splitRow`).toArray();
+                        for(let r = 0; r < splitRows.length; r++) {
+                            // Remove them locally only; they are automatically removed by the server due to parent record
+                            _this.rowsToDelete.push(["split", $(splitRows[r]).attr("id_split"), "local"]);
+                            splitRows[r].remove();
+                        }
+                    }
                 }
+                
             });
         }
     }

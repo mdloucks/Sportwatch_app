@@ -92,6 +92,10 @@
     font-size: 1.5em;
 }
 
+#teamPage .delete_column_red tr td input {
+    border-radius: 0;
+}
+
 /* Try to prevent text breaks */
 #teamPage #athlete_stats_container tr>*:nth-child(1) {
     width: 35%;
