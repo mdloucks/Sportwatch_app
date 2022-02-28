@@ -11,6 +11,7 @@ class Team extends Page {
         this.pageTransition = new PageTransition("#teamPage");
         this.isEditing = false;
         this.rowsToDelete = [];
+        this.rowsToModify = [];
 
         this.landingPageSelector = "#teamPage #landingPage";
 
@@ -314,6 +315,7 @@ class Team extends Page {
         $("#teamPage #athletePage > #paddingDiv").first().css("margin-top", `calc(${headerWidth}px + 5vh)`);
 
         // Slide back; athlete page will be overwritten next select
+        $("#back_button_athlete").off("click");
         $("#back_button_athlete").bind("click", (e) => {
             this.pageTransition.slideRight("landingPage");
             // Reset scroll
@@ -340,7 +342,8 @@ class Team extends Page {
         // Padding added in createTable function
 
         this.tableData = [];
-
+        
+        $("#teamPage #athleteStatPage *").off("click");
         $("#teamPage #athleteStatPage #athlete_stats_container").empty();
         $("#teamPage #athleteStatPage .missing_info_text").remove();
 
@@ -525,6 +528,7 @@ class Team extends Page {
         $("#athlete_stats_container").remove();
         $("#edit_values_button").remove();
         $("#add_value_button").remove();
+        $("#cancel_edit_button").remove();
         $("#teamPage #athleteStatPage").append(`<table class="alternating_table_shade" id="athlete_stats_container"></table>`);
         $("#teamPage #athleteStatPage").append(`<button class="edit_values_button action_button" id="edit_values_button">Edit</button>`);
         $("#teamPage #athleteStatPage").append(`<button class="add_values_button action_button" id="add_value_button">Add Value</button>`);
@@ -541,15 +545,21 @@ class Team extends Page {
         $("#add_value_button").click(addContainer);
 
         // click edit values button
-        $("#teamPage #edit_values_button").click(() => {
-
+        $("#teamPage #athleteStatPage").off("click", "#cancel_edit_button, #edit_values_button");
+        $("#teamPage #athleteStatPage").on("click", "#cancel_edit_button, #edit_values_button", (e) => {
+            if($(e.target).prop("id") == "cancel_edit_button") {
+                this.rowsToDelete = []; // Clear the deletion array
+                $("#teamPage #athlete_stats_container tr").css("display", "");
+            }
+            
             // append delete button or take them off
             if (this.isEditing) {
                 // Revert the table to its former, non-editing state
                 $("#teamPage tr").each(function () {
                     $(this).children().last().remove();
                 });
-
+                
+                $("#teamPage #athleteStatPage #cancel_edit_button").remove();
                 $("#teamPage #athleteStatPage").append(`<button class="add_values_button action_button" id="add_value_button">Add Value</button>`);
                 $("#add_value_button").click(addContainer);
             } else {
@@ -557,7 +567,7 @@ class Team extends Page {
                 $("#teamPage tr:first-child").append("<th>-</th>");
                 $("#teamPage tr:not(:first-child)").append("<td>X</td>");
                 $("#add_value_button").remove();
-                // $("#teamPage #athleteStatPage").append(`<button class="action_button" id="cancel_edit_button">Cancel</button>`)
+                $("#teamPage #athleteStatPage").append(`<button class="action_button" id="cancel_edit_button">Cancel</button>`)
             }
 
             this.toggleTableEditable();
@@ -574,6 +584,7 @@ class Team extends Page {
             </tr>
         `);
         
+        let splitNames = []; // // Tabulate split names to be sorted for coloring later
         for (let i = 0; i < results.length; i++) {
             
             // Parse date (first is local save, second handles server format)
@@ -592,7 +603,6 @@ class Team extends Page {
             $("#teamPage #athleteStatPage #athlete_stats_container").append(recordRow);
             
             // Check for and add any splits
-            let splitNames = []; // Tabulate split names to be sorted for coloring later
             for(let s = 0; s < splits.length; s++) {
                 if(splits.item(s).id_record == results.item(i).id_record) {
                     let splitRow = (`
@@ -603,16 +613,19 @@ class Team extends Page {
                     `);
                     $("#teamPage #athleteStatPage #athlete_stats_container").append(splitRow);
                     
-                    splitNames.push(splits.item(s).split_name);
+                    if(jQuery.inArray(splits.item(s).split_name, splitNames) == -1) {
+                        splitNames.push(splits.item(s).split_name);
+                    }
+                    
                 }
             }
-            // Determine split colors
-            splitNames.sort();
-            for(let n = 0; n < splitNames.length; n++) {
-                let splitColor = this.hexToRGBString(Constant.graphColors[n + 1]); // +1 to ignore Race Time graph color
-                splitColor = `rgba(${splitColor}, 0.5)`; // Lighten the color by 50% opacity
-                $(`#teamPage #athleteStatPage #athlete_stats_container tr[split_name="${splitNames[n]}"] > *`).css("background-color", splitColor);
-            }
+        }
+        // Determine split colors
+        splitNames.sort();
+        for (let n = 0; n < splitNames.length; n++) {
+            let splitColor = this.hexToRGBString(Constant.graphColors[n + 1]); // +1 to ignore Race Time graph color
+            splitColor = `rgba(${splitColor}, 0.5)`; // Lighten the color by 50% opacity
+            $(`#teamPage #athleteStatPage #athlete_stats_container tr[split_name="${splitNames[n]}"] > *`).css("background-color", splitColor);
         }
 
     }
@@ -744,6 +757,7 @@ class Team extends Page {
                 if(this.rowsToDelete[i][2].includes("local")) {
                     let localTableName = ((dataType == "record") ? "record" : "record_split");
                     dbConnection.runQuery(`DELETE FROM ${localTableName} WHERE id_${dataType} = ?`, [Number(this.rowsToDelete[i][1])]);
+                    $(`#teamPage #athlete_stats_container tr[id_${dataType}=${Number(this.rowsToDelete[i][1])}]`).remove();
                 }
                 
                 // Delete from cloud server
@@ -770,66 +784,96 @@ class Team extends Page {
             
             // TODO: editing splits
             
-            // save changed values
-            let newData = this.tableToObject();
-
+            // save new values
+            let newData = this.getAddedRecordsObject();
             for (let i = 0; i < newData.length; i++) {
                 let value = Number(Clock.timeStringToSeconds(newData[i].value));
 
                 // check if there was a bad type and trigger a popup menu only once
                 if (value == null || value == undefined) {
-                    Popup.createConfirmationPopup(`Unable to update results, please try again. (Is your time formatted correctly?)`, ["Ok"]);
+                    Popup.createConfirmationPopup(`Unable to update results, please try again. (Is your time formatted correctly?)`, ["OK"]);
                     this.pageTransition.slideRight("athletePage");
                     break;
                 }
+                
+                // Save the record first so the frontend will have a matching id to the backend
+                RecordBackend.saveRecord(value, Number(newData[i].id_record_definition), Number(newData[i].id_backend), (response) => {
+                    if (DO_LOG) {
+                        console.log("RECORD SAVED " + JSON.stringify(response));
+                    }
+                    if (response.status > 0) { // If success, insert into local database
+                        // Define default fallback values, then use actual values in loop below
+                        let recordData = {
+                            "id_record": Number(response["addedRecords"][0]["id_record"]),
+                            "value": value,
+                            "id_record_definition": Number(newData[i].id_record_definition),
+                            "is_practice": true,
+                            "last_updated": this.getCurrentDateTime()
+                        };
+                        let linkData = {
+                            "id_backend": Number(newData[i].id_backend),
+                            "id_record": Number(response["addedRecords"][0]["id_record"])
+                        };
 
-                if (newData[i].isAdded) { // true if user clicked "Add Value"
-                    // Save the record first so the frontend will have a matching id to the backend
+                        dbConnection.insertValuesFromObject("record", recordData);
+                        dbConnection.insertValuesFromObject("record_user_link", linkData);
 
-                    RecordBackend.saveRecord(value, Number(newData[i].id_record_definition), Number(newData[i].id_backend), (response) => {
+                    } else {
                         if (DO_LOG) {
-                            console.log("RECORD SAVED " + JSON.stringify(response));
+                            console.log("[team.js:saveTime()]: Unable to save time to backend");
                         }
-                        if (response.status > 0) { // If success, insert into local database
-                            // Define default fallback values, then use actual values in loop below
-                            let recordData = {
-                                "id_record": Number(response["addedRecords"][0]["id_record"]),
-                                "value": value,
-                                "id_record_definition": Number(newData[i].id_record_definition),
-                                "is_practice": true,
-                                "is_split": false,
-                                "id_split": null,
-                                "id_split_index": null,
-                                "last_updated": Date.now()
-                            };
-                            let linkData = {
-                                "id_backend": Number(newData[i].id_backend),
-                                "id_record": Number(response["addedRecords"][0]["id_record"])
-                            };
-
-                            dbConnection.insertValuesFromObject("record", recordData);
-                            dbConnection.insertValuesFromObject("record_user_link", linkData);
-
-                        } else {
-                            if (DO_LOG) {
-                                console.log("[stopwatch.js:saveTime()]: Unable to save time to backend");
+                    }
+                });
+            }
+            
+            // Save changed records
+            for(let m = 0; m < this.rowsToModify.length; m++) {
+                let dataType = this.rowsToModify[m][0]; // [0] = type, [1] = id to delete, [2] = deletion scope
+                let rowId = this.rowsToModify[m][1];
+                let value = null;
+                if(dataType == "record") {
+                    value = Clock.timeStringToSeconds($(`#teamPage #athlete_stats_container tr[id_record=${rowId}]:not(.splitRow) td:nth(1)`).text());
+                    value = Number(value);
+                } else if(dataType == "split") {
+                    value = Clock.timeStringToSeconds($(`#teamPage #athlete_stats_container tr[id_split=${rowId}] td:nth(1)`).text());
+                    value = Number(value);
+                }
+                
+                // Check if there was a bad type and trigger a popup menu only once
+                if (value == null || value == undefined) {
+                    Popup.createConfirmationPopup(`Unable to update results, please try again. (Is your time formatted correctly?)`, ["OK"]);
+                    this.pageTransition.slideRight("athletePage");
+                    break;
+                }
+                
+                // Update the local and server values
+                if(this.rowsToModify[m][2].includes("local")) {
+                    let localTableName = ((dataType == "record") ? "record" : "record_split");
+                    dbConnection.updateValues(localTableName, ["value"], [value], `WHERE id_${dataType} = ?`, [Number(rowId)]);
+                }
+                if(this.rowsToModify[m][2].includes("server")) {
+                    if(dataType == "record") {
+                        RecordBackend.modifyRecord(rowId, {
+                            "value": value
+                        }, (r) => {
+                            if((r.status < 0) && (DO_LOG)) {
+                                console.log("[team.js:toggleTableEditable()]: Updating backend record failed for ID " + rowId);
                             }
-                        }
-                    });
-
-                    // otherwise, update the value
-                } else {
-                    dbConnection.updateValues("record", ["value"], [value], `WHERE id_record = ?`, [newData[i].id_record]);
-                    RecordBackend.modifyRecord(newData[i].id_record, {
-                        "value": value
-                    }, (r) => {
-                        if ((r.status < 0) && (DO_LOG)) {
-                            console.log("[team.js:toggleTableEditable()]: Updating backend failed for ID " + newData[i].id_record);
-                        }
-                    });
-
+                        });
+                    } else if(dataType == "split") {
+                        RecordBackend.modifySplit(rowId, {
+                            "value": value
+                        }, (r) => {
+                            if((r.status < 0) && (DO_LOG)) {
+                                console.log("[team.js:toggleTableEditable()]: Updating backend split failed for ID " + rowId);
+                            }
+                        });
+                    }
                 }
             }
+            this.rowsToModify = [];
+            
+            
             // when user clicks edit
         } else {
 
@@ -839,7 +883,7 @@ class Team extends Page {
             $("#teamPage #edit_values_button").html("Save")
             $("#teamPage #edit_values_button").addClass("save_values_button").removeClass("edit_values_button");
 
-            // delete row callback
+            // Edit & delete row callback
             $("#athlete_stats_container td").click(function (e) {
                 
                 let rowType = ($(this).parent().hasClass("splitRow") ? "split" : "record");
@@ -847,9 +891,11 @@ class Team extends Page {
 
                 // let row = Number(e.target.parentNode.rowIndex);
                 let isDeleting = $(this).text() == "X" ? true : false;
-
-                if (isDeleting) {
-                    $(this).parent().remove();
+                
+                if(!isDeleting) { // Editing
+                    _this.rowsToModify.push([rowType, rowId, "server-local"]);
+                } else { // Deleting
+                    $(this).parent().css("display", "none"); // Hide until saved
 
                     // mark rows to delete on save
                     _this.rowsToDelete.push([rowType, rowId, "server-local"]);
@@ -859,7 +905,7 @@ class Team extends Page {
                         for(let r = 0; r < splitRows.length; r++) {
                             // Remove them locally only; they are automatically removed by the server due to parent record
                             _this.rowsToDelete.push(["split", $(splitRows[r]).attr("id_split"), "local"]);
-                            splitRows[r].remove();
+                            $(splitRows[r]).css("display", "none");
                         }
                     }
                 }
@@ -872,8 +918,8 @@ class Team extends Page {
      * This function will convert the athlete data container table into an object
      * 
      */
-    tableToObject() {
-        return $(`#athlete_stats_container tr:has(td)`).map(function (i, v) {
+    getAddedRecordsObject() {
+        return $(`#athlete_stats_container tr[isAdded]:has(td)`).map(function (i, v) {
             var $tr = $(v).children(); // v stands for value
 
             return {
@@ -907,7 +953,19 @@ class Team extends Page {
         let second = rawDateTime.substr(17, 2);
         return new Date(year, month, day, hour, minute, second).toLocaleDateString("en-US");
     }
-
+    
+    // Used to set last_updated of records; formatted "year/mm/dd hr:mm:ss"
+    getCurrentDateTime() {
+        let dateObj = new Date();
+        let updateTime = dateObj.getFullYear() + "-";
+        updateTime = updateTime + ((dateObj.getMonth() + 1) < 10 ? "0" : "") + (dateObj.getMonth() + 1) + "-";
+        updateTime = updateTime + (dateObj.getDate() < 10 ? "0" : "") + dateObj.getDate() + " ";
+        updateTime = updateTime + (dateObj.getHours() < 10 ? "0" : "") + dateObj.getHours() + ":";
+        updateTime = updateTime + (dateObj.getMinutes() < 10 ? "0" : "") + dateObj.getMinutes() + ":";
+        updateTime = updateTime + (dateObj.getSeconds() < 10 ? "0" : "") + dateObj.getSeconds();
+        return updateTime;
+    }
+    
     /**
      * @description check if the current user has a team at all, either on account or local
      * @returns true or false
@@ -938,3 +996,4 @@ class Team extends Page {
         Animations.hideChildElements(this.athleteBoxSelector);
     }
 }
+

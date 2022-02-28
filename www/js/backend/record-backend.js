@@ -262,7 +262,46 @@ class RecordBackend {
             }
         });
     }
-
+    
+    /**
+     * Modifies the event with the given backend ID to the updated values
+     * passed in the newData object. For internal reasons, splitNumber and splitIndex
+     * cannot be externally modified. Mutable values include:
+     *      value {Float} - value and time of the updated record
+     *      definition {Integer} - definition to update
+     *      isPractice {Boolean} - marks the record as either practice or non-practice
+     *      isSplit {Boolean} - is this record a relay or split?
+     *      id_event {Integer} - modifies the event tied to this record (not in use)
+     * 
+     * @example modifyRecord(4, {"value": 62.034}, (response) => { // Tell user success or fail })
+     *          --> Modifies record 4 by setting the value to 62.034
+     * 
+     * @param {Integer} recordId the ID of the record on the backend to modify
+     * @param {AssociativeArray} newData values that will be used for this record
+     * @param {Function} callback callback to handle the response (JSON or String on failure)
+     */
+    static modifyRecord(recordId, newData, callback) {
+        return this.modifyTime(recordId, "record", newData, callback);
+    }
+    
+    /**
+     * Changes the split information with the given backend ID to the given
+     * values passed in the second parameter. For internal reasons, splitNumber / splitIndex
+     * can not be set by this function. Possible values include:
+     *      value {Float} - new value of the split
+     *      name {String} - new name of the split
+     * 
+     * @example modifySplit(163, {"name": "150"}, (r) => { // Update local DB with new data })
+     *          --> Changes the name of split 163 to "150"
+     * 
+     * @param {Integer} splitId database ID of the split to update
+     * @param {AssociativeArray} newData object containing new values to change for the split
+     * @param {Function} callback function that handles the returned response (JSON on success, string on failure)
+     */
+    static modifySplit(splitId, newData, callback) {
+        return this.modifyTime(splitId, "split", newData, callback);
+    }
+    
     /**
      * Modifies the event with the given backend ID to the updated values
      * passed in the newData object. For internal reasons, splitNumber and splitIndex
@@ -273,17 +312,19 @@ class RecordBackend {
      *      isSplit {Boolean} - select relay / split records
      *      id_event {Integer} - selects records tied to the event ID
      * 
-     * @example modifyRecord(4, {"value": 62.034}, (response) => { // Tell user success or fail })
+     * @example modifyRecord(4, "record", {"value": 62.034}, (response) => { // Tell user success or fail })
      *          --> Modifies record 4 by setting the value to 62.034
      * 
-     * @param {Integer} recordId the ID of the record on the backend to modify
+     * @param {Integer} timeId the ID of the record on the backend to modify
+     * @param {String} idType identifies the given timeId as either "record" or "split"
      * @param {AssociativeArray} newData values that will be used for this record
      * @param {Function} callback callback to handle the response (JSON or String on failure)
      */
-    static modifyRecord(recordId, newData, callback) {
+    static modifyTime(timeId, idType, newData, callback) {
 
         // Set the record's ID that will be modified
-        newData.id_record = recordId;
+        newData.id_record = timeId;
+        newData.idType = idType;
         // Add the SID to newData
         newData.SID = localStorage.getItem("SID");
 
@@ -295,7 +336,7 @@ class RecordBackend {
             data: newData,
             success: (response) => {
                 if (DO_LOG) {
-                    console.log("[record-backend.js:modifyRecord()] " + response);
+                    console.log("[record-backend.js:modifyTime()] " + response);
                 }
                 try {
                     response = JSON.parse(response);
@@ -306,7 +347,7 @@ class RecordBackend {
             },
             error: (error) => {
                 if (DO_LOG) {
-                    console.log("[record-backend.js:modifyRecord()] " + error);
+                    console.log("[record-backend.js:modifyTime()] " + error);
                 }
                 callback(error);
             }
