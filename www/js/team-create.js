@@ -197,7 +197,6 @@ class CreateTeam extends Page {
         
         // Get Plan info to see if the free trial has been used
         PlanBackend.getActivePlan(localStorage.getItem("email"), (planInfo) => {
-            console.log(planInfo);
             if(planInfo.status > 0) {
                 if(planInfo.isActive) {
                     // Remove the free trial text since they already have a subscription

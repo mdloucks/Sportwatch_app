@@ -1581,7 +1581,7 @@ class Stopwatch extends Page {
                                         splitObject["id_split"] = Number(splitObject["id_split"]);
                                         splitObject["id_record"] = Number(splitObject["id_record"]);
                                         splitObject["value"] = Number(splitObject["value"]);
-                                        splitObject["split_name"] = splitObject["name"];
+                                        splitObject["split_name"] = Number(splitObject["name"]);
                                         splitObject["split_index"] = Number(splitObject["splitIndex"]);
                                         splitObject["last_updated"] = this.getCurrentDateTime();
                                         delete splitObject["name"];

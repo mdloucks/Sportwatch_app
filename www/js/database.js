@@ -226,7 +226,7 @@ class DatabaseConnection {
      * @param {Array} newValues Array filled with the new values of the rows, must be equal in length to rowNames
      * @param {String} options an object of key/pairs for the corresponsing values ex. WHERE {"fname": "John"}
      */
-    updateValues(table, rowNames, newValues, options = "", option_values) {
+    updateValues(table, rowNames, newValues, options = "", option_values = "") {
 
         return new Promise((resolve, reject) => {
 
