@@ -77,6 +77,8 @@ Constant.IOS_ANNUALLY_ID = "sRfafDxVzo";
 Constant.ANDROID_MONTHLY_ID = "sp_m_kxqzg";
 Constant.ANDROID_ANNUALLY_ID = "srfafdxvzo";
 
+Constant.OFFERED_PLAN = "annual";
+
 // Input regex checks
 Constant.REGEX = {
     generic: /[A-Za-z0-9@\-_\. ]/gm,

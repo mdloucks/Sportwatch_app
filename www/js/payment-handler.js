@@ -18,6 +18,7 @@ class PaymentHandler {
         
         let monthlyID;
         let annuallyID;
+        let activePlanID; // Used to define update and refresh events
 
         if (device.platform == "iOS" || device.platform == "iPhone" || device.platform == "iPad") {
             console.log("[payment-handler.js]: User is running on iOS");
@@ -37,6 +38,22 @@ class PaymentHandler {
             }]);
             return;
         }
+        if(Constant.OFFERED_PLAN == "month") {
+            activePlanID = monthlyID;
+        } else if(Constant.OFFERED_PLAN == "annual") {
+            activePlanID = annuallyID;
+        } else {
+            console.log("[payment-handler.js]: Invalid plan type selected: " + Constant.OFFERED_PLAN + ". Exiting...");
+            Popup.createConfirmationPopup(`
+                Communication with the subscription service failed. Please contact support@sportwatch.us for further assistance.
+            `, ["OK"], [() => {
+                navigator.app.exitApp();
+            }]);
+            return;
+        }
+        if(DO_LOG) {
+            console.log("[payment-handler.js]: Offered plan: " + Constant.OFFERED_PLAN);
+        }
         
         // Set logging
         if(DO_LOG) {
@@ -53,10 +70,16 @@ class PaymentHandler {
         // }
         
         // Add plans (annual, seasonal) here \/
-        store.register([{
+        store.register([
+            {
                 // Sportwatch Monthly
                 id: monthlyID,
-                type: store.PAID_SUBSCRIPTION,
+                type: store.PAID_SUBSCRIPTION
+            },
+            {
+                // Sportwatch Annually
+                id: annuallyID,
+                type: store.PAID_SUBSCRIPTION
             }
         ]);
         
@@ -73,8 +96,8 @@ class PaymentHandler {
         // Update the status of each subscription when updated
         store.when("valid product").updated(() => {
             PaymentHandler.PLANS = []; // Clear the array to re-register the plans
-            PaymentHandler.PLANS.push(store.get(monthlyID));
-            // PaymentHandler.PLANS.push(store.get(annuallyID));
+            // PaymentHandler.PLANS.push(store.get(monthlyID));
+            PaymentHandler.PLANS.push(store.get(activePlanID));
         });
         
         // There is a weird behavior that sometimes renews a membership
@@ -89,7 +112,7 @@ class PaymentHandler {
         // Good docs: https://github.com/j3k0/cordova-plugin-purchase/blob/master/doc/api.md#order
         
         // Check to see if they own any of the plans
-        store.when(monthlyID).updated((product) => {
+        store.when(activePlanID).updated((product) => {
             // console.log("State: " + product.state);
             // console.log(product);
             if((product.owned) && (product.state == "owned") && (!product.isExpired)) {
@@ -103,7 +126,7 @@ class PaymentHandler {
         // });
         
         // Set up the logic for when a plan is ordered (i.e. initiated by button press)
-        store.when(monthlyID).approved((product) => {
+        store.when(activePlanID).approved((product) => {
             // console.log("Monthly approved");
             // console.log(product);
             product.verify().done((p) => {
@@ -121,7 +144,7 @@ class PaymentHandler {
                 // console.log(err);
             });
         });
-        store.when(monthlyID).cancelled((product) => {
+        store.when(activePlanID).cancelled((product) => {
             if(($("#premiumPopup").length != 0) && ($(".popup:not(#premiumPopup)").length == 0)) {
                 $("#premiumPopup #logoImg").prop("src", "img/logo.png");
                 $(".premium_purchase_button").prop("disabled", false);
