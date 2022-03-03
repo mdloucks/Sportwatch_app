@@ -36,7 +36,12 @@ class ScreenshotMaker {
                 "createChildPages": "#teamlandingPage > #createteamPage > .div_page",
                 "postCreatePage": "#teamlandingPage > #createteamPage > #postCreatePage",
                 "bannerSteps": "#teamlandingPage #createteamPage #banner .step",
-                "inviteCode": "#teamlandingPage #createteamPage #postCreatePage #inviteCode"
+                "inviteCode": "#teamlandingPage #createteamPage #postCreatePage #inviteCode",
+                "athletePage": "#teamlandingPage > #teamPage > #landingPage",
+                "athleteButton": "#teamlandingPage > #teamPage > #landingPage button[fname='Janice']",
+                "eventsPage": "#teamlandingPage > #teamPage > #athletePage",
+                "eventWrapper": "#teamlandingPage #athletePage #athlete_events_registered",
+                "graphPage": "#teamlandingPage > #teamPage > #athleteStatPage"
             },
             "Settings": {
                 
@@ -73,6 +78,7 @@ class ScreenshotMaker {
         let statsPreviewPs = $.Deferred();
         let todaysStatsPs = $.Deferred();
         let createdTeamPs = $.Deferred();
+        let showedGraphPs = $.Deferred();
         
         this.delayAction(3000).then(() => {
             this.stopwatchSingle().then(() => {
@@ -111,12 +117,21 @@ class ScreenshotMaker {
                 console.log("[screenshot-maker.js:runWorkflow()]: Today's Stats screenshot completed");
             }
             
+            this.athleteGraph().then(() => {
+                showedGraphPs.resolve();
+            });
+        });
+        showedGraphPs.then(() => {
+            if(DO_LOG) {
+                console.log("[screenshot-maker.js:runWorkflow()]: Athlete Graph screenshot completed");
+            }
+            
             this.createdTeam().then(() => {
-                createdTeamPs.resolve();
+                showedGraphPs.resolve();
             });
         });
         createdTeamPs.then(() => {
-            if(DO_LOG) {
+            if (DO_LOG) {
                 console.log("[screenshot-maker.js:runWorkflow()]: Team Creation screenshot completed");
             }
         });
@@ -192,6 +207,32 @@ class ScreenshotMaker {
             
         ];
         dbConnection.insertValuesFromObject("record", newRecords);
+        
+        // Splits
+        dbConnection.deleteValues("record_split", "");
+        let newSplits = [
+            // Janice (5k splits)
+            {"id_split": 1, "id_record": 1, "value": 460.441, "split_name": "1600", "split_index": 0, "last_updated": "2021-09-04 17:00:00"},
+            {"id_split": 2, "id_record": 1, "value": 874.891, "split_name": "3200", "split_index": 1, "last_updated": "2021-09-04 17:00:00"},
+            {"id_split": 3, "id_record": 1, "value": 1255.301, "split_name": "4800", "split_index": 2, "last_updated": "2021-09-04 17:00:00"},
+            {"id_split": 4, "id_record": 2, "value": 399.504, "split_name": "1600", "split_index": 0, "last_updated": "2021-09-05 17:00:00"},
+            {"id_split": 5, "id_record": 2, "value": 760.552, "split_name": "3200", "split_index": 1, "last_updated": "2021-09-05 17:00:00"},
+            {"id_split": 6, "id_record": 2, "value": 1240.891, "split_name": "4800", "split_index": 2, "last_updated": "2021-09-05 17:00:00"},
+            {"id_split": 7, "id_record": 3, "value": 445.449, "split_name": "1600", "split_index": 0, "last_updated": "2021-09-06 17:00:00"},
+            {"id_split": 8, "id_record": 3, "value": 858.845, "split_name": "3200", "split_index": 1, "last_updated": "2021-09-06 17:00:00"},
+            {"id_split": 9, "id_record": 3, "value": 1227.810, "split_name": "4800", "split_index": 2, "last_updated": "2021-09-06 17:00:00"},
+            {"id_split": 10, "id_record": 4, "value": 506.337, "split_name": "1600", "split_index": 0, "last_updated": "2021-09-09 17:00:00"},
+            {"id_split": 11, "id_record": 4, "value": 866.144, "split_name": "3200", "split_index": 1, "last_updated": "2021-09-09 17:00:00"},
+            {"id_split": 12, "id_record": 4, "value": 1248.899, "split_name": "4800", "split_index": 2, "last_updated": "2021-09-09 17:00:00"},
+            {"id_split": 13, "id_record": 5, "value": 488.999, "split_name": "1600", "split_index": 0, "last_updated": currentDate + " 17:00:00"},
+            {"id_split": 14, "id_record": 5, "value": 887.411, "split_name": "3200", "split_index": 1, "last_updated": currentDate + " 17:00:00"},
+            {"id_split": 15, "id_record": 5, "value": 1180.994, "split_name": "4800", "split_index": 2, "last_updated": currentDate + " 17:00:00"},
+            {"id_split": 16, "id_record": 6, "value": 447.801, "split_name": "1600", "split_index": 0, "last_updated": currentDate + " 17:00:00"},
+            {"id_split": 17, "id_record": 6, "value": 771.368, "split_name": "3200", "split_index": 1, "last_updated": currentDate + " 17:00:00"},
+            {"id_split": 18, "id_record": 6, "value": 1140.340, "split_name": "4800", "split_index": 2, "last_updated": currentDate + " 17:00:00"}
+            
+        ];
+        dbConnection.insertValuesFromObject("record_split", newSplits);
         
         // Record User Link
         dbConnection.deleteValues("record_user_link", "");
@@ -424,10 +465,46 @@ class ScreenshotMaker {
                 $(this.refElements["App"]["settingsTab"]).trigger("click");
                 this.delayAction(2000).then(() => {
                     $(this.refElements["App"]["teamTab"]).trigger("click");
-                    actionFinished.resolve();
+                    this.delayAction(2000).then(() => {
+                        actionFinished.resolve();
+                    });
                 });
             });
             
+        });
+        
+        return actionFinished;
+    }
+    
+    // Shows graph for the 5k event for Janice with splits
+    athleteGraph() {
+
+        let actionFinished = $.Deferred();
+
+        // Make sure we're on the Stopwatch page
+        $(this.refElements["App"]["teamTab"]).trigger("click");
+
+        // Delay to allow page transition to finish, then click Janice on the athlete page
+        this.delayAction(2000).then(() => {
+            // Click the first event to set up the basic Event Page table elements
+            $(this.refElements["Team"]["athleteButton"]).trigger("click");
+            console.log(this.refElements["Team"]["athleteButton"]);
+            
+            // Wait for transition, then select first event button (should be 5k)
+            this.delayAction(2000).then(() => {
+                $(this.refElements["Team"]["eventWrapper"] + " .generated_button:first").trigger("click");
+                
+                // Wait for screenshot capture, then move back out of pages
+                this.delayAction(4000).then(() => {
+                    $(this.refElements["Team"]["graphPage"] + " .back_button").trigger("click");
+                    this.delayAction(2000).then(() => {
+                        $(this.refElements["Team"]["eventsPage"] + " .back_button").trigger("click");
+                        this.delayAction(2000).then(() => {
+                            actionFinished.resolve();
+                        });
+                    });
+                });
+            });
         });
         
         return actionFinished;
