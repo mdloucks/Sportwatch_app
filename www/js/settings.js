@@ -1223,7 +1223,8 @@ class Settings extends Page {
             <div id="supportWrapper">
                 <p><b><i>Have a question? Need help?</i> You can contact us by:</b></p>
                 <p class="contactPoint" style="font-weight: 500">
-                    Email: <a href="mailto:support@sportwatch.us">support@sportwatch.us</a>
+                    Email: <a href="mailto:support@sportwatch.us">support@sportwatch.us</a><br>
+                    Phone: <a href="tel:9899489082">(989) 948-9082</a>
                 </p>
                 <br><br>
                 <hr>
