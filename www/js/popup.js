@@ -164,7 +164,12 @@ class Popup {
             if ($("#" + plans[p].id).length != 0) {
                 return;
             }
-
+            
+            // Check for missing title
+            if(plans[p].title.length == 0) {
+                plans[p].title = "Sportwatch Annual Membership";
+            }
+            
             // Append the content
             $(".popup #planOptions").append(`
                 <button id="${plans[p].id}" class="premium_purchase_button">
