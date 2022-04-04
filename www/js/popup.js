@@ -216,4 +216,304 @@ class Popup {
         // });
 
     }
+    
+    static createImportPopup() {
+        
+        // Prevent scrolling since roster spreadsheet needs to pan
+        evaluateSwipes = false; // From swipe-holder.js (I know, messy :( )
+        
+        // Assign an ID so it doesn't intefere with other popups
+        let popupId = "popup_" + ($(".popup").length + 1);
+        // Get existing athletes; used in import to skip existing people
+        let existingAthletes = [];
+        dbConnection.selectValuesAsObject("SELECT * FROM athlete").then((resultSet) => {
+            existingAthletes = resultSet;
+        });
+        
+        $("#app").append(`
+            <div class="popup" id="${popupId}">
+    
+                <div id="importRosterPopup" class="popup_content">
+                    <h1 class="subheading_text">Import from CSV</h1>
+                    <br>
+                    <input id="csvUpload" type="file"></input>
+                    <br>
+                    <div id="tableWrapper">
+                        <table id="rosterTable" border=0 cellspacing=0>
+                            <!-- CSV content will be added here -->
+                            <td>Upload roster above</td>
+                        </table>
+                    </div>
+                    <br>
+                    <span class="selectorLabel">Start Row:</span>
+                    <select id="startRow" class="sw_dropdown rosterColSelector">
+                        <option value="-1">--</option>
+                    </select><br>
+                    <span id="fnameSelector" class="selectorColor fnameCol">&nbsp;</span>
+                    <span class="selectorLabel">First Name Column:</span>
+                    <select id="roster_fname" class="sw_dropdown rosterColSelector">
+                        <option value="-1">--</option>
+                    </select><br>
+                    <span id="lnameSelector" class="selectorColor lnameCol">&nbsp;</span>
+                    <span class="selectorLabel">Last Name Column:</span>
+                    <select id="roster_lname" class="sw_dropdown rosterColSelector">
+                        <option value="-1">--</option>
+                    </select><br>
+                    <span id="genderSelector" class="selectorColor genderCol">&nbsp;</span>
+                    <span class="selectorLabel">Gender Column:</span>
+                    <select id="roster_gender" class="sw_dropdown rosterColSelector">
+                        <option value="-1">--</option>
+                    </select><br>
+                    <span id="emailSelector" class="selectorColor emailCol">&nbsp;</span>
+                    <span class="selectorLabel">Email Column (optional):</span>
+                    <select id="roster_email" class="sw_dropdown rosterColSelector">
+                        <option value="-1">--</option>
+                    </select><br>
+                    <br>
+                    <button id="importCSVRoster" class="generated_button">Import</button><br>
+                    <button id="cancelImport" class="generated_button">Cancel</button>
+                </div>
+            </div>
+        `);
+        popupId = "#" + popupId;
+        $(popupId).css("display", "block");
+        
+        let tableEl = popupId + " #importRosterPopup #rosterTable";
+        let roster = []; // Populated below
+        let rowMax = 6; // Max number of rows before clipping occurs
+        let blankRows = []; // Used to truncate any blank rows / columns
+        let blankColumns = [];
+        
+        // When a file is selected, add the data to the table
+        $(popupId + " #importRosterPopup #csvUpload").change((e) => {
+            
+            Tabulator.readCSVFromFile($(e.target), (readData) => {
+                roster = readData;
+                
+                // Pre-import setup
+                $(tableEl).empty();
+                $("#importRosterPopup #startRow").empty();
+                $("#importRosterPopup select.rosterColSelector:not(#startRow)").empty().append(`<option value="-1">--</option>`);
+                
+                // Add it to the table
+                for(let r = 0; r < roster.length; r++) {
+                    $(tableEl).append(`<tr id="r-row-${r}"></tr>`);
+
+                    for(let c = 0; c < roster[r].length; c++) {
+                        let cellVal = roster[r][c];
+                        if(r > rowMax) {
+                            cellVal = ". . .";
+                        }
+                        $(tableEl + ` #r-row-${r}`).append(`<td class="r-col-${c}">${cellVal}</td>`);
+
+                        // Update blank / nonblank data
+                        if((c == 0) && (r <= rowMax)) {
+                            blankRows.push(r);
+                        }
+                        if(r == 0) {
+                            blankColumns.push(c);
+                        }
+                        if((r <= rowMax) && (cellVal.length > 0)) { // Exclude rowMax that has "..." cells
+                            if(blankRows.includes(r)) {
+                                blankRows.splice(blankRows.indexOf(r), 1);
+                            }
+                            if(blankColumns.includes(c)) {
+                                blankColumns.splice(blankColumns.indexOf(c), 1);
+                            }
+                        }
+                    }
+                    // Append filler cell so it filles the entire wrapper
+                    $(tableEl + ` #r-row-${r}`).append("<td></td>");
+
+                    // If row max has been exceeded, end the loop
+                    if(r > rowMax) {
+                        break;
+                    }
+                }
+                
+                // Remove blank rows & columns
+                for(let d = 0; d < blankRows.length; d++) {
+                    $(tableEl + " #r-row-" + blankRows[d]).remove();
+                }
+                for(let d = 0; d < blankColumns.length; d++) {
+                    $(tableEl + " .r-col-" + blankColumns[d]).remove();
+                }
+                
+                // Add row start options
+                let newRowNum = 0;
+                for(let p = 0; p < roster.length; p++) {
+                    if(blankRows.includes(p)) {
+                        continue;
+                    }
+                    $("#importRosterPopup #startRow").append(`<option value="${newRowNum}">${newRowNum + 1}</option>`);
+                    newRowNum++;
+                }
+                // Add column selector options
+                let newColNum = 0;
+                for (let p = 0; p < roster[0].length; p++) {
+                    if (blankColumns.includes(p)) {
+                        continue;
+                    }
+                    $("#importRosterPopup select.rosterColSelector:not(#startRow)").append(`<option value="${newColNum}">${newColNum + 1}</option>`);
+                    newColNum++;
+                }
+
+                // Bind coloring of roster
+                $("#importRosterPopup select.rosterColSelector").change((e) => {
+                    let importVal = $(e.target).prop("id").replace("roster_", ""); // Ex. "fname", "lname", etc.
+                    let colNumber = parseInt($(e.target).val()) + 1;
+                    
+                    // Calculate the start row
+                    $(tableEl + " tr").removeClass("excludedRow");
+                    for(let e = 0; e < parseInt($("#importRosterPopup #startRow").val()); e++) {
+                        $(tableEl + " tr:nth-child(" + (e + 1) + ")").addClass("excludedRow");
+                    }
+                    // End operations if this is the start row selector
+                    if(importVal == "startRow") {
+                        return;
+                    }
+                    
+                    $(tableEl + " td").removeClass(importVal + "Col");
+                    $(tableEl + " td:nth-child(" + colNumber + ")").addClass(importVal + "Col");
+                });
+            });
+            
+        });
+        
+        // Import button
+        $(popupId + " #importCSVRoster").click((e) => {
+            // Disable button
+            $(e.target).prop("disabled", true).css("background-color", "lightgray");
+            
+            // Make sure a file has been selected
+            if($(popupId + " #importRosterPopup #tableWrapper td").length == 1) {
+                Popup.createConfirmationPopup("Please select a CSV file to import", ["OK"]);
+                $(e.target).prop("disabled", false).css("background-color", "");
+                return;
+            }
+            
+            // Fetch the column numbers based on user input
+            let columnMappings = [];
+            let columnSelectors = ["fname", "lname", "gender", "email"];
+            let readableName = ["first name", "last name", "gender", "email"];
+            for(let c = 0; c < columnSelectors.length; c++) {
+                let assignedCol = $(popupId + " #importRosterPopup #roster_" + columnSelectors[c]).val();
+                
+                // Make sure the required fields are present
+                if((assignedCol == -1) && (c < 3)) { // Ignore if email is -1 (email is index 3)
+                    Popup.createConfirmationPopup("Please specify all required columns", ["OK"]);
+                    $(e.target).prop("disabled", false).css("background-color", "");
+                    return;
+                }
+                // If email column wasn't given, exit early (avoids out of bounds error below)
+                if(assignedCol == -1) {
+                    columnMappings[c] = assignedCol;
+                    continue;
+                }
+                
+                // Since the preview display has blank columns removed, re-map the
+                // selection back to the original column
+                assignedCol = $(popupId + " #importRosterPopup td:nth-child(" + (parseInt(assignedCol) + 1) + "):first").prop("class");
+                if(assignedCol.indexOf(" ")) {
+                    assignedCol = assignedCol.substring(0, assignedCol.indexOf(" "));
+                }
+                assignedCol = parseInt(assignedCol.replace("r-col-", ""));
+                
+                // Make sure there isn't overlap
+                if (columnMappings.indexOf(assignedCol) != -1) {
+                    let dupValue = readableName[columnMappings.indexOf(assignedCol)];
+                    let curVal = readableName[c];
+                    Popup.createConfirmationPopup("The same column cannot be used for both the " + dupValue + " and " + curVal, ["OK"]);
+                    $(e.target).prop("disabled", false).css("background-color", "");
+                    return;
+                }
+                
+                columnMappings[c] = assignedCol;
+            }
+            
+            // Convert the starting row to the actual row (without blanks removed)
+            let startingRow = $("#importRosterPopup #startRow").val();
+            startingRow = $(popupId + " #importRosterPopup tr:nth-child(" + (parseInt(startingRow) + 1) + "):first").prop("id");
+            startingRow = parseInt(startingRow.replace("r-row-", ""));
+            
+            // Import variables
+            let finalImportCount = 0; // Used to track when backend import finished
+            let currentImportCount = 0;
+            
+            // Now, start the actual import :D
+            importLoop:
+            for(let i = startingRow; i < roster.length; i++) {
+                
+                if(blankRows.includes(i)) {
+                    continue;
+                }
+                
+                let importFname = roster[i][columnMappings[0]];
+                let importLname = roster[i][columnMappings[1]];
+                let importGender = roster[i][columnMappings[2]];
+                let importEmail = "";
+                
+                // If they already exist, don't import them (TODO: Optimize this)
+                for(let d = 0; d < existingAthletes.length; d++) {
+                    let testCase = existingAthletes[d];
+                    if((testCase.fname == importFname) && (testCase.lname == importLname) && (testCase.gender == importGender)) {
+                        continue importLoop;
+                    }
+                }
+                // Include email (if defined)
+                if(columnMappings[3] != -1) {
+                    importEmail = roster[i][columnMappings[3]];
+                }
+                
+                // Add user to backend
+                TeamBackend.addToTeam(importFname, importLname, importGender, importEmail, (response) => {
+                    // Increment added athlete count and display finished message when done
+                    currentImportCount++;
+                    if(currentImportCount == finalImportCount) {
+                        Popup.createConfirmationPopup("Successfully imported " + currentImportCount + " athletes!", ["Close"], [() => {
+                            // Trigger close button to re-enable swipes and close import dialog
+                            $("#importRosterPopup #cancelImport").trigger("click");
+                        }]);
+                    }
+                    
+                    // Add to local database
+                    let newAthleteInfo = response.invitedInfo;
+                    newAthleteInfo["id_backend"] = newAthleteInfo["id_user"];
+                    delete newAthleteInfo["id_user"];
+                    if("email" in newAthleteInfo) {
+                        delete newAthleteInfo["email"];
+                    }
+                    dbConnection.insertValuesFromObject("athlete", response.invitedInfo);
+                    
+                });
+                
+                // Need to create an object to match existing database format
+                let importAthlete = {
+                    fname: importFname,
+                    lname: importLname,
+                    gender: importGender,
+                    email: importEmail
+                };
+                existingAthletes.push(importAthlete);
+                finalImportCount++;
+            }
+            
+            if(finalImportCount == 0) {
+                Popup.createConfirmationPopup("No new athletes were added because they already exist on the team.", ["OK"], [() => {
+                    $("#importRosterPopup #cancelImport").trigger("click");
+                }]);
+            }
+        });
+        
+        // Cancel button
+        $(popupId + " #cancelImport").click((e) => {
+            evaluateSwipes = true;
+            Popup.callbackCleanupWrapper(popupId, () => { /* Nothing */ });
+        })
+        
+        
+    }
+    
+    
+    
 }

@@ -29,6 +29,7 @@ class Team extends Page {
                 </div>
 
                 <button id="invite_athletes" class="generated_button">Invite Athletes +</button>
+                <button id="import_roster" class="generated_button">Import Roster +</button>
 
                 <div class="button_box"></div>
             </div>
@@ -151,6 +152,9 @@ class Team extends Page {
                         <br><br>Have your athletes create an account and enter this code!
                     </div>
                 `, ["Ok"], [() => {}]);
+            });
+            $("#teamPage #import_roster").click(function (e) {
+                Popup.createImportPopup();
             });
         }
         

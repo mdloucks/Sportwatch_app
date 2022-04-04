@@ -123,3 +123,104 @@ li span {
 .popup_tooltip {
     font-size: 2em;
 }
+
+/* Popup - Import Roster */
+
+#importRosterPopup h1.subheading_text {
+    padding-bottom: 0;
+}
+
+#importRosterPopup #csvUpload {
+    padding: 15px;
+    font-size: 1.5em;
+}
+
+#importRosterPopup .generated_button {
+    font-size: 1.8em;
+}
+#importRosterPopup #importCSVRoster {
+    background-color: var(--add-button-color);
+    transition: background-color 0.25s;
+}
+
+#importRosterPopup #tableWrapper {
+    margin-top: 2vh;
+    width: 70vw;
+    display: inline-block;
+    border: 4px solid black;
+    border-radius: 10px;
+    overflow: scroll;
+}
+
+#importRosterPopup #rosterTable {
+    margin: -1px;
+    /* Helps align table with wrapper border */
+    padding: 0;
+}
+
+#importRosterPopup #rosterTable tr {
+    margin: 0;
+    padding: 0;
+}
+
+#importRosterPopup #rosterTable td {
+    margin: 0;
+    min-width: 1.5em;
+    padding: 5px;
+    text-align: center;
+    font-size: 1.3em;
+    border: 1px solid black;
+    transition: background-color 0.25s;
+}
+
+#importRosterPopup #rosterTable td:last-child {
+    width: 100vw;
+}
+
+#importRosterPopup #rosterTable td.col_selected {
+    background-color: var(--highlight-color);
+}
+
+#importRosterPopup .selectorColor {
+    padding: 5px;
+    width: 0.8em;
+    height: 0.8em;
+    display: inline-block;
+    vertical-align: baseline;
+    border: 2px solid black;
+}
+
+#importRosterPopup .fnameCol {
+    background-color: rgba(250, 146, 42, 0.4);
+}
+
+#importRosterPopup .lnameCol {
+    background-color: rgba(117, 72, 255, 0.4);
+}
+
+#importRosterPopup .genderCol {
+    background-color: rgba(250, 243, 39, 0.4);
+}
+
+#importRosterPopup .emailCol {
+    background-color: rgba(67, 255, 155, 0.4);
+}
+
+#importRosterPopup .excludedRow, #importRosterPopup .excludedRow > * {
+    background-color: unset;
+}
+
+#importRosterPopup .selectorLabel {
+    padding: 15px;
+    display: inline-block;
+    font-size: 1.5em;
+    font-weight: 600;
+}
+
+#importRosterPopup .rosterColSelector {
+    margin: 5px;
+    display: inline-block;
+    width: 2.5em;
+    border-radius: 15px;
+}
+

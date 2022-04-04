@@ -105,7 +105,7 @@ class Settings extends Page {
         })
         
         // Start the currently selected page in case it isn't the landing page
-        if(this.pageTransition.getCurrentPage() != "catagoryPage") {
+        if(this.pageTransition.getCurrentPage() == "editPage") {
             let activeEditPage = $("#settingsPage #editPage #editName").text();
             if(activeEditPage.includes("Account")) {
                 this.startMyAccount();
@@ -651,7 +651,9 @@ class Settings extends Page {
 
                     <button id="button_sendInvite" class="sw_button" disabled>Add Athlete</button>
                 </div>
-                <br><hr>
+                <br>
+                <button id="importRoster" class="sw_button">Import Roster</button>
+                <br><br><hr>
                 
                 <div id="kickWrapper"></div>
                 <br><br>
@@ -962,6 +964,11 @@ class Settings extends Page {
             let gender = $("#settingsPage #addWrapper #input_athleteGender").val();
             let invitedEmail = $("#settingsPage #addWrapper #input_athleteEmail").val();
             ToolboxBackend.createAthleteWithFeedback(fname, lname, gender, invitedEmail);
+        });
+        
+        // IMPORT ROSTER
+        $(`${this.inputDivIdentifier} #importRoster`).click((e) => {
+            Popup.createImportPopup();
         });
         
         // KICK ATHLETE

@@ -23,7 +23,7 @@
     clear: both;
 }
 
-#teamPage #invite_athletes {
+#teamPage #invite_athletes, #teamPage #import_roster {
     padding: 5px;
     background-color: var(--add-button-color);
 }

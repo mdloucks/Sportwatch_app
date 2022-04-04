@@ -176,6 +176,15 @@
     background-color: var(--disabled-button-color);
 }
 
+#settingsPage #importRoster {
+    margin-top: 3vh;
+    padding: 10px;
+    font-size: 2em;
+    background-color: var(--add-button-color);
+    border: 1px solid black;
+    border-radius: 5px;
+}
+
 #settingsPage form > .generated_button { /* Remove athlete button */
     background-color: var(--sw-main-color);
 }

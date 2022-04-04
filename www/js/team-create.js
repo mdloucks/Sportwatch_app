@@ -132,8 +132,10 @@ class CreateTeam extends Page {
                     <button id="button_sendInvite" class="sw_button">Add Athlete</button>
                 </div>
                 
+                <button id="button_addAthleteRoster" class="sw_button">Import Roster</button><br><br><br>
+                
                 <!-- Progression Buttons -->
-                <button id="inviteBack" class="button_progression button_back"></button>
+                <button id="inviteBack" class="button_progression button_back"></button><br>
                 <br><br><br><br><br><br>
             </div>
         `);
@@ -578,7 +580,11 @@ class CreateTeam extends Page {
             }
             ToolboxBackend.createAthleteWithFeedback(fname, lname, gender, invitedEmail);
             this.getPageElement("#button_sendInvite").prop("disabled", true);
-        })
+        });
+        
+        this.getPageElement("#button_addAthleteRoster").click((e) => {
+            Popup.createImportPopup();
+        });
 
     }
 
