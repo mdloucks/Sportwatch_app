@@ -104,7 +104,7 @@ Constant.longClickMinimumDuration = 1000;
 Constant.stopwatchSelectEventColumnCount = 3;
 
 // the amount of time we wait before invalidating localstorage and restarting
-Constant.minimumStallDuration = 8000;
+Constant.minimumStallDuration = 20000;
 
 // database queries
 
@@ -255,6 +255,9 @@ Constant.eventColorConditionalAttributes = {
         "60m hurdle": {
             class: "generated_button hurdle_event"
         },
+        "200m hurdle": {
+            class: "generated_button hurdle_event"
+        },
         "300m hurdle": {
             class: "generated_button hurdle_event"
         },
@@ -265,6 +268,9 @@ Constant.eventColorConditionalAttributes = {
             class: "generated_button hurdle_event"
         },
         "4x100m relay": {
+            class: "generated_button sprint_event"
+        },
+        "4x200m relay": {
             class: "generated_button sprint_event"
         },
         "4x400m relay": {
@@ -334,6 +340,9 @@ Constant.recordIdentityInfo = {
     "110m hurdle": {
         "distance": 110
     },
+    "200m hurdle": {
+        "distance": 200
+    },
     "300m hurdle": {
         "distance": 300
     },
@@ -342,6 +351,9 @@ Constant.recordIdentityInfo = {
     },
     "4x100m relay": {
         "distance": 400
+    },
+    "4x200m relay": {
+        "distance": 800
     },
     "4x400m relay": {
         "distance": 1600

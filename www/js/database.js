@@ -43,7 +43,9 @@ let json = {
         ["meter", "other"],
         ["foot", "other"],
         ["yard", "other"],
-        ["second", "3200m"]
+        ["second", "3200m"],
+        ["second", "200m hurdle"],
+        ["second", "4x200m relay"]
     ] // Make sure to ADD the relevant information to Constant.recordIdentityInfo!!!
     
     // "offline_record": [
