@@ -223,7 +223,7 @@ class ToolboxBackend {
         return $.ajax({
             type: "POST",
             url: Constant.getToolboxURL() + "?intent=0",
-            timeout: Constant.AJAX_CFG.timeout,
+            timeout: Constant.AJAX_CFG.timeout * 3, // Added for bigger teams
             data: postArray,
             success: (response) => {
                 if (DO_LOG) {
@@ -290,6 +290,7 @@ class ToolboxBackend {
             error: (error) => {
                 if (DO_LOG) {
                     console.log("[toolbox-backend.js:insertBackendTable()] " + error);
+                    console.log(error);
                 }
                 return false; // TODO: Change this to a resolved promise or something
             }
