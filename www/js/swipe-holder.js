@@ -1,3 +1,6 @@
+let evaluateSwipes = true; // Can be set to false if panning is needed on a page element
+
+
 /**
  * This class should be used in a static context to retrieve touch
  * information, particularly concerning swipes / gestures
@@ -85,7 +88,11 @@ class SwipeHolder {
 
         // START TOUCH
         $(elementId).bind("touchstart", function (e) {
-
+            
+            if(!evaluateSwipes) {
+                return;
+            }
+            
             _this.longClickTimeoutObject = setTimeout(_this.longClickCallback.bind(_this, e.target), Constant.longClickMinimumDuration);
 
             // Now, add to the arrays for each touch
@@ -101,7 +108,11 @@ class SwipeHolder {
         });
         // MOVING TOUCH
         $(elementId).bind("touchmove", (e) => {
-
+            
+            if(!evaluateSwipes) {
+                return;
+            }
+            
             //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
             // The problem is that you are able to move the screen arbitrarily along both axis via scrolling or
             // the MOVE enum entry.
@@ -133,6 +144,11 @@ class SwipeHolder {
         });
         // END TOUCH
         $(elementId).bind("touchend", (e) => {
+            
+            if(!evaluateSwipes) {
+                return;
+            }
+            
             /**
              * Matt comment
              * 
