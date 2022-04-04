@@ -132,6 +132,7 @@ li span {
 
 #importRosterPopup #csvUpload {
     padding: 15px;
+    width: 65vw;
     font-size: 1.5em;
 }
 
