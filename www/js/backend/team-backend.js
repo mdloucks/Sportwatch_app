@@ -372,7 +372,7 @@ class TeamBackend {
         return $.ajax({
             type: "POST",
             url: Constant.getTeamActionURL() + "?intent=5",
-            timeout: Constant.AJAX_CFG.timeout,
+            timeout: Constant.AJAX_CFG.timeout * 2,
             data: requestArray,
             success: (response) => {
                 // The current email agent prepends a hyphen (not sure why)
