@@ -223,7 +223,7 @@ https://css-tricks.com/places-its-tempting-to-use-display-none-but-dont/ */
 
 /* CSS FOR GENERATED BUTTONS */
 .generated_button {
-    font-family: Impact, Haettenschweiler, 'Arial Narrow Bold', sans-serif;
+    font-family: Haettenschweiler, 'Arial Narrow Bold', sans-serif;
     font-size: 2.5vh;
     font-weight: bold;
     text-align: center;
