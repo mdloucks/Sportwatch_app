@@ -19,7 +19,32 @@ class ToolboxBackend {
         let recordSync = $.Deferred();
         let returnPromise = $.Deferred();
         
+        let appData = $.Deferred();
+        
         // -- Execute backend calls -- //
+        
+        // appData.promise().then(() => {
+        //     this.getBootPayload().then((success) => {
+        //         console.log("Did succeed: " + JSON.stringify(success));
+        //         if(success) {
+        //             localPlanData.resolve();
+        //         } else {
+        //             returnPromise.resolve();
+        //         }
+        //     });
+        // });
+        this.getBootPayload(appData);
+        appData.promise().then((success) => {
+            console.log("Did succeed: " + JSON.stringify(success));
+            if(success) {
+                localPlanData.resolve();
+            } else {
+                returnPromise.resolve();
+            }
+        });
+        
+        
+        
         
         // User local storage
         localAccountData.promise().then(() => {
@@ -88,11 +113,12 @@ class ToolboxBackend {
                 });
             })
             .then(() => {
-                if (storage.getItem("id_team") != null) {
-                    localTeamData.resolve();
-                } else {
-                    returnPromise.resolve();
-                }
+                returnPromise.resolve();
+                // if (storage.getItem("id_team") != null) {
+                //     localTeamData.resolve();
+                // } else {
+                //     returnPromise.resolve();
+                // }
             });
         });
         
@@ -190,8 +216,135 @@ class ToolboxBackend {
         });
         
         // Start promise chain here
-        localAccountData.resolve();
+        // localAccountData.resolve();
+        // appData.resolve();
         return returnPromise.promise();
+    }
+    
+    static getBootPayload(finishPromise) {
+        
+        // Prepare the array
+        let postArray = {};
+        postArray.SID = window.localStorage.getItem("SID");
+        postArray.email = window.localStorage.getItem("email");
+        
+        // Make the backend request
+        return $.ajax({
+            type: "POST",
+            url: Constant.getToolboxURL() + "?intent=3",
+            timeout: Constant.AJAX_CFG.timeout * 3, // Added for bigger teams
+            data: postArray,
+            success: (response) => {
+                if (DO_LOG) {
+                    console.log("[toolbox-backend.js:getBootPayload()]");
+                    console.log(response);
+                }
+                try {
+                    response = JSON.parse(response);
+                } catch (e) {
+                    // Couldn't parse, so we can't initialize
+                    if (DO_LOG) {
+                        console.log("[toolbox-backend.js:getBootPayload()] UNABLE TO PARSE BOOT PAYLOAD: " + e);
+                        finishPromise.resolve(false);
+                        return false; // TODO: Change this to a resolved promise or something
+                    }
+                }
+                // Don't continue if there was an error
+                if (response.status <= 0) {
+                    console.log("[toolbox-backend.js:getBootPayload()] UNABLE TO FETCH BOOT PAYLOAD (" + response.msg + ")");
+                    finishPromise.resolve(false);
+                    return false; // TODO: Change this to a resolved promise or something
+                }
+                
+                // -- LOCAL STORAGE VALUES -- //
+                let storage = window.localStorage;
+                storage.setItem("id_user", response.user.id_user);
+                if(response.user.id_team > 0) {
+                    storage.setItem("id_team", response.user.id_team);
+                    storage.setItem("user", response.user);
+                    
+                    storage.setItem("teamName", response.team.teamName);
+                    storage.setItem("school", response.team.schoolName);
+                    storage.setItem("id_school", response.team.id_school);
+                    storage.setItem("id_coachPrimary", response.team.id_coachPrimary);
+                    storage.setItem("id_coachSecondary", response.team.id_coachSecondary);
+                    storage.setItem("inviteCode", response.team.inviteCode);
+                } else {
+                    storage.removeItem("id_team");
+                    storage.removeItem("teamName");
+                    storage.removeItem("school");
+                    storage.removeItem("id_school");
+                    storage.removeItem("id_coachPrimary");
+                    storage.removeItem("id_coachSecondary");
+                    storage.removeItem("inviteCode");
+                    
+                    finishPromise.resolve(true);
+                    return true; // Prevent team pull from happening below if no team exists
+                }
+                
+                
+                // -- INSERT INTO FRONTEND DATABASE -- //
+                let insertObj = { };
+                // User & Athletes
+                for(let a = 0; a < response.team.athletes.length; a++) {
+                    insertObj = { };
+                    insertObj.id_backend = response.team.athletes[a].id_user;
+                    insertObj.fname = response.team.athletes[a].fname;
+                    insertObj.lname = response.team.athletes[a].lname;
+                    insertObj.gender = response.team.athletes[a].gender;
+                    dbConnection.insertValuesFromObject("athlete", insertObj);
+                    
+                    // Records data
+                    let recordObj = { };
+                    let recordPayload = response.team.records["user-" + insertObj.id_backend];
+                    for(let r = 0; r < recordPayload.length; r++) {
+                        // Records
+                        recordObj = { };
+                        recordObj.id_record = recordPayload[r].id_record;
+                        recordObj.value = recordPayload[r].value;
+                        recordObj.id_record_definition = recordPayload[r].id_recordDefinition;
+                        recordObj.is_practice = recordPayload[r].isPractice;
+                        recordObj.last_updated = recordPayload[r].lastUpdated;
+                        dbConnection.insertValuesFromObject("record", recordObj);
+                        
+                        // Record-User Link
+                        recordObj = { };
+                        recordObj.id_record = recordPayload[r].id_record;
+                        recordObj.id_backend = insertObj.id_backend;
+                        dbConnection.insertValuesFromObject("record_user_link", recordObj);
+                    }
+                    
+                    // Splits data
+                    let splitObj = { };
+                    let splitPayload = response.team.splits["user-" + insertObj.id_backend];
+                    for (let s = 0; s < splitPayload.length; s++) {
+                        splitObj = { };
+                        splitObj.id_split = splitPayload[s].id_split;
+                        splitObj.id_record = splitPayload[s].id_record;
+                        splitObj.value = splitPayload[s].value;
+                        splitObj.split_name = splitPayload[s].name;
+                        splitObj.split_index = splitPayload[s].splitIndex;
+                        splitObj.last_updated = splitPayload[s].lastUpdated;
+                        dbConnection.insertValuesFromObject("record_split", splitObj);
+                    }
+                }
+                
+                // insertObj.fname = response.user.fname;
+                // insertObj.lname = response.user.lname;
+                // insertObj.gender = response
+                // dbConnection.insertValuesFromObject("athlete", response.user);
+                finishPromise.resolve(true);
+                return true;
+            },
+            error: (error) => {
+                if (DO_LOG) {
+                    console.log("[toolbox-backend.js:getBootPayload()] " + error);
+                    console.log(error);
+                }
+                finishPromise.resolve(false);
+                return false; // TODO: Change this to a resolved promise or something
+            }
+        });
     }
     
     /**
