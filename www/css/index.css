@@ -87,6 +87,7 @@ select {
     --main-color-pressed: #bb1111;
     --page-back-button-color: lightgray;
     --add-button-color: rgb(64, 202, 0); /* Hex: #40CA00 */
+    --delete-button-color: red;
     
     --male-color: #6abce1;
     --female-color: #fc99b6;
