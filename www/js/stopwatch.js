@@ -1015,7 +1015,9 @@ class Stopwatch extends Page {
      * @param {Object} eventConfig the configuration of the event(s) that are being run
      */
     generateAthletes(eventConfig) {
-
+        
+        let banner = new LiveSplitBanner();
+        
         // query for athletes with saved records which orders them by value
         let savedRecordsQuery = (`
             SELECT fname, lname, athlete.id_backend, gender, athlete.rowid from athlete
@@ -1111,7 +1113,7 @@ class Stopwatch extends Page {
                         buttonBoxSelector = ".button_box";
                     }
 
-                    console.log("SPLIT BOX SELECTOR IS " + buttonBoxSelector);
+                    // console.log("SPLIT BOX SELECTOR IS " + buttonBoxSelector);
 
                     // populate the athletes and set the callback on click
                     ButtonGenerator.generateButtonsFromDatabase(`${this.landingPageSelector} #slideup_content ${buttonBoxSelector}`, athletes, (athlete) => {
@@ -1162,6 +1164,37 @@ class Stopwatch extends Page {
                             }
 
                             $(`${this.landingPageSelector} ${buttonBoxSelector}`).remove();
+                        }
+                        
+                        // TODO: Ask a coach if he wants real time splits for finishing time?
+                        /* TODO: Make it easier to get athlete information, either
+                                 via a "Team Manager" that holds all athlete info
+                                 "at the ready" or via an Athlete object that is initialized
+                                 and can be used. Using promises makes things klunky and
+                                 nested
+                        */
+                        console.log(eventConfig);
+                        
+                        // Real-time split difference
+                        if ((Object.keys(eventConfig.splitTimes).length > 0) && (eventConfig.selectedSplitName != "Finish")) {
+                            // Get athlete's previous split performance
+                            let athleteId = athlete.id_backend;
+                            // console.log(athleteId);
+                            let splitData = eventConfig.splitTimes;
+                            // Object:  <eventId>: [<id_backend>: [4.5, 6.7, 9.1]]
+                            // console.log(splitData);
+                            let eventId = Object.keys(splitData)[0];
+                            // console.log(eventId);
+
+                            // See if this athlete has previous times for the split
+                            // console.log(splitData[eventId]);
+                            let athleteTimes = splitData[eventId][athleteId];
+                            console.log(athleteTimes);
+                            if (athleteTimes.length > 1) {
+                                let split = (athleteTimes[athleteTimes.length - 1] - athleteTimes[athleteTimes.length - 2]);
+                                console.log(split);
+                                banner.addData(athlete.fname, split, 4.00, 8.00);
+                            }
                         }
 
 

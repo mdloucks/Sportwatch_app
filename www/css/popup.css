@@ -124,6 +124,19 @@ li span {
     font-size: 2em;
 }
 
+.popupBanner {
+    margin: 5px;
+    z-index: 8;
+    position: relative;
+    top: -60px; /* Filler value; calculated dynamically based on height */
+    
+    background-color: white;
+    border: 3px solid black;
+    border-radius: 10px;
+    
+    /* transition: 1s top; */
+}
+
 /* Popup - Import Roster */
 
 #importRosterPopup h1.subheading_text {
