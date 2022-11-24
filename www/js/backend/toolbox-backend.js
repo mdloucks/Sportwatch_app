@@ -285,6 +285,17 @@ class ToolboxBackend {
                 
                 // -- INSERT INTO FRONTEND DATABASE -- //
                 let insertObj = { };
+                // Record Definitions
+                Constant.recordIdentityInfo = { };
+                for (let d = 0; d < response.recordDefinition.length; d++) {
+                    insertObj = { };
+                    insertObj.unit = response.recordDefinition[d].unit;
+                    insertObj.record_identity = response.recordDefinition[d].recordIdentity;
+                    dbConnection.insertValuesFromObject("record_definition", insertObj);
+                    
+                    Constant.recordIdentityInfo[insertObj.record_identity] = {"distance": response.recordDefinition[d].distance};
+                }
+                
                 // User & Athletes
                 for(let a = 0; a < response.team.athletes.length; a++) {
                     insertObj = { };
@@ -301,7 +312,7 @@ class ToolboxBackend {
                         // Records
                         recordObj = { };
                         recordObj.id_record = recordPayload[r].id_record;
-                        recordObj.value = recordPayload[r].value;
+                        recordObj.value = Number(recordPayload[r].value);
                         recordObj.id_record_definition = recordPayload[r].id_recordDefinition;
                         recordObj.is_practice = recordPayload[r].isPractice;
                         recordObj.last_updated = recordPayload[r].lastUpdated;
