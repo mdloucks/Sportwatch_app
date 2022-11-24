@@ -137,7 +137,7 @@ class DatabaseConnection {
             }
         });
 
-        this.insertDatabasePresetValues();
+        // this.insertDatabasePresetValues(); // Moved to backend sync
     }
 
 
