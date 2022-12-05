@@ -334,6 +334,10 @@ class ToolboxBackend {
                         splitObj.id_record = splitPayload[s].id_record;
                         splitObj.value = splitPayload[s].value;
                         splitObj.split_name = splitPayload[s].name;
+                        // Older versions stored just the distance as the name; manually add the words here if applicable
+                        if (!isNaN(Number(splitObj.split_name))) {
+                            splitObj.split_name = splitObj.split_name + "m Split";
+                        }
                         splitObj.split_index = splitPayload[s].splitIndex;
                         splitObj.last_updated = splitPayload[s].lastUpdated;
                         dbConnection.insertValuesFromObject("record_split", splitObj);

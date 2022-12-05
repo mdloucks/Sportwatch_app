@@ -181,6 +181,10 @@
     padding: 0;
 }
 
+#stopwatchPage .slideup_top_bar.change_saved_event td.selected_button {
+    font-weight: bold;
+}
+
 #stopwatchPage .slideup_top_bar.change_saved_event td.selected_event {
     background-color: gold;
     font-weight: bold;
