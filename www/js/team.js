@@ -424,7 +424,8 @@ class Team extends Page {
                         if (splitObject[splitKey] === undefined) {
                             splitObject[splitKey] = {
                                 data: [],
-                                label: splitKey + " Meter Split"
+                                label: splitKey
+                                // label: splitKey + " Meter Split"
                             };
                         }
 
@@ -611,7 +612,7 @@ class Team extends Page {
                 if(splits.item(s).id_record == results.item(i).id_record) {
                     let splitRow = (`
                         <tr class="splitRow" id_record="${splits.item(s).id_record}" id_split="${splits.item(s).id_split}" split_name="${splits.item(s).split_name}">
-                            <td>${splits.item(s).split_name}m Split</td>
+                            <td>${splits.item(s).split_name}</td>
                             <td>${Clock.secondsToTimeString(splits.item(s).value)}</td>
                         </tr>
                     `);

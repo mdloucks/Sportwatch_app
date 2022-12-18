@@ -137,7 +137,7 @@ class DatabaseConnection {
             }
         });
 
-        this.insertDatabasePresetValues();
+        // this.insertDatabasePresetValues(); // Moved to backend sync
     }
 
 
@@ -394,6 +394,7 @@ class DatabaseConnection {
             }
         }, function (error) {
             console.log("[database.js]: " + JSON.stringify(error));
+            console.log(JSON.stringify(values));
         }, function () {});
     }
 

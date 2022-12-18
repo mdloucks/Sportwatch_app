@@ -1,0 +1,55 @@
+
+#liveSplitBanner {
+    font-size: 16px;
+    font-family: 'Poppins', sans-serif;
+}
+
+/* Table setup and styling */
+#liveSplitBanner table {
+    display: block;
+    width: 100%;
+    
+    border-spacing: 0;
+}
+#liveSplitBanner table tbody {
+    display: table;
+    width: 100%;
+}
+
+#liveSplitBanner table th, #liveSplitBanner table td {
+    text-align: center;
+}
+#liveSplitBanner table th:nth-child(1), #liveSplitBanner table td:nth-child(1) {
+    text-align: left;
+    padding-left: 2%;
+}
+
+#liveSplitBanner table th {
+    background-color: black;
+    color: white;
+}
+#liveSplitBanner table td {
+    font-weight: 700;
+}
+
+/* Column widths */
+#liveSplitBanner table th {
+    width: 20%;
+}
+#liveSplitBanner table th:nth-child(1) {
+    width: 40%;
+}
+
+/* Time colors */
+#liveSplitBanner table td.positiveSplit {
+    color: var(--delete-button-color);
+}
+
+#liveSplitBanner table td.negativeSplit { /* less time is good :) */
+    color: var(--add-button-color);
+}
+
+
+
+
+
