@@ -1180,7 +1180,7 @@ class Stopwatch extends Page {
                     ButtonGenerator.generateButtonsFromDatabase(`${this.landingPageSelector} #slideup_content ${buttonBoxSelector}`, athletes, (athlete) => {
 
                         navigator.vibrate(25);
-
+                        
                         // console.log($(`${this.landingPageSelector} #slideup_content ${buttonBoxSelector}`).html());
                         // console.log($(`${this.landingPageSelector} #slideup_content ${buttonBoxSelector}`).parent().html());
                         
@@ -1193,6 +1193,12 @@ class Stopwatch extends Page {
                         } else if (eventConfig.hasSplits()) {
                             eventConfig.saveSplitTime(athlete.id_backend, this.clock.seconds);
                             
+                            
+                            // To display the banner, we need the distance of the split
+                            // This data is stored, but it isn't identified in the saveSplitTime() function
+                            // We can get it by getting the number of splits for the athlete and matching
+                            // it with the configured splits
+                            banner.addData(athlete.id_backend, eventConfig);
                             
                             // let currentEventRowId = eventConfig.selectedEvent;
                             

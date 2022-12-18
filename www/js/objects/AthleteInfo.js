@@ -1,6 +1,8 @@
 
 /**
- * @classdesc 
+ * @classdesc An object representation of an athlete. This class will be used
+ * to quickly grab information about a given athlete (ex. average value for an event)
+ * instead of needing to do a database promise.
  * @class
  */
 class AthleteInfo {
