@@ -332,7 +332,7 @@ class ToolboxBackend {
                         splitObj = { };
                         splitObj.id_split = splitPayload[s].id_split;
                         splitObj.id_record = splitPayload[s].id_record;
-                        splitObj.value = splitPayload[s].value;
+                        splitObj.value = Number(splitPayload[s].value);
                         splitObj.split_name = splitPayload[s].name;
                         // Older versions stored just the distance as the name; manually add the words here if applicable
                         if (!isNaN(Number(splitObj.split_name))) {

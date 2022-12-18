@@ -747,7 +747,7 @@ class EventConfig {
         }
 
         // Set the index
-        this.activeSelectionIndex = index;
+        this.activeSelectionIndex = Number(index);
     }
     getActiveSelectionIndex() {
         return this.activeSelectionIndex;
