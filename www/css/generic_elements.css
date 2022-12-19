@@ -46,6 +46,7 @@ This is to limit the file size for our page specific styles
     height: 40px;
     font-size: 1.8em;
     border: 2px solid var(--sw-main-color);
+    border-radius: 5px;
     -webkit-appearance: none;
 }
 
