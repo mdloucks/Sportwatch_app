@@ -211,17 +211,40 @@ class Stopwatch extends Page {
                 this.clock.minutes = Math.floor(this.clock.seconds / 60);
                 this.clock.hours = Math.floor(this.clock.seconds / 3600);
             }
-            let timeDisplay = (Math.round((this.clock.seconds % 60) * 100)) / 100; // Report to 3 decimal places
-            timeDisplay = timeDisplay.toString();
-            if(this.clock.minutes > 0) {
-                timeDisplay = this.clock.minutes + ":" + timeDisplay;
+            
+            // Format the time so it looks pretty to the user
+            let hours = this.clock.hours;
+            let minutes = this.clock.minutes - (hours * 60);
+            let seconds = Math.floor(this.clock.seconds - (minutes * 60) - (hours * 3600));
+            let decimals = Math.round((this.clock.seconds - Math.floor(this.clock.seconds)) * 100);
+            
+            // Make into an array so we can loop to make them two digits long
+            let values = [hours.toString(), minutes.toString(), seconds.toString(), decimals.toString()];
+            for (let l = 0; l < values.length; l++) {
+                if (values[l].length < 2) {
+                    values[l] = "0" + values[l];
+                }
             }
-            if(this.clock.hours > 0) {
-                timeDisplay = this.clock.hours + ":" + timeDisplay;
-            }
-            // Add trailing 00's if they're missing
-            if(!timeDisplay.includes(".")) {
-                timeDisplay = timeDisplay + ".00";
+            
+            // Combine all of the values, then remove any leading zeros or symbols
+            let timeDisplay = values[0] + ":" + values[1] + ":" + values[2] + "." + values[3];
+            if (this.clock.seconds > 0) {
+                
+                let maxLength = timeDisplay.length; // "Save" the length so it doesn't change during the loop
+                for (let z = 0; z < maxLength; z++) {
+                    if ((timeDisplay[0] == "0") || (timeDisplay[0] == ":")) {
+                        timeDisplay = timeDisplay.slice(1);
+                    } else {
+                        break;
+                    }
+                }
+                if (this.clock.seconds < 1) { // If less than a second, re-add first zero for seconds
+                    timeDisplay = "0" + timeDisplay;
+                }
+                
+                
+            } else if (this.clock.seconds == 0) {
+                timeDisplay = "0.00";
             }
             $("#stopwatch_time").text(timeDisplay);
             
