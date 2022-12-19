@@ -79,6 +79,7 @@ class Settings extends Page {
 
         // each setting category will have its own function to call to specify what happens
         this.accountButtons = {
+            "Stopwatch Settings": this.startStopwatchSettings,
             "My Account": this.startMyAccount,
             "Team Preferences": this.startTeamPreferences,
             // "Notifications": this.startNotifications,
@@ -107,7 +108,9 @@ class Settings extends Page {
         // Start the currently selected page in case it isn't the landing page
         if(this.pageTransition.getCurrentPage() == "editPage") {
             let activeEditPage = $("#settingsPage #editPage #editName").text();
-            if(activeEditPage.includes("Account")) {
+            if(activeEditPage.includes("Stopwatch")) {
+                this.startStopwatchSettings();
+            } else if(activeEditPage.includes("Account")) {
                 this.startMyAccount();
             } else if(activeEditPage.includes("Team")) {
                 this.startTeamPreferences();
@@ -193,7 +196,37 @@ class Settings extends Page {
     }
 
     // ---- PAGE START METHODS ---- //
-
+    
+    startStopwatchSettings() {
+        this.setupSettingsPage("Stopwatch Settings");
+        
+        // TODO: Save these settings to the user account and pull them on each app startup
+        
+        let baseContent = (`
+            <h1 id="h1_liveSplitBanner" class="subheading_text">Live Split Banner</h1>
+            <div id="comparisonMethodWrapper">
+                <p style="font-weight: unset">Historic Comparison Method:</p>
+                <!-- Dropdown added here programmatically -->
+            </div>
+        `);
+        $(this.inputDivIdentifier).append(baseContent);
+        
+        // Add the dynamic elements now
+        let storage = window.localStorage;
+        ValueEditor.createDropdown(this.inputDivIdentifier + " #comparisonMethodWrapper", "compareMethod",
+            ["Mean (Average)", "Median"], ["avg", "med"], storage.getItem("splitComparisonMethod"));
+        
+        $(this.inputDivIdentifier + " #compareMethod").change((e) => {
+            let comparisonMethod = $("#compareMethod").val();
+            storage.setItem("splitComparisonMethod", comparisonMethod);
+        });
+        
+        this.pageTransition.slideLeft("editPage");
+        let headerHeight = $("#settingsPage #editPage > .generic_header").height();
+        $("#settingsPage #editPage > *:not(.generic_header)").first().css("margin-top", `calc(${headerHeight}px + 7vh)`);
+    }
+    
+    
     startMyAccount() {
         this.setupSettingsPage("My Account");
 

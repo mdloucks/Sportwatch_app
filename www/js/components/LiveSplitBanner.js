@@ -82,14 +82,29 @@ class LiveSplitBanner {
             
             // Create a label with first name initial and last name (ex. "S. Byrne")
             let athleteLabel = splitData[0].fname[0] + ". " + splitData[0].lname;
-            let historicComparison = 0.00; // Either the mean or average of this athlete's splits
             
-            for (let s = 0; s < splitData.length; s++) {
-                // TODO: Add support for median usage instead of just the mean
-                historicComparison = historicComparison + splitData[s].value;
+            // Find the historic value of the split for this athlete
+            let historicComparison = 0.00; // Either the mean or average of this athlete's splits
+            if (window.localStorage.getItem("splitComparisonMethod") == "med") {
+                // Median
+                let valuesArray = []; // "ORDER BY value" doesn't parse decimals properly; do it manually here
+                for (let s = 0; s < splitData.length; s++) {
+                    valuesArray.push(splitData[s].value);
+                }
+                valuesArray = valuesArray.sort(function(a, b) { return a - b }); // Function that handles numbers correctly (W3 schools)
+                historicComparison = valuesArray[Math.round(valuesArray.length / 2) - 1]; // -1 for array conversion
+                // Technically, the median takes the of the two middle when there are an even
+                // number of data points. However, given that this is just a quick preview, I don't
+                // see the need for that accuracy here
+            } else {
+                // Mean (Average)
+                for (let s = 0; s < splitData.length; s++) {
+                    historicComparison = historicComparison + splitData[s].value;
+                }
+                historicComparison = historicComparison / splitData.length;
             }
-            historicComparison = historicComparison / splitData.length;
-            historicComparison = currentSplit - historicComparison; // Need the non-relative currentSplit here
+            // Then calculate the different (Need the non-relative currentSplit here)
+            historicComparison = currentSplit - historicComparison;
             
             // Make current split and last split relative now (only if splitCount is large enough)
             if (splitCount >= 1) {

@@ -281,6 +281,8 @@ class ToolboxBackend {
                     finishPromise.resolve(true);
                     return true; // Prevent team pull from happening below if no team exists
                 }
+                storage.setItem("splitComparisonMethod", "avg"); // "avg" = Average or "med" = Median
+                // TODO: Save this via the backend and pull with user account info
                 
                 
                 // -- INSERT INTO FRONTEND DATABASE -- //
