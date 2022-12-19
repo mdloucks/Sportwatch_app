@@ -536,6 +536,9 @@ class EventConfig {
      * Wrapper for getSelectedObjectNames(). See that function for full details
      */
     getSelectedSplitNames() {
+        if (!this.hasSplits()) { // Prevents it from returning an event (active object)
+            return [];
+        }
         return this.getSelectedObjectNames();
     }
     
