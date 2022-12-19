@@ -1238,56 +1238,23 @@ class Stopwatch extends Page {
                             //     eventConfig["splitTimes"][currentEventRowId][athlete.id_backend][Number(eventConfig.selectedSplit) - 1] = this.clock.seconds
                             // }
                         }
-
-                        let nAthletesRemaining = $(`${this.landingPageSelector} #slideup_content ${buttonBoxSelector} > button`).length - 1;
                         
                         // Delete the specific button we are looking for
                         $(`${this.landingPageSelector} #slideup_content ${buttonBoxSelector} #${athlete.id}`).remove();
-
-                        // no more athletes in the current box, remove it
+                        
+                        // If a split has been saved for all the athletes, remove that split marker
+                        let nAthletesRemaining = $(`${this.landingPageSelector} #slideup_content ${buttonBoxSelector} > button`).length;
                         if (nAthletesRemaining == 0) {
-                            this.selectedRecordDefinitionId = null;
-                            this.selectedRecordDefinitionGender = null;
-
                             if (eventConfig.hasSplits()) {
-                                $(`${this.landingPageSelector} #slideup_content .selected_split`).remove();
+                                $(`${this.landingPageSelector} #slideup_content .selected_button`).remove();
                                 $(`${this.landingPageSelector} .slideup_top_bar.change_saved_split tr:first-child td:first-child`).trigger("click");
                             }
 
                             $(`${this.landingPageSelector} ${buttonBoxSelector}`).remove();
                         }
                         
-                        // TODO: Ask a coach if he wants real time splits for finishing time?
-                        /* TODO: Make it easier to get athlete information, either
-                                 via a "Team Manager" that holds all athlete info
-                                 "at the ready" or via an Athlete object that is initialized
-                                 and can be used. Using promises makes things klunky and
-                                 nested
-                        */
                         
-                        // Real-time split difference
-                        // if ((Object.keys(eventConfig.splitTimes).length > 0) && (eventConfig.selectedSplitName != "Finish")) {
-                        //     // Get athlete's previous split performance
-                        //     let athleteId = athlete.id_backend;
-                        //     // console.log(athleteId);
-                        //     let splitData = eventConfig.splitTimes;
-                        //     // Object:  <eventId>: [<id_backend>: [4.5, 6.7, 9.1]]
-                        //     // console.log(splitData);
-                        //     let eventId = Object.keys(splitData)[0];
-                        //     // console.log(eventId);
-
-                        //     // See if this athlete has previous times for the split
-                        //     // console.log(splitData[eventId]);
-                        //     let athleteTimes = splitData[eventId][athleteId];
-                        //     console.log(athleteTimes);
-                        //     if (athleteTimes.length > 1) {
-                        //         let split = (athleteTimes[athleteTimes.length - 1] - athleteTimes[athleteTimes.length - 2]);
-                        //         console.log(split);
-                        //         banner.addData(athlete.fname, split, 4.00, 8.00);
-                        //     }
-                        // }
-
-
+                        // If all of the splits have been used, reset the stopwatch - we're done!
                         let nButtonBoxesRemaining = $(`${this.landingPageSelector} #slideup_content > .button_box`).length;
 
                         // no more button boxes remaining, clear the clock and reset
