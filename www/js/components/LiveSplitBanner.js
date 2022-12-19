@@ -29,7 +29,7 @@ class LiveSplitBanner {
                     <tr>
                         <th>Name</th>
                         <th>Split</th>
-                        <th>Current</th>
+                        <th>Last</th>
                         <th>Historic</th>
                     </tr>
                     <!-- Split rows will be added here -->
@@ -104,6 +104,9 @@ class LiveSplitBanner {
             
             // Add it to the banner
             this.addDataVerbose(athleteLabel, currentSplit, lastSplit, historicComparison);
+            
+        }).catch((err) => {
+            // Do nothing; the athlete doesn't have a matching split for this event
         });
         
     }
@@ -150,18 +153,16 @@ class LiveSplitBanner {
      */
     displayDataOnPopup(name, split, lastSplit, historicSplit, doAnimateIn = true) {
         
-        // Assimilate into an array to make it loop-able
-        let data = [split, lastSplit, historicSplit];
-        
-        // Round the numerical values to two decimal points
-        for (let d = 0; d < data.length; d++) {
-            data[d] = this.roundToHundredths(data[d]);
-        }
-        // Add in name to data so it can be added in the loop
-        data.unshift(name);
+        // Assimilate into an array to make it loop-able below
+        let data = [name, split, lastSplit, historicSplit];
         
         // Create a unique ID for the row; add random number for increased randomness
-        let id = name.toLowerCase().replace(/[^a-z]/gm, "") + "-" + (Math.round(Math.random() * 100));
+        let randomId = (Math.round(Math.random() * 100));
+        let id = name.toLowerCase().replace(/[^a-z]/gm, "") + "-" + randomId;
+        if ($("#liveSplitBanner tr#" + id).length != 0) {
+            randomId = randomId + 100; // Increment outside of normal random range (0-100)
+            id = name.toLowerCase().replace(/[^a-z]/gm, "") + "-" + randomId;
+        }
         
         // Add the row (make the display none if it needs to be animated)
         if (doAnimateIn) {
@@ -173,17 +174,24 @@ class LiveSplitBanner {
         // Add the necessary table elements
         for (let t = 0; t < data.length; t++) {
             let rowClass = "";
+            let dataPrefix = ""; // "+" or "-" for better readability; difference comparison
+            
             if (t > 1) { // Ignore name and split data
                 if (data[t] > 0) {
                     rowClass = "positiveSplit";
-                    data[t] = "+" + data[t]; // Add plus sign for increased readability
+                    dataPrefix = "+"; // Add plus sign for increased readability
                 } else if (data[t] < 0) {
                     rowClass = "negativeSplit";
+                    dataPrefix = "-";
                 } else if ((data[t] == 0) && (t == 2)) { // Index of last split, which is blank for first split save
                     data[t] = "--";
                 }
             }
             
+            // Format the numbers before adding
+            if (typeof data[t] == "number") {
+                data[t] = dataPrefix + this.formatTime(data[t]);
+            }
             $("#liveSplitBanner tr#" + id).append(`<td class="${rowClass}">${data[t]}</td>`);
         }
         
@@ -270,6 +278,85 @@ class LiveSplitBanner {
      */
     getOffscreenPosition() {
         return (-1 * $("#liveSplitBanner").outerHeight(true)); // "true" includes margins
+    }
+    
+    
+    /**
+     * Converts the total number of seconds (given by the stopwatch) into an easy-to-read
+     * format of hr:mm:ss:ms. The function will also automatically show and "hide"
+     * parts of the time based on relevancy. I.e., if the time in seconds is in the hours,
+     * the seconds and milliseconds will not be given in the final string.
+     * Note: the absolute value of the time is used, so be sure to preserve the
+     * sign before passing to this function
+     * 
+     * @example formatTime(6.4)
+     *          --> "6.40"
+     * @example formatTime(67.896)
+     *          --> "1:08" (1 minute, 8 seconds)
+     * @example formatTime(5081.9994)
+     *          --> "1:25" (1 hour, 25 minutes)
+     * 
+     * @param {Double} timeInSeconds raw time given in total seconds
+     * @returns {String}
+     * A formatted and cleaned string representing the given time provided in seconds.
+     */
+    formatTime(timeInSeconds) {
+        // Make sure it isn't negative
+        timeInSeconds = Math.abs(timeInSeconds);
+        
+        // Grab each component
+        let hours = Math.floor(timeInSeconds / 3600);
+        let minutes = Math.floor((timeInSeconds - (hours * 3600)) / 60);
+        let seconds = Math.floor(timeInSeconds % 60);
+        // Subtract off all the time to get just the decimals
+        let decimalSeconds = timeInSeconds - seconds - (minutes * 60) - (hours * 3600);
+        decimalSeconds = Math.round(decimalSeconds * 100);
+        
+        
+        // Begin crafting the formatted time (string for concatenation)
+        let formattedTime = "";
+        if (hours > 0) {
+            // Only hours and minutes displayed, so round decimal and seconds up
+            if (decimalSeconds >= 50) {
+                seconds = seconds + 1;
+            }
+            decimalSeconds = "";
+            if (seconds >= 30) {
+                minutes = minutes + 1;
+            }
+            seconds = "";
+            
+            // Make sure minutes are two digits long
+            let separator = ":";
+            if (minutes < 10) {
+                separator = ":0";
+            }
+            minutes = separator + minutes;
+            
+        } else if (minutes > 0) {
+            // Only minutes and seconds displayed; remove the decimal
+            if (decimalSeconds >= 50) {
+                seconds = seconds + 1;
+            }
+            decimalSeconds = "";
+            
+            // Make sure seconds are two digits long
+            let separator = ":";
+            if (seconds < 10) {
+                separator = ":0";
+            }
+            seconds = separator + seconds;
+            
+        } else {
+            // Seconds and decimals are display; make sure decimals are two-digits long
+            let separator = ".";
+            if (decimalSeconds.toString().length < 2) {
+                separator = ".0";
+            }
+            decimalSeconds = separator + decimalSeconds;
+        }
+        
+        return hours + minutes + seconds + decimalSeconds;
     }
     
     /**
