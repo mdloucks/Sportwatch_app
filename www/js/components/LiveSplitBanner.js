@@ -203,6 +203,10 @@ class LiveSplitBanner {
         // Remove the row after the specified display time
         setTimeout(() => {
             $("tr#" + id).fadeOut(this.ANIM_TIME);
+            
+            setTimeout(() => {
+                $("tr#" + id).remove();
+            }, this.ANIM_TIME);
         }, this.DISPLAY_TIME);
     }
     
@@ -219,9 +223,6 @@ class LiveSplitBanner {
             $("#app").append(this.bannerHtml);
             $("#liveSplitBanner").css("top", this.getOffscreenPosition() + "px");
         }
-        
-        
-        // If moving, find out a way to show it once it stops moving
         
         // Move the banner into view and update status
         $("#liveSplitBanner").css("transition", (this.ANIM_TIME / 1000) + "s top");

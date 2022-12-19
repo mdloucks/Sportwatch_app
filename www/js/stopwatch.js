@@ -1358,8 +1358,6 @@ class Stopwatch extends Page {
             
             // Add the "Finish" final split box before sending to the callback
             eventConfig.addSplit(0, "Finish");
-            
-            // console.log("CONFIRM SPLITS");
             callback(eventConfig.getSelectedSplits());
         });
         
@@ -1398,7 +1396,7 @@ class Stopwatch extends Page {
                     <br>
                     <div class="input_splits_box">
                         <!-- Use type="text" to allow for proper parsing even if letters are entered -->
-                        <b>Split ${clickNumber}:</b> <input class="sw_text_input split_input" type="text" id="${inputId}">Meters</input>
+                        <b>Split ${clickNumber}:</b> <input class="sw_text_input split_input" type="text" pattern="\\d*" id="${inputId}">Meters</input>
                     </div>
                 `);
                 // TODO: Add preset splits (i.e. every mile for 3k)
@@ -1424,18 +1422,26 @@ class Stopwatch extends Page {
                         return;
                     }
                     
+                    // Prevent zero-length splits
+                    if (splitDistance == 0) {
+                        Popup.createConfirmationPopup("Splits cannot be taken at the 0m mark", ["OK"], [() => { }]);
+                        $(`#${inputId}`).val(""); // Clear input box
+                        return;
+                    }
+                    
                     // Prevent splits that are longer than max event length
                     if(eventNames[i] in Constant.recordIdentityInfo) {
                         let eventMaxDistance = Constant.recordIdentityInfo[eventNames[i]].distance;
                         if(splitDistance >= eventMaxDistance) {
                             Popup.createConfirmationPopup(`Split cannot equal or exceed event length of ${eventMaxDistance}m`, ["OK"], [() => { }]);
-                            $(`#${inputId}`).val(""); // Clear input box
+                            $(`#${inputId}`).val("");
                             return;
                         }
                     }
                     
                     // Make sure it isn't already added
-                    if((clickNumber > 1) && (eventConfig.getSelectedSplitNames().includes(splitDistance.toString()))) {
+                    let fullSplitName = splitDistance + "m Split";
+                    if((clickNumber > 1) && (eventConfig.getSelectedSplitNames().includes(fullSplitName))) {
                         Popup.createConfirmationPopup(`${splitDistance}m split has already been added`, ["OK"], [() => { }]);
                         $(`#${inputId}`).val("");
                         return;
